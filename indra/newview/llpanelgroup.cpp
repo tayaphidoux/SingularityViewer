@@ -54,6 +54,7 @@
 #include "llpanelgrouproles.h"
 #include "llpanelgroupvoting.h"
 #include "llpanelgrouplandmoney.h"
+#include "llpanelgroupexperiences.h"
 
 // static
 void* LLPanelGroupTab::createTab(void* data)
@@ -154,6 +155,8 @@ LLPanelGroup::LLPanelGroup(const LLUUID& group_id)
 												&mID);
 	mFactoryMap["land_money_tab"]= LLCallbackMap(LLPanelGroupLandMoney::createTab,
 												 &mID);
+	mFactoryMap["experiences_tab"] = LLCallbackMap(LLPanelGroupExperiences::createTab,
+												&mID);
 	// Roles sub tabs
 	mFactoryMap["members_sub_tab"] = LLCallbackMap(LLPanelGroupMembersSubTab::createTab, &mID);
 	mFactoryMap["roles_sub_tab"] = LLCallbackMap(LLPanelGroupRolesSubTab::createTab, &mID);

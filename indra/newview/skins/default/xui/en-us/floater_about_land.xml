@@ -5,7 +5,7 @@
      name="floaterland" rect_control="FloaterLandRect5" title="About Land"
      width="460">
 	<tab_container bottom="-420" enabled="true" follows="left|top|right|bottom" height="400"
-	     left="1" mouse_opaque="false" name="landtab" tab_position="top" width="459">
+	     left="1" mouse_opaque="false" name="landtab" tab_position="top" tab_width="0" width="459">
 		<panel border="true" bottom="-349" enabled="true" follows="left|top|right|bottom"
 		     height="333" label="General" left="1" mouse_opaque="true"
 		     name="land_general_panel" width="458">

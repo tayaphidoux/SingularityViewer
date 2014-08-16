@@ -34,6 +34,7 @@ struct LFIDBearer
 		AVATAR = 0,
 		GROUP,
 		OBJECT,
+		EXPERIENCE,
 		COUNT
 	};
 

@@ -34,9 +34,11 @@
 #include "llcachename.h"
 #include "llagent.h"
 #include "llavataractions.h"
+#include "llfloaterexperienceprofile.h"
 #include "llgroupactions.h"
 #include "llinventory.h"
 #include "llscrolllistitem.h"
+#include "llscrolllistcell.h"
 #include "llscrolllistcolumn.h"
 #include "llsdparam.h"
 #include "lltrans.h"
@@ -49,6 +51,7 @@ void LLNameListItem::NameTypeNames::declareValues()
 	declare("INDIVIDUAL", INDIVIDUAL);
 	declare("GROUP", GROUP);
 	declare("SPECIAL", SPECIAL);
+	declare("EXPERIENCE", EXPERIENCE);
 }
 
 LLNameListCtrl::LLNameListCtrl(const std::string& name, const LLRect& rect, BOOL allow_multiple_selection, BOOL draw_border, bool draw_heading, S32 name_column_index, const std::string& name_system, const std::string& tooltip)
@@ -134,6 +137,7 @@ BOOL LLNameListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 			{
 				case LLNameListItem::INDIVIDUAL: LLAvatarActions::showProfile(item->getValue()); break;
 				case LLNameListItem::GROUP: LLGroupActions::show(item->getValue()); break;
+				case LLNameListItem::EXPERIENCE: LLFloaterExperienceProfile::showInstance(item->getValue()); break;
 				default: return false;
 			}
 			handled = true;
@@ -159,8 +163,9 @@ LFIDBearer::Type LLNameListCtrl::getSelectedType() const
 	{
 		switch (static_cast<LLNameListItem*>(item)->getNameType())
 		{
-			CONVERT_TO_RETTYPE(case LLNameListItem::INDIVIDUAL, AVATAR);
+			CONVERT_TO_RETTYPE(case LLNameListItem::INDIVIDUAL, AVATAR)
 			CONVERT_TO_RETTYPE(case LLNameListItem::GROUP, GROUP)
+			CONVERT_TO_RETTYPE(case LLNameListItem::EXPERIENCE, EXPERIENCE)
 			CONVERT_TO_RETTYPE(default, COUNT) // Invalid, but just use count instead
 		}
 	}
@@ -212,7 +217,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	LLUUID id = name_item.value().asUUID();
 	LLNameListItem* item = new LLNameListItem(name_item);
 
-	if (!item) return NULL;
+	if (!item) return nullptr;
 
 	LLScrollListCtrl::addRow(item, name_item, pos);
 
@@ -277,6 +282,8 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 		}
 		break;
 	}
+	case LLNameListItem::EXPERIENCE:
+		// just use supplied name
 	default:
 		break;
 	}

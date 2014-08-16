@@ -299,6 +299,8 @@ with the same filename but different name
   <texture name="icon_event.tga"/>
   <texture name="icon_event_adult.tga"/>
   <texture name="icon_event_mature.tga"/>
+  <texture name="icon_for_sale.tga"/>
+  <texture name="Generic_Experience" file_name="Blank.png" preload="false" />
   <texture name="icon_groupnotice.tga"/>
   <texture name="icon_groupnoticeinventory.tga"/>
   <texture name="icon_lock.tga"/>
@@ -373,6 +375,8 @@ with the same filename but different name
   <texture name="media_btn_scrollright.png"/>
   <texture name="media_btn_scrollup.png"/>
   <texture name="media_btn_stoploading.png"/>
+  <texture name="map_event_adult.tga"/>
+  
   <texture name="media_icon.tga" file_name="icn_label_media.tga" />
   <texture name="media_panel_bg.png" preload="true" scale.left="9" scale.top="9" scale.right="9" scale.bottom="9" />
   <texture name="media_panel_divider.png"/>

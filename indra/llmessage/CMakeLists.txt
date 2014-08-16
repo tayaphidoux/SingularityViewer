@@ -45,6 +45,7 @@ set(llmessage_SOURCE_FILES
     llclassifiedflags.cpp
     lldatapacker.cpp
     lldispatcher.cpp
+    llexperiencecache.cpp
     llfiltersd2xmlrpc.cpp
     llhost.cpp
     llhttpclient.cpp
@@ -133,10 +134,12 @@ set(llmessage_HEADER_FILES
     llcipher.h
     llcircuit.h
     llclassifiedflags.h
+    llcororesponder.h
     llcurl.h
     lldatapacker.h
     lldbstrings.h
     lldispatcher.h
+    llexperiencecache.h
     lleventflags.h
     llfiltersd2xmlrpc.h
     llfollowcamparams.h

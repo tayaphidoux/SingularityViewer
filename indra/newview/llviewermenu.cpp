@@ -37,6 +37,7 @@
 #include "lfidbearer.h"
 #include "llanimationstates.h" // For ANIM_AGENT_AWAY
 #include "llavatarnamecache.h"	// IDEVO
+#include "llexperiencecache.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -55,7 +56,6 @@
 #include "llagentcamera.h"
 #include "llappearancemgr.h"
 #include "llagentwearables.h"
-
 #include "llagentpilot.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
@@ -74,6 +74,8 @@
 #include "llfloatercustomize.h"
 #include "llfloaterdirectory.h"
 #include "llfloatereditui.h"
+#include "llfloaterexperienceprofile.h"
+#include "llfloaterexperiences.h"
 #include "llfloaterfonttest.h"
 #include "llfloatergodtools.h"
 #include "llfloaterhtmlcurrency.h"
@@ -105,6 +107,7 @@
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmutelist.h"
 #include "llnotify.h"
+#include "llpanelexperiences.h"
 #include "llparcel.h"
 #include "llregioninfomodel.h"
 #include "llselectmgr.h"
@@ -206,16 +209,16 @@ extern AIHTTPView* gHttpView;
 // Globals
 //
 
-LLMenuBarGL		*gMenuBarView = NULL;
-LLViewerMenuHolderGL	*gMenuHolder = NULL;
-LLMenuBarGL		*gLoginMenuBarView = NULL;
+LLMenuBarGL		*gMenuBarView = nullptr;
+LLViewerMenuHolderGL	*gMenuHolder = nullptr;
+LLMenuBarGL		*gLoginMenuBarView = nullptr;
 
 // Pie menus
-LLContextMenu	*gPieSelf	= NULL;
-LLContextMenu	*gPieAvatar = NULL;
-LLContextMenu	*gPieObject = NULL;
-LLContextMenu	*gPieAttachment = NULL;
-LLContextMenu	*gPieLand	= NULL;
+LLContextMenu	*gPieSelf	= nullptr;
+LLContextMenu	*gPieAvatar = nullptr;
+LLContextMenu	*gPieObject = nullptr;
+LLContextMenu	*gPieAttachment = nullptr;
+LLContextMenu	*gPieLand	= nullptr;
 
 // local constants
 const std::string CLIENT_MENU_NAME("Advanced");
@@ -223,20 +226,20 @@ const std::string SERVER_MENU_NAME("Admin");
 
 const std::string SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents");
 
-LLMenuGL* gAttachSubMenu = NULL;
-LLMenuGL* gDetachSubMenu = NULL;
-LLMenuGL* gTakeOffClothes = NULL;
-LLMenuGL* gMeshesAndMorphsMenu = NULL;
-LLContextMenu* gPieRate = NULL;
-LLContextMenu* gAttachScreenPieMenu = NULL;
-LLContextMenu* gAttachPieMenu = NULL;
-LLContextMenu* gAttachPieMenu2 = NULL;
-LLContextMenu* gDetachPieMenu = NULL;
-LLContextMenu* gDetachPieMenu2 = NULL;
-LLContextMenu* gDetachScreenPieMenu = NULL;
+LLMenuGL* gAttachSubMenu = nullptr;
+LLMenuGL* gDetachSubMenu = nullptr;
+LLMenuGL* gTakeOffClothes = nullptr;
+LLMenuGL* gMeshesAndMorphsMenu = nullptr;
+LLContextMenu* gPieRate = nullptr;
+LLContextMenu* gAttachScreenPieMenu = nullptr;
+LLContextMenu* gAttachPieMenu = nullptr;
+LLContextMenu* gAttachPieMenu2 = nullptr;
+LLContextMenu* gDetachPieMenu = nullptr;
+LLContextMenu* gDetachPieMenu2 = nullptr;
+LLContextMenu* gDetachScreenPieMenu = nullptr;
 
-LLMenuItemCallGL* gAFKMenu = NULL;
-LLMenuItemCallGL* gBusyMenu = NULL;
+LLMenuItemCallGL* gAFKMenu = nullptr;
+LLMenuItemCallGL* gBusyMenu = nullptr;
 
 typedef LLMemberListener<LLView> view_listener_t;
 
@@ -354,7 +357,7 @@ void handle_pose_stand_stop(void*)
 }
 void cleanup_pose_stand()
 {
-	handle_pose_stand_stop(NULL);
+	handle_pose_stand_stop(nullptr);
 }
 
 BOOL handle_check_pose(void* userdata) { return current_pose.notNull(); }
@@ -482,10 +485,10 @@ class LLMenuParcelObserver : public LLParcelObserver
 public:
 	LLMenuParcelObserver();
 	~LLMenuParcelObserver();
-	virtual void changed();
+    void changed() override;
 };
 
-static LLMenuParcelObserver* gMenuParcelObserver = NULL;
+static LLMenuParcelObserver* gMenuParcelObserver = nullptr;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
@@ -499,9 +502,9 @@ LLMenuParcelObserver::~LLMenuParcelObserver()
 
 void LLMenuParcelObserver::changed()
 {
-	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL));
+	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(nullptr));
 	
-	BOOL buyable = enable_buy_land(NULL);
+	BOOL buyable = enable_buy_land(nullptr);
 	gMenuHolder->childSetEnabled("Land Buy", buyable);
 	gMenuHolder->childSetEnabled("Buy Land...", buyable);
 }
@@ -698,13 +701,13 @@ void init_menus()
 	/*LLMenuGL* sub = new LLMenuGL("Pose Stand...");
 	menu->addChild(sub);
 
-	sub->addChild(new LLMenuItemCallGL(  "Legs Together Arms Out", &handle_pose_stand_ltao, NULL));
-	sub->addChild(new LLMenuItemCallGL(  "Legs Together Arms Half", &handle_pose_stand_ltah, NULL));
-	sub->addChild(new LLMenuItemCallGL(  "Legs Together Arms Down", &handle_pose_stand_ltad, NULL));
-	sub->addChild(new LLMenuItemCallGL(  "Legs Out Arms Up", &handle_pose_stand_loau, NULL));
-	sub->addChild(new LLMenuItemCallGL(  "Legs Out Arms Out", &handle_pose_stand_loao, NULL));
-	sub->addChild(new LLMenuItemCallGL(  "Legs Half Arms Out", &handle_pose_stand_lhao, NULL));
-	sub->addChild(new LLMenuItemCallGL(  "Stop Pose Stand", &handle_pose_stand_stop, NULL));
+	sub->addChild(new LLMenuItemCallGL(  "Legs Together Arms Out", &handle_pose_stand_ltao, nullptr));
+	sub->addChild(new LLMenuItemCallGL(  "Legs Together Arms Half", &handle_pose_stand_ltah, nullptr));
+	sub->addChild(new LLMenuItemCallGL(  "Legs Together Arms Down", &handle_pose_stand_ltad, nullptr));
+	sub->addChild(new LLMenuItemCallGL(  "Legs Out Arms Up", &handle_pose_stand_loau, nullptr));
+	sub->addChild(new LLMenuItemCallGL(  "Legs Out Arms Out", &handle_pose_stand_loao, nullptr));
+	sub->addChild(new LLMenuItemCallGL(  "Legs Half Arms Out", &handle_pose_stand_lhao, nullptr));
+	sub->addChild(new LLMenuItemCallGL(  "Stop Pose Stand", &handle_pose_stand_stop, nullptr));
 	// </dogmode> ------------------------------------------------------*/
 
 	// TomY TODO convert these two
@@ -735,9 +738,9 @@ void init_menus()
 
 	menu = new LLMenuGL(CLIENT_MENU_NAME);
 	menu->setCanTearOff(FALSE);
-	menu->addChild(new LLMenuItemCallGL("Debug Settings...", handle_singleton_toggle<LLFloaterSettingsDebug>, NULL, NULL));
+	menu->addChild(new LLMenuItemCallGL("Debug Settings...", handle_singleton_toggle<LLFloaterSettingsDebug>, nullptr, nullptr));
 	// Debugging view for unified notifications: CTRL-SHIFT-5
-	menu->addChild(new LLMenuItemCallGL("Notifications Console...", handle_show_notifications_console, NULL, NULL, '5', MASK_CONTROL|MASK_SHIFT));
+	menu->addChild(new LLMenuItemCallGL("Notifications Console...", handle_show_notifications_console, nullptr, nullptr, '5', MASK_CONTROL|MASK_SHIFT));
 	menu->addChild(new LLMenuItemCallGL("Load from XML...", handle_load_from_xml));
 	gLoginMenuBarView->addChild(menu);
 	menu->updateParent(LLMenuGL::sMenuContainer);
@@ -776,7 +779,7 @@ void init_menus()
 
 void init_client_menu(LLMenuGL* menu)
 {
-	LLMenuGL* sub_menu = NULL;
+	LLMenuGL* sub_menu = nullptr;
 
 
 	{
@@ -786,20 +789,20 @@ void init_client_menu(LLMenuGL* menu)
 		menu->addChild(sub);
 		sub->addChild(new LLMenuItemCheckGL("Frame Console", 
 										&toggle_visibility,
-										NULL,
+										nullptr,
 										&get_visibility,
 										(void*)gDebugView->mFrameStatView,
 										'2', MASK_CONTROL|MASK_SHIFT ) );
 		sub->addChild(new LLMenuItemCheckGL("Texture Console", 
 										&toggle_visibility,
-										NULL,
+										nullptr,
 										&get_visibility,
 										(void*)gTextureView,
 									   	'3', MASK_CONTROL|MASK_SHIFT ) );
 		LLView* debugview = gDebugView->mDebugConsolep;
 		sub->addChild(new LLMenuItemCheckGL("Debug Console", 
 										&toggle_visibility,
-										NULL,
+										nullptr,
 										&get_visibility,
 										debugview,
 									   	'4', MASK_CONTROL|MASK_SHIFT ) );
@@ -808,13 +811,13 @@ void init_client_menu(LLMenuGL* menu)
 		{
 			sub->addChild(new LLMenuItemCheckGL("Texture Size Console", 
 										&toggle_visibility,
-										NULL,
+										nullptr,
 										&get_visibility,
 										(void*)gTextureSizeView,
 									   	'5', MASK_CONTROL|MASK_SHIFT ) );
 			sub->addChild(new LLMenuItemCheckGL("Texture Category Console", 
 										&toggle_visibility,
-										NULL,
+										nullptr,
 										&get_visibility,
 										(void*)gTextureCategoryView,
 									   	'6', MASK_CONTROL|MASK_SHIFT ) );
@@ -822,16 +825,16 @@ void init_client_menu(LLMenuGL* menu)
 
 		sub->addChild(new LLMenuItemCheckGL("HTTP Console", 
 										&toggle_visibility,
-										NULL,
+										nullptr,
 										&get_visibility,
 										(void*)gHttpView,
 									   	'7', MASK_CONTROL|MASK_SHIFT ) );
 
-		sub->addChild(new LLMenuItemCheckGL("Region Debug Console", handle_singleton_toggle<LLFloaterRegionDebugConsole>, NULL, handle_singleton_check<LLFloaterRegionDebugConsole>,NULL,'`', MASK_CONTROL|MASK_SHIFT));
+		sub->addChild(new LLMenuItemCheckGL("Region Debug Console", handle_singleton_toggle<LLFloaterRegionDebugConsole>, nullptr, handle_singleton_check<LLFloaterRegionDebugConsole>,nullptr,'`', MASK_CONTROL|MASK_SHIFT));
 
 		sub->addChild(new LLMenuItemCheckGL("Fast Timers", 
 										&toggle_visibility,
-										NULL,
+										nullptr,
 										&get_visibility,
 										(void*)gDebugView->mFastTimerView,
 										  '9', MASK_CONTROL|MASK_SHIFT ) );
@@ -840,25 +843,25 @@ void init_client_menu(LLMenuGL* menu)
 		
 		// Debugging view for unified notifications
 		sub->addChild(new LLMenuItemCallGL("Notifications Console...",
-						 &handle_show_notifications_console, NULL, NULL, '5', MASK_CONTROL|MASK_SHIFT ));
+						 &handle_show_notifications_console, nullptr, nullptr, '5', MASK_CONTROL|MASK_SHIFT ));
 		
 
 		sub->addSeparator();
 
 		sub->addChild(new LLMenuItemCallGL("Region Info to Debug Console", 
-			&handle_region_dump_settings, NULL));
+			&handle_region_dump_settings, nullptr));
 		sub->addChild(new LLMenuItemCallGL("Group Info to Debug Console",
-			&handle_dump_group_info, NULL, NULL));
+			&handle_dump_group_info, nullptr, nullptr));
 		sub->addChild(new LLMenuItemCallGL("Capabilities Info to Debug Console",
-			&handle_dump_capabilities_info, NULL, NULL));
+			&handle_dump_capabilities_info, nullptr, nullptr));
 		sub->createJumpKeys();
 	}
 	
 	// neither of these works particularly well at the moment
 	/*menu->addChild(new LLMenuItemCallGL(  "Reload UI XML",	&reload_ui,	
-	  				NULL, NULL) );*/
+	  				nullptr, nullptr) );*/
 	/*menu->addChild(new LLMenuItemCallGL("Reload settings/colors", 
-					&handle_reload_settings, NULL, NULL));*/
+					&handle_reload_settings, nullptr, nullptr));*/
 	menu->addChild(new LLMenuItemCallGL("Reload personal setting overrides", 
 		&reload_personal_settings_overrides));
 
@@ -867,7 +870,7 @@ void init_client_menu(LLMenuGL* menu)
 		sub_menu->setCanTearOff(TRUE);
 		sub_menu->addChild(new LLMenuItemCheckGL("Velocity", 
 												&toggle_visibility,
-												NULL,
+												nullptr,
 												&get_visibility,
 												(void*)gVelocityBar));
 
@@ -882,25 +885,25 @@ void init_client_menu(LLMenuGL* menu)
 
 	menu->addChild(new LLMenuItemCheckGL( "High-res Snapshot",
 										&menu_toggle_control,
-										NULL,
+										nullptr,
 										&menu_check_control,
 										(void*)"HighResSnapshot"));
 	
 	menu->addChild(new LLMenuItemCheckGL( "Quiet Snapshots to Disk",
 										&menu_toggle_control,
-										NULL,
+										nullptr,
 										&menu_check_control,
 										(void*)"QuietSnapshotsToDisk"));
 
 	menu->addChild(new LLMenuItemCheckGL("Show Mouselook Crosshairs",
 									   &menu_toggle_control,
-									   NULL,
+									   nullptr,
 									   &menu_check_control,
 									   (void*)"ShowCrosshairs"));
 
 	menu->addChild(new LLMenuItemCheckGL("Debug Permissions",
 									   &menu_toggle_control,
-									   NULL,
+									   nullptr,
 									   &menu_check_control,
 									   (void*)"DebugPermissions"));
 	
@@ -912,7 +915,7 @@ void init_client_menu(LLMenuGL* menu)
 	{
 		menu->addChild(new LLMenuItemCheckGL("Hacked Godmode",
 										   &handle_toggle_hacked_godmode,
-										   NULL,
+										   nullptr,
 										   &check_toggle_hacked_godmode,
 										   (void*)"HackedGodmode"));
 	}
@@ -921,7 +924,7 @@ void init_client_menu(LLMenuGL* menu)
 	menu->addChild(new LLMenuItemCallGL("Clear Group Cache", 
 									  LLGroupMgr::debugClearAllGroups));
 
-	menu->addChild(new LLMenuItemCheckGL("Use Web Map Tiles", menu_toggle_control, NULL, menu_check_control, (void*)"UseWebMapTiles"));
+	menu->addChild(new LLMenuItemCheckGL("Use Web Map Tiles", menu_toggle_control, nullptr, menu_check_control, (void*)"UseWebMapTiles"));
 
 	menu->addSeparator();
 
@@ -961,67 +964,67 @@ void init_client_menu(LLMenuGL* menu)
 	menu->addChild(sub_menu);
 
 {
-		LLMenuGL* sub = NULL;
+		LLMenuGL* sub = nullptr;
 		sub = new LLMenuGL("Network");
 		sub->setCanTearOff(TRUE);
 
-		sub->addChild(new LLMenuItemCallGL(  "Message Log", &handle_open_message_log, NULL));
+		sub->addChild(new LLMenuItemCallGL("Message Log", handle_open_message_log, nullptr));
 
 		sub->addChild(new LLMenuItemCallGL("Enable Message Log",  
-			&handle_viewer_enable_message_log,  NULL));
+			&handle_viewer_enable_message_log,  nullptr));
 		sub->addChild(new LLMenuItemCallGL("Disable Message Log", 
-			&handle_viewer_disable_message_log, NULL));
+			&handle_viewer_disable_message_log, nullptr));
 
 		sub->addSeparator();
 
 		sub->addChild(new LLMenuItemCheckGL("Velocity Interpolate Objects", 
 										  &velocity_interpolate,
-										  NULL, 
+										  nullptr, 
 										  &menu_check_control,
 										  (void*)"VelocityInterpolate"));
 		sub->addChild(new LLMenuItemCheckGL("Ping Interpolate Object Positions", 
 										  &menu_toggle_control,
-										  NULL, 
+										  nullptr, 
 										  &menu_check_control,
 										  (void*)"PingInterpolate"));
 
 		sub->addSeparator();
 
 		sub->addChild(new LLMenuItemCallGL("Drop a Packet", 
-			&drop_packet, NULL, NULL, 
+			&drop_packet, nullptr, nullptr, 
 			'L', MASK_ALT | MASK_CONTROL));
 
 		menu->addChild( sub );
 		sub->createJumpKeys();
 	}
 	{
-		LLMenuGL* sub = NULL;
+		LLMenuGL* sub = nullptr;
 		sub = new LLMenuGL("Recorder");
 		sub->setCanTearOff(TRUE);
 
-		sub->addChild(new LLMenuItemCheckGL("Full Session Logging", &menu_toggle_control, NULL, &menu_check_control, (void*)"StatsSessionTrackFrameStats"));
+		sub->addChild(new LLMenuItemCheckGL("Full Session Logging", &menu_toggle_control, nullptr, &menu_check_control, (void*)"StatsSessionTrackFrameStats"));
 
-		sub->addChild(new LLMenuItemCallGL("Start Logging",	&LLFrameStats::startLogging, NULL));
-		sub->addChild(new LLMenuItemCallGL("Stop Logging",	&LLFrameStats::stopLogging, NULL));
-		sub->addChild(new LLMenuItemCallGL("Log 10 Seconds", &LLFrameStats::timedLogging10, NULL));
-		sub->addChild(new LLMenuItemCallGL("Log 30 Seconds", &LLFrameStats::timedLogging30, NULL));
-		sub->addChild(new LLMenuItemCallGL("Log 60 Seconds", &LLFrameStats::timedLogging60, NULL));
+		sub->addChild(new LLMenuItemCallGL("Start Logging",	&LLFrameStats::startLogging, nullptr));
+		sub->addChild(new LLMenuItemCallGL("Stop Logging",	&LLFrameStats::stopLogging, nullptr));
+		sub->addChild(new LLMenuItemCallGL("Log 10 Seconds", &LLFrameStats::timedLogging10, nullptr));
+		sub->addChild(new LLMenuItemCallGL("Log 30 Seconds", &LLFrameStats::timedLogging30, nullptr));
+		sub->addChild(new LLMenuItemCallGL("Log 60 Seconds", &LLFrameStats::timedLogging60, nullptr));
 		sub->addSeparator();
-		sub->addChild(new LLMenuItemCallGL("Start Playback", &LLAgentPilot::startPlayback, NULL));
-		sub->addChild(new LLMenuItemCallGL("Stop Playback",	&LLAgentPilot::stopPlayback, NULL));
+		sub->addChild(new LLMenuItemCallGL("Start Playback", &LLAgentPilot::startPlayback, nullptr));
+		sub->addChild(new LLMenuItemCallGL("Stop Playback",	&LLAgentPilot::stopPlayback, nullptr));
 		sub->addChild(new LLMenuItemToggleGL("Loop Playback", &LLAgentPilot::sLoop) );
-		sub->addChild(new LLMenuItemCallGL("Start Record",	&LLAgentPilot::startRecord, NULL));
-		sub->addChild(new LLMenuItemCallGL("Stop Record",	&LLAgentPilot::saveRecord, NULL));
+		sub->addChild(new LLMenuItemCallGL("Start Record",	&LLAgentPilot::startRecord, nullptr));
+		sub->addChild(new LLMenuItemCallGL("Stop Record",	&LLAgentPilot::saveRecord, nullptr));
 
 		menu->addChild( sub );
 		sub->createJumpKeys();
 	}
 	{
-		LLMenuGL* sub = NULL;
+		LLMenuGL* sub = nullptr;
 		sub = new LLMenuGL("Media");
 		sub->setCanTearOff(TRUE);
 		sub->addChild(new LLMenuItemCallGL("Reload MIME types", &LLMIMETypes::reload));
-		sub->addChild(new LLMenuItemCallGL("Web Browser Test", &handle_web_browser_test, NULL, NULL, KEY_F1));
+		sub->addChild(new LLMenuItemCallGL("Web Browser Test", &handle_web_browser_test, nullptr, nullptr, KEY_F1));
 		menu->addChild( sub );
 		sub->createJumpKeys();
 	}
@@ -1034,29 +1037,29 @@ void init_client_menu(LLMenuGL* menu)
 	menu->addSeparator(); 
 	
 	menu->addChild(new LLMenuItemCallGL("Compress Images...", 
-		&handle_compress_image, NULL, NULL));
+		&handle_compress_image, nullptr, nullptr));
 
 	menu->addChild(new LLMenuItemCheckGL("Limit Select Distance", 
 									   &menu_toggle_control,
-									   NULL, 
+									   nullptr, 
 									   &menu_check_control,
 									   (void*)"LimitSelectDistance"));
 
 	menu->addChild(new LLMenuItemCheckGL("Disable Camera Constraints", 
 									   &menu_toggle_control,
-									   NULL, 
+									   nullptr, 
 									   &menu_check_control,
 									   (void*)"DisableCameraConstraints"));
 
 	menu->addChild(new LLMenuItemCheckGL("Mouse Smoothing",
 										&menu_toggle_control,
-										NULL,
+										nullptr,
 										&menu_check_control,
 										(void*) "MouseSmooth"));
 
 	// Singu Note: When this menu is xml, handle this above, with the other insertion points
 	{
-		LLMenuItemCallGL* item = new LLMenuItemCallGL("insert_advanced", NULL);
+		LLMenuItemCallGL* item = new LLMenuItemCallGL("insert_advanced", nullptr);
 		item->setVisible(false);
 		menu->addChild(item);
 	}
@@ -1064,22 +1067,22 @@ void init_client_menu(LLMenuGL* menu)
 
 	menu->addChild(new LLMenuItemCheckGL( "Console Window", 
 										&menu_toggle_control,
-										NULL, 
+										nullptr, 
 										&menu_check_control,
 										(void*)"ShowConsoleWindow"));
 
 // [RLVa:KB] - Checked: 2009-07-08 (RLVa-1.0.0e) | Modified: RLVa-1.0.0e | OK
 	if (gSavedSettings.controlExists(RLV_SETTING_MAIN))
-		menu->addChild(new LLMenuItemCheckGL("RestrainedLove API", &rlvMenuToggleEnabled, NULL, &rlvMenuCheckEnabled, NULL));
+		menu->addChild(new LLMenuItemCheckGL("RestrainedLove API", &rlvMenuToggleEnabled, nullptr, &rlvMenuCheckEnabled, nullptr));
 // [/RLVa:KB]
 
 	if(gSavedSettings.getBOOL("QAMode"))
 	{
-		LLMenuGL* sub = NULL;
+		LLMenuGL* sub = nullptr;
 		sub = new LLMenuGL("Debugging");
 		sub->setCanTearOff(TRUE);
 #if LL_WINDOWS
-        sub->addChild(new LLMenuItemCallGL("Force Breakpoint", &force_error_breakpoint, NULL, NULL, 'B', MASK_CONTROL | MASK_ALT));
+        sub->addChild(new LLMenuItemCallGL("Force Breakpoint", &force_error_breakpoint, nullptr, nullptr, 'B', MASK_CONTROL | MASK_ALT));
 #endif
 		sub->addChild(new LLMenuItemCallGL("Force LLError And Crash", &force_error_llerror));
         sub->addChild(new LLMenuItemCallGL("Force Bad Memory Access", &force_error_bad_memory_access));
@@ -1093,18 +1096,18 @@ void init_client_menu(LLMenuGL* menu)
 
 	menu->addChild(new LLMenuItemCheckGL( "Output Debug Minidump", 
 										&menu_toggle_control,
-										NULL, 
+										nullptr, 
 										&menu_check_control,
 										(void*)"SaveMinidump"));
 
-	menu->addChild(new LLMenuItemCallGL("Debug Settings...", handle_singleton_toggle<LLFloaterSettingsDebug>, NULL, NULL));
-	menu->addChild(new LLMenuItemCheckGL("View Admin Options", &handle_admin_override_toggle, NULL, &check_admin_override, NULL, 'V', MASK_CONTROL | MASK_ALT));
+	menu->addChild(new LLMenuItemCallGL("Debug Settings...", handle_singleton_toggle<LLFloaterSettingsDebug>, nullptr, nullptr));
+	menu->addChild(new LLMenuItemCheckGL("View Admin Options", &handle_admin_override_toggle, nullptr, &check_admin_override, nullptr, 'V', MASK_CONTROL | MASK_ALT));
 
 	menu->addChild(new LLMenuItemCallGL("Request Admin Status", 
-		&handle_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_CONTROL));
+		&handle_god_mode, nullptr, nullptr, 'G', MASK_ALT | MASK_CONTROL));
 
 	menu->addChild(new LLMenuItemCallGL("Leave Admin Status", 
-		&handle_leave_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_SHIFT | MASK_CONTROL));
+		&handle_leave_god_mode, nullptr, nullptr, 'G', MASK_ALT | MASK_SHIFT | MASK_CONTROL));
 
 	menu->createJumpKeys();
 }
@@ -1114,25 +1117,25 @@ void init_debug_world_menu(LLMenuGL* menu)
 /* REMOVE mouse move sun from menu options
 	menu->addChild(new LLMenuItemCheckGL("Mouse Moves Sun", 
 									   &menu_toggle_control,
-									   NULL, 
+									   nullptr, 
 									   &menu_check_control,
 									   (void*)"MouseSun", 
 									   'M', MASK_CONTROL|MASK_ALT));
 */
 	menu->addChild(new LLMenuItemCheckGL("Sim Sun Override", 
 									   &menu_toggle_control,
-									   NULL, 
+									   nullptr, 
 									   &menu_check_control,
 									   (void*)"SkyOverrideSimSunPosition"));
 	menu->addChild(new LLMenuItemCallGL("Dump Scripted Camera",
-		&handle_dump_followcam, NULL, NULL));
+		&handle_dump_followcam, nullptr, nullptr));
 	menu->addChild(new LLMenuItemCheckGL("Fixed Weather", 
 									   &menu_toggle_control,
-									   NULL, 
+									   nullptr, 
 									   &menu_check_control,
 									   (void*)"FixedWeather"));
 	menu->addChild(new LLMenuItemCallGL("Dump Region Object Cache",
-		&handle_dump_region_object_cache, NULL, NULL));
+		&handle_dump_region_object_cache, nullptr, nullptr));
 	menu->createJumpKeys();
 }
 
@@ -1158,9 +1161,9 @@ static void handle_export_menus_to_xml_continued(AIFilePicker* filepicker)
 
 void init_debug_ui_menu(LLMenuGL* menu)
 {
-	menu->addChild(new LLMenuItemCheckGL("Rotate Mini-Map", menu_toggle_control, NULL, menu_check_control, (void*)"MiniMapRotate"));
-	menu->addChild(new LLMenuItemCheckGL("Use default system color picker", menu_toggle_control, NULL, menu_check_control, (void*)"UseDefaultColorPicker"));
-	menu->addChild(new LLMenuItemCheckGL("Show search panel in overlay bar", menu_toggle_control, NULL, menu_check_control, (void*)"ShowSearchBar"));
+	menu->addChild(new LLMenuItemCheckGL("Rotate Mini-Map", menu_toggle_control, nullptr, menu_check_control, (void*)"MiniMapRotate"));
+	menu->addChild(new LLMenuItemCheckGL("Use default system color picker", menu_toggle_control, nullptr, menu_check_control, (void*)"UseDefaultColorPicker"));
+	menu->addChild(new LLMenuItemCheckGL("Show search panel in overlay bar", menu_toggle_control, nullptr, menu_check_control, (void*)"ShowSearchBar"));
 	menu->addSeparator();
 
 	// commented out until work is complete: DEV-32268
@@ -1168,33 +1171,33 @@ void init_debug_ui_menu(LLMenuGL* menu)
 	menu->addChild(new LLMenuItemCallGL("Editable UI", &edit_ui));
 	menu->addChild(new LLMenuItemCallGL( "Dump SelectMgr", &dump_select_mgr));
 	menu->addChild(new LLMenuItemCallGL( "Dump Inventory", &dump_inventory));
-	menu->addChild(new LLMenuItemCallGL( "Dump Focus Holder", &handle_dump_focus, NULL, NULL, 'F', MASK_ALT | MASK_CONTROL));
-	menu->addChild(new LLMenuItemCallGL( "Print Selected Object Info",	&print_object_info, NULL, NULL, 'P', MASK_CONTROL|MASK_SHIFT ));
-	menu->addChild(new LLMenuItemCallGL( "Print Agent Info",			&print_agent_nvpairs, NULL, NULL, 'P', MASK_SHIFT ));
-	menu->addChild(new LLMenuItemCallGL( "Memory Stats",  &output_statistics, NULL, NULL, 'M', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
+	menu->addChild(new LLMenuItemCallGL( "Dump Focus Holder", &handle_dump_focus, nullptr, nullptr, 'F', MASK_ALT | MASK_CONTROL));
+	menu->addChild(new LLMenuItemCallGL( "Print Selected Object Info",	&print_object_info, nullptr, nullptr, 'P', MASK_CONTROL|MASK_SHIFT ));
+	menu->addChild(new LLMenuItemCallGL( "Print Agent Info",			&print_agent_nvpairs, nullptr, nullptr, 'P', MASK_SHIFT ));
+	menu->addChild(new LLMenuItemCallGL( "Memory Stats",  &output_statistics, nullptr, nullptr, 'M', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
 	menu->addChild(new LLMenuItemCheckGL("Double-Click Auto-Pilot", 
-		menu_toggle_double_click_control, NULL, menu_check_control,
+		menu_toggle_double_click_control, nullptr, menu_check_control,
 		(void*)"DoubleClickAutoPilot"));
 	// add for double click teleport support
 	menu->addChild(new LLMenuItemCheckGL("Double-Click Teleport", 
-		menu_toggle_double_click_control, NULL, menu_check_control,
+		menu_toggle_double_click_control, nullptr, menu_check_control,
 		(void*)"DoubleClickTeleport"));
 	menu->addSeparator();
-//	menu->addChild(new LLMenuItemCallGL( "Print Packets Lost",			&print_packets_lost, NULL, NULL, 'L', MASK_SHIFT ));
-	menu->addChild(new LLMenuItemCheckGL("Debug SelectMgr", menu_toggle_control, NULL, menu_check_control, (void*)"DebugSelectMgr"));
+//	menu->addChild(new LLMenuItemCallGL( "Print Packets Lost",			&print_packets_lost, nullptr, nullptr, 'L', MASK_SHIFT ));
+	menu->addChild(new LLMenuItemCheckGL("Debug SelectMgr", menu_toggle_control, nullptr, menu_check_control, (void*)"DebugSelectMgr"));
 	menu->addChild(new LLMenuItemToggleGL("Debug Clicks", &gDebugClicks));
 	menu->addChild(new LLMenuItemToggleGL("Debug Views", &LLView::sDebugRects));
-	menu->addChild(new LLMenuItemCheckGL("Show Name Tooltips", toggle_show_xui_names, NULL, check_show_xui_names, NULL));
+	menu->addChild(new LLMenuItemCheckGL("Show Name Tooltips", toggle_show_xui_names, nullptr, check_show_xui_names, nullptr));
 	menu->addChild(new LLMenuItemToggleGL("Debug Mouse Events", &LLView::sDebugMouseHandling));
 	menu->addChild(new LLMenuItemToggleGL("Debug Keys", &LLView::sDebugKeys));
 	menu->addChild(new LLMenuItemToggleGL("Debug WindowProc", &gDebugWindowProc));
 	menu->addChild(new LLMenuItemToggleGL("Debug Text Editor Tips", &gDebugTextEditorTips));
 	menu->addSeparator();
-	menu->addChild(new LLMenuItemCheckGL("Show Time", menu_toggle_control, NULL, menu_check_control, (void*)"DebugShowTime"));
-	menu->addChild(new LLMenuItemCheckGL("Show Render Info", menu_toggle_control, NULL, menu_check_control, (void*)"DebugShowRenderInfo"));
-	menu->addChild(new LLMenuItemCheckGL("Show Matrices", menu_toggle_control, NULL, menu_check_control, (void*)"DebugShowRenderMatrices"));
-	menu->addChild(new LLMenuItemCheckGL("Show Color Under Cursor", menu_toggle_control, NULL, menu_check_control, (void*)"DebugShowColor"));
-	menu->addChild(new LLMenuItemCheckGL("Show FPS", menu_toggle_control, NULL, menu_check_control, (void*)"SLBShowFPS"));
+	menu->addChild(new LLMenuItemCheckGL("Show Time", menu_toggle_control, nullptr, menu_check_control, (void*)"DebugShowTime"));
+	menu->addChild(new LLMenuItemCheckGL("Show Render Info", menu_toggle_control, nullptr, menu_check_control, (void*)"DebugShowRenderInfo"));
+	menu->addChild(new LLMenuItemCheckGL("Show Matrices", menu_toggle_control, nullptr, menu_check_control, (void*)"DebugShowRenderMatrices"));
+	menu->addChild(new LLMenuItemCheckGL("Show Color Under Cursor", menu_toggle_control, nullptr, menu_check_control, (void*)"DebugShowColor"));
+	menu->addChild(new LLMenuItemCheckGL("Show FPS", menu_toggle_control, nullptr, menu_check_control, (void*)"SLBShowFPS"));
 	
 	menu->createJumpKeys();
 }
@@ -1208,16 +1211,16 @@ void init_debug_xui_menu(LLMenuGL* menu)
 	menu->addChild(new LLMenuItemCallGL("Load from XML...", handle_load_from_xml));
 	// <edit>
 	//menu->addChild(new LLMenuItemCallGL("Save to XML...", handle_save_to_xml));
-	menu->addChild(new LLMenuItemCallGL("Save to XML...", handle_save_to_xml, NULL, NULL, 'X', MASK_CONTROL | MASK_ALT | MASK_SHIFT));
+	menu->addChild(new LLMenuItemCallGL("Save to XML...", handle_save_to_xml, nullptr, nullptr, 'X', MASK_CONTROL | MASK_ALT | MASK_SHIFT));
 	// </edit>
-	menu->addChild(new LLMenuItemCheckGL("Show XUI Names", toggle_show_xui_names, NULL, check_show_xui_names, NULL));
+	menu->addChild(new LLMenuItemCheckGL("Show XUI Names", toggle_show_xui_names, nullptr, check_show_xui_names, nullptr));
 
 	menu->createJumpKeys();
 }
 
 void init_debug_rendering_menu(LLMenuGL* menu)
 {
-	LLMenuGL* sub_menu = NULL;
+	LLMenuGL* sub_menu = nullptr;
 
 	///////////////////////////
 	//
@@ -1228,43 +1231,43 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	menu->addChild(sub_menu);
 
 	sub_menu->addChild(new LLMenuItemCheckGL("Simple",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_SIMPLE,	'1', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("Alpha",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_ALPHA, '2', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("Tree",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_TREE, '3', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("Character",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_AVATAR, '4', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("SurfacePatch",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_TERRAIN, '5', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("Sky",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_SKY, '6', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("Water",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_WATER, '7', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("Ground",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_GROUND, '8', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("Volume",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_VOLUME, '9', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("Grass",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_GRASS, '0', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	//NOTE: Using a static variable, as an unsigned long long cannot fit in the space of a pointer. Pass pointer to callbacks
@@ -1274,15 +1277,15 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 #endif
 		);
 	sub_menu->addChild(new LLMenuItemCheckGL("Clouds",  //This clobbers skyuseclassicclouds, but.. big deal.
-											&LLPipeline::toggleRenderPairedTypeControl, NULL,
+											&LLPipeline::toggleRenderPairedTypeControl, nullptr,
 											&LLPipeline::hasRenderPairedTypeControl,
 											(void*)&cloud_flags, '-', MASK_CONTROL|MASK_ALT| MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("Particles",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_PARTICLES, '=', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->addChild(new LLMenuItemCheckGL("Bump",
-											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::toggleRenderTypeControl, nullptr,
 											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_BUMP, '\\', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->createJumpKeys();
@@ -1295,35 +1298,35 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	#define MODIFIER MASK_ALT
 #endif
 	sub_menu->addChild(new LLMenuItemCheckGL("UI",
-											&LLPipeline::toggleRenderDebugFeature, NULL,
+											&LLPipeline::toggleRenderDebugFeature, nullptr,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_UI, KEY_F1, MODIFIER|MASK_CONTROL));
 	sub_menu->addChild(new LLMenuItemCheckGL("Selected",
-											&LLPipeline::toggleRenderDebugFeature, NULL,
+											&LLPipeline::toggleRenderDebugFeature, nullptr,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_SELECTED, KEY_F2, MODIFIER|MASK_CONTROL));
 	sub_menu->addChild(new LLMenuItemCheckGL("Highlighted",
-											&LLPipeline::toggleRenderDebugFeature, NULL,
+											&LLPipeline::toggleRenderDebugFeature, nullptr,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_HIGHLIGHTED, KEY_F3, MODIFIER|MASK_CONTROL));
 	sub_menu->addChild(new LLMenuItemCheckGL("Dynamic Textures",
-											&LLPipeline::toggleRenderDebugFeature, NULL,
+											&LLPipeline::toggleRenderDebugFeature, nullptr,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES, KEY_F4, MODIFIER|MASK_CONTROL));
 	sub_menu->addChild(new LLMenuItemCheckGL( "Foot Shadows", 
-											&LLPipeline::toggleRenderDebugFeature, NULL,
+											&LLPipeline::toggleRenderDebugFeature, nullptr,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS, KEY_F5, MODIFIER|MASK_CONTROL));
 	sub_menu->addChild(new LLMenuItemCheckGL("Fog",
-											&LLPipeline::toggleRenderDebugFeature, NULL,
+											&LLPipeline::toggleRenderDebugFeature, nullptr,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FOG, KEY_F6, MODIFIER|MASK_CONTROL));
 	sub_menu->addChild(new LLMenuItemCheckGL("Test FRInfo",
-											&LLPipeline::toggleRenderDebugFeature, NULL,
+											&LLPipeline::toggleRenderDebugFeature, nullptr,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FR_INFO, KEY_F8, MODIFIER|MASK_CONTROL));
 	sub_menu->addChild(new LLMenuItemCheckGL( "Flexible Objects", 
-											&LLPipeline::toggleRenderDebugFeature, NULL,
+											&LLPipeline::toggleRenderDebugFeature, nullptr,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE, KEY_F9, MODIFIER|MASK_CONTROL));
 	sub_menu->createJumpKeys();
@@ -1336,79 +1339,79 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->setCanTearOff(TRUE);
 	menu->addChild(sub_menu);
 
-	sub_menu->addChild(new LLMenuItemCheckGL("Verify",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Verify",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_VERIFY));
-	sub_menu->addChild(new LLMenuItemCheckGL("BBoxes",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("BBoxes",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_BBOXES));
-	sub_menu->addChild(new LLMenuItemCheckGL("Points",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Points",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_POINTS));
-	sub_menu->addChild(new LLMenuItemCheckGL("Octree",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Octree",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_OCTREE));
-	sub_menu->addChild(new LLMenuItemCheckGL("Shadow Frusta",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Shadow Frusta",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA));
-	sub_menu->addChild(new LLMenuItemCheckGL("Occlusion",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Occlusion",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_OCCLUSION));
-	sub_menu->addChild(new LLMenuItemCheckGL("Render Batches", &LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Render Batches", &LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_BATCH_SIZE));
-	sub_menu->addChild(new LLMenuItemCheckGL("Animated Textures",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Animated Textures",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_TEXTURE_ANIM));
-	sub_menu->addChild(new LLMenuItemCheckGL("Texture Priority",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Texture Priority",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY));
-	sub_menu->addChild(new LLMenuItemCheckGL("Avatar Rendering Cost",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Avatar Rendering Cost",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_SHAME, 'C', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
-	sub_menu->addChild(new LLMenuItemCheckGL("Texture Area (sqrt(A))",&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Texture Area (sqrt(A))",&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_TEXTURE_AREA));
-	sub_menu->addChild(new LLMenuItemCheckGL("Face Area (sqrt(A))",&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Face Area (sqrt(A))",&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_FACE_AREA));
-	sub_menu->addChild(new LLMenuItemCheckGL("Lights",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Lights",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_LIGHTS));
-	sub_menu->addChild(new LLMenuItemCheckGL("Particles",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Particles",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_PARTICLES));
-	sub_menu->addChild(new LLMenuItemCheckGL("Composition", &LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Composition", &LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_COMPOSITION));
-	sub_menu->addChild(new LLMenuItemCheckGL("Glow",&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Glow",&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_GLOW));
-	sub_menu->addChild(new LLMenuItemCheckGL("Raycasting",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Raycasting",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_RAYCAST));
-	sub_menu->addChild(new LLMenuItemCheckGL("Sculpt",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Sculpt",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_SCULPTED));
-	sub_menu->addChild(new LLMenuItemCheckGL("Build Queue",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Build Queue",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_BUILD_QUEUE));
-	sub_menu->addChild(new LLMenuItemCheckGL("Update Types",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Update Types",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_UPDATE_TYPE));
-	sub_menu->addChild(new LLMenuItemCheckGL("Physics Shapes",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Physics Shapes",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES));
-	sub_menu->addChild(new LLMenuItemCheckGL("Normals",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Normals",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_NORMALS));
-	sub_menu->addChild(new LLMenuItemCheckGL("LOD Info",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("LOD Info",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_LOD_INFO));
-	sub_menu->addChild(new LLMenuItemCheckGL("Wind Vectors",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Wind Vectors",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_WIND_VECTORS));
-	sub_menu->addChild(new LLMenuItemCheckGL("Complexity",	&LLPipeline::toggleRenderDebug, NULL,
+	sub_menu->addChild(new LLMenuItemCheckGL("Complexity",	&LLPipeline::toggleRenderDebug, nullptr,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_RENDER_COMPLEXITY));
 
@@ -1417,7 +1420,7 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 
 	sub_menu->addChild(new LLMenuItemCheckGL("Camera Offset", 
 										  &menu_toggle_control,
-										  NULL, 
+										  nullptr, 
 										  &menu_check_control,
 										  (void*)"CameraOffset"));
 
@@ -1432,68 +1435,68 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	menu->addChild( sub_menu );
 
 	menu->addSeparator();
-	menu->addChild(new LLMenuItemCheckGL("Axes", menu_toggle_control, NULL, menu_check_control, (void*)"ShowAxes"));
+	menu->addChild(new LLMenuItemCheckGL("Axes", menu_toggle_control, nullptr, menu_check_control, (void*)"ShowAxes"));
 
 	menu->addSeparator();
-	menu->addChild(new LLMenuItemCheckGL("Hide Selected", menu_toggle_control, NULL, menu_check_control, (void*)"HideSelectedObjects"));
+	menu->addChild(new LLMenuItemCheckGL("Hide Selected", menu_toggle_control, nullptr, menu_check_control, (void*)"HideSelectedObjects"));
 	menu->addSeparator();
-	menu->addChild(new LLMenuItemCheckGL("Tangent Basis", menu_toggle_control, NULL, menu_check_control, (void*)"ShowTangentBasis"));
-	menu->addChild(new LLMenuItemCallGL("Selected Texture Info", handle_selected_texture_info, NULL, NULL, 'T', MASK_CONTROL|MASK_SHIFT|MASK_ALT));
-	//menu->addChild(new LLMenuItemCallGL("Dump Image List", handle_dump_image_list, NULL, NULL, 'I', MASK_CONTROL|MASK_SHIFT));
+	menu->addChild(new LLMenuItemCheckGL("Tangent Basis", menu_toggle_control, nullptr, menu_check_control, (void*)"ShowTangentBasis"));
+	menu->addChild(new LLMenuItemCallGL("Selected Texture Info", handle_selected_texture_info, nullptr, nullptr, 'T', MASK_CONTROL|MASK_SHIFT|MASK_ALT));
+	//menu->addChild(new LLMenuItemCallGL("Dump Image List", handle_dump_image_list, nullptr, nullptr, 'I', MASK_CONTROL|MASK_SHIFT));
 	
-	menu->addChild(new LLMenuItemCheckGL("Wireframe", advanced_toggle_wireframe, NULL, advanced_check_wireframe, NULL, 'R', MASK_CONTROL|MASK_SHIFT));
+	menu->addChild(new LLMenuItemCheckGL("Wireframe", advanced_toggle_wireframe, nullptr, advanced_check_wireframe, nullptr, 'R', MASK_CONTROL|MASK_SHIFT));
 
 	LLMenuItemCheckGL* item;
-	item = new LLMenuItemCheckGL("Object-Object Occlusion", menu_toggle_control, NULL, menu_check_control, (void*)"UseOcclusion", 'O', MASK_CONTROL|MASK_SHIFT);
+	item = new LLMenuItemCheckGL("Object-Object Occlusion", menu_toggle_control, nullptr, menu_check_control, (void*)"UseOcclusion", 'O', MASK_CONTROL|MASK_SHIFT);
 	item->setEnabled(gGLManager.mHasOcclusionQuery && LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion"));
 	menu->addChild(item);
 
-	item = new LLMenuItemCheckGL("Debug GL", menu_toggle_control, NULL, menu_check_control, (void*)"RenderDebugGL");
+	item = new LLMenuItemCheckGL("Debug GL", menu_toggle_control, nullptr, menu_check_control, (void*)"RenderDebugGL");
 	menu->addChild(item);
 	
-	item = new LLMenuItemCheckGL("Debug Pipeline", menu_toggle_control, NULL, menu_check_control, (void*)"RenderDebugPipeline");
+	item = new LLMenuItemCheckGL("Debug Pipeline", menu_toggle_control, nullptr, menu_check_control, (void*)"RenderDebugPipeline");
 	menu->addChild(item);
 	
-	item = new LLMenuItemCheckGL("Automatic Alpha Masks (non-deferred)", menu_toggle_control, NULL, menu_check_control, (void*)"RenderAutoMaskAlphaNonDeferred");
+	item = new LLMenuItemCheckGL("Automatic Alpha Masks (non-deferred)", menu_toggle_control, nullptr, menu_check_control, (void*)"RenderAutoMaskAlphaNonDeferred");
 	menu->addChild(item);
 
-	item = new LLMenuItemCheckGL("Automatic Alpha Masks (deferred)", menu_toggle_control, NULL, menu_check_control, (void*)"RenderAutoMaskAlphaDeferred");
+	item = new LLMenuItemCheckGL("Automatic Alpha Masks (deferred)", menu_toggle_control, nullptr, menu_check_control, (void*)"RenderAutoMaskAlphaDeferred");
 	menu->addChild(item);
 
-	item = new LLMenuItemCheckGL("Aggressive Alpha Masking", menu_toggle_control, NULL, menu_check_control, (void*)"SHUseRMSEAutoMask");
+	item = new LLMenuItemCheckGL("Aggressive Alpha Masking", menu_toggle_control, nullptr, menu_check_control, (void*)"SHUseRMSEAutoMask");
 	menu->addChild(item);
 	
-	menu->addChild(new LLMenuItemCallGL("Rebuild Vertex Buffers", reset_vertex_buffers, NULL, NULL, 'V', MASK_CONTROL | MASK_SHIFT));
+	menu->addChild(new LLMenuItemCallGL("Rebuild Vertex Buffers", reset_vertex_buffers, nullptr, nullptr, 'V', MASK_CONTROL | MASK_SHIFT));
 
-	item = new LLMenuItemCheckGL("Animate Trees", menu_toggle_control, NULL, menu_check_control, (void*)"RenderAnimateTrees");
+	item = new LLMenuItemCheckGL("Animate Trees", menu_toggle_control, nullptr, menu_check_control, (void*)"RenderAnimateTrees");
 	menu->addChild(item);
 	
-	item = new LLMenuItemCheckGL("Animate Textures", menu_toggle_control, NULL, menu_check_control, (void*)"AnimateTextures");
+	item = new LLMenuItemCheckGL("Animate Textures", menu_toggle_control, nullptr, menu_check_control, (void*)"AnimateTextures");
 	menu->addChild(item);
 	
-	item = new LLMenuItemCheckGL("Disable Textures", menu_toggle_control, NULL, menu_check_control, (void*)"TextureDisable");
+	item = new LLMenuItemCheckGL("Disable Textures", menu_toggle_control, nullptr, menu_check_control, (void*)"TextureDisable");
 	menu->addChild(item);
 	
-	item = new LLMenuItemCheckGL("HTTP Get Textures", menu_toggle_control, NULL, menu_check_control, (void*)"ImagePipelineUseHTTP");
+	item = new LLMenuItemCheckGL("HTTP Get Textures", menu_toggle_control, nullptr, menu_check_control, (void*)"ImagePipelineUseHTTP");
 	menu->addChild(item);
 	
-	item = new LLMenuItemCheckGL("Run Multiple Threads", menu_toggle_control, NULL, menu_check_control, (void*)"RunMultipleThreads");
+	item = new LLMenuItemCheckGL("Run Multiple Threads", menu_toggle_control, nullptr, menu_check_control, (void*)"RunMultipleThreads");
 	menu->addChild(item);
 
-	item = new LLMenuItemCheckGL("Cheesy Beacon", menu_toggle_control, NULL, menu_check_control, (void*)"CheesyBeacon");
+	item = new LLMenuItemCheckGL("Cheesy Beacon", menu_toggle_control, nullptr, menu_check_control, (void*)"CheesyBeacon");
 	menu->addChild(item);
 
-	item = new LLMenuItemCheckGL("Attached Lights", menu_toggle_attached_lights, NULL, menu_check_control, (void*)"RenderAttachedLights");
+	item = new LLMenuItemCheckGL("Attached Lights", menu_toggle_attached_lights, nullptr, menu_check_control, (void*)"RenderAttachedLights");
 	menu->addChild(item);
 
-	item = new LLMenuItemCheckGL("Attached Particles", menu_toggle_attached_particles, NULL, menu_check_control, (void*)"RenderAttachedParticles");
+	item = new LLMenuItemCheckGL("Attached Particles", menu_toggle_attached_particles, nullptr, menu_check_control, (void*)"RenderAttachedParticles");
 	menu->addChild(item);
 
-	item = new LLMenuItemCheckGL("Audit Texture", menu_toggle_control, NULL, menu_check_control, (void*)"AuditTexture");
+	item = new LLMenuItemCheckGL("Audit Texture", menu_toggle_control, nullptr, menu_check_control, (void*)"AuditTexture");
 	menu->addChild(item);
 
 	menu->addSeparator();
-	menu->addChild(new LLMenuItemCallGL("Memory Leaking Simulation", LLFloaterMemLeak::show, NULL, NULL));
+	menu->addChild(new LLMenuItemCallGL("Memory Leaking Simulation", LLFloaterMemLeak::show, nullptr, nullptr));
 	
 	menu->createJumpKeys();
 }
@@ -1502,13 +1505,13 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 {
 	LLMenuGL* sub_menu = new LLMenuGL("Character Tests");
 	sub_menu->setCanTearOff(TRUE);
-	sub_menu->addChild(new LLMenuItemCheckGL("Go Away/AFK When Idle", menu_toggle_control, NULL, menu_check_control, (void*)"AllowIdleAFK"));
+	sub_menu->addChild(new LLMenuItemCheckGL("Go Away/AFK When Idle", menu_toggle_control, nullptr, menu_check_control, (void*)"AllowIdleAFK"));
 
 	sub_menu->addChild(new LLMenuItemCallGL("Appearance To XML", &handle_dump_archetype_xml));
 
 	// HACK for easy testing of avatar geometry
 	sub_menu->addChild(new LLMenuItemCallGL( "Toggle Character Geometry", 
-		&handle_god_request_avatar_geometry, &is_god_customer_service, NULL));
+		&handle_god_request_avatar_geometry, &is_god_customer_service, nullptr));
 
 	sub_menu->addChild(new LLMenuItemCallGL("Test Male", 
 		handle_test_male));
@@ -1518,19 +1521,19 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 
 	sub_menu->addChild(new LLMenuItemCallGL("Toggle PG", handle_toggle_pg));
 
-	sub_menu->addChild(new LLMenuItemCheckGL("Allow Select Avatar", menu_toggle_control, NULL, menu_check_control, (void*)"AllowSelectAvatar"));
+	sub_menu->addChild(new LLMenuItemCheckGL("Allow Select Avatar", menu_toggle_control, nullptr, menu_check_control, (void*)"AllowSelectAvatar"));
 	sub_menu->createJumpKeys();
 
 	menu->addChild(sub_menu);
 
-	menu->addChild(new LLMenuItemCheckGL("Tap-Tap-Hold To Run", menu_toggle_control, NULL, menu_check_control, (void*)"AllowTapTapHoldRun"));
-	menu->addChild(new LLMenuItemCallGL("Force Params to Default", &LLAgent::clearVisualParams, NULL));
-	menu->addChild(new LLMenuItemCallGL("Reload Vertex Shader", &reload_vertex_shader, NULL));
+	menu->addChild(new LLMenuItemCheckGL("Tap-Tap-Hold To Run", menu_toggle_control, nullptr, menu_check_control, (void*)"AllowTapTapHoldRun"));
+	menu->addChild(new LLMenuItemCallGL("Force Params to Default", &LLAgent::clearVisualParams, nullptr));
+	menu->addChild(new LLMenuItemCallGL("Reload Vertex Shader", &reload_vertex_shader, nullptr));
 	menu->addChild(new LLMenuItemToggleGL("Animation Info", &LLVOAvatar::sShowAnimationDebug));
-	menu->addChild(new LLMenuItemCallGL("Slow Motion Animations", &slow_mo_animations, NULL));
+	menu->addChild(new LLMenuItemCallGL("Slow Motion Animations", &slow_mo_animations, nullptr));
 
 	LLMenuItemCheckGL* item;
-	item = new LLMenuItemCheckGL("Show Look At", menu_toggle_control, NULL, menu_check_control, (void*)"AscentShowLookAt");
+	item = new LLMenuItemCheckGL("Show Look At", menu_toggle_control, nullptr, menu_check_control, (void*)"AscentShowLookAt");
 	menu->addChild(item);
 
 	menu->addChild(new LLMenuItemToggleGL("Show Point At", &LLHUDEffectPointAt::sDebugPointAt));
@@ -1541,27 +1544,27 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 	//diabling collision plane due to DEV-14477 -brad
 	//menu->addChild(new LLMenuItemToggleGL("Show Collision Plane", &LLVOAvatar::sShowFootPlane));
 	menu->addChild(new LLMenuItemCheckGL("Show Collision Skeleton",
-									   &LLPipeline::toggleRenderDebug, NULL,
+									   &LLPipeline::toggleRenderDebug, nullptr,
 									   &LLPipeline::toggleRenderDebugControl,
 									   (void*)LLPipeline::RENDER_DEBUG_AVATAR_VOLUME));
 	menu->addChild(new LLMenuItemCheckGL("Show Avatar Joints",
-									   &LLPipeline::toggleRenderDebug, NULL,
+									   &LLPipeline::toggleRenderDebug, nullptr,
 									   &LLPipeline::toggleRenderDebugControl,
 									   (void*)LLPipeline::RENDER_DEBUG_AVATAR_JOINTS));
 	menu->addChild(new LLMenuItemCheckGL("Display Agent Target",
-									   &LLPipeline::toggleRenderDebug, NULL,
+									   &LLPipeline::toggleRenderDebug, nullptr,
 									   &LLPipeline::toggleRenderDebugControl,
 									   (void*)LLPipeline::RENDER_DEBUG_AGENT_TARGET));
 	menu->addChild(new LLMenuItemCheckGL("Attachment Bytes",
-									   &LLPipeline::toggleRenderDebug, NULL,
+									   &LLPipeline::toggleRenderDebug, nullptr,
 									   &LLPipeline::toggleRenderDebugControl,
 									   (void*)LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES));
 	menu->addChild(new LLMenuItemToggleGL( "Debug Rotation", &LLVOAvatar::sDebugAvatarRotation));
 	menu->addChild(new LLMenuItemCallGL("Dump Attachments", handle_dump_attachments));
 	menu->addChild(new LLMenuItemCallGL("Rebake Textures", handle_rebake_textures));
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	menu->addChild(new LLMenuItemCallGL("Debug Avatar Textures", handle_debug_avatar_textures, NULL, NULL, 'A', MASK_SHIFT|MASK_CONTROL|MASK_ALT));
-	menu->addChild(new LLMenuItemCallGL("Dump Local Textures", handle_dump_avatar_local_textures, NULL, NULL, 'M', MASK_SHIFT|MASK_ALT ));	
+	menu->addChild(new LLMenuItemCallGL("Debug Avatar Textures", handle_debug_avatar_textures, nullptr, nullptr, 'A', MASK_SHIFT|MASK_CONTROL|MASK_ALT));
+	menu->addChild(new LLMenuItemCallGL("Dump Local Textures", handle_dump_avatar_local_textures, nullptr, nullptr, 'M', MASK_SHIFT|MASK_ALT ));	
 #endif
 
 	gMeshesAndMorphsMenu = new LLMenuGL("Meshes and Morphs");
@@ -1582,39 +1585,39 @@ void init_debug_rlva_menu(LLMenuGL* menu)
 		pDbgMenu->setCanTearOff(TRUE);
 
 		if (gSavedSettings.controlExists(RLV_SETTING_DEBUG))
-			pDbgMenu->addChild(new LLMenuItemCheckGL("Show Debug Messages", menu_toggle_control, NULL, menu_check_control, (void*)RLV_SETTING_DEBUG));
+			pDbgMenu->addChild(new LLMenuItemCheckGL("Show Debug Messages", menu_toggle_control, nullptr, menu_check_control, (void*)RLV_SETTING_DEBUG));
 		pDbgMenu->addSeparator();
 		if (gSavedSettings.controlExists(RLV_SETTING_ENABLELEGACYNAMING))
-			pDbgMenu->addChild(new LLMenuItemCheckGL("Enable Legacy Naming", menu_toggle_control, NULL, menu_check_control, (void*)RLV_SETTING_ENABLELEGACYNAMING));
+			pDbgMenu->addChild(new LLMenuItemCheckGL("Enable Legacy Naming", menu_toggle_control, nullptr, menu_check_control, (void*)RLV_SETTING_ENABLELEGACYNAMING));
 		if (gSavedSettings.controlExists(RLV_SETTING_SHAREDINVAUTORENAME))
-			pDbgMenu->addChild(new LLMenuItemCheckGL("Rename Shared Items on Wear", menu_toggle_control, NULL, menu_check_control, (void*)RLV_SETTING_SHAREDINVAUTORENAME));
+			pDbgMenu->addChild(new LLMenuItemCheckGL("Rename Shared Items on Wear", menu_toggle_control, nullptr, menu_check_control, (void*)RLV_SETTING_SHAREDINVAUTORENAME));
 
 		menu->addChild(pDbgMenu);
 		menu->addSeparator();
 	}
 
 	if (gSavedSettings.controlExists(RLV_SETTING_ENABLESHAREDWEAR))
-		menu->addChild(new LLMenuItemCheckGL("Enable Shared Wear", menu_toggle_control, NULL, menu_check_control, (void*)RLV_SETTING_ENABLESHAREDWEAR));
+		menu->addChild(new LLMenuItemCheckGL("Enable Shared Wear", menu_toggle_control, nullptr, menu_check_control, (void*)RLV_SETTING_ENABLESHAREDWEAR));
 	menu->addSeparator();
 
 	if ( (gSavedSettings.controlExists(RLV_SETTING_HIDELOCKEDLAYER)) &&
 			(gSavedSettings.controlExists(RLV_SETTING_HIDELOCKEDATTACH)) )
 	{
-		menu->addChild(new LLMenuItemCheckGL("Hide Locked Layers", menu_toggle_control, NULL, menu_check_control, (void*)RLV_SETTING_HIDELOCKEDLAYER));
-		menu->addChild(new LLMenuItemCheckGL("Hide Locked Attachments", menu_toggle_control, NULL, menu_check_control, (void*)RLV_SETTING_HIDELOCKEDATTACH));
+		menu->addChild(new LLMenuItemCheckGL("Hide Locked Layers", menu_toggle_control, nullptr, menu_check_control, (void*)RLV_SETTING_HIDELOCKEDLAYER));
+		menu->addChild(new LLMenuItemCheckGL("Hide Locked Attachments", menu_toggle_control, nullptr, menu_check_control, (void*)RLV_SETTING_HIDELOCKEDATTACH));
 		//sub_menu->addChild(new LLMenuItemToggleGL("Hide locked inventory", &rlv_handler_t::fHideLockedInventory));
 		menu->addSeparator();
 	}
 
 	if (gSavedSettings.controlExists(RLV_SETTING_FORBIDGIVETORLV))
-		menu->addChild(new LLMenuItemCheckGL("Forbid Give to #RLV", menu_toggle_control, NULL, menu_check_control, (void*)RLV_SETTING_FORBIDGIVETORLV));
+		menu->addChild(new LLMenuItemCheckGL("Forbid Give to #RLV", menu_toggle_control, nullptr, menu_check_control, (void*)RLV_SETTING_FORBIDGIVETORLV));
 	if (gSavedSettings.controlExists(RLV_SETTING_ENABLELEGACYNAMING))
-		menu->addChild(new LLMenuItemCheckGL("Show Name Tags", menu_toggle_control, NULL, menu_check_control, (void*)RLV_SETTING_SHOWNAMETAGS));
+		menu->addChild(new LLMenuItemCheckGL("Show Name Tags", menu_toggle_control, nullptr, menu_check_control, (void*)RLV_SETTING_SHOWNAMETAGS));
 	menu->addSeparator();
 
-	menu->addChild(new LLMenuItemCheckGL("Restrictions...", &RlvFloaterBehaviours::toggle, NULL, &RlvFloaterBehaviours::visible, NULL));
-	menu->addChild(new LLMenuItemCheckGL("Locks...", &RlvFloaterLocks::toggle, NULL, &RlvFloaterLocks::visible, NULL));
-	menu->addChild(new LLMenuItemCheckGL("Strings...", &RlvFloaterStrings::toggle, NULL, &RlvFloaterStrings::visible, NULL));
+	menu->addChild(new LLMenuItemCheckGL("Restrictions...", &RlvFloaterBehaviours::toggle, nullptr, &RlvFloaterBehaviours::visible, nullptr));
+	menu->addChild(new LLMenuItemCheckGL("Locks...", &RlvFloaterLocks::toggle, nullptr, &RlvFloaterLocks::visible, nullptr));
+	menu->addChild(new LLMenuItemCheckGL("Strings...", &RlvFloaterStrings::toggle, nullptr, &RlvFloaterStrings::visible, nullptr));
 }
 // [/RLVa:KB]
 
@@ -1625,18 +1628,18 @@ void init_server_menu(LLMenuGL* menu)
 		menu->addChild(sub);
 
 		sub->addChild(new LLMenuItemCallGL( "Take Copy",
-										  &force_take_copy, &is_god_customer_service, NULL,
+										  &force_take_copy, &is_god_customer_service, nullptr,
 										  'O', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
 #ifdef _CORY_TESTING
 		sub->addChild(new LLMenuItemCallGL( "Export Copy",
-										   &force_export_copy, NULL, NULL));
+										   &force_export_copy, nullptr, nullptr));
 		sub->addChild(new LLMenuItemCallGL( "Import Geometry",
-										   &force_import_geometry, NULL, NULL));
+										   &force_import_geometry, nullptr, nullptr));
 #endif
 		//sub->addChild(new LLMenuItemCallGL( "Force Public", 
-		//			&handle_object_owner_none, NULL, NULL));
+		//			&handle_object_owner_none, nullptr, nullptr));
 		//sub->addChild(new LLMenuItemCallGL( "Force Ownership/Permissive", 
-		//			&handle_object_owner_self_and_permissive, NULL, NULL, 'K', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
+		//			&handle_object_owner_self_and_permissive, nullptr, nullptr, 'K', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
 		sub->addChild(new LLMenuItemCallGL( "Force Owner To Me", 
 					&handle_object_owner_self, &is_god_customer_service));
 		sub->addChild(new LLMenuItemCallGL( "Force Owner Permissive", 
@@ -1644,11 +1647,11 @@ void init_server_menu(LLMenuGL* menu)
 		//sub->addChild(new LLMenuItemCallGL( "Force Totally Permissive", 
 		//			&handle_object_permissive));
 		sub->addChild(new LLMenuItemCallGL( "Delete", 
-					&handle_force_delete, &is_god_customer_service, NULL, KEY_DELETE, MASK_SHIFT | MASK_ALT | MASK_CONTROL));
+					&handle_force_delete, &is_god_customer_service, nullptr, KEY_DELETE, MASK_SHIFT | MASK_ALT | MASK_CONTROL));
 		sub->addChild(new LLMenuItemCallGL( "Lock", 
-					&handle_object_lock, &is_god_customer_service, NULL, 'L', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
+					&handle_object_lock, &is_god_customer_service, nullptr, 'L', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
 		sub->addChild(new LLMenuItemCallGL( "Get Asset IDs", 
-					&handle_object_asset_ids, &is_god_customer_service, NULL, 'I', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
+					&handle_object_asset_ids, &is_god_customer_service, nullptr, 'I', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
 		sub->createJumpKeys();
 	}
 	{
@@ -1657,10 +1660,10 @@ void init_server_menu(LLMenuGL* menu)
 
 		sub->addChild(new LLMenuItemCallGL("Owner To Me",
 										 &handle_force_parcel_owner_to_me,
-										 &is_god_customer_service, NULL));
+										 &is_god_customer_service, nullptr));
 		sub->addChild(new LLMenuItemCallGL("Set to Linden Content",
 										 &handle_force_parcel_to_content,
-										 &is_god_customer_service, NULL));
+										 &is_god_customer_service, nullptr));
 		sub->addSeparator();
 		sub->addChild(new LLMenuItemCallGL("Claim Public Land",
 										 &handle_claim_public_land, &is_god_customer_service));
@@ -1672,14 +1675,14 @@ void init_server_menu(LLMenuGL* menu)
 		menu->addChild(sub);
 		sub->addChild(new LLMenuItemCallGL("Dump Temp Asset Data",
 			&handle_region_dump_temp_asset_data,
-			&is_god_customer_service, NULL));
+			&is_god_customer_service, nullptr));
 		sub->createJumpKeys();
 	}	
 	menu->addChild(new LLMenuItemCallGL( "God Tools...", 
-		&LLFloaterGodTools::show, &enable_god_basic, NULL));
+		&LLFloaterGodTools::show, &enable_god_basic, nullptr));
 
 	{
-		LLMenuItemCallGL* item = new LLMenuItemCallGL("insert_admin", NULL);
+		LLMenuItemCallGL* item = new LLMenuItemCallGL("insert_admin", nullptr);
 		item->setVisible(false);
 		menu->addChild(item);
 	}
@@ -1687,7 +1690,7 @@ void init_server_menu(LLMenuGL* menu)
 	menu->addSeparator();
 
 	menu->addChild(new LLMenuItemCallGL("Save Region State", 
-		&LLPanelRegionTools::onSaveState, &is_god_customer_service, NULL));
+		&LLPanelRegionTools::onSaveState, &is_god_customer_service, nullptr));
 
 	menu->createJumpKeys();
 }
@@ -1739,28 +1742,28 @@ class LLAdvancedCheckWireframe : public view_listener_t
 void cleanup_menus()
 {
 	delete gMenuParcelObserver;
-	gMenuParcelObserver = NULL;
+	gMenuParcelObserver = nullptr;
 
 	delete gPieSelf;
-	gPieSelf = NULL;
+	gPieSelf = nullptr;
 
 	delete gPieAvatar;
-	gPieAvatar = NULL;
+	gPieAvatar = nullptr;
 
 	delete gPieObject;
-	gPieObject = NULL;
+	gPieObject = nullptr;
 
 	delete gPieAttachment;
-	gPieAttachment = NULL;
+	gPieAttachment = nullptr;
 
 	delete gPieLand;
-	gPieLand = NULL;
+	gPieLand = nullptr;
 
 	delete gMenuBarView;
-	gMenuBarView = NULL;
+	gMenuBarView = nullptr;
 
 	delete gMenuHolder;
-	gMenuHolder = NULL;
+	gMenuHolder = nullptr;
 
 	sMenus.clear();
 }
@@ -1988,7 +1991,7 @@ void handle_object_edit()
 		{
 			LLObjectSelectionHandle hSel = LLSelectMgr::getInstance()->getSelection();
 			RlvSelectIsEditable f;
-			if ((hSel.notNull()) && ((hSel->getFirstRootNode(&f, TRUE)) != NULL))
+			if ((hSel.notNull()) && ((hSel->getFirstRootNode(&f, TRUE)) != nullptr))
 				return;	// Can't edit any object under @edit=n
 		}
 		else if ( (gRlvHandler.hasBehaviour(RLV_BHVR_FARTOUCH)) &&
@@ -2226,7 +2229,7 @@ void reload_objects(LLTextureReloader& texture_list, LLViewerObject::const_child
 		{
 			texture_list.addTexture(object->getTEImage(i));
 			const LLTextureEntry* te = object->getTE(i);
-			if (LLMaterial* mat = te ? te->getMaterialParams().get() : NULL)
+			if (LLMaterial* mat = te ? te->getMaterialParams().get() : nullptr)
 			{
 				if (mat->getSpecularID().notNull())
 					texture_list.addTexture(LLViewerTextureManager::getFetchedTexture(mat->getSpecularID()));
@@ -2343,7 +2346,7 @@ class LLLandEnableBuyPass : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = LLPanelLandGeneral::enableBuyPass(NULL);
+		bool new_value = LLPanelLandGeneral::enableBuyPass(nullptr);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -2404,7 +2407,7 @@ bool enable_object_edit()
 	{
 		LLObjectSelectionHandle hSel = LLSelectMgr::getInstance()->getSelection();
 		RlvSelectIsEditable f;
-		enable = (hSel.notNull()) && ((hSel->getFirstRootNode(&f, TRUE)) == NULL);
+		enable = (hSel.notNull()) && ((hSel->getFirstRootNode(&f, TRUE)) == nullptr);
 // [/RLVa:KB]
 	}
 
@@ -2627,7 +2630,7 @@ class LLObjectEnableCopyUUID : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		bool new_value = (object != NULL);
+		bool new_value = (object != nullptr);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -2991,7 +2994,7 @@ bool callback_freeze(const LLSD& notification, const LLSD& response)
 void handle_avatar_freeze(const LLSD& avatar_id)
 {
 		// Use avatar_id if available, otherwise default to right-click avatar
-		LLVOAvatar* avatar = NULL;
+		LLVOAvatar* avatar = nullptr;
 		if (avatar_id.asUUID().notNull())
 		{
 			avatar = find_avatar_from_object(avatar_id.asUUID());
@@ -3073,7 +3076,7 @@ class LLObjectVisibleScriptCount : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		LLViewerObject* object = userdata["data"].asString() == "agent" ? gAgentAvatarp : LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		bool new_value = (object != NULL);
+		bool new_value = (object != nullptr);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		
 		return true;
@@ -3086,7 +3089,7 @@ class LLObjectEnableScriptDelete : public view_listener_t
 	{
 		auto objects = LLSelectMgr::getInstance()->getSelection();
 		LLViewerObject* object = objects->getPrimaryObject();
-		bool new_value = (object != NULL);
+		bool new_value = (object != nullptr);
 		if(new_value)
 		for (LLObjectSelection::root_iterator iter = objects->root_begin();
 			iter != objects->root_end(); iter++)
@@ -3184,7 +3187,7 @@ bool callback_eject(const LLSD& notification, const LLSD& response)
 void handle_avatar_eject(const LLSD& avatar_id)
 {
 		// Use avatar_id if available, otherwise default to right-click avatar
-		LLVOAvatar* avatar = NULL;
+		LLVOAvatar* avatar = nullptr;
 		if (avatar_id.asUUID().notNull())
 		{
 			avatar = find_avatar_from_object(avatar_id.asUUID());
@@ -3290,7 +3293,7 @@ class LLAvatarClientUUID : public view_listener_t
 bool enable_freeze_eject(const LLSD& avatar_id)
 {
 	// Use avatar_id if available, otherwise default to right-click avatar
-	LLVOAvatar* avatar = NULL;
+	LLVOAvatar* avatar = nullptr;
 	if (avatar_id.asUUID().notNull())
 	{
 		avatar = find_avatar_from_object(avatar_id.asUUID());
@@ -3431,7 +3434,7 @@ bool enable_buy_object()
     // In order to buy, there must only be 1 purchaseable object in
     // the selection manager.
 	if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() != 1) return false;
-    LLViewerObject* obj = NULL;
+    LLViewerObject* obj = nullptr;
     LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
 	if(node)
     {
@@ -3980,7 +3983,7 @@ class LLLandSit : public view_listener_t
 		{
 			target_rot = gAgent.getFrameAgent().getQuaternion();
 		}
-		gAgent.startAutoPilotGlobal(posGlobal, "Sit", &target_rot, near_sit_down_point, NULL, 0.7f);
+		gAgent.startAutoPilotGlobal(posGlobal, "Sit", &target_rot, near_sit_down_point, nullptr, 0.7f);
 		return true;
 	}
 };
@@ -4380,7 +4383,6 @@ void handle_claim_public_land(void*)
 
 void handle_dump_archetype_xml(void *)
 {
-	std::string emptyname;
 	LLVOAvatar* avatar =
 		find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 	if (!avatar)
@@ -4483,7 +4485,10 @@ static bool get_derezzable_objects(
 			break;
 
 		case DRD_RETURN_TO_OWNER:
-			can_derez_current = TRUE;
+			if(!object->isAttachment())
+			{
+				can_derez_current = TRUE;
+			}
 			break;
 
 		default:
@@ -4514,9 +4519,9 @@ static bool get_derezzable_objects(
 
 static bool can_derez(EDeRezDestination dest)
 {
-	LLViewerRegion* first_region = NULL;
+	LLViewerRegion* first_region = nullptr;
 	std::string error;
-	return get_derezzable_objects(dest, error, first_region, NULL, true);
+	return get_derezzable_objects(dest, error, first_region, nullptr, true);
 }
 
 static void derez_objects(
@@ -4591,17 +4596,13 @@ static void derez_objects(
 				LLViewerObject* object = objectsp->at(object_index++);
 				msg->nextBlockFast(_PREHASH_ObjectData);
 				msg->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
-				// <edit>
 				if(!gSavedSettings.getBOOL("DisablePointAtAndBeam"))
 				{
-				// </edit>
 					// VEFFECT: DerezObject
 					LLHUDEffectSpiral* effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
 					effectp->setPositionGlobal(object->getPositionGlobal());
 					effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-				// <edit>
 				}
-				// </edit>
 			}
 			msg->sendReliable(first_region->getHost());
 		}
@@ -4622,9 +4623,9 @@ static void derez_objects(
 
 static void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 {
-	LLViewerRegion* first_region = NULL;
+	LLViewerRegion* first_region = nullptr;
 	std::string error;
-	derez_objects(dest, dest_id, first_region, error, NULL);
+	derez_objects(dest, dest_id, first_region, error, nullptr);
 }
 
 class LLToolsTakeCopy : public view_listener_t
@@ -4646,7 +4647,7 @@ void handle_take_copy()
 		// Allow only if the avie isn't sitting on any of the selected objects
 		LLObjectSelectionHandle hSel = LLSelectMgr::getInstance()->getSelection();
 		RlvSelectIsSittingOn f(gAgentAvatarp);
-		if ( (hSel.notNull()) && (hSel->getFirstRootNode(&f, TRUE) != NULL) )
+		if ( (hSel.notNull()) && (hSel->getFirstRootNode(&f, TRUE) != nullptr) )
 			return;
 	}
 // [/RLVa:KB]
@@ -4659,7 +4660,7 @@ void handle_take_copy()
 class LLObjectReturn : public view_listener_t
 {
 public:
-	LLObjectReturn() : mFirstRegion(NULL) {}
+	LLObjectReturn() : mFirstRegion(nullptr) {}
 
 private:
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -4689,10 +4690,10 @@ private:
 
 		mReturnableObjects.clear();
 		mError.clear();
-		mFirstRegion = NULL;
+		mFirstRegion = nullptr;
 
 		// drop reference to current selection
-		mObjectSelection = NULL;
+		mObjectSelection = nullptr;
 		return false;
 	}
 
@@ -4800,7 +4801,7 @@ void handle_take()
 		// such a location and it is not in the trash or library
 		if(!gInventory.getCategory(category_id))
 		{
-			// nope, set to NULL.
+			// nope, set to nullptr.
 			category_id.setNull();
 		}
 		if(category_id.notNull())
@@ -5058,14 +5059,14 @@ void show_buy_currency(const char* extra)
 	// Don't show currency web page for branded clients.
 
 	std::ostringstream mesg;
-	if (extra != NULL)
+	if (extra != nullptr)
 	{	
 		mesg << extra << "\n \n";
 	}
 	mesg << "Go to " << BUY_CURRENCY_URL << "\nfor information on purchasing currency?";
 
 	LLSD args;
-	if (extra != NULL)
+	if (extra != nullptr)
 	{
 		args["EXTRA"] = extra;
 	}
@@ -5171,7 +5172,7 @@ class LLToolsEnablePathfinding : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		return (LLPathfindingManager::getInstance() != NULL) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion();
+		return (LLPathfindingManager::getInstance() != nullptr) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion();
 	}
 };
 
@@ -5179,7 +5180,7 @@ class LLToolsEnablePathfindingView : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		return (LLPathfindingManager::getInstance() != NULL) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLPathfindingManager::getInstance()->isPathfindingViewEnabled();
+		return (LLPathfindingManager::getInstance() != nullptr) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLPathfindingManager::getInstance()->isPathfindingViewEnabled();
 	}
 };
 
@@ -5187,7 +5188,7 @@ class LLToolsDoPathfindingRebakeRegion : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool hasPathfinding = (LLPathfindingManager::getInstance() != NULL);
+		bool hasPathfinding = (LLPathfindingManager::getInstance() != nullptr);
 
 		if (hasPathfinding)
 		{
@@ -5204,7 +5205,7 @@ class LLToolsEnablePathfindingRebakeRegion : public view_listener_t
 	{
 		bool returnValue = false;
 
-		if (LLPathfindingManager::getInstance() != NULL)
+		if (LLPathfindingManager::getInstance() != nullptr)
 		{
 			LLMenuOptionPathfindingRebakeNavmesh *rebakeInstance = LLMenuOptionPathfindingRebakeNavmesh::getInstance();
 			returnValue = (rebakeInstance->canRebakeRegion() &&
@@ -5291,7 +5292,7 @@ class LLToolsSelectNextPart : public view_listener_t
 				bool prev = (userdata.asString() == "previous");
 				bool ifwd = (userdata.asString() == "includenext");
 				bool iprev = (userdata.asString() == "includeprevious");
-				LLViewerObject* to_select = NULL;
+				LLViewerObject* to_select = nullptr;
 				LLViewerObject::child_list_t children = selected->getRootEdit()->getChildren();
 				children.push_front(selected->getRootEdit());	// need root in the list too
 
@@ -5338,7 +5339,7 @@ class LLToolsSelectNextPart : public view_listener_t
 				{
 					if (gFocusMgr.childHasKeyboardFocus(gFloaterTools))
 					{
-						gFocusMgr.setKeyboardFocus(NULL);	// force edit toolbox to commit any changes
+						gFocusMgr.setKeyboardFocus(nullptr);	// force edit toolbox to commit any changes
 					}
 					if (fwd || prev)
 					{
@@ -5590,13 +5591,13 @@ bool enable_object_delete()
 class LLObjectsReturnPackage
 {
 public:
-	LLObjectsReturnPackage() : mObjectSelection(), mReturnableObjects(), mError(),	mFirstRegion(NULL) {};
+	LLObjectsReturnPackage() : mObjectSelection(), mReturnableObjects(), mError(),	mFirstRegion(nullptr) {};
 	~LLObjectsReturnPackage()
 	{
 		mObjectSelection.clear();
 		mReturnableObjects.clear();
 		mError.clear();
-		mFirstRegion = NULL;
+		mFirstRegion = nullptr;
 	};
 
 	LLObjectSelectionHandle mObjectSelection;
@@ -5841,7 +5842,7 @@ void toggle_debug_menus(void*)
 // LLUUID gExporterRequestID;
 // std::string gExportDirectory;
 
-// LLUploadDialog *gExportDialog = NULL;
+// LLUploadDialog *gExportDialog = nullptr;
 
 // void handle_export_selected( void * )
 // {
@@ -5934,7 +5935,7 @@ class LLWorldFakeAway : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		handle_fake_away_status(NULL);
+		handle_fake_away_status(nullptr);
 		return true;
 	}
 };
@@ -6200,9 +6201,9 @@ bool enable_pay_avatar()
 {
 	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	LLVOAvatar* avatar = find_avatar_from_object(obj);
-//	return (avatar != NULL);
+//	return (avatar != nullptr);
 // [RLVa:KB] - Checked: 2010-08-25 (RLVa-1.2.1b) | Added: RLVa-1.2.1b
-	return (avatar != NULL) && (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) && !gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMETAGS));
+	return (avatar != nullptr) && (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) && !gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMETAGS));
 // [/RLVa:KB]
 }
 
@@ -6559,9 +6560,9 @@ private:
 		if (selectedObject)
 		{
 			S32 index = userdata.asInteger();
-			LLViewerJointAttachment* attachment_point = NULL;
+			LLViewerJointAttachment* attachment_point = nullptr;
 			if (index > 0)
-				attachment_point = get_if_there(gAgentAvatarp->mAttachmentPoints, index, (LLViewerJointAttachment*)NULL);
+				attachment_point = get_if_there(gAgentAvatarp->mAttachmentPoints, index, (LLViewerJointAttachment*)nullptr);
 
 // [RLVa:KB] - Checked: 2010-09-28 (RLVa-1.2.1f) | Modified: RLVa-1.2.1f
 			// RELEASE-RLVa: [SL-2.2.0] If 'index != 0' then the object will be "add attached" [see LLSelectMgr::sendAttach()]
@@ -6570,7 +6571,7 @@ private:
 				   ((index) && ((RLV_WEAR_ADD & gRlvAttachmentLocks.canAttach(attachment_point)) == 0)) ||	// or non-attachable attachpt
 				   (gRlvHandler.hasBehaviour(RLV_BHVR_REZ)) ) )											    // Attach on object == "Take"
 			{
-				setObjectSelection(NULL); // Clear the selection or it'll get stuck
+				setObjectSelection(nullptr); // Clear the selection or it'll get stuck
 				return true;
 			}
 // [/RLVa:KB]
@@ -6628,7 +6629,7 @@ void LLObjectAttachToAvatar::onNearAttachObject(BOOL success, void *user_data)
 		}
 		LLSelectMgr::getInstance()->sendAttach(attachment_id, cb_data->mReplace);
 	}		
-	LLObjectAttachToAvatar::setObjectSelection(NULL);
+	LLObjectAttachToAvatar::setObjectSelection(nullptr);
 
 	delete cb_data;
 }
@@ -6661,7 +6662,7 @@ void LLObjectAttachToAvatar::confirmReplaceAttachment(S32 option, LLViewerJointA
 
 			// The callback will be called even if avatar fails to get close enough to the object, so we won't get a memory leak.
 			CallbackData* user_data = new CallbackData(attachment_point, mReplace);
-			gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(walkToSpot), "Attach", NULL, onNearAttachObject, user_data, stop_distance);
+			gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(walkToSpot), "Attach", nullptr, onNearAttachObject, user_data, stop_distance);
 			gAgentCamera.clearFocusObject();
 		}
 	}
@@ -6727,7 +6728,7 @@ class LLAttachmentDrop : public view_listener_t
 				// NOTE: copy/paste of the code in enable_detach()
 				LLObjectSelectionHandle hSelect = LLSelectMgr::getInstance()->getSelection();
 				RlvSelectHasLockedAttach f;
-				if ( (hSelect->isAttachment()) && (hSelect->getFirstRootNode(&f, FALSE) != NULL) )
+				if ( (hSelect->isAttachment()) && (hSelect->getFirstRootNode(&f, FALSE) != nullptr) )
 					return true;
 			}
 			if (gRlvHandler.hasBehaviour(RLV_BHVR_REZ))
@@ -6874,7 +6875,7 @@ class LLAttachmentDetach : public view_listener_t
 		{
 			LLObjectSelectionHandle hSelect = LLSelectMgr::getInstance()->getSelection();
 			RlvSelectHasLockedAttach f;
-			if ( (hSelect->isAttachment()) && (hSelect->getFirstRootNode(&f, FALSE) != NULL) )
+			if ( (hSelect->isAttachment()) && (hSelect->getFirstRootNode(&f, FALSE) != nullptr) )
 				return true;
 		}
 // [/RLVa:KB]
@@ -6922,14 +6923,14 @@ class LLAttachmentEnableDrop : public view_listener_t
 		// item is in your inventory
 
 		LLViewerObject*              object         = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		LLViewerJointAttachment*     attachment     = NULL;
-		LLInventoryItem*             item           = NULL;
+		LLViewerJointAttachment*     attachment     = nullptr;
+		LLInventoryItem*             item           = nullptr;
 
 		// Do not enable drop if all faces of object are not enabled
 		if (object && LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
 		{
 			S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getAttachmentState());
-			attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
+			attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)nullptr);
 
 			if (attachment)
 			{
@@ -6991,7 +6992,7 @@ BOOL enable_detach(const LLSD&)
 			{
 				LLObjectSelectionHandle hSelect = LLSelectMgr::getInstance()->getSelection();
 				RlvSelectHasLockedAttach f;
-				if ( (hSelect->isAttachment()) && (hSelect->getFirstRootNode(&f, FALSE) != NULL) )
+				if ( (hSelect->isAttachment()) && (hSelect->getFirstRootNode(&f, FALSE) != nullptr) )
 					return FALSE;
 			}
 // [/RLVa:KB]
@@ -7025,8 +7026,8 @@ BOOL object_selected_and_point_valid(void *user_data)
 
 		// RELEASE-RLVa: look at the caller graph for this function on every new release
 		//	-> 1.22.11 and 1.23.4
-		//		- object_is_wearable() => dead code [user_data == NULL => default attach point => OK!]
-		//      - LLObjectEnableWear::handleEvent() => Rezzed prim / right-click / "Wear" [user_data == NULL => see above]
+		//		- object_is_wearable() => dead code [user_data == nullptr => default attach point => OK!]
+		//      - LLObjectEnableWear::handleEvent() => Rezzed prim / right-click / "Wear" [user_data == nullptr => see above]
 		//      - enabler set up in LLVOAvatar::buildCharacter() => Rezzed prim / right-click / "Attach >" [user_data == pAttachPt]
 		//      - enabler set up in LLVOAvatar::buildCharacter() => Rezzed prim / Edit menu / "Attach Object" [user_data == pAttachPt]
 		const LLViewerJointAttachment* pAttachPt = (const LLViewerJointAttachment*)user_data;
@@ -7062,7 +7063,7 @@ BOOL object_selected_and_point_valid(void *user_data)
 		selection->getFirstRootObject()->permYouOwner() &&
 		!selection->getFirstRootObject()->flagObjectPermanent() &&
 		!((LLViewerObject*)selection->getFirstRootObject()->getRoot())->isAvatar() && 
-		(selection->getFirstRootObject()->getNVPair("AssetContainer") == NULL);
+		(selection->getFirstRootObject()->getNVPair("AssetContainer") == nullptr);
 }
 
 
@@ -7070,7 +7071,7 @@ BOOL object_selected_and_point_valid(void *user_data)
 /*
 BOOL object_is_wearable()
 {
-	if (!object_selected_and_point_valid(NULL))
+	if (!object_selected_and_point_valid(nullptr))
 	{
 		return FALSE;
 	}
@@ -7099,7 +7100,7 @@ class LLObjectEnableWear : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool is_wearable = object_selected_and_point_valid(NULL);
+		bool is_wearable = object_selected_and_point_valid(nullptr);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(is_wearable);
 		return TRUE;
 	}
@@ -7137,14 +7138,18 @@ class LLAvatarSendIM : public view_listener_t
 
 namespace
 {
-	struct QueueObjects : public LLSelectedObjectFunctor
+	struct QueueObjects final : public LLSelectedObjectFunctor
 	{
 		BOOL scripted;
 		BOOL modifiable;
 		LLFloaterScriptQueue* mQueue;
 		QueueObjects(LLFloaterScriptQueue* q) : mQueue(q), scripted(FALSE), modifiable(FALSE) {}
-		virtual bool apply(LLViewerObject* obj)
+		bool apply(LLViewerObject* obj) override
 		{
+			if (!obj)
+			{
+				return true;
+			}
 			scripted = obj->flagScripted();
 			modifiable = obj->permModify();
 
@@ -7203,13 +7208,13 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		{
 			LLObjectSelectionHandle hSel = LLSelectMgr::getInstance()->getSelection();
 			RlvSelectHasLockedAttach f;
-			if ( (hSel->isAttachment()) && (hSel->getFirstNode(&f) != NULL) )
+			if ( (hSel->isAttachment()) && (hSel->getFirstNode(&f) != nullptr) )
 				return true;
 		}
 // [/RLVa:KB]
 
 		std::string action = userdata.asString();
-		LLFloaterScriptQueue* queue = NULL;
+		LLFloaterScriptQueue* queue = nullptr;
 		std::string msg;
 		if (action == "compile mono")
 		{
@@ -7356,7 +7361,7 @@ void handle_toggle_pg(void*)
 {
 	gAgent.setTeen( !gAgent.isTeen() );
 
-	LLFloaterWorldMap::reloadIcons(NULL);
+	LLFloaterWorldMap::reloadIcons(nullptr);
 
 	LL_INFOS() << "PG status set to " << gAgent.isTeen() << LL_ENDL;
 }
@@ -7376,7 +7381,7 @@ void handle_dump_attachments(void*)
 			 ++attachment_iter)
 		{
 			LLViewerObject *attached_object = (*attachment_iter);
-			BOOL visible = (attached_object != NULL &&
+			BOOL visible = (attached_object != nullptr &&
 							attached_object->mDrawable.notNull() && 
 							!attached_object->mDrawable->isRenderType(0));
 			LLVector3 pos;
@@ -7517,7 +7522,7 @@ static bool is_editable_selected()
 	}
 // [/RLVa:KB]
 
-	return (LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject() != NULL);
+	return (LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject() != nullptr);
 }
 
 class LLEditableSelected : public view_listener_t
@@ -7596,7 +7601,7 @@ class LLToolsEnableAdminDelete : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		return (object != NULL);
+		return (object != nullptr);
 	}
 };
 class LLToolsAdminDelete : public view_listener_t
@@ -7679,7 +7684,7 @@ bool enable_save_into_inventory()
 {
 	// *TODO: clean this up
 	// find the last root
-	LLSelectNode* last_node = NULL;
+	LLSelectNode* last_node = nullptr;
 	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
 		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
 	{
@@ -7699,7 +7704,7 @@ bool enable_save_into_inventory()
 	// check all pre-req's for save into inventory.
 	if(last_node && last_node->mValid && !last_node->mItemID.isNull()
 	   && (last_node->mPermissions->getOwner() == gAgent.getID())
-	   && (gInventory.getItem(last_node->mItemID) != NULL))
+	   && (gInventory.getItem(last_node->mItemID) != nullptr))
 	{
 		LLViewerObject* obj = last_node->getObject();
 		if( obj && !obj->isAttachment() )
@@ -7730,7 +7735,7 @@ class LLToolsEnableSaveToObjectInventory : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = enable_save_into_task_inventory(NULL);
+		bool new_value = enable_save_into_task_inventory(nullptr);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -8028,11 +8033,10 @@ void init_meshes_and_morphs_menu()
 
 			lod_menu->addSeparator();
 
-			for(LLPolyMesh::morph_list_t::iterator morph_iter = morph_list.begin();
-				morph_iter != morph_list.end(); ++morph_iter)
+			for(auto& morph : morph_list)
 			{
-				std::string const& morph_name = morph_iter->first;
-				LLPolyMorphData* morph_data = morph_iter->second;
+				std::string const& morph_name = morph.first;
+				LLPolyMorphData* morph_data = morph.second;
 
 				action_menu = new LLMenuGL(morph_name);
 
@@ -8062,7 +8066,7 @@ void handle_mesh_save_llm(void* data)
 
 	if (!mesh_name)
 	{
-		LL_WARNS() << "LPolyMesh::getSharedMeshName returned NULL" << LL_ENDL;
+		LL_WARNS() << "LPolyMesh::getSharedMeshName returned nullptr" << LL_ENDL;
 		return;
 	}
 
@@ -8135,7 +8139,7 @@ void handle_mesh_save_current_obj(void* data)
 
 	if (!mesh_name)
 	{
-		LL_WARNS() << "LPolyMesh::getSharedMeshName returned NULL" << LL_ENDL;
+		LL_WARNS() << "LPolyMesh::getSharedMeshName returned nullptr" << LL_ENDL;
 		return;
 	}
 
@@ -8184,7 +8188,7 @@ void handle_mesh_save_obj(void* data)
 
 	if (!mesh_name)
 	{
-		LL_WARNS() << "LPolyMesh::getSharedMeshName returned NULL" << LL_ENDL;
+		LL_WARNS() << "LPolyMesh::getSharedMeshName returned nullptr" << LL_ENDL;
 		return;
 	}
 
@@ -8216,7 +8220,7 @@ static void handle_mesh_save_obj_continued(void* data, AIFilePicker* filepicker)
 		return;
 	}
 
-	LLPolyMesh mesh(mesh_shared,NULL);
+	LLPolyMesh mesh(mesh_shared,nullptr);
 	mesh.saveOBJ(fp);
 	fclose(fp);
 }
@@ -8230,7 +8234,7 @@ void handle_mesh_load_obj(void* data)
 
 	if (!mesh_name)
 	{
-		LL_WARNS() << "LPolyMesh::getSharedMeshName returned NULL" << LL_ENDL;
+		LL_WARNS() << "LPolyMesh::getSharedMeshName returned nullptr" << LL_ENDL;
 		return;
 	}
 
@@ -8259,7 +8263,7 @@ static void handle_mesh_load_obj_continued(void* data, AIFilePicker* filepicker)
 		return;
 	}
 
-	LLPolyMesh mesh(mesh_shared,NULL);
+	LLPolyMesh mesh(mesh_shared,nullptr);
 	mesh.loadOBJ(fp);
 	mesh.setSharedFromCurrent();
 	fclose(fp);
@@ -8275,7 +8279,7 @@ void handle_morph_save_obj(void* data)
 
 	if (!mesh_name)
 	{
-		LL_WARNS() << "LPolyMesh::getSharedMeshName returned NULL" << LL_ENDL;
+		LL_WARNS() << "LPolyMesh::getSharedMeshName returned nullptr" << LL_ENDL;
 		return;
 	}
 
@@ -8323,7 +8327,7 @@ void handle_morph_load_obj(void* data)
 
 	if (!mesh_name)
 	{
-		LL_WARNS() << "LPolyMesh::getSharedMeshName returned NULL" << LL_ENDL;
+		LL_WARNS() << "LPolyMesh::getSharedMeshName returned nullptr" << LL_ENDL;
 		return;
 	}
 
@@ -8354,7 +8358,7 @@ static void handle_morph_load_obj_continued(void* data, AIFilePicker* filepicker
 		return;
 	}
 
-	LLPolyMesh mesh(mesh_shared,NULL);
+	LLPolyMesh mesh(mesh_shared,nullptr);
 	mesh.loadOBJ(fp);
 	fclose(fp);
 
@@ -8362,7 +8366,7 @@ static void handle_morph_load_obj_continued(void* data, AIFilePicker* filepicker
 }
 
 // Returns a pointer to the avatar give the UUID of the avatar OR of an attachment the avatar is wearing.
-// Returns NULL on failure.
+// Returns nullptr on failure.
 LLVOAvatar* find_avatar_from_object( LLViewerObject* object )
 {
 	if (object)
@@ -8377,7 +8381,7 @@ LLVOAvatar* find_avatar_from_object( LLViewerObject* object )
 		}
 		else if( !object->isAvatar() )
 		{
-			object = NULL;
+			object = nullptr;
 		}
 	}
 
@@ -8386,7 +8390,7 @@ LLVOAvatar* find_avatar_from_object( LLViewerObject* object )
 
 
 // Returns a pointer to the avatar give the UUID of the avatar OR of an attachment the avatar is wearing.
-// Returns NULL on failure.
+// Returns nullptr on failure.
 LLVOAvatar* find_avatar_from_object( const LLUUID& object_id )
 {
 	return find_avatar_from_object( gObjectList.findObject(object_id) );
@@ -8478,8 +8482,8 @@ BOOL LLViewerMenuHolderGL::hideMenus()
 	}
 
 	// drop pie menu selection
-	mParcelSelection = NULL;
-	mObjectSelection = NULL;
+	mParcelSelection = nullptr;
+	mObjectSelection = nullptr;
 
 	if (gMenuBarView)
 	{
@@ -8885,7 +8889,7 @@ class SinguEnableStreamingAudioDisplay : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		return handle_ticker_enabled(NULL);
+		return handle_ticker_enabled(nullptr);
 	}
 };
 
@@ -8896,7 +8900,7 @@ class SinguPoseStand : public view_listener_t
 		if (current_pose.isNull())
 			set_current_pose("038fcec9-5ebd-8a8e-0e2e-6e71a0a1ac53");
 		else
-			handle_pose_stand_stop(NULL);
+			handle_pose_stand_stop(nullptr);
 		return true;
 	}
 };
@@ -8905,7 +8909,7 @@ class SinguCheckPoseStand : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(handle_check_pose(NULL));
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(handle_check_pose(nullptr));
 		return true;
 	}
 };
@@ -8914,7 +8918,7 @@ class SinguRebake : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		handle_rebake_textures(NULL);
+		handle_rebake_textures(nullptr);
 		return true;
 	}
 };
@@ -9094,6 +9098,7 @@ const std::string get_slurl_for(const LLUUID& id, const LFIDBearer::Type& type)
 
 		return LLSLURL("objectim", id, LLURI::mapToQueryString(sdQuery)).getSLURLString();
 	}
+	case LFIDBearer::EXPERIENCE: return LLSLURL("experience", id, "profile").getSLURLString();
 	default: return LLStringUtil::null;
 	}
 }
@@ -9251,12 +9256,18 @@ class ListCopyNames : public view_listener_t
 		return obj_data ? obj_data->name : LLStringUtil::null;
 	}
 
+	static std::string getExperienceName(const LLUUID& id)
+	{
+		return LLExperienceCache::instance().get(id)[LLExperienceCache::NAME];
+	}
+
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		LLWString str;
 		const auto& type = LFIDBearer::getActiveType();
 		copy_from_ids(LFIDBearer::getActiveSelectedIDs(), type == LFIDBearer::GROUP ? getGroupName :
 			type == LFIDBearer::OBJECT ? getObjectName :
+			type == LFIDBearer::EXPERIENCE ? getExperienceName :
 			getAvatarName);
 		if (!str.empty()) LLView::getWindow()->copyTextToClipboard(str);
 		return true;
@@ -9368,6 +9379,7 @@ class ListShowProfile : public view_listener_t
 		case LFIDBearer::AVATAR: LLAvatarActions::showProfiles(LFIDBearer::getActiveSelectedIDs()); break;
 		case LFIDBearer::GROUP: LLGroupActions::showProfiles(LFIDBearer::getActiveSelectedIDs()); break;
 		case LFIDBearer::OBJECT: for (const auto& id : LFIDBearer::getActiveSelectedIDs()) LLUrlAction::openURL(get_slurl_for(id, LFIDBearer::OBJECT)); break;
+		case LFIDBearer::EXPERIENCE: for (const auto& id : LFIDBearer::getActiveSelectedIDs()) LLFloaterExperienceProfile::showInstance(id); break;
 		default: break;
 		}
 		return true;
@@ -9456,7 +9468,48 @@ class ListAbuseReport : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLFloaterReporter::showFromObject(LFIDBearer::getActiveSelectedID());
+		if (LFIDBearer::getActiveType() == LFIDBearer::EXPERIENCE)
+			LLFloaterReporter::showFromExperience(LFIDBearer::getActiveSelectedID());
+		else
+			LLFloaterReporter::showFromObject(LFIDBearer::getActiveSelectedID());
+		return true;
+	}
+};
+
+void set_experience_permission(const char* perm, const uuid_vec_t& ids)
+{
+	if (!gAgent.getRegion()) return;
+	auto& cache = LLExperienceCache::instance();
+	for (const auto& id : ids)
+		cache.setExperiencePermission(id, perm, boost::bind(LLFloaterExperienceProfile::experiencePermissionResults, id, _1));
+}
+
+class ListExperienceAllow : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		set_experience_permission("Allow", LFIDBearer::getActiveSelectedIDs());
+		return true;
+	}
+};
+
+class ListExperienceForget : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		if (!gAgent.getRegion()) return true;
+		auto& cache = LLExperienceCache::instance();
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+			cache.forgetExperiencePermission(id, boost::bind(LLFloaterExperienceProfile::experiencePermissionResults, id, _1));
+		return true;
+	}
+};
+
+class ListExperienceBlock : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		set_experience_permission("Block", LFIDBearer::getActiveSelectedIDs());
 		return true;
 	}
 };
@@ -10181,6 +10234,9 @@ void initialize_menus()
 	addMenu(new ListObjectEnableTouch, "List.Object.EnableTouch");
 	addMenu(new ListObjectEdit, "List.Object.Edit");
 	addMenu(new ListObjectCanEdit, "List.Object.CanEdit");
+	addMenu(new ListExperienceAllow, "List.Experience.Allow");
+	addMenu(new ListExperienceForget, "List.Experience.Forget");
+	addMenu(new ListExperienceBlock, "List.Experience.Block");
 
 	add_radar_listeners();
 

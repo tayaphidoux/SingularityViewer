@@ -387,6 +387,7 @@ static LFIDBearer::Type get_type_from_url(const std::string& url)
 		auto type = url.substr(pos + 5, 5);
 		return type == "agent" ? LFIDBearer::AVATAR
 			: type == "group" ? LFIDBearer::GROUP
+			: type == "experience" ? LFIDBearer::EXPERIENCE
 			: LFIDBearer::OBJECT;
 	}
 	return LFIDBearer::NONE;

@@ -44,8 +44,7 @@
 #include "llviewermedia_streamingaudio.h"
 #include "llaudioengine.h"
 
-
-#if LL_FMODSTUDIO
+#ifdef LL_FMODSTUDIO
 # include "llaudioengine_fmodstudio.h"
 #endif
 
@@ -61,6 +60,7 @@
 
 #include "llares.h"
 #include "llavatarnamecache.h"
+#include "llexperiencecache.h"
 #include "lllandmark.h"
 #include "llcachename.h"
 #include "lldir.h"
@@ -230,7 +230,6 @@
 // </edit>
 
 #include "llpathfindingmanager.h"
-#include "llevents.h"
 
 #include "lgghunspell_wrapper.h"
 
@@ -238,6 +237,8 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
+#include "llevents.h"
+#include "llexperiencelog.h"
 #if LL_WINDOWS
 #include "llwindebug.h"
 #include "lldxhardware.h"
@@ -1724,6 +1725,9 @@ bool idle_startup()
 		// Set agent's initial position, which will be read by LLVOAvatar when the avatar
 		// object is created.  I think this must be done after setting the region.  JC
 		gAgent.setPositionAgent(agent_start_position_region);
+
+		display_startup();
+		LLStartUp::initExperiences();
 
 		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
@@ -3541,12 +3545,22 @@ void LLStartUp::initNameCache()
 	LLAvatarNameCache::setUseUsernames(!phoenix_name_system || phoenix_name_system == 1 || phoenix_name_system == 3);
 }
 
+
+void LLStartUp::initExperiences()
+{
+    // Should trigger loading the cache.
+    LLExperienceCache::instance().setCapabilityQuery(
+        boost::bind(&LLAgent::getRegionCapability, &gAgent, _1));
+
+	LLExperienceLog::instance().initialize();
+}
+
 void LLStartUp::cleanupNameCache()
 {
 	LLAvatarNameCache::cleanupClass();
 
 	delete gCacheName;
-	gCacheName = NULL;
+	gCacheName = nullptr;
 }
 
 bool LLStartUp::dispatchURL()
@@ -4278,3 +4292,4 @@ void transition_back_to_login_panel(const std::string& emsg)
 	reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 	gSavedSettings.setBOOL("AutoLogin", FALSE);
 }
+

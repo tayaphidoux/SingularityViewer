@@ -145,6 +145,16 @@
         <button.commit_callback function="ShowFloater" parameter="appearance"/>
       </button>
     </layout_panel>
+    <layout_panel name="panelexperiences" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleExperiences">
+      <button sound_flags="0" bottom="0" height="24" label="Experiences" image_overlay="icn_toolbar_experiences.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="experiences_btn" width="50" follows="left|right">
+        <button.commit_callback function="ShowFloater" parameter="experiences"/>
+      </button>
+    </layout_panel>
+    <layout_panel name="panelexperiencesearch" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleExperiencePicker">
+      <button sound_flags="0" bottom="0" height="24" label="Experience Search" image_overlay="icn_toolbar_experience_picker.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="experience_picker_btn" width="50" follows="left|right">
+        <button.commit_callback function="ShowFloater" parameter="experience_search"/>
+      </button>
+    </layout_panel>
     <layout_panel name="panel9" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleSearch">
       <button sound_flags="0" bottom="0" height="24" label="Search" image_overlay="icn_toolbar_search.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="directory_btn" tool_tip="Search for places, events, people, and more.(Ctrl-F)" width="50" follows="left|right" control_name="ShowDirectory">
         <button.commit_callback function="ShowFloater" parameter="search"/>

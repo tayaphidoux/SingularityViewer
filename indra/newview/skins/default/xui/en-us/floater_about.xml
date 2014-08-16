@@ -5,7 +5,7 @@
  title="About [SHORT_APP_NAME]" width="470">
   <tab_container follows="all" bottom="1" border="false" left="10" height="414" width="450" name="about_tab" tab_position="top">
     <panel border="false" height="386" label="Info" help_topic="about_support_tab" name="support_panel">
-      <text_editor parse_urls="true" follows="top|left" font="SansSerif" top="-1" bg_readonly_color="transparent" left="3" max_length="65536" name="support_editor" bottom="28" width="443" word_wrap="true"/>
+      <text_editor allow_html="true" follows="top|left" font="SansSerif" top="-1" bg_readonly_color="transparent" left="3" max_length="65536" name="support_editor" bottom="28" width="443" word_wrap="true" enabled="false"/>
       <button follows="left|top" label="Copy to Clipboard" name="copy_btn" right="-5" bottom="0" top_pad="5" height="25" width="180"/>
     </panel>
 

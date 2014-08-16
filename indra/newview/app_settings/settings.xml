@@ -7500,6 +7500,38 @@ This should be as low as possible, but too low may break functionality</string>
         <integer>0</integer>
       </array>
     </map>
+    <key>FloaterExperienceProfileRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Rectangle for experience profile floaters</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>16</integer>
+        <integer>650</integer>
+        <integer>600</integer>
+        <integer>128</integer>
+      </array>
+    </map>
+    <key>FloaterExperiencesRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Rectangle for experiences floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>16</integer>
+        <integer>650</integer>
+        <integer>600</integer>
+        <integer>128</integer>
+      </array>
+    </map>
     <key>FloaterFindRect2</key>
     <map>
       <key>Comment</key>
@@ -11676,6 +11708,17 @@ This should be as low as possible, but too low may break functionality</string>
       <string>S32</string>
       <key>Value</key>
       <integer>344</integer>
+    </map>
+    <key>PickerContextOpacity</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls overall opacity of context frustrum connecting color and texture pickers with their swatches</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.34999999404</real>
     </map>
     <key>RevokePermsOnStandUp</key>
     <map>

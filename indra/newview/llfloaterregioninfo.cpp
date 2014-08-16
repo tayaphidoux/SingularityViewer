@@ -3,31 +3,25 @@
  * @author Aaron Brashears
  * @brief Implementation of the region info and controls floater and panels.
  *
- * $LicenseInfo:firstyear=2004&license=viewergpl$
- * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
- * 
+ * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
- * The source code in this file ("Source Code") is provided by Linden Lab
- * to you under the terms of the GNU General Public License, version 2.0
- * ("GPL"), unless you have obtained a separate licensing agreement
- * ("Other License"), formally executed by you and Linden Lab.  Terms of
- * the GPL can be found in doc/GPL-license.txt in this distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ * Copyright (C) 2010, Linden Research, Inc.
  * 
- * There are special exceptions to the terms and conditions of the GPL as
- * it is applied to this Source Code. View the full text of the exception
- * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at
- * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
  * 
- * By copying, modifying or distributing this software, you acknowledge
- * that you have read and understood your obligations described above,
- * and agree to abide by those obligations.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  * 
- * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
- * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
- * COMPLETENESS OR PERFORMANCE.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
@@ -65,6 +59,7 @@
 #include "llfloaterregiondebugconsole.h"
 #include "llfloatertelehub.h"
 #include "llinventorymodel.h"
+#include "lllayoutstack.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
 #include "llnotifications.h"
@@ -88,6 +83,11 @@
 #include "llvlcomposition.h"
 #include "llwaterparammanager.h"
 #include "llagentui.h"
+#include "llpanelexperiencelisteditor.h"
+#include <boost/function.hpp>
+#include "llpanelexperiencepicker.h"
+#include "llexperiencecache.h"
+#include "llpanelexperiences.h"
 #include "hippogridmanager.h"
 // [RLVa:KB]
 #include "rlvhandler.h"
@@ -124,6 +124,18 @@ public:
 		const std::string& key,
 		const LLUUID& invoice,
 		const sparam_t& strings);
+};
+
+class LLDispatchSetEstateExperience : public LLDispatchHandler
+{
+public:
+	virtual bool operator()(
+		const LLDispatcher* dispatcher,
+		const std::string& key,
+		const LLUUID& invoice,
+		const sparam_t& strings);
+
+	LLSD getIDs(sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count);
 };
 
 
@@ -255,6 +267,13 @@ BOOL LLFloaterRegionInfo::postBuild()
 	mInfoPanels.push_back(panel);
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_debug.xml");
 	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+
+	if (!gAgent.getRegion()->getCapability("RegionExperiences").empty())
+	{
+		panel = new LLPanelRegionExperiences;
+		mInfoPanels.push_back(panel);
+		mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+	}
 
 	gMessageSystem->setHandlerFunc(
 		"EstateOwnerMessage", 
@@ -530,6 +549,16 @@ LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
 	llassert(panel);
 	return panel;
 }
+
+LLPanelRegionExperiences* LLFloaterRegionInfo::getPanelExperiences()
+{
+	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
+	if (!floater) return NULL;
+	LLTabContainer* tab_container = floater->getChild<LLTabContainer>("region_panels");
+	return (LLPanelRegionExperiences*)tab_container->getChild<LLPanel>("Experiences");
+}
+
+
 
 void LLFloaterRegionInfo::onTabSelected(const LLSD& param)
 {
@@ -1537,6 +1566,11 @@ void LLPanelEstateInfo::initDispatch(LLDispatcher& dispatch)
 	name.assign("setaccess");
 	static LLDispatchSetEstateAccess set_access;
 	dispatch.addHandler(name, &set_access);
+
+
+	name.assign("setexperience");
+	static LLDispatchSetEstateAccess set_experience;
+	dispatch.addHandler(name, &set_experience);
 
 	estate_dispatch_initialized = true;
 }
@@ -3043,7 +3077,6 @@ void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
 	}
 }
 
-#if 0 // Singu TODO: Experiences
 LLPanelRegionExperiences::LLPanelRegionExperiences()
 : mTrusted(nullptr)
 , mAllowed(nullptr)
@@ -3314,7 +3347,6 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 	onChangeAnything();
 }
 
-#endif // Singu TODO: Experiences
 
 LLPanelEstateAccess::LLPanelEstateAccess()
 : LLPanelRegionInfo(), mPendingUpdate(false)
@@ -4358,10 +4390,11 @@ void LLFloaterRegionInfo::open()
 	{
 		const LLViewerRegion* region(gAgent.getRegion());
 		// Should be able to call LLRegion::canManageEstate() but then we can fake god like
-		if (!(region && region->isEstateManager() && region->getOwner() == gAgentID))
+		if (!region || !region->isEstateManager() || region->getOwner() != gAgentID)
 			return;
 	}
 
 	LLFloater::open();
 }
 // [/RLVa:KB]
+

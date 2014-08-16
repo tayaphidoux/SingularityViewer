@@ -181,6 +181,7 @@ set(viewer_SOURCE_FILES
     lleventinfo.cpp
     lleventnotifier.cpp
     lleventpoll.cpp
+    llexperiencelog.cpp
     llexternaleditor.cpp
     llface.cpp
     llfasttimerview.cpp
@@ -221,6 +222,9 @@ set(viewer_SOURCE_FILES
     llfloatereditui.cpp
     llfloaterenvsettings.cpp
     llfloaterevent.cpp
+    llfloaterexperiencepicker.cpp
+    llfloaterexperienceprofile.cpp
+    llfloaterexperiences.cpp
     llfloaterexploreanimations.cpp
     llfloaterexploresounds.cpp
     llfloaterfeed.cpp
@@ -382,11 +386,16 @@ set(viewer_SOURCE_FILES
     llpaneldisplay.cpp
     llpaneleditwearable.cpp
     llpanelevent.cpp
+    llpanelexperiencelisteditor.cpp
+    llpanelexperiencelog.cpp
+    llpanelexperiencepicker.cpp
+    llpanelexperiences.cpp
     llpanelface.cpp
     llpanelgeneral.cpp
     llpanelgroup.cpp
     llpanelgroupbulk.cpp
     llpanelgroupbulkban.cpp
+    llpanelgroupexperiences.cpp
     llpanelgroupgeneral.cpp
     llpanelgroupinvite.cpp
     llpanelgrouplandmoney.cpp
@@ -715,6 +724,7 @@ set(viewer_HEADER_FILES
     lleventinfo.h
     lleventnotifier.h
     lleventpoll.h
+    llexperiencelog.h
     llexternaleditor.h
     llface.h
     llfasttimerview.h
@@ -755,6 +765,9 @@ set(viewer_HEADER_FILES
     llfloatereditui.h
     llfloaterenvsettings.h
     llfloaterevent.h
+    llfloaterexperiencepicker.h
+    llfloaterexperienceprofile.h
+    llfloaterexperiences.h
     llfloaterexploreanimations.h
     llfloaterexploresounds.h
     llfloaterfeed.h
@@ -916,12 +929,17 @@ set(viewer_HEADER_FILES
     llpaneldisplay.h
     llpaneleditwearable.h
     llpanelevent.h
+    llpanelexperiencelisteditor.h
+    llpanelexperiencelog.h
+    llpanelexperiencepicker.h
+    llpanelexperiences.h
     llpanelface.h
     llpanelgeneral.h
     llpanelgroup.h
     llpanelgroupbulk.h
     llpanelgroupbulkban.h
     llpanelgroupbulkimpl.h
+    llpanelgroupexperiences.h
     llpanelgroupgeneral.h
     llpanelgroupinvite.h
     llpanelgrouplandmoney.h

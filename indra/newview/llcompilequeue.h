@@ -103,7 +103,7 @@ protected:
 
 	// Get this instance's ID.
 	const LLUUID& getID() const { return mID; } 
-	
+
 protected:
 	// UI
 	LLScrollListCtrl* mMessages;
@@ -149,8 +149,8 @@ public:
 
 	LLAssetUploadQueue* getUploadQueue() { return mUploadQueue; }
 
-	void experienceIdsReceived( const LLSD& content );
-	BOOL hasExperience(const LLUUID& id)const;
+	void experienceIdsReceived(const LLSD& content);
+	BOOL hasExperience(const LLUUID& id) const;
 
 protected:
 	LLFloaterCompileQueue(const std::string& name, const LLRect& rect);
@@ -159,6 +159,9 @@ protected:
 	// This is called by inventoryChanged
 	virtual void handleInventory(LLViewerObject* viewer_obj,
 								 LLInventoryObject::object_list_t* inv);
+
+	static void requestAsset(struct LLScriptQueueData* datap, const LLSD& experience);
+
 
 	// This is the callback for when each script arrives
 	static void scriptArrived(LLVFS *vfs, const LLUUID& asset_id,

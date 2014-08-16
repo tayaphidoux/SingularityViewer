@@ -95,6 +95,7 @@
 // Linden library includes
 #include "llavatarnamecache.h"
 #include "lldiriterator.h"
+#include "llexperiencecache.h"
 #include "llimagej2c.h"
 #include "llmemory.h"
 #include "llprimitive.h"
@@ -4179,6 +4180,7 @@ void LLAppViewer::idle()
 		// floating throughout the various object lists.
 		//
 		idleNameCache();
+		if (gAgent.getRegion()) LLExperienceCache::instance().idleCoro();
 
 		gFrameStats.start(LLFrameStats::IDLE_NETWORK);
 		stop_glerror();
@@ -4843,6 +4845,12 @@ void LLAppViewer::disconnectViewer()
 	}
 
 	saveNameCache();
+	if (LLExperienceCache::instanceExists())
+	{
+		// TODO: LLExperienceCache::cleanup() logic should be moved to
+		// cleanupSingleton().
+		LLExperienceCache::instance().cleanup();
+	}
 
 	// close inventory interface, close all windows
 	LLPanelMainInventory::cleanup();

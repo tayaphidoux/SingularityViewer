@@ -77,22 +77,22 @@ enum EReportType
 	CS_REQUEST_REPORT = 4
 };
 
-class LLFloaterReporter
+class LLFloaterReporter final
 :	public LLFloater, public LLSingleton<LLFloaterReporter>
 {
 public:
 	LLFloaterReporter();
 	/*virtual*/ ~LLFloaterReporter();
-	/*virtual*/ BOOL postBuild();
-	virtual void draw();
+	/*virtual*/ BOOL postBuild() override;
 
 	void setReportType(EReportType type) { mReportType = type; }
 
 	// Enables all buttons
 	static void showFromMenu(EReportType report_type);
 
-	static void showFromObject(const LLUUID& object_id);
+	static void showFromObject(const LLUUID& object_id, const LLUUID& experience_id = LLUUID::null);
 	static void showFromAvatar(const LLUUID& avatar_id, const std::string avatar_name);
+	static void showFromExperience(const LLUUID& experience_id);
 
 	static void onClickSend			(void *userdata);
 	static void onClickCancel		(void *userdata);
@@ -100,13 +100,13 @@ public:
 	void onClickSelectAbuser ();
 	static void closePickTool	(void *userdata);
 	static void uploadDoneCallback(const LLUUID &uuid, void* user_data, S32 result, LLExtStat ext_status);
-	static void addDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
-	static void setDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
+	static void addDescription(const std::string& description, LLMeanCollisionData *mcd = nullptr);
+	static void setDescription(const std::string& description, LLMeanCollisionData *mcd = nullptr);
 	
 	void setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id);
 
 private:
-	static void show(const LLUUID& object_id, const std::string& avatar_name = LLStringUtil::null);
+	static void show(const LLUUID& object_id, const std::string& avatar_name = LLStringUtil::null, const LLUUID& experience_id = LLUUID::null);
 
 	void takeScreenshot();
 	void sendReportViaCaps(std::string url);
@@ -118,16 +118,20 @@ private:
 	void sendReportViaCaps(std::string url, std::string sshot_url, const LLSD & report);
 	void setPosBox(const LLVector3d &pos);
 	void enableControls(BOOL own_avatar);
+	void getExperienceInfo(const LLUUID& object_id);
 	void getObjectInfo(const LLUUID& object_id);
 	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName>& names);
 	void setFromAvatarID(const LLUUID& avatar_id);
 	void onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name);
+
+	static void requestAbuseCategoriesCoro(const struct LLCoroResponder& responder, std::string url, LLHandle<LLFloater> handle);
 
 private:
 	EReportType		mReportType;
 	LLUUID 			mObjectID;
 	LLUUID			mScreenID;
 	LLUUID			mAbuserID;
+	LLUUID			mExperienceID;
 	// Store the real name, not the link, for upstream reporting
 	std::string		mOwnerName;
 	BOOL			mDeselectOnClose;
