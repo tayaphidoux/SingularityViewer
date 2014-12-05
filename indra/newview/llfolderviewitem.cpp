@@ -587,7 +587,8 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLFolderViewItem::openItem( void )
 {
-	if( mListener )
+	if (!mListener) return;
+	if (mAllowWear || mListener->isItemWearable())
 	{
 		mListener->openItem();
 	}
@@ -1124,7 +1125,7 @@ LLFolderViewFolder::LLFolderViewFolder( const std::string& name, LLUIImagePtr ic
 										LLUIImagePtr icon_open,
 										LLUIImagePtr icon_link,
 										LLFolderView* root,
-										LLFolderViewEventListener* listener ): 
+										LLFolderViewEventListener* listener): 
 	LLFolderViewItem( name, icon, icon_open, icon_link, 0, root, listener ),	// 0 = no create time
 	mIsOpen(FALSE),
 	mExpanderHighlighted(FALSE),
@@ -1938,6 +1939,7 @@ void LLFolderViewFolder::destroyView()
 	while (!mFolders.empty())
 	{
 		LLFolderViewFolder *folderp = mFolders.back();
+		mFolders.pop_back();
 		folderp->destroyView(); // removes entry from mFolders
 	}
 
@@ -2411,9 +2413,16 @@ BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
 													   EAcceptance* accept,
 													   std::string& tooltip_msg)
 {
+	if (!mAllowDrop)
+	{
+		*accept = ACCEPT_NO;
+		tooltip_msg = LLTrans::getString("TooltipOutboxCannotDropOnRoot");
+		return TRUE;
+	}
+
 	BOOL accepted = mListener && mListener->dragOrDrop(mask, drop, cargo_type, cargo_data);
-	
-	if (accepted) 
+
+	if (accepted)
 	{
 		mDragAndDropTarget = TRUE;
 		*accept = ACCEPT_YES_MULTI;
@@ -2797,6 +2806,7 @@ bool LLInventorySort::updateSort(U32 order)
 		mByDate = (order & LLInventoryFilter::SO_DATE);
 		mSystemToTop = (order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP);
 		mFoldersByName = (order & LLInventoryFilter::SO_FOLDERS_BY_NAME);
+		mFoldersByWeight = (mSortOrder & LLInventoryFilter::SO_FOLDERS_BY_WEIGHT);
 		return true;
 	}
 	return false;
@@ -2834,9 +2844,7 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 
 	// We sort by name if we aren't sorting by date
 	// OR if these are folders and we are sorting folders by name.
-	bool by_name = (!mByDate 
-		|| (mFoldersByName 
-		&& (a->getSortGroup() != SG_ITEM)));
+	bool by_name = ((!mByDate || (mFoldersByName && (a->getSortGroup() != SG_ITEM))) && !mFoldersByWeight);
 
 	if (a->getSortGroup() != b->getSortGroup())
 	{
@@ -2866,6 +2874,31 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 		else
 		{
 			return (compare < 0);
+		}
+	}
+	else if (mFoldersByWeight)
+	{
+		S32 weight_a = compute_stock_count(a->getUUID());
+		S32 weight_b = compute_stock_count(b->getUUID());
+		if (weight_a == weight_b)
+		{
+			// Equal weight -> use alphabetical order
+			return (LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName()) < 0);
+		}
+		else if (weight_a == -1)
+		{
+			// No weight -> move a at the end of the list
+			return false;
+		}
+		else if (weight_b == -1)
+		{
+			// No weight -> move b at the end of the list
+			return true;
+		}
+		else
+		{
+			// Lighter is first (sorted in increasing order of weight)
+			return (weight_a < weight_b);
 		}
 	}
 	else

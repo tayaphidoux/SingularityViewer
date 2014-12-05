@@ -94,6 +94,7 @@
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventoryfunctions.h"
+#include "llmarketplacefunctions.h"
 #include "llmimetypes.h"
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmutelist.h"
@@ -103,6 +104,7 @@
 #include "llselectmgr.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
+#include "lltoolbar.h"
 #include "lltoolcomp.h"
 #include "lltoolgrab.h"
 #include "lltoolmgr.h"
@@ -583,6 +585,55 @@ void rebuild_context_menus()
 	build_pie_menus();
 	if (!gAgentAvatarp) return; // The agent's avatar isn't here yet, don't bother with the dynamic attach/detach submenus.
 	gAgentAvatarp->buildContextMenus();
+}
+
+void set_merchant_SLM_menu()
+{
+	// DD-170 : SLM Alpha and Beta program : for the moment, we always show the SLM menu and
+	// tools so that all merchants can try out the UI, even if not migrated.
+	// *TODO : Keep SLM UI hidden for non migrated merchant in released viewer
+
+	//if (LLMarketplaceData::instance().getSLMStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT)
+	//{
+		// Merchant not migrated: show only the old Merchant Outbox menu
+	//	gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(TRUE);
+	//}
+	//else
+	//{
+		// All other cases (new merchant, not merchant, migrated merchant): show the new Marketplace Listings menu and enable the tool
+		gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(TRUE);
+		gToolBar->getChild<LLView>("marketplace_listings_btn")->setEnabled(false);
+	//}
+}
+
+void set_merchant_outbox_menu(U32 status, const LLSD& content)
+{
+	// If the merchant is fully migrated, the API is disabled (503) and we won't show the old menu item.
+	// In all other cases, we show it.
+	if (status != MarketplaceErrorCodes::IMPORT_SERVER_API_DISABLED)
+	{
+		gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(TRUE);
+	}
+}
+
+void check_merchant_status()
+{
+	if (!gSavedSettings.getBOOL("InventoryOutboxDisplayBoth"))
+	{
+		// Hide both merchant related menu items
+		gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(FALSE);
+		gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(FALSE);
+
+		// Also disable the toolbar button for Marketplace Listings
+		gToolBar->getChild<LLView>("marketplace_listings_btn")->setEnabled(false);
+
+		// Launch an SLM test connection to get the merchant status
+		LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_SLM_menu));
+
+		// Launch a Merchant Outbox test connection to get the migration status
+		LLMarketplaceInventoryImporter::instance().setStatusReportCallback(boost::bind(&set_merchant_outbox_menu, _1, _2));
+		LLMarketplaceInventoryImporter::instance().initialize();
+	}
 }
 
 void init_menus()
@@ -8815,6 +8866,16 @@ class LLWorldEnableEnvSettings : public view_listener_t
 	}
 };
 
+bool canAccessMarketplace();
+class LLMarketplaceEnabled : public LLMemberListener<LLView>
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata)
+	{
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(canAccessMarketplace());
+		return true;
+	}
+};
+
 class SinguCloseAllDialogs : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9378,6 +9439,7 @@ void initialize_menus()
 	addMenu(new LLWorldVisibleDestinations(), "World.VisibleDestinations");
 	(new LLWorldEnvSettings())->registerListener(gMenuHolder, "World.EnvSettings");
 	(new LLWorldEnableEnvSettings())->registerListener(gMenuHolder, "World.EnableEnvSettings");
+	addMenu(new LLMarketplaceEnabled, "Marketplace.Enabled");
 
 
 	// Tools menu

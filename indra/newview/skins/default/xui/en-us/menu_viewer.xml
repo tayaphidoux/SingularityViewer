@@ -606,6 +606,12 @@
 			     userdata="WebLaunchJoinNow,http://secondlife.com/account/" />
 		</menu_item_call>
         <menu_item_check
+         label="Marketplace listing..."
+         name="MarketplaceListings">
+            <on_click function="ShowFloater" userdata="marketplace_listings" />
+            <on_check function="FloaterVisible" userdata="marketplace_listings" />
+        </menu_item_check>
+        <menu_item_check
          label="Merchant Outbox..."
          name="MerchantOutbox">
             <on_click function="ShowFloater" userdata="outbox" />

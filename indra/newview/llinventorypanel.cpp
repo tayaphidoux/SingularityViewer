@@ -155,6 +155,18 @@ LLInventoryPanel::LLInventoryPanel(const std::string& name,
 	setBackgroundOpaque(TRUE);
 }
 
+LLUUID getStartFolder(const std::string& start_folder)
+{
+	if ("LIBRARY" == start_folder)
+		return gInventory.getLibraryRootFolderID();
+	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(start_folder);
+
+	return (preferred_type != LLFolderType::FT_NONE)
+			? gInventory.findCategoryUUIDForType(preferred_type, false, false)
+			: gInventory.getCategory(static_cast<LLUUID>(start_folder)) ? static_cast<LLUUID>(mStartFolder) // Singu Note: if start folder is an id of a folder, use it
+			: LLUUID::null;
+}
+
 void LLInventoryPanel::buildFolderView()
 {
 	// Determine the root folder in case specified, and
@@ -162,21 +174,7 @@ void LLInventoryPanel::buildFolderView()
 
 	//std::string start_folder_name(params.start_folder());
 
-	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(mStartFolder);
-
-	LLUUID root_id;
-
-	if ("LIBRARY" == mStartFolder)
-	{
-		root_id = gInventory.getLibraryRootFolderID();
-	}
-	else
-	{
-		root_id = (preferred_type != LLFolderType::FT_NONE)
-				? gInventory.findCategoryUUIDForType(preferred_type, false)
-				: gInventory.getCategory(static_cast<LLUUID>(mStartFolder)) ? static_cast<LLUUID>(mStartFolder) // Singu Note: if start folder is an id of a folder, use it
-				: LLUUID::null;
-	}
+	LLUUID root_id = getStartFolder(mStartFolder);
 
 	if ((root_id == LLUUID::null) && !mStartFolder.empty())
 	{
@@ -235,7 +233,26 @@ BOOL LLInventoryPanel::postBuild()
 	{
 		setSortOrder(gSavedSettings.getU32(DEFAULT_SORT_ORDER));
 	}
-	getFilter()->setFilterEmptySystemFolders();
+
+	// hide inbox
+	if (!gSavedSettings.getBOOL("InventoryOutboxMakeVisible"))
+	{
+		//getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX)); // Singu Nope!
+		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_OUTBOX));
+	}
+	// hide marketplace listing box, unless we want to show it (note: hacky as show_root_folder is only used for marketplace...)
+	// Singu Note: Even more hacky! String compare for merchant StartFolder to create the same effect /*&& !mParams.show_root_folder*/
+	if (!gSavedSettings.getBOOL("InventoryOutboxMakeVisible") && mStartFolder != "merchant")
+	{
+		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_MARKETPLACE_LISTINGS));
+	}
+
+	// set the filter for the empty folder if the debug setting is on
+	if (gSavedSettings.getBOOL("DebugHideEmptySystemFolders"))
+	{
+		getFilter()->setFilterEmptySystemFolders();
+	}
+
 	return LLPanel::postBuild();
 }
 
@@ -671,7 +688,21 @@ void LLInventoryPanel::onIdle(void *userdata)
 
 const LLUUID& LLInventoryPanel::getRootFolderID() const
 {
-	return mFolderRoot.get()->getListener()->getUUID();
+	LLUUID root_id;
+	if (mFolderRoot.get() && mFolderRoot.get()->getListener())
+	{
+		root_id = mFolderRoot.get()->getListener()->getUUID();
+	}
+	else
+	{
+		root_id = getStartFolder(mStartFolder);
+		if (root_id.isNull())
+		{
+			llwarns << "Could not find folder of type " << preferred_type << LL_ENDL;
+			root_id.generateNewID();
+		}
+	}
+	return root_id;
 }
 
 void LLInventoryPanel::initializeViews()
@@ -732,7 +763,7 @@ LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool u
 	return ret;
 }
 
-LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge)
+LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge* bridge)
 {
 	return new LLFolderViewFolder(
 		bridge->getDisplayName(),
@@ -758,71 +789,98 @@ LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge
 LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
  	LLInventoryObject const* objectp = gInventory.getObject(id);
-	LLUUID root_id = mFolderRoot.get()->getListener()->getUUID();
- 	LLFolderViewFolder* parent_folder = NULL;
-	LLFolderViewItem* itemp = NULL;
+
+	if (!objectp)
+	{
+		return NULL;
+	}
+
+ 	LLFolderViewItem* folder_view_item = mFolderRoot.get()->getItemByID(id);
+
+	const LLUUID& parent_id = objectp->getParentUUID();
+ 	LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)mFolderRoot.get()->getItemByID(parent_id);
+
+	// Force the creation of an extra root level folder item if required by the inventory panel (default is "false")
+	bool allow_drop = true;
+	bool allow_wear = true; // Singu TODO: Remove this when we have params here.
+	bool create_root = false;
+	if (mStartFolder == "merchant") // Singu Note: Only done for "merchant"
+	{
+		LLUUID root_id = getRootFolderID();
+		if (root_id == id)
+		{
+			// We insert an extra level that's seen by the UI but has no influence on the model
+			parent_folder = dynamic_cast<LLFolderViewFolder*>(folder_view_item);
+			folder_view_item = NULL;
+			allow_drop = false; // merchant floaters upstream say false in xui
+			allow_wear = false; // merchant floaters upstream say false in xui
+			create_root = true;
+		}
+	}
+	else if (mStartFolder == "outbox")
+	{
+		allow_wear = false; // outbox floater upstream says false in xui
+	}
+
+	if (!folder_view_item && parent_folder)
+	{
+		if (objectp->getType() <= LLAssetType::AT_NONE ||
+			objectp->getType() >= LLAssetType::AT_COUNT)
+		{
+			llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : "
+					<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
+					<< llendl;
+			return NULL;
+		}
 	
- 	if (id == root_id)
- 	{
-		parent_folder = mFolderRoot.get();
- 	}
- 	else if (objectp)
- 	{
- 		const LLUUID &parent_id = objectp->getParentUUID();
-		parent_folder = (LLFolderViewFolder*)mFolderRoot.get()->getItemByID(parent_id);
-  		
-  		if (parent_folder)
-  		{
-  			if (objectp->getType() <= LLAssetType::AT_NONE ||
-  				objectp->getType() >= LLAssetType::AT_COUNT)
-  			{
-  				LL_WARNS() << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : "
-  						<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
-  						<< LL_ENDL;
-  				return NULL;
-  			}
-  		
-  			if ((objectp->getType() == LLAssetType::AT_CATEGORY) &&
-  				(objectp->getActualType() != LLAssetType::AT_LINK_FOLDER))
+		if ((objectp->getType() == LLAssetType::AT_CATEGORY) &&
+			(objectp->getActualType() != LLAssetType::AT_LINK_FOLDER))
+		{
+			LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
+												objectp->getType(),
+												LLInventoryType::IT_CATEGORY,
+												this,
+												mFolderRoot.get(),
+												objectp->getUUID());
+			if (new_listener)
 			{
-  				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
-													objectp->getType(),
-													LLInventoryType::IT_CATEGORY,
-													this,
-													mFolderRoot.get(),
-													objectp->getUUID());
-  				if (new_listener)
-  				{
-					LLFolderViewFolder* folderp = createFolderViewFolder(new_listener);
-					if (folderp)
-					{
-						folderp->setItemSortOrder(mFolderRoot.get()->getSortOrder());
-					}
-  					itemp = folderp;
-  				}
-  			}
-  			else
-  			{
-  				// Build new view for item.
-  				LLInventoryItem* item = (LLInventoryItem*)objectp;
-  				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(item->getType(),
-				item->getActualType(),
-				item->getInventoryType(),
-  																				this,
-																				mFolderRoot.get(),
-  																				item->getUUID(),
-  																				item->getFlags());
- 
-  				if (new_listener)
-  				{
-					itemp = createFolderViewItem(new_listener);
-  				}
-  			}
- 
-  			if (itemp)
-  			{
-				itemp->addToFolder(parent_folder, mFolderRoot.get());
-   			}
+				LLFolderViewFolder* folderp = createFolderViewFolder(new_listener);
+				if (folderp)
+				{
+					folderp->setItemSortOrder(mFolderRoot.get()->getSortOrder());
+					folderp->setAllowDrop(allow_drop);
+					folderp->setAllowWear(allow_wear);
+				}
+				folder_view_item = folderp;
+			}
+		}
+		else
+		{
+			// Build new view for item.
+			LLInventoryItem* item = (LLInventoryItem*)objectp;
+			LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(item->getType(),
+			item->getActualType(),
+			item->getInventoryType(),
+																			this,
+																			mFolderRoot.get(),
+																			item->getUUID(),
+																			item->getFlags());
+
+			if (new_listener)
+			{
+				folder_view_item = createFolderViewItem(new_listener);
+			}
+		}
+
+		if (folder_view_item)
+		{
+			llassert(parent_folder != NULL);
+			folder_view_item->addToFolder(parent_folder, mFolderRoot.get());
+			// In the case of the root folder been shown, open that folder by default once the widget is created
+			if (create_root)
+			{
+				folder_view_item->setOpen(TRUE);
+			}
 		}
 	}
 
@@ -860,7 +918,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 		mInventory->unlockDirectDescendentArrays(id);
 	}
 	
-	return itemp;
+	return folder_view_item;
 }
 
 // bit of a hack to make sure the inventory is open.
@@ -965,7 +1023,7 @@ BOOL LLInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		// If folder view is empty the (x, y) point won't be in its rect
 		// so the handler must be called explicitly.
 		// but only if was not handled before. See EXT-6746.
-		if (!handled && !mFolderRoot.get()->hasVisibleChildren())
+		if (!handled && /*mParams.allow_drop_on_root*/mStartFolder != "merchant" && !mFolderRoot.get()->hasVisibleChildren())
 		{
 			handled = mFolderRoot.get()->handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}

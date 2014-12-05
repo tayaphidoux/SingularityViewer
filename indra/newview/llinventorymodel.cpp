@@ -1132,7 +1132,8 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
 	LLPointer<LLViewerInventoryCategory> old_cat = getCategory(cat->getUUID());
 	if(old_cat)
 	{
-		// We already have an old category, modify it's values
+		// We already have an old category, modify its values
+		U32 mask = LLInventoryObserver::NONE;
 		LLUUID old_parent_id = old_cat->getParentUUID();
 		LLUUID new_parent_id = cat->getParentUUID();
 		if(old_parent_id != new_parent_id)
@@ -1155,6 +1156,12 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
 		if(old_cat->getName() != cat->getName())
 		{
 			mask |= LLInventoryObserver::LABEL;
+		}
+		// Under marketplace, category labels are quite complex and need extra upate
+		const LLUUID marketplace_id = findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+		if (marketplace_id.notNull() && isObjectDescendentOf(cat->getUUID(), marketplace_id))
+		{
+			mask |= LLInventoryObeserver::LABEL;
 		}
 		old_cat->copyViewerCategory(cat);
 		addChangedMask(mask, cat->getUUID());
@@ -1509,6 +1516,11 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 		LLPointer<LLViewerInventoryCategory> cat = (LLViewerInventoryCategory*)((LLInventoryObject*)obj);
 		vector_replace_with_last(*cat_list, cat);
 	}
+
+	// Note : We need to tell the inventory observers that those things are going to be deleted *before* the tree is cleared or they won't know what to delete (in views and view models)
+	addChangedMask(LLInventoryObserver::REMOVE, id);
+	gInventory.notifyObservers();
+
 	item_list = getUnlockedItemArray(id);
 	if(item_list)
 	{
@@ -1654,9 +1666,10 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 	}
 	
 	mModifyMask |= mask; 
-	if (referent.notNull())
+	if (referent.notNull() && (mChangedItemIDs.find(referent) == mChangedItemIDs.end()))
 	{
 		mChangedItemIDs.insert(referent);
+		update_marketplace_category(referent, false);
 
 		if (mask & LLInventoryObserver::ADD)
 		{

@@ -231,6 +231,7 @@ set(viewer_SOURCE_FILES
     llfloaterlandholdings.cpp
     llfloaterlandmark.cpp
     llfloatermap.cpp
+    llfloatermarketplacelistings.cpp
     llfloatermediafilter.cpp
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
@@ -764,6 +765,7 @@ set(viewer_HEADER_FILES
     llfloaterlandholdings.h
     llfloaterlandmark.h
     llfloatermap.h
+    llfloatermarketplacelistings.h
     llfloatermediafilter.h
     llfloatermediasettings.h
     llfloatermemleak.h

@@ -128,6 +128,7 @@ public:
 	void modelChanged(U32 mask);
 	LLFolderView* getRootFolder() { return mFolderRoot.get(); }
 	LLScrollContainer* getScrollableContainer() { return mScroller; }
+	bool getAllowDropOnRoot() const { return mStartFolder != "merchant"; }
 	
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	

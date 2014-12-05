@@ -62,34 +62,94 @@ using namespace LLOldEvents;
 
 namespace LLInventoryAction
 {
-	bool doToSelected(LLFolderView* folder, std::string action);
+	void callback_doToSelected(const LLSD& notification, const LLSD& response, LLFolderView* folder, const std::string& action);
+	bool doToSelected(LLFolderView* root, std::string action, BOOL user_confirm = TRUE);
+
+	void buildMarketplaceFolders(LLFolderView* root);
+	void updateMarketplaceFolders();
+	std::list<LLUUID> sMarketplaceFolders; // Marketplace folders that will need update once the action is completed
 }
 
 typedef LLMemberListener<LLPanelObjectInventory> object_inventory_listener_t;
 typedef LLMemberListener<LLPanelMainInventory> inventory_listener_t;
 typedef LLMemberListener<LLInventoryPanel> inventory_panel_listener_t;
 
-bool LLInventoryAction::doToSelected(LLFolderView* folder, std::string action)
+std::list<LLUUID> LLInventoryAction::sMarketplaceFolders;
+
+// Callback for doToSelected if DAMA required...
+void LLInventoryAction::callback_doToSelected(const LLSD& notification, const LLSD& response, LLFolderView* folder, const std::string& action)
 {
-	if (!folder)
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0) // YES
+	{
+		doToSelected(folder, action, FALSE);
+	}
+}
+
+bool LLInventoryAction::doToSelected(LLFolderView* root, std::string action, BOOL user_confirm)
+{
+	if (!root)
 		return true;
+
+	std::set<LLUUID> selected_items = root->getSelectionList();
+
+	// Prompt the user and check for authorization for some marketplace active listing edits
+	if (user_confirm && (("delete" == action) || ("cut" == action) || ("rename" == action) || ("properties" == action) || ("task_properties" == action) || ("open" == action)))
+	{
+		std::set<LLUUID>::iterator set_iter = std::find_if(selected_items.begin(), selected_items.end(), boost::bind(&depth_nesting_in_marketplace, _1) >= 0);
+		if (set_iter != selected_items.end())
+		{
+			if ("open" == action)
+			{
+				if (get_can_item_be_worn(*set_iter))
+				{
+					// Wearing an object from any listing, active or not, is verbotten
+					LLNotificationsUtil::add("AlertMerchantListingCannotWear");
+					return;
+				}
+				// Note: we do not prompt for change when opening items (e.g. textures or note cards) on the marketplace...
+			}
+			else if (LLMarketplaceData::instance().isInActiveFolder(*set_iter) ||
+					 LLMarketplaceData::instance().isListedAndActive(*set_iter))
+			{
+				// If item is in active listing, further confirmation is required
+				if ((("cut" == action) || ("delete" == action)) && (LLMarketplaceData::instance().isListed(*set_iter) || LLMarketplaceData::instance().isVersionFolder(*set_iter)))
+				{
+					// Cut or delete of the active version folder or listing folder itself will unlist the listing so ask that question specifically
+					LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+					return;
+				}
+				// Any other case will simply modify but not unlist a listing
+				LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+				return;
+			}
+		}
+	}
+
+	// Keep track of the marketplace folders that will need update of their status/name after the operation is performed
+	buildMarketplaceFolders(root);
+
 	LLInventoryModel* model = &gInventory;
 	if ("rename" == action)
 	{
-		folder->startRenamingSelectedItem();
+		root->startRenamingSelectedItem();
+		// Update the marketplace listings that have been affected by the operation
+		updateMarketplaceFolders();
 		return true;
 	}
-	else if ("delete" == action)
+
+	if ("delete" == action)
 	{
-		folder->removeSelectedItems();
+		root->removeSelectedItems();
+
+		// Update the marketplace listings that have been affected by the operation
+		updateMarketplaceFolders();
 		return true;
 	}
-	else if ("copy" == action || "cut" == action)
+	if ("copy" == action || "cut" == action)
 	{	
 		LLInventoryClipboard::instance().reset();
 	}
-
-	std::set<LLUUID> selected_items = folder->getSelectionList();
 
 	LLMultiFloater* multi_floaterp = NULL;
 
@@ -118,13 +178,16 @@ bool LLInventoryAction::doToSelected(LLFolderView* folder, std::string action)
 
 	for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
 	{
-		LLFolderViewItem* folder_item = folder->getItemByID(*set_iter);
+		LLFolderViewItem* folder_item = root->getItemByID(*set_iter);
 		if(!folder_item) continue;
 		LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getListener();
 		if(!bridge) continue;
 
 		bridge->performAction(model, action);
 	}
+
+	// Update the marketplace listings that have been affected by the operation
+	updateMarketplaceFolders();
 
 	LLFloater::setFloaterHost(NULL);
 	if (multi_floaterp)
@@ -135,7 +198,79 @@ bool LLInventoryAction::doToSelected(LLFolderView* folder, std::string action)
 	return true;
 }
 
-struct LLNewWindow : public inventory_listener_t
+void LLInventoryAction::buildMarketplaceFolders(LLFolderView* root)
+{
+	// Make a list of all marketplace folders containing the elements in the selected list
+	// as well as the elements themselves.
+	// Once those elements are updated (cut, delete in particular but potentially any action), their
+	// containing folder will need to be updated as well as their initially containing folder. For
+	// instance, moving a stock folder from a listed folder to another will require an update of the
+	// target listing *and* the original listing. So we need to keep track of both.
+	sMarketplaceFolders.clear();
+	const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+	std::set<LLUUID> selected_items = root->getSelectionList();
+	for (std::set<LLUUID>::const_iterator set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+	{
+		const LLInventoryObject* obj(gInventory.getObject(*set_iter));
+		if (gInventory.isObjectDescendentOf(obj->getParentUUID(), marketplacelistings_id))
+		{
+			sMarketplaceFolders.push_back(obj->getParentUUID());
+			sMarketplaceFolders.push_back(obj->getUUID());
+		}
+	}
+	// Suppress dupes in the list so we wo't update listings twice
+	sMarketplaceFolders.sort();
+	sMarketplaceFolders.unique();
+}
+
+void LLInventoryAction::updateMarketplaceFolders()
+{
+	while (!sMarketplaceFolders.empty())
+	{
+		update_marketplace_category(sMarketplaceFolders.back());
+		sMarketplaceFolders.pop_back();
+	}
+}
+
+
+
+class LLDoToSelectedPanel : public object_inventory_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLPanelObjectInventory *panel = mPtr;
+		LLFolderView* folder = panel->getRootFolder();
+		if(!folder) return true;
+
+		return LLInventoryAction::doToSelected(folder, userdata.asString());
+	}
+};
+
+class LLDoToSelectedFloater : public inventory_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLInventoryPanel *panel = mPtr->getPanel();
+		LLFolderView* folder = panel->getRootFolder();
+		if(!folder) return true;
+
+		return LLInventoryAction::doToSelected(folder, userdata.asString());
+	}
+};
+
+class LLDoToSelected : public inventory_panel_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLInventoryPanel *panel = mPtr;
+		LLFolderView* folder = panel->getRootFolder();
+		if(!folder) return true;
+
+		return LLInventoryAction::doToSelected(folder, userdata.asString());
+	}
+};
+
+class LLNewWindow : public inventory_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{

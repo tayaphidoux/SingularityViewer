@@ -437,6 +437,121 @@ There is no marketplace on the region you've moved to.
   </notification>
 
     <notification
+   icon="OutboxStatus_Error"
+   name="MerchantPasteFailed"
+   type="outbox">
+Copy or move to Marketplace Listings failed with error :
+
+&apos;[ERROR_CODE]&apos;
+        <usetemplate
+        name="okbutton"
+        yestext="OK"/>
+    </notification>
+
+    <notification
+   icon="OutboxStatus_Error"
+   name="MerchantTransactionFailed"
+   type="outbox">
+The transaction with the Marketplace failed with the following error :
+
+Reason : &apos;[ERROR_REASON]&apos;
+[ERROR_DESCRIPTION]
+        <usetemplate
+        name="okbutton"
+        yestext="OK"/>
+    </notification>
+
+    <notification
+   icon="OutboxStatus_Error"
+   name="MerchantListingFailed"
+   type="outbox">
+Listing to Marketplace failed with error :
+
+&apos;[ERROR_CODE]&apos;
+        <usetemplate
+        name="okbutton"
+        yestext="OK"/>
+    </notification>
+
+    <notification
+   icon="alertmodal.tga"
+   name="ConfirmMerchantActiveChange"
+   type="alertmodal">
+This action will change the active content of this listing. Do you want to continue?
+        <tag>confirm</tag>
+        <usetemplate
+         ignoretext="Confirm before I change an active listing on the marketplace"
+         name="okcancelignore"
+         notext="Cancel"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+   icon="alertmodal.tga"
+   name="ConfirmMerchantUnlist"
+   type="alertmodal">
+This action will unlist this listing. Do you want to continue?
+        <tag>confirm</tag>
+        <usetemplate
+         ignoretext="Confirm before I unlist an active listing on the marketplace"
+         name="okcancelignore"
+         notext="Cancel"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+   icon="alertmodal.tga"
+   name="ConfirmMerchantClearVersion"
+   type="alertmodal">
+This action will deactivate the version folder of this listing. Do you want to continue?
+        <tag>confirm</tag>
+        <usetemplate
+         ignoretext="Confirm before I deactivate the version folder of a listing on the marketplace"
+         name="okcancelignore"
+         notext="Cancel"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+   icon="alertmodal.tga"
+   name="AlertMerchantAssociateNeedsVersion"
+   type="alertmodal">
+Before you can activate this listing or edit it on the Marketplace web site, you will need to activate a version folder.
+        <tag>confirm</tag>
+        <usetemplate
+         ignoretext="Alert about version folder requirements when I associate a listing with an existing listing id"
+         name="okignore"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+   icon="alertmodal.tga"
+   name="AlertMerchantListingNotUpdated"
+   type="alertmodal">
+This listing could not be updated.
+[URL] Click to edit it on the Marketplace.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+   icon="alertmodal.tga"
+   name="AlertMerchantListingCannotWear"
+   type="alertmodal">
+You cannot wear clothes or body parts that are in the Marketplace Listings folder.
+        <tag>fail</tag>
+    </notification>
+
+    <notification
+   icon="alertmodal.tga"
+   name="AlertMerchantListingInvalidID"
+   type="alertmodal">
+Invalid listing ID.
+        <tag>fail</tag>
+    </notification>
+
+    <notification
    icon="alertmodal.tga"
    name="CompileQueueSaveText"
    type="alertmodal">
@@ -4203,6 +4318,13 @@ Are you sure you want to change the Estate Covenant?
 <usetemplate
      name="okbutton"
      yestext="OK"/>
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="SLM_UPDATE_FOLDER"
+    type="alertmodal">
+[MESSAGE]
   </notification>
 
   <notification

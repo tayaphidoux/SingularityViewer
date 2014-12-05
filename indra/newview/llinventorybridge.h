@@ -141,6 +141,9 @@ protected:
 	virtual void addOutboxContextMenuOptions(U32 flags,
 											 menuentry_vec_t &items,
 											 menuentry_vec_t &disabled_items);
+	virtual void addMarketplaceContextMenuOptions(U32 flags,
+											 menuentry_vec_t &items,
+											 menuentry_vec_t &disabled_items);
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, LLFolderView* root, const LLUUID& uuid);
 
@@ -154,6 +157,7 @@ protected:
 	BOOL isCOFFolder() const;       // true if COF or descendant of
 	BOOL isInboxFolder() const;     // true if COF or descendant of   marketplace inbox
 	BOOL isOutboxFolderDirectParent() const;
+	BOOL isMarketplaceListingsFolder() const;     // true if descendant of Marketplace listings folder
 	const LLUUID getOutboxFolder() const;
 
 	virtual BOOL isItemPermissive() const;
@@ -167,7 +171,10 @@ protected:
 									 BOOL restamp);
 	void removeBatchNoCheck(std::vector<LLFolderViewEventListener*>& batch);
 public:
-	BOOL isOutboxFolder() const;    // true if COF or descendant of   marketplace outbox
+
+	BOOL callback_cutToClipboard(const LLSD& notification, const LLSD& response);
+	BOOL perform_cutToClipboard();
+
 protected:
 	LLHandle<LLInventoryPanel> mInventoryPanel;
 	LLFolderView* mRoot;
@@ -178,6 +185,7 @@ protected:
 
 	void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
 	virtual void buildDisplayName() const {}
+	void removeObject(LLInventoryModel* model, const LLUUID& uuid);
 };
 
 class AIFilePicker;
@@ -247,8 +255,10 @@ public:
 		mWearables(FALSE)
 	{}
 
-	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop);
-	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop);
+	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop, BOOL user_confirm = TRUE);
+	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop, BOOL user_confirm = TRUE);
+	void callback_dropItemIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryItem* inv_item);
+	void callback_dropCategoryIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryCategory* inv_item);
 
     virtual void buildDisplayName() const;
 
@@ -265,6 +275,9 @@ public:
 	virtual LLUIImagePtr getIconOverlay() const;
 
 	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
+
+	virtual std::string getLabelSuffix() const;
+	virtual LLFontGL::StyleFlags getLabelStyle() const;
 
 	virtual BOOL renameItem(const std::string& new_name);
 
@@ -334,9 +347,14 @@ public:
 	static void staticFolderOptionsMenu();
 
 private:
+	void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
+	void perform_pasteFromClipboard();
+	void gatherMessage(std::string& message, LLError::ELevel log_level);
+	LLUIImagePtr getFolderIcon(BOOL is_open) const;
 
 	bool				mCallingCards;
 	bool				mWearables;
+	std::string		mMessage;
 	LLRootHandle<LLFolderBridge> mHandle;
 };
 
@@ -422,6 +440,7 @@ public:
 					 const LLUUID& uuid) :
 		LLItemBridge(inventory, root, uuid) {}
 	virtual void openItem();
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 };
 
 class LLGestureBridge : public LLItemBridge
@@ -468,7 +487,7 @@ public:
 	virtual LLUIImagePtr	getIcon() const;
 	virtual void			performAction(LLInventoryModel* model, std::string action);
 	virtual void			openItem();
-    virtual BOOL isItemWearable() const { return TRUE; }
+	virtual BOOL isItemWearable() const { return TRUE; }
 	virtual std::string getLabelSuffix() const;
 	virtual void			buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual BOOL renameItem(const std::string& new_name);
@@ -502,7 +521,7 @@ public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual void	performAction(LLInventoryModel* model, std::string action);
 	virtual void	openItem();
-    virtual BOOL isItemWearable() const { return TRUE; }
+	virtual BOOL isItemWearable() const { return TRUE; }
 	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual std::string getLabelSuffix() const;
 	virtual BOOL renameItem(const std::string& new_name);

@@ -61,7 +61,8 @@ public:
 		: mSortOrder(0),
 		mByDate(false),
 		mSystemToTop(false),
-		mFoldersByName(false) { }
+		mFoldersByName(false),
+		mFoldersByWeight(false) { }
 
 	// Returns true if order has changed
 	bool updateSort(U32 order);
@@ -74,6 +75,7 @@ private:
 	bool mByDate;
 	bool mSystemToTop;
 	bool mFoldersByName;
+	bool mFoldersByWeight;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,6 +141,8 @@ protected:
 	BOOL                            mIsLoading;
 	LLTimer                         mTimeSinceRequestStart;
 	bool						mShowLoadStatus;
+	bool						mAllowWear;
+	bool						mAllowDrop;
 
 	std::string					mSearchable;
 	U32							mSearchType;
@@ -239,6 +243,9 @@ public:
 	BOOL hasVisibleChildren() { return mHasVisibleChildren; }
 
 	void setShowLoadStatus(bool status) { mShowLoadStatus = status; }
+
+	void setAllowWear(bool allow) { mAllowWear = allow; }
+	void setAllowDrop(bool allow) { mAllowDrop = allow; }
 
 	// Call through to the viewed object and return true if it can be
 	// removed. Returns true if it's removed.

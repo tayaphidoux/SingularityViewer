@@ -76,6 +76,7 @@
 #include "llfloaterland.h"
 #include "llfloaterlandholdings.h"
 #include "llfloatermap.h"
+#include "llfloatermarketplacelistings.h"
 #include "llfloatermediafilter.h"
 #include "llfloatermemleak.h"
 #include "llfloatermessagelog.h"
@@ -230,6 +231,7 @@ struct MenuFloaterDict : public LLSingleton<MenuFloaterDict>
 		registerFloater<LLFloaterJoystick>				("joystick");
 		registerFloater<LLFloaterMediaFilter>			("media filter");
 		registerFloater<LLFloaterMap>					("mini map");
+		registerFloater<LLFloaterMarketplaceListings>	("marketplace_listings");
 		registerFloater<LLFloaterMove>					("movement controls");
 		registerFloater<LLFloaterMute>					("mute list");
 		registerFloater<LLFloaterNotificationConsole>	("notifications console");

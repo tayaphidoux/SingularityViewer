@@ -5419,6 +5419,17 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>DebugHideEmptySystemFolders</key>
+    <map>
+      <key>Comment</key>
+      <string>Hide empty system folders when on</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>DebugInventoryFilters</key>
     <map>
       <key>Comment</key>
@@ -9400,12 +9411,12 @@ This should be as low as possible, but too low may break functionality</string>
         <key>Value</key>
         <integer>0</integer>
     </map>
-    <key>InventoryDisplayOutbox</key>
+    <key>InventoryOutboxDisplayBoth</key>
     <map>
         <key>Comment</key>
-        <string>Override merchant inventory outbox display</string>
+        <string>Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
         <key>Persist</key>
-        <integer>0</integer>
+        <integer>1</integer>
         <key>Type</key>
         <string>Boolean</string>
         <key>Value</key>
@@ -9422,6 +9433,17 @@ This should be as low as possible, but too low may break functionality</string>
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
+	<key>InventoryOutboxMakeVisible</key>
+	<map>
+		<key>Comment</key>
+		<string>Enable making the Merchant Outbox and Inbox visible in the inventory for debug purposes.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>1</integer>
+	</map>
     <key>InventoryOutboxMaxFolderCount</key>
     <map>
       <key>Comment</key>
@@ -9431,7 +9453,7 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>21</integer>
+      <integer>20</integer>
     </map>
     <key>InventoryOutboxMaxFolderDepth</key>
     <map>
@@ -10306,6 +10328,17 @@ This should be as low as possible, but too low may break functionality</string>
       <string>String</string>
       <key>Value</key>
       <string/>
+    </map>
+    <key>MarketplaceListingsLogging</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable debug output associated with the Marketplace Listings (SLM) API.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>MaxDragDistance</key>
     <map>
