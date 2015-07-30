@@ -1166,7 +1166,7 @@ int get_folder_levels(LLInventoryCategory* inv_cat)
 	gInventory.getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
 
 	int max_child_levels = 0;
-	for (S32 i = 0; i < cats->size(); ++i)
+	for (U32 i = 0; i < cats->size(); ++i)
 	{
 		LLInventoryCategory* category = cats->at(i);
 		max_child_levels = llmax(max_child_levels, get_folder_levels(category));
@@ -1254,12 +1254,12 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
 	if (accept)
 	{
 		// If the dest folder is a stock folder, we do not count the incoming items toward the total (stock items are seen as one)
-		int existing_item_count = (move_in_stock ? 0 : bundle_size);
+		S32 existing_item_count = (move_in_stock ? 0 : bundle_size);
 
 		// If the dest folder is a stock folder, we do assume that the incoming items are also stock items (they should anyway)
-		int existing_stock_count = (move_in_stock ? bundle_size : 0);
+		S32 existing_stock_count = (move_in_stock ? bundle_size : 0);
 
-		int existing_folder_count = 0;
+		S32 existing_folder_count = 0;
 
 		// Get the version folder: that's where the counts start from
 		const LLViewerInventoryCategory* version_folder = ((root_folder && (root_folder != dest_folder)) ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
@@ -1287,7 +1287,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
 			}
 		}
 
-		if (existing_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
+		if (existing_item_count > (S32)gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
 		{
 			LLStringUtil::format_map_t args;
 			U32 amount = gSavedSettings.getU32("InventoryOutboxMaxItemCount");
@@ -1295,7 +1295,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
 			tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
 			accept = false;
 		}
-		else if (existing_stock_count > gSavedSettings.getU32("InventoryOutboxMaxStockItemCount"))
+		else if (existing_stock_count > (S32)gSavedSettings.getU32("InventoryOutboxMaxStockItemCount"))
 		{
 			LLStringUtil::format_map_t args;
 			U32 amount = gSavedSettings.getU32("InventoryOutboxMaxStockItemCount");
@@ -1303,7 +1303,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
 			tooltip_msg = LLTrans::getString("TooltipOutboxTooManyStockItems", args);
 			accept = false;
 		}
-		else if (existing_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
+		else if (existing_folder_count > (S32)gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
 		{
 			LLStringUtil::format_map_t args;
 			U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderCount");
@@ -1349,12 +1349,12 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
 		LLInventoryModel::item_array_t descendent_items;
 		gInventory.collectDescendents(inv_cat->getUUID(), descendent_categories, descendent_items, FALSE);
 
-		int dragged_folder_count = descendent_categories.size() + bundle_size;  // Note: We assume that we're moving a bunch of folders in. That might be wrong...
-		int dragged_item_count = count_copyable_items(descendent_items) + count_stock_folders(descendent_categories);
-		int dragged_stock_count = count_stock_items(descendent_items);
-		int existing_item_count = 0;
-		int existing_stock_count = 0;
-		int existing_folder-count = 0;
+		S32 dragged_folder_count = descendent_categories.size() + bundle_size;  // Note: We assume that we're moving a bunch of folders in. That might be wrong...
+		S32 dragged_item_count = count_copyable_items(descendent_items) + count_stock_folders(descendent_categories);
+		S32 dragged_stock_count = count_stock_items(descendent_items);
+		S32 existing_item_count = 0;
+		S32 existing_stock_count = 0;
+		S32 existing_folder_count = 0;
 
 		if (version_folder)
 		{
@@ -1376,11 +1376,11 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
 			existing_stock_count += count_stock_items(existing_items);
 		}
 
-		const int total_folder_count = existing_folder_count + dragged_folder_count;
-		const int total_item_count = existing_item_count + dragged_item_count;
-		const int total_stock_count = existing_stock_count + dragged_stock_count;
+		const S32 total_folder_count = existing_folder_count + dragged_folder_count;
+		const S32 total_item_count = existing_item_count + dragged_item_count;
+		const S32 total_stock_count = existing_stock_count + dragged_stock_count;
 
-		if (total_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
+		if (total_folder_count > (S32)gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
 		{
 			LLStringUtil::format_map_t args;
 			U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderCount");
@@ -1388,7 +1388,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
 			tooltip_msg = LLTrans::getString("TooltipOutboxTooManyFolders", args);
 			accept = false;
 		}
-		else if (total_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
+		else if (total_item_count > (S32)gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
 		{
 			LLStringUtil::format_map_t args;
 			U32 amount = gSavedSettings.getU32("InventoryOutboxMaxItemCount");
@@ -1396,7 +1396,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
 			tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
 			accept = false;
 		}
-		else if (total_stock_count > gSavedSettings.getU32("InventoryOutboxMaxStockItemCount"))
+		else if (total_stock_count > (S32)gSavedSettings.getU32("InventoryOutboxMaxStockItemCount"))
 		{
 			LLStringUtil::format_map_t args;
 			U32 amount = gSavedSettings.getU32("InventoryOutboxMaxStockItemCount");
@@ -1408,7 +1408,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
 		// Now check that each item in the folder can be moved in the marketplace
 		if (accept && check_items)
 		{
-			for (S32 i=0; i < descendent_items.size(); ++i)
+			for (U32 i=0; i < descendent_items.size(); ++i)
 			{
 				LLInventoryItem* item = descendent_items[i];
 				if (!can_move_to_marketplace(item, tooltip_msg, false))

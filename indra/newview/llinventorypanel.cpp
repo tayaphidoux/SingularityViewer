@@ -265,7 +265,7 @@ LLInventoryPanel::~LLInventoryPanel()
 {
 	if (mFolderRoot.get())
 	{
-		U32 sort_order = mFolderRoot.get().getSortOrder();
+		U32 sort_order = mFolderRoot.get()->getSortOrder();
 		if (mSortOrderSetting != INHERIT_SORT_ORDER)
 		{
 			gSavedSettings.setU32(mSortOrderSetting, sort_order);
