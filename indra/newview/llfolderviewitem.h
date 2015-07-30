@@ -141,8 +141,8 @@ protected:
 	BOOL                            mIsLoading;
 	LLTimer                         mTimeSinceRequestStart;
 	bool						mShowLoadStatus;
-	bool						mAllowWear;
 	bool						mAllowDrop;
+	bool						mAllowOpen;
 
 	std::string					mSearchable;
 	U32							mSearchType;
@@ -244,8 +244,8 @@ public:
 
 	void setShowLoadStatus(bool status) { mShowLoadStatus = status; }
 
-	void setAllowWear(bool allow) { mAllowWear = allow; }
 	void setAllowDrop(bool allow) { mAllowDrop = allow; }
+	void setAllowOpen(bool allow) { mAllowOpen = allow; }
 
 	// Call through to the viewed object and return true if it can be
 	// removed. Returns true if it's removed.

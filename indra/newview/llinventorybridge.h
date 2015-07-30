@@ -72,6 +72,7 @@ public:
 
 	bool canShare() const;
 	bool canListOnMarketplace() const;
+	bool canListOnOutboxNow() const;
 	bool canListOnMarketplaceNow() const;
 
 	//--------------------------------------------------------------------
@@ -156,6 +157,7 @@ protected:
 	BOOL isAgentInventory() const; // false if lost or in the inventory library
 	BOOL isCOFFolder() const;       // true if COF or descendant of
 	BOOL isInboxFolder() const;     // true if COF or descendant of   marketplace inbox
+
 	BOOL isOutboxFolderDirectParent() const;
 	BOOL isMarketplaceListingsFolder() const;     // true if descendant of Marketplace listings folder
 	const LLUUID getOutboxFolder() const;
@@ -174,6 +176,9 @@ public:
 
 	BOOL callback_cutToClipboard(const LLSD& notification, const LLSD& response);
 	BOOL perform_cutToClipboard();
+
+public:
+	BOOL isOutboxFolder() const;    // true if COF or descendant of   marketplace outbox
 
 protected:
 	LLHandle<LLInventoryPanel> mInventoryPanel;
@@ -273,9 +278,7 @@ public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual LLUIImagePtr getIconOpen() const;
 	virtual LLUIImagePtr getIconOverlay() const;
-
 	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
-
 	virtual std::string getLabelSuffix() const;
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
 
@@ -346,10 +349,10 @@ public:
 	static LLHandle<LLFolderBridge> sSelf;
 	static void staticFolderOptionsMenu();
 
-private:
-	void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
-	void perform_pasteFromClipboard();
-	void gatherMessage(std::string& message, LLError::ELevel log_level);
+protected:
+	void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response, bool only_copies);
+	void perform_pasteFromClipboard(bool only_copies);
+	void gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level);
 	LLUIImagePtr getFolderIcon(BOOL is_open) const;
 
 	bool				mCallingCards;
@@ -586,7 +589,6 @@ class LLMeshBridge : public LLItemBridge
 public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
-	virtual void previewItem();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 
 protected:
@@ -654,7 +656,6 @@ class LLRecentInventoryBridgeBuilder : public LLInventoryFolderViewModelBuilder
 {
 public:
 	LLRecentInventoryBridgeBuilder() {}
-
 	// Overrides FolderBridge for Recent Inventory Panel.
 	// It use base functionality for bridges other than FolderBridge.
 	virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
@@ -665,6 +666,31 @@ public:
 		const LLUUID& uuid,
 		U32 flags = 0x00) const;
 };
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Marketplace Inventory Panel related classes
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLMarketplaceFolderBridge : public LLFolderBridge
+{
+public:
+	// Overloads some display related methods specific to folders in a marketplace floater context
+	LLMarketplaceFolderBridge(LLInventoryPanel* inventory,
+							  LLFolderView* root,
+							  const LLUUID& uuid);
+
+	virtual LLUIImagePtr getIcon() const;
+	virtual LLUIImagePtr getIconOpen() const;
+	virtual std::string getLabelSuffix() const;
+	virtual LLFontGL::StyleFlags getLabelStyle() const;
+
+private:
+	LLUIImagePtr getMarketplaceFolderIcon(BOOL is_open) const;
+	// Those members are mutable because they are cached variables to speed up display, not a state variables
+	mutable S32 m_depth;
+	mutable S32 m_stockCountCache;
+};
+
 
 void rez_attachment(LLViewerInventoryItem* item, 
 					LLViewerJointAttachment* attachment,

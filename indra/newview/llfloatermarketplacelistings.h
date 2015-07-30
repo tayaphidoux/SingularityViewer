@@ -52,8 +52,14 @@ class LLPanelMarketplaceListings : public LLPanel
 public:
 	LLPanelMarketplaceListings();
 	BOOL postBuild();
+	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+						   EDragAndDropType cargo_type,
+						   void* cargo_data,
+						   EAcceptance* accept,
+						   std::string& tooltip_msg);
 	void draw();
 	LLFolderView* getRootFolder() { return mRootFolder; }
+	bool allowDropOnRoot();
 
 	void buildAllPanels();
 
@@ -69,19 +75,21 @@ private:
 	void onTabChange();
 	void onFilterEdit(const std::string& search_string);
 
+	void setSortOrder(U32 sort_order);
+
 	LLFolderView*     mRootFolder;
 	LLButton*         mAuditBtn;
 	LLFilterEditor*	  mFilterEditor;
 	std::string		  mFilterSubString;
-	LLInventoryFilter::ESortOrderType mSortOrder;
-	LLInventoryFilter::EFilterType mFilterType;
+	bool              mFilterListingFoldersOnly;
+	U32               mSortOrder;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFloaterMarketplaceListings
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLFloaterMarketplaceListings : public LLFloater, public LLFloaterSingleton<LLFloaterMArketplaceListings>
+class LLFloaterMarketplaceListings : public LLFloater, public LLFloaterSingleton<LLFloaterMarketplaceListings>
 {
 public:
 	LLFloaterMarketplaceListings(const LLSD& key);
@@ -103,13 +111,14 @@ public:
 	void onMouseLeave(S32 x, S32 y, MASK mask);
 
 protected:
-	void setup();
+	void setRootFolder();
+	void setPanels();
 	void fetchContents();
 
 	void setStatusString(const std::string& statusString);
 
 	void onClose(bool app_quitting);
-	void onOpen(const LLSD& key);
+	void onOpen(/*const LLSD& key*/);
 	void onFocusReceived();
 	void onChanged();
 
@@ -131,15 +140,15 @@ private:
 
 	LLUUID			mRootFolderId;
 	LLPanelMarketplaceListings * mPanelListings;
-	bool            mFirstViewListings;
+	bool            mPanelListingsSet;
 };
 
 //-----------------------------------------------------------------------------
 // LLFloaterAssociateListing
 //-----------------------------------------------------------------------------
-class LLFloaterAssociateListing : public LLFloater, public LLUISingleton<LLFloaterAssociateListing, LLFloaterAssociatedListing>
+class LLFloaterAssociateListing : public LLFloater, public LLUISingleton<LLFloaterAssociateListing, LLFloaterAssociateListing>
 {
-friend class LLFloaterReg;
+friend class LLUISingleton<LLFloaterAssociateListing, LLFloaterAssociateListing>;
 public:
 	virtual BOOL postBuild();
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
@@ -163,6 +172,8 @@ private:
 //-----------------------------------------------------------------------------
 // LLFloaterMarketplaceValidation
 //-----------------------------------------------------------------------------
+// Note: The key is the UUID of the folder to validate. Validates the whole
+// marketplace listings content if UUID is null.
 // Note: For the moment, we just display the validation text. Eventually, we should
 // get the validation triggered on the server and display the html report.
 // *TODO : morph into an html/text window using the pattern in llfloatertos
@@ -175,12 +186,27 @@ public:
 
 	virtual BOOL postBuild();
 	virtual void draw();
-	virtual void onOpen(const LLSD& key);
+	virtual void onOpen(/*const LLSD& key*/);
 
-	void appendMessage(std::string& message, LLError::ELevel log_level);
+	void clearMessages();
+	void appendMessage(std::string& message, S32 depth, LLError::ELevel log_level);
 	static void	onOK( void* userdata );
 
 private:
+	struct Message {
+		LLError::ELevel mErrorLevel;
+		std::string mMessage;
+	};
+	typedef std::vector<Message> message_list_t;
+
+	void handleCurrentListing();
+
+	message_list_t mCurrentListingMessages;
+	LLError::ELevel mCurrentListingErrorLevel;
+
+	message_list_t mMessages;
+
+	LLSD			mKey;
 	LLTextEditor*	mEditor;
 };
 
@@ -195,10 +221,9 @@ public:
 	virtual ~LLFloaterItemProperties();
 
 	BOOL postBuild();
-	virtual void onOpen(const LLSD& key);
+	virtual void onOpen(/*const LLSD& key*/);
 
 private:
 };
 
 #endif // LL_LLFLOATERMARKETPLACELISTINGS_H
-

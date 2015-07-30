@@ -441,8 +441,31 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLUICtrlFactory *fac
 	std::string name("panel");
 	node->getAttributeString("name", name);
 
-	LLPanel* panelp = factory->createFactoryPanel(name);
+	std::string class_attr;
+	node->getAttributeString("class", class_attr);
+
+	LLPanel* panelp = NULL;
+
+	{
+		if(!class_attr.empty())
+		{
+			panelp = LLRegisterPanelClass::instance().createPanelClass(class_attr);
+		}
+
+		if (!panelp)
+		{
+			panelp = factory->createFactoryPanel(name);
+			/* Singu TODO: Future?
+			llassert(panelp);
+
+			if (!panelp)
+			{
+				return NULL; // :(
+			}*/
+		}
+	}
 	LL_RECORD_BLOCK_TIME(FTM_PANEL_CONSTRUCTION);
+
 	// Fall back on a default panel, if there was no special factory.
 	if (!panelp)
 	{

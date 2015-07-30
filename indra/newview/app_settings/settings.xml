@@ -1538,15 +1538,6 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>InventorySortOrder</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifies sort key for inventory items (+0 = name, +1 = date, +2 = folders always by name, +4 = system folders to top)</string>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>3</integer>
-    </map>
     <key>Blacklist.Settings</key>
     <map>
       <key>Comment</key>
@@ -9477,6 +9468,17 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>200</integer>
     </map>
+    <key>InventoryOutboxMaxStockItemCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of items allowed in a stock folder.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>200</integer>
+    </map>
     <key>InventorySortOrder</key>
     <map>
       <key>Comment</key>
@@ -9487,6 +9489,17 @@ This should be as low as possible, but too low may break functionality</string>
       <string>U32</string>
       <key>Value</key>
       <integer>7</integer>
+    </map>
+    <key>MarketplaceListingsSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies sort for marketplace listings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2</integer>
     </map>
     <key>InvertMouse</key>
     <map>

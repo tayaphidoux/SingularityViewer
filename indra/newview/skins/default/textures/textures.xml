@@ -434,4 +434,6 @@ with the same filename but different name
   <texture name="icn_slide-thumb_dark.tga" scale.left="2" scale.top="5" scale.right="29" scale.bottom="4"/>
   <texture name="map_avatar_you_8.tga"/>
   <texture name="icon_avatar_expand.png" preload="true" />
+
+  <texture name="Marketplace_Dropzone_Background" file_name="Marketplace_Dropzone_Background.png" preload="true" />
 </textures>

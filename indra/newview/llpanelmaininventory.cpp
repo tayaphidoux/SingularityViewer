@@ -157,7 +157,7 @@ BOOL LLPanelMainInventory::postBuild()
 	{
 		// "All Items" is the previous only view, so it gets the InventorySortOrder
 		mActivePanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
-		mActivePanel->getFilter()->markDefault();
+		mActivePanel->getFilter().markDefault();
 		mActivePanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mActivePanel, _1, _2));
 		mResortActivePanel = true;
 	}
@@ -167,7 +167,7 @@ BOOL LLPanelMainInventory::postBuild()
 		recent_items_panel->setSinceLogoff(TRUE);
 		recent_items_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::RECENTITEMS_SORT_ORDER));
 		recent_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-		recent_items_panel->getFilter()->markDefault();
+		recent_items_panel->getFilter().markDefault();
 		recent_items_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, recent_items_panel, _1, _2));
 	}
 	LLInventoryPanel* worn_items_panel = getChild<LLInventoryPanel>("Worn Items");
@@ -175,7 +175,7 @@ BOOL LLPanelMainInventory::postBuild()
 	{
 		worn_items_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::WORNITEMS_SORT_ORDER));
 		worn_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-		worn_items_panel->getFilter()->markDefault();
+		worn_items_panel->getFilter().markDefault();
 		worn_items_panel->setFilterWorn(true);
 		worn_items_panel->setFilterLinks(LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS);
 		worn_items_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, worn_items_panel, _1, _2));
@@ -196,11 +196,11 @@ BOOL LLPanelMainInventory::postBuild()
 		// Note that the "All Items" and "Worn Items" settings do not persist per-account.
 		if(recent_items_panel)
 		{
-			if(savedFilterState.has(recent_items_panel->getFilter()->getName()))
+			if(savedFilterState.has(recent_items_panel->getFilter().getName()))
 			{
 				LLSD recent_items = savedFilterState.get(
-					recent_items_panel->getFilter()->getName());
-				recent_items_panel->getFilter()->fromLLSD(recent_items);
+					recent_items_panel->getFilter().getName());
+				recent_items_panel->getFilter().fromLLSD(recent_items);
 			}
 		}
 	}
@@ -238,37 +238,28 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 	LLInventoryPanel* all_items_panel = getChild<LLInventoryPanel>("All Items");
 	if (all_items_panel)
 	{
-		LLInventoryFilter* filter = all_items_panel->getFilter();
-		if (filter)
-		{
-			LLSD filterState;
-			filter->toLLSD(filterState);
-			filterRoot[filter->getName()] = filterState;
-		}
+		LLInventoryFilter& filter = all_items_panel->getFilter();
+		LLSD filterState;
+		filter.toLLSD(filterState);
+		filterRoot[filter.getName()] = filterState;
 	}
 
 	LLInventoryPanel* recent_items_panel = getChild<LLInventoryPanel>("Recent Items");
 	if (recent_items_panel)
 	{
-		LLInventoryFilter* filter = recent_items_panel->getFilter();
-		if (filter)
-		{
-			LLSD filterState;
-			filter->toLLSD(filterState);
-			filterRoot[filter->getName()] = filterState;
-		}
+		LLInventoryFilter& filter = recent_items_panel->getFilter();
+		LLSD filterState;
+		filter.toLLSD(filterState);
+		filterRoot[filter.getName()] = filterState;
 	}
 	
 	LLInventoryPanel* worn_items_panel = getChild<LLInventoryPanel>("Worn Items");
 	if (worn_items_panel)
 	{
-		LLInventoryFilter* filter = worn_items_panel->getFilter();
-		if (filter)
-		{
-			LLSD filterState;
-			filter->toLLSD(filterState);
-			filterRoot[filter->getName()] = filterState;
-		}
+		LLInventoryFilter& filter = worn_items_panel->getFilter();
+		LLSD filterState;
+		filter.toLLSD(filterState);
+		filterRoot[filter.getName()] = filterState;
 	}
 
 	std::ostringstream filterSaveName;
@@ -496,7 +487,7 @@ void LLPanelMainInventory::updateSortControls()
 void LLPanelMainInventory::resetFilters()
 {
 	LLFloaterInventoryFinder *finder = getFinder();
-	getActivePanel()->getFilter()->resetDefault();
+	getActivePanel()->getFilter().resetDefault();
 	if (finder)
 	{
 		finder->updateElementsFromFilter();
@@ -732,7 +723,7 @@ void LLPanelMainInventory::onFilterSelected()
 		return;
 	}
 
-	LLInventoryFilter* filter = mActivePanel->getFilter();
+	LLInventoryFilter* filter = &mActivePanel->getFilter();
 	LLFloaterInventoryFinder *finder = getFinder();
 	if (finder)
 	{
@@ -837,7 +828,7 @@ void LLPanelMainInventory::updateItemcountText()
 }
 void LLPanelMainInventory::setFilterTextFromFilter() 
 { 
-	mFilterText = mActivePanel->getFilter()->getFilterText(); 
+	mFilterText = mActivePanel->getFilter().getFilterText(); 
 }
 
 void LLPanelMainInventory::toggleFindOptions()
@@ -899,7 +890,7 @@ LLFloaterInventoryFinder::LLFloaterInventoryFinder(const std::string& name,
 				INV_FINDER_WIDTH, INV_FINDER_HEIGHT, DRAG_ON_TOP,
 				MINIMIZE_NO, CLOSE_YES),
 	mPanelMainInventory(inventory_view),
-	mFilter(inventory_view->getPanel()->getFilter())
+	mFilter(&inventory_view->getPanel()->getFilter())
 {
 
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inventory_view_finder.xml");
@@ -978,9 +969,6 @@ void LLFloaterInventoryFinder::changeFilter(LLInventoryFilter* filter)
 
 void LLFloaterInventoryFinder::updateElementsFromFilter()
 {
-	if (!mFilter)
-		return;
-
 	// Get data needed for filter display
 	U32 filter_types = mFilter->getFilterObjectTypes();
 	std::string filter_string = mFilter->getFilterSubString();

@@ -37,8 +37,8 @@
 #include "llinventoryobserver.h"
 #include "llinventoryfunctions.h"
 #include "llmarketplacefunctions.h"
-#include "llnotificationhandler.h"
-#include "llnotificationmanager.h"
+//#include "llnotificationhandler.h"
+//#include "llnotificationmanager.h"
 #include "llnotificationsutil.h"
 //#include "llsidepaneliteminfo.h"
 #include "lltextbox.h"
@@ -48,12 +48,12 @@
 /// LLPanelMarketplaceListings
 ///----------------------------------------------------------------------------
 
-static LLPanelInjector<LLPanelMarketplaceListings> t_panel_status("llpanelmarketplacelistings"); // Liru TODO: build this instead.
+static LLPanelInjector<LLPanelMarketplaceListings> t_panel_status("llpanelmarketplacelistings");
 
 LLPanelMarketplaceListings::LLPanelMarketplaceListings()
 : mRootFolder(NULL)
 , mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME)
-, mFilterType(LLInventoryFilter::FILTERTYPE_NONE)
+, mFilterListingFoldersOnly(false)
 {
 	mCommitCallbackRegistrar.add("Marketplace.ViewSort.Action",  boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemClicked,  this, _2));
 	mEnableCallbackRegistrar.add("Marketplace.ViewSort.CheckItem",	boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemCheck,	this, _2));
@@ -73,27 +73,44 @@ BOOL LLPanelMarketplaceListings::postBuild()
 	return LLPanel::postBuild();
 }
 
+BOOL LLPanelMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+					   EDragAndDropType cargo_type,
+					   void* cargo_data,
+					   EAcceptance* accept,
+					   std::string& tooltip_msg)
+{
+	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+	BOOL handled = (handled_view != NULL);
+	// Special case the drop zone
+	if (handled && (handled_view->getName() == "marketplace_drop_zone"))
+	{
+		LLFolderView* root_folder = getRootFolder();
+		handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+	}
+	return handled;
+}
+
 void LLPanelMarketplaceListings::buildAllPanels()
 {
 	// Build the All panel first
 	LLInventoryPanel* panel_all_items;
 	panel_all_items = buildInventoryPanel("All Items", "panel_marketplace_listings_inventory.xml");
-	panel_all_items->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
+	//panel_all_items->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel_all_items->getFilter().markDefault();
 
 	// Build the other panels
 	LLInventoryPanel* panel;
 	panel = buildInventoryPanel("Active Items", "panel_marketplace_listings_listed.xml");
 	panel->getFilter().setFilterMarketplaceActiveFolders();
-	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
+	//panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
 	panel = buildInventoryPanel("Inactive Items", "panel_marketplace_listings_unlisted.xml");
 	panel->getFilter().setFilterMarketplaceInactiveFolders();
-	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
+	//panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
 	panel = buildInventoryPanel("Unassociated Items", "panel_marketplace_listings_unassociated.xml");
 	panel->getFilter().setFilterMarketplaceUnassociatedFolders();
-	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
+	//panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
 
 	// Set the tab panel
@@ -101,26 +118,41 @@ void LLPanelMarketplaceListings::buildAllPanels()
 	tabs_panel->setCommitCallback(boost::bind(&LLPanelMarketplaceListings::onTabChange, this));
 	tabs_panel->selectTabPanel(panel_all_items);      // All panel selected by default
 	mRootFolder = panel_all_items->getRootFolder();   // Keep the root of the all panel
+
+	// Set the default sort order
+	setSortOrder(gSavedSettings.getU32("MarketplaceListingsSortOrder"));
 }
 
 LLInventoryPanel* LLPanelMarketplaceListings::buildInventoryPanel(const std::string& childname, const std::string& filename)
 {
-	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+	//LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+	// Singu Note: These should already be built!!
 	LLInventoryPanel* panel = getChild<LLInventoryPanel>(childname);
-	if (panel)
-	{
-		tabs_panel->removeTabPanel(panel);
-		delete panel;
-	}
-	panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>(filename, tabs_panel, LLInventoryPanel::child_registry_t::instance());
 	llassert(panel != NULL);
 	
 	// Set sort order and callbacks
 	panel = getChild<LLInventoryPanel>(childname);
-	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+	//panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME); // Singu TODO: Do this at some point, not really important.
 	panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
 
 	return panel;
+}
+
+void LLPanelMarketplaceListings::setSortOrder(U32 sort_order)
+{
+	mSortOrder = sort_order;
+	gSavedSettings.setU32("MarketplaceListingsSortOrder", sort_order);
+
+	// Set each panel with that sort order
+	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+	LLInventoryPanel* panel = (LLInventoryPanel*)tabs_panel->getPanelByName("All Items");
+	panel->setSortOrder(mSortOrder);
+	panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Active Items");
+	panel->setSortOrder(mSortOrder);
+	panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Inactive Items");
+	panel->setSortOrder(mSortOrder);
+	panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Unassociated Items");
+	panel->setSortOrder(mSortOrder);
 }
 
 void LLPanelMarketplaceListings::onFilterEdit(const std::string& search_string)
@@ -157,6 +189,12 @@ void LLPanelMarketplaceListings::onSelectionChange(LLInventoryPanel *panel, cons
 	panel->onSelectionChange(items, user_action);
 }
 
+bool LLPanelMarketplaceListings::allowDropOnRoot()
+{
+	LLInventoryPanel* panel = (LLInventoryPanel*)getChild<LLTabContainer>("marketplace_filter_tabs")->getCurrentPanel();
+	return (panel ? panel->getAllowDropOnRoot() : false);
+}
+
 void LLPanelMarketplaceListings::onTabChange()
 {
 	// Find active panel
@@ -169,6 +207,19 @@ void LLPanelMarketplaceListings::onTabChange()
 
 		// Set filter string on active panel
 		panel->setFilterSubString(mFilterSubString);
+
+		// Show/hide the drop zone and resize the inventory tabs panel accordingly
+		LLPanel* drop_zone = (LLPanel*)getChild<LLPanel>("marketplace_drop_zone");
+		bool drop_zone_visible = drop_zone->getVisible();
+		if (drop_zone_visible != panel->getAllowDropOnRoot())
+		{
+			LLPanel* tabs = (LLPanel*)getChild<LLPanel>("tab_container_panel");
+			S32 delta_height = drop_zone->getRect().getHeight();
+			delta_height = (drop_zone_visible ? delta_height : -delta_height);
+			tabs->reshape(tabs->getRect().getWidth(),tabs->getRect().getHeight() + delta_height);
+			tabs->translate(0,-delta_height);
+		}
+		drop_zone->setVisible(panel->getAllowDropOnRoot());
 	}
 }
 
@@ -191,7 +242,7 @@ void LLPanelMarketplaceListings::onAddButtonClicked()
 void LLPanelMarketplaceListings::onAuditButtonClicked()
 {
 	LLSD data(LLSD::emptyMap());
-	LLFloaterReg::showInstance("marketplace_validation", data);
+	new LLFloaterMarketplaceValidation(data); // It tracks itself *sigh*
 }
 
 void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
@@ -199,28 +250,62 @@ void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
 	std::string chosen_item = userdata.asString();
 
 	// Sort options
-	if (chosen_item == "sort_by_stock_amount")
+	if ((chosen_item == "sort_by_stock_amount") || (chosen_item == "sort_by_name") || (chosen_item == "sort_by_recent"))
 	{
-		mSortOrder = (mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_NAME ? LLInventoryFilter::SO_FOLDERS_BY_WEIGHT : LLInventoryFilter::SO_FOLDERS_BY_NAME);
-		// Set each panel with that sort order
+		// We're making sort options exclusive, default is SO_FOLDERS_BY_NAME
+		if (chosen_item == "sort_by_stock_amount")
+		{
+			setSortOrder(LLInventoryFilter::SO_FOLDERS_BY_WEIGHT);
+		}
+		else if (chosen_item == "sort_by_name")
+		{
+			setSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+		}
+		else if (chosen_item == "sort_by_recent")
+		{
+			setSortOrder(LLInventoryFilter::SO_DATE);
+		}
+	}
+	// Filter option
+	else if (chosen_item == "show_only_listing_folders")
+	{
+		mFilterListingFoldersOnly = !mFilterListingFoldersOnly;
+		// Set each panel with that filter flag
 		LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
 		LLInventoryPanel* panel = (LLInventoryPanel*)tabs_panel->getPanelByName("All Items");
-		panel->setSortOrder(mSortOrder);
+		panel->getFilter().setFilterMarketplaceListingFolders(mFilterListingFoldersOnly);
 		panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Active Items");
-		panel->setSortOrder(mSortOrder);
+		panel->getFilter().setFilterMarketplaceListingFolders(mFilterListingFoldersOnly);
 		panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Inactive Items");
-		panel->setSortOrder(mSortOrder);
+		panel->getFilter().setFilterMarketplaceListingFolders(mFilterListingFoldersOnly);
 		panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Unassociated Items");
-		panel->setSortOrder(mSortOrder);
+		panel->getFilter().setFilterMarketplaceListingFolders(mFilterListingFoldersOnly);
 	}
 }
 
 bool LLPanelMarketplaceListings::onViewSortMenuItemCheck(const LLSD& userdata)
 {
 	std::string chosen_item = userdata.asString();
-    
-	if (chosen_item == "sort_by_stock_amount")
-		return mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_WEIGHT;
+
+	if ((chosen_item == "sort_by_stock_amount") || (chosen_item == "sort_by_name") || (chosen_item == "sort_by_recent"))
+	{
+		if (chosen_item == "sort_by_stock_amount")
+		{
+			return (mSortOrder & LLInventoryFilter::SO_FOLDERS_BY_WEIGHT);
+		}
+		else if (chosen_item == "sort_by_name")
+		{
+			return (mSortOrder & LLInventoryFilter::SO_FOLDERS_BY_NAME);
+		}
+		else if (chosen_item == "sort_by_recent")
+		{
+			return (mSortOrder & LLInventoryFilter::SO_DATE);
+		}
+	}
+	else if (chosen_item == "show_only_listing_folders")
+	{
+		return mFilterListingFoldersOnly;
+	}
 	return false;
 }
 
@@ -271,7 +356,7 @@ LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 , mInventoryText(NULL)
 , mInventoryTitle(NULL)
 , mPanelListings(NULL)
-, mFirstViewListings(true)
+, mPanelListingsSet(false)
 {
 	//buildFromFile("floater_marketplace_listings.xml");
 	LLUICtrlFactory::instance().buildFloater(this, "floater_marketplace_listings.xml");
@@ -308,7 +393,7 @@ BOOL LLFloaterMarketplaceListings::postBuild()
 	mCategoryAddedObserver = new LLMarketplaceListingsAddedObserver(this);
 	gInventory.addObserver(mCategoryAddedObserver);
 
-	// Debug : fetch aggressively so we can create test data right onOpen()
+	// Fetch aggressively so we can interact with listings right onOpen()
 	fetchContents();
 
 	return TRUE;
@@ -318,18 +403,8 @@ void LLFloaterMarketplaceListings::onClose(bool app_quitting)
 {
 }
 
-bool canAccessMarketplace()
+void LLFloaterMarketplaceListings::onOpen(/*const LLSD& key*/)
 {
-	return (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT) || gSavedSettings.getBOOL("InventoryOutboxDisplayBoth");
-}
-
-void LLFloaterMarketplaceListings::onOpen(const LLSD& key)
-{
-	if (!canAccessMarketplace())
-	{
-		close();
-		return;
-	}
 	//
 	// Initialize the Market Place or go update the marketplace listings
 	//
@@ -350,17 +425,21 @@ void LLFloaterMarketplaceListings::onFocusReceived()
 
 void LLFloaterMarketplaceListings::fetchContents()
 {
-	if (mRootFolderId.notNull())
+	if (mRootFolderId.notNull() &&
+	 (LLMarketplaceData::instance().getSLMDataFetched() != MarketplaceFetchCodes::MARKET_FETCH_LOADING) &&
+	 (LLMarketplaceData::instance().getSLMDataFetched() != MarketplaceFetchCodes::MARKET_FETCH_DONE))
 	{
+		LLMarketplaceData::instance().setDataFetchedSignal(boost::bind(&LLFloaterMarketplaceListings::updateView, this));
+		LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_LOADING);
 		LLInventoryModelBackgroundFetch::instance().start(mRootFolderId);
-		// Get all the SLM Listings
 		LLMarketplaceData::instance().getSLMListings();
 	}
 }
 
-void LLFloaterMarketplaceListings::setup()
+void LLFloaterMarketplaceListings::setRootFolder()
 {
-	if (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
+	if ((LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT) &&
+		(LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_MIGRATED_MERCHANT))
 	{
 		// If we are *not* a merchant or we have no market place connection established yet, do nothing
 		return;
@@ -389,18 +468,27 @@ void LLFloaterMarketplaceListings::setup()
 		LL_WARNS("SLM") << "Inventory warning: Marketplace listings folder already set" << LL_ENDL;
 		return;
 	}
+
 	mRootFolderId = marketplacelistings_id;
+}
+
+void LLFloaterMarketplaceListings::setPanels()
+{
+	if (mRootFolderId.isNull())
+	{
+		return;
+	}
 
 	// Consolidate Marketplace listings
 	// We shouldn't have to do that but with a client/server system relying on a "well known folder" convention,
 	// things get messy and conventions get broken down eventually
-	gInventory.consolidateForType(marketplacelistings_id, LLFolderType::FT_MARKETPLACE_LISTINGS);
+	gInventory.consolidateForType(mRootFolderId, LLFolderType::FT_MARKETPLACE_LISTINGS);
 
 	// Now that we do have a non NULL root, we can build the inventory panels
 	mPanelListings->buildAllPanels();
 
 	// Create observer for marketplace listings modifications
-	if (!mCategoriesObserver && mRootFolderId.notNull())
+	if (!mCategoriesObserver)
 	{
 		mCategoriesObserver = new LLInventoryCategoriesObserver();
 		llassert(mCategoriesObserver);
@@ -410,6 +498,9 @@ void LLFloaterMarketplaceListings::setup()
 
 	// Get the content of the marketplace listings folder
 	fetchContents();
+
+	// Flag that this is done
+	mPanelListingsSet = true;
 }
 
 void LLFloaterMarketplaceListings::initializeMarketPlace()
@@ -441,35 +532,36 @@ void LLFloaterMarketplaceListings::setStatusString(const std::string& statusStri
 void LLFloaterMarketplaceListings::updateView()
 {
 	U32 mkt_status = LLMarketplaceData::instance().getSLMStatus();
+	bool is_merchant = (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT) || (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MIGRATED_MERCHANT);
+	U32 data_fetched = LLMarketplaceData::instance().getSLMDataFetched();
 
 	// Get or create the root folder if we are a merchant and it hasn't been done already
-	if (mRootFolderId.isNull() && (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
+	if (mRootFolderId.isNull() && is_merchant)
 	{
-		setup();
+		setRootFolder();
 	}
 
-	// Update the bottom initializing status and progress dial
-	if (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
+	// Update the bottom initializing status and progress dial if we are initializing or if we're a merchant and still loading
+	if ((mkt_status <= MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING) || (is_merchant && (data_fetched <= MarketplaceFetchCodes::MARKET_FETCH_LOADING)) )
 	{
-		setStatusString(getString("MarketplaceListingsInitializing"));
+		// Just show the loading indicator in that case and fetch the data (fetch will be skipped if it's already loading)
 		mInventoryInitializationInProgress->setVisible(true);
+		mPanelListings->setVisible(FALSE);
+		fetchContents();
+		return;
 	}
 	else
 	{
-		setStatusString("");
 		mInventoryInitializationInProgress->setVisible(false);
 	}
 
 	// Update the middle portion : tabs or messages
 	if (getFolderCount() > 0)
 	{
-		if (mFirstViewListings)
+		if (!mPanelListingsSet)
 		{
 			// We need to rebuild the tabs cleanly the first time we make them visible
-			// setup() does it if the root is nixed first
-			mRootFolderId.setNull();
-			setup();
-			mFirstViewListings = false;
+			setPanels();
 		}
 		mPanelListings->setVisible(TRUE);
 		mInventoryPlaceholder->setVisible(FALSE);
@@ -511,7 +603,7 @@ void LLFloaterMarketplaceListings::updateView()
 		else
 		{
 			// "Errors!" message strings
-			text = LLTrans::getString("InventoryOutboxError", subs);
+			text = LLTrans::getString("InventoryMarketplaceError", subs);
 			title = LLTrans::getString("InventoryOutboxErrorTitle");
 			tooltip = LLTrans::getString("InventoryOutboxErrorTooltip");
 		}
@@ -539,19 +631,22 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
 		return FALSE;
 	}
 
+	tooltip_msg = "";
+
 	// Pass to the children
 	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	BOOL handled = (handled_view != NULL);
 
-	// If no one handled it or it was not accepted, we try to accept it at the floater level as if it was dropped on the
-	// marketplace listings root folder
-	if (!handled || !isAccepted(*accept))
+	// If no one handled it or it was not accepted and we drop on an empty panel, we try to accept it at the floater level
+	// as if it was dropped on the marketplace listings root folder
+	if ((!handled || !isAccepted(*accept)) && !mPanelListings->getVisible() && mRootFolderId.notNull())
 	{
-		if (!mPanelListings->getVisible() && mRootFolderId.notNull())
+		if (!mPanelListingsSet)
 		{
-			LLFolderView* root_folder = mPanelListings->getRootFolder();
-			handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+			setPanels();
 		}
+		LLFolderView* root_folder = mPanelListings->getRootFolder();
+		handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	}
 
 	return handled;
@@ -585,6 +680,15 @@ void LLFloaterMarketplaceListings::onChanged()
 // LLFloaterAssociateListing
 //-----------------------------------------------------------------------------
 
+// Tell if a listing has one only version folder
+bool hasUniqueVersionFolder(const LLUUID& folder_id)
+{
+	LLInventoryModel::cat_array_t* categories;
+	LLInventoryModel::item_array_t* items;
+	gInventory.getDirectDescendentsOf(folder_id, categories, items);
+	return (categories->size() == 1);
+}
+
 LLFloaterAssociateListing::LLFloaterAssociateListing(const LLSD& key)
 : LLFloater(key)
 , mUUID()
@@ -602,7 +706,7 @@ BOOL LLFloaterAssociateListing::postBuild()
 {
 	getChild<LLButton>("OK")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::apply, this, TRUE));
 	getChild<LLButton>("Cancel")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::cancel, this));
-	getChild<LLLineEditor>("listing_id")->setPrevalidate(&LLTextValidate::validateNonNegativeS32);
+	getChild<LLLineEditor>("listing_id")->setPrevalidate(&LLLineEditor::prevalidateNonNegativeS32);
 	center();
     
 	return LLFloater::postBuild();
@@ -625,11 +729,12 @@ BOOL LLFloaterAssociateListing::handleKeyHere(KEY key, MASK mask)
 }
 
 // static
-void LLFloaterAssociateListing::show(LLFloater* floater, const LLSD& folder_id)
+void LLFloaterAssociateListing::show(LLFloaterAssociateListing* floater, const LLSD& folder_id)
 {
-
 	if (!floater) return;
+
 	floater->mUUID = folder_id.asUUID();
+
 	floater->open();
 }
 
@@ -653,7 +758,7 @@ void LLFloaterAssociateListing::apply(BOOL user_confirm)
 			// Check if the id exists in the merchant SLM DB: note that this record might exist in the LLMarketplaceData
 			// structure even if unseen in the UI, for instance, if its listing_uuid doesn't exist in the merchant inventory
 			LLUUID listing_uuid = LLMarketplaceData::instance().getListingFolder(id);
-			if (listing_uuid.notNull() && user_confirm && LLMarketplaceData::instance().getActivationState(listing_uuid))
+			if (listing_uuid.notNull() && user_confirm && LLMarketplaceData::instance().getActivationState(listing_uuid) && !hasUniqueVersionFolder(mUUID))
 			{
 				// Look for user confirmation before unlisting
 				LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLFloaterAssociateListing::callback_apply, this, _1, _2));
@@ -661,29 +766,30 @@ void LLFloaterAssociateListing::apply(BOOL user_confirm)
 			}
 			// Associate the id with the user chosen folder
 			LLMarketplaceData::instance().associateListing(mUUID,listing_uuid,id);
-			// Update the folder widgets now that the action is launched
-			update_marketplace_category(listing_uuid);
-			update_marketplace_category(mUUID);
 		}
 		else
 		{
 			LLNotificationsUtil::add("AlertMerchantListingInvalidID");
 		}
 	}
-	closeFloater();
+	close();
 }
 
 void LLFloaterAssociateListing::cancel()
 {
-	closeFloater();
+	close();
 }
 
 //-----------------------------------------------------------------------------
 // LLFloaterMarketplaceValidation
 //-----------------------------------------------------------------------------
 
+// Note: The key is the UUID of the folder to validate.
+// Validates the whole marketplace listings content if UUID is null.
+
 LLFloaterMarketplaceValidation::LLFloaterMarketplaceValidation(const LLSD& key)
-:	LLFloater(key),
+:	LLFloater(),
+	mKey(key),
 	mEditor(NULL)
 {
 	//buildFromFile("floater_marketplace_validation.xml");
@@ -699,7 +805,7 @@ BOOL LLFloaterMarketplaceValidation::postBuild()
 	mEditor->setEnabled(FALSE);
 	mEditor->setFocus(TRUE);
 	mEditor->setValue(LLSD());
-    
+
 	return TRUE;
 }
 
@@ -714,18 +820,55 @@ void LLFloaterMarketplaceValidation::draw()
 	LLFloater::draw();
 }
 
-void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
+void LLFloaterMarketplaceValidation::onOpen(/*const LLSD& key*/)
 {
-	// Clear the text panel
-	mEditor->setValue(LLSD());
+	// Clear the messages
+	clearMessages();
 
-	// Validates the marketplace
-	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-	if (marketplacelistings_id.notNull())
+	// Get the folder UUID to validate. Use the whole marketplace listing if none provided.
+	LLUUID cat_id(mKey.asUUID());
+	if (cat_id.isNull())
 	{
-		LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
-		validate_marketplacelistings(cat, boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2), false);
+		cat_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 	}
+
+	// Validates the folder
+	if (cat_id.notNull())
+	{
+		LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+		validate_marketplacelistings(cat, boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2, _3), false);
+	}
+
+	// Handle the listing folder being processed
+	handleCurrentListing();
+
+	// Dump result to the editor panel
+	if (mEditor)
+	{
+		mEditor->setValue(LLSD());
+		if (mMessages.empty())
+		{
+			// Display a no error message
+			mEditor->appendText(LLTrans::getString("Marketplace Validation No Error"), false, false);
+		}
+		else
+		{
+			// Print out all the messages to the panel
+			message_list_t::iterator mCurrentLine = mMessages.begin();
+			bool new_line = false;
+			while (mCurrentLine != mMessages.end())
+			{
+				// Errors are printed in bold, other messages in normal font
+				LLStyleSP style(new LLStyle);
+				style->mBold = mCurrentLine->mErrorLevel == LLError::LEVEL_ERROR;
+				mEditor->appendText(mCurrentLine->mMessage, false, new_line, style);
+				new_line = true;
+				mCurrentLine++;
+			}
+		}
+	}
+	// We don't need the messages anymore
+	clearMessages();
 }
 
 // static
@@ -733,23 +876,53 @@ void LLFloaterMarketplaceValidation::onOK( void* userdata )
 {
 	// destroys this object
 	LLFloaterMarketplaceValidation* self = (LLFloaterMarketplaceValidation*) userdata;
-	self->closeFloater();
+	self->clearMessages();
+	self->close();
 }
 
-void LLFloaterMarketplaceValidation::appendMessage(std::string& message, LLError::ELevel log_level)
+void LLFloaterMarketplaceValidation::appendMessage(std::string& message, S32 depth, LLError::ELevel log_level)
 {
-	if (mEditor)
+	// Dump previous listing messages if we're starting a new listing
+	if (depth == 1)
 	{
-		// Errors are printed in bold, other messages in normal font
-		LLStyle::Params style;
-		LLFontDescriptor new_desc(mEditor->getFont()->getFontDesc());
-		new_desc.setStyle(log_level == LLError::LEVEL_ERROR ? LLFontGL::BOLD : LLFontGL::NORMAL);
-		LLFontGL* new_font = LLFontGL::getFont(new_desc);
-		style.font = new_font;
-		mEditor->appendText(message, true, style);
+		handleCurrentListing();
 	}
+
+	// Store the message in the current listing message list
+	Message current_message;
+	current_message.mErrorLevel = log_level;
+	current_message.mMessage = message;
+	mCurrentListingMessages.push_back(current_message);
+	mCurrentListingErrorLevel = (mCurrentListingErrorLevel < log_level ? log_level : mCurrentListingErrorLevel);
 }
 
+// Move the current listing messages to the general list if needs be and reset the current listing data
+void LLFloaterMarketplaceValidation::handleCurrentListing()
+{
+	// Dump the current folder messages to the general message list if level warrants it
+	if (mCurrentListingErrorLevel > LLError::LEVEL_INFO)
+	{
+		message_list_t::iterator mCurrentLine = mCurrentListingMessages.begin();
+		while (mCurrentLine != mCurrentListingMessages.end())
+		{
+			mMessages.push_back(*mCurrentLine);
+			mCurrentLine++;
+		}
+	}
+
+	// Reset the current listing
+	mCurrentListingMessages.clear();
+	mCurrentListingErrorLevel = LLError::LEVEL_INFO;
+}
+
+void LLFloaterMarketplaceValidation::clearMessages()
+{
+	mMessages.clear();
+	mCurrentListingMessages.clear();
+	mCurrentListingErrorLevel = LLError::LEVEL_INFO;
+}
+
+/* Singu Note: What even is this? Where is this used?!
 //-----------------------------------------------------------------------------
 // LLFloaterItemProperties
 //-----------------------------------------------------------------------------
@@ -773,10 +946,10 @@ BOOL LLFloaterItemProperties::postBuild()
 	return LLFloater::postBuild();
 }
 
-void LLFloaterItemProperties::onOpen(/*const LLSD& key*/)
+void LLFloaterItemProperties::onOpen(const LLSD& key)
 {
 	// Tell the panel which item it needs to visualize
 	LLPanel* panel = getChild<LLPanel>("item_panel");
-	panel->setItemID(key["id"].asUUID());
+	panel->setItemID(mKey["id"].asUUID());
 }
-
+*/

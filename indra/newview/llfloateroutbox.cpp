@@ -293,7 +293,7 @@ void LLFloaterOutbox::setupOutbox()
 
 	// Set the sort order newest to oldest
 	inventory_panel->setSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME);
-	inventory_panel->getFilter()->markDefault();
+	inventory_panel->getFilter().markDefault();
 
 	// Get the content of the outbox
 	fetchOutboxContents();

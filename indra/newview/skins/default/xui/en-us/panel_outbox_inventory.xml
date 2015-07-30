@@ -12,6 +12,8 @@
     bevel_style="none"
     show_item_link_overlays="true"
     tool_tip="Drag and drop items here to prepare them for sale on your storefront"
+    allow_open="false"
+    allow_drop_on_root="false"
     >
     <scroll reserve_scroll_corner="false" />
 </outbox_inventory_panel>

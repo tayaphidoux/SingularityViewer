@@ -1,6 +1,6 @@
 /** 
- * @file llpanelmaininventory.h
- * @brief LLPanelMainInventory, LLInventoryFolder, and LLInventoryItem
+ * @file llinventorypanel.h
+ * @brief LLInventoryPanel
  * class definition
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
@@ -87,6 +87,7 @@ public:
 
 	// LLView methods
 	void draw();
+	/*virtual*/ BOOL handleKeyHere( KEY key, MASK mask );
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
@@ -104,8 +105,9 @@ public:
 	void setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus);
 	void setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
 	void clearSelection();
-	LLInventoryFilter* getFilter();
-	const LLInventoryFilter* getFilter() const;
+	bool isSelectionRemovable();
+	LLInventoryFilter& getFilter();
+	const LLInventoryFilter& getFilter() const;
 	void setFilterTypes(U64 filter, LLInventoryFilter::EFilterType = LLInventoryFilter::FILTERTYPE_OBJECT);
 	U32 getFilterObjectTypes() const;
 	void setFilterPermMask(PermissionMask filter_perm_mask);
@@ -115,7 +117,7 @@ public:
 	const std::string getFilterSubString();
 	void setFilterWorn(bool worn);
 	bool getFilterWorn() const { return mFolderRoot.get()->getFilterWorn(); }
-	
+
 	void setSinceLogoff(BOOL sl);
 	void setHoursAgo(U32 hours);
 	BOOL getSinceLogoff();
@@ -128,11 +130,14 @@ public:
 	void modelChanged(U32 mask);
 	LLFolderView* getRootFolder() { return mFolderRoot.get(); }
 	LLScrollContainer* getScrollableContainer() { return mScroller; }
-	bool getAllowDropOnRoot() const { return mStartFolder != "merchant"; }
+	bool getAllowDropOnRoot() const { return mAllowDropOnRoot; }
 	
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	
 	LLHandle<LLInventoryPanel> getInventoryPanelHandle() const { return getDerivedHandle<LLInventoryPanel>(); }
+
+	// Callbacks
+	void doToSelected(const LLSD& userdata);
 	// DEBUG ONLY:
 	static void dumpSelectionInformation(void* user_data);
 
@@ -156,6 +161,13 @@ public:
 					   LLInventoryType::EType inv_type,
 					   U32 next_owner_perm = 0);
 
+	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
+	void removeItemID(const LLUUID& id);
+	LLFolderViewItem* getItemByID(const LLUUID& id);
+	LLFolderViewFolder* getFolderByID(const LLUUID& id);
+	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
+	void updateSelection();
+
 	// Clean up stuff when the folder root gets deleted
 	void clearFolderRoot();
 
@@ -163,15 +175,17 @@ protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
 	void onItemsCompletion();			// called when selected items are complete
 
+	LLUUID						mSelectThisID;	
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
 	LLInvPanelComplObserver*	mCompletionObserver;
-	
-	BOOL 						mAllowMultiSelect;
+	bool 						mAllowMultiSelect;
+
 	LLHandle<LLFolderView>				mFolderRoot;
 	LLScrollContainer*	mScroller;
 
     LLPointer<LLFolderViewGroupedItemBridge> mGroupedItemBridge;
+	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	/**
 	 * Pointer to LLInventoryFolderViewModelBuilder.
 	 *
@@ -197,6 +211,10 @@ public:
 
 private:
 	const std::string			mStartFolder;
+	bool					mShowRootFolder;
+	bool					mAllowDropOnRoot;
+	bool					mAllowOpen;
+	bool					mUseMarketplaceFolders;
 	const std::string			mSortOrderSetting;
 
 	//--------------------------------------------------------------------
@@ -207,7 +225,7 @@ public:
 
 public:
 	BOOL 				getIsViewsInitialized() const { return mViewsInitialized; }
-	const LLUUID&		getRootFolderID() const;
+	const LLUUID		getRootFolderID() const;
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();
@@ -224,9 +242,6 @@ protected:
 };
 
 class LLPanelMainInventory;
-
-
-
 
 ///----------------------------------------------------------------------------
 /// Function declarations, constants, enums, and typedefs
@@ -250,6 +265,3 @@ const BOOL TAKE_FOCUS_YES = TRUE;
 const BOOL TAKE_FOCUS_NO  = FALSE;
 
 #endif // LL_LLINVENTORYPANEL_H
-
-
-

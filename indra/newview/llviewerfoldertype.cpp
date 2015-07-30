@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewerfoldertype.h"
+#include "llcontrol.h"
 #include "lldictionary.h"
 #include "llmemory.h"
 #include "llvisualparam.h"

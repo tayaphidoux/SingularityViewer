@@ -43,8 +43,8 @@
 #include "llviewerregion.h"
 #include "hippogridmanager.h"
 
-#include "reader.h" // JSON
-#include "writer.h" // JSON
+#include "json/reader.h" // JSON
+#include "json/writer.h" // JSON
 
 //
 // Helpers
@@ -129,17 +129,43 @@ LLSD getMarketplaceStringSubstitutions()
 	return marketplace_sub_map;
 }
 
+// Get the version folder: if there is only one subfolder, we will use it as a version folder
+LLUUID getVersionFolderIfUnique(const LLUUID& folder_id)
+{
+	LLUUID version_id = LLUUID::null;
+	LLInventoryModel::cat_array_t* categories;
+	LLInventoryModel::item_array_t* items;
+	gInventory.getDirectDescendentsOf(folder_id, categories, items);
+	if (categories->size() == 1)
+	{
+		version_id = categories->begin()->get()->getUUID();
+	}
+	else
+	{
+		LLNotificationsUtil::add("AlertMerchantListingActivateRequired");
+	}
+	return version_id;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // SLM Responders
-void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string description)
+void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
 	LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
-	// Prompt the user with the warning (so they know why things are failing)
-	LLSD subs;
-	subs["[ERROR_REASON]"] = reason;
-	// We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
-	subs["[ERROR_DESCRIPTION]"] = (description.length() <= 512 ? description : "");
-	LLNotificationsUtil::add("MerchantTransactionFailed", subs);
+	if ((status == 422) && (description == "[\"You must have an English description to list the product\", \"You must choose a category for your product before it can be listed\", \"Listing could not change state.\", \"Price can't be blank\"]"))
+	{
+		// Unprocessable Entity : Special case that error as it is a frequent answer when trying to list an incomplete listing
+		LLNotificationsUtil::add("MerchantUnprocessableEntity");
+	}
+	else
+	{
+		// Prompt the user with the warning (so they know why things are failing)
+		LLSD subs;
+		subs["[ERROR_REASON]"] = reason;
+		// We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
+		subs["[ERROR_DESCRIPTION]"] = (description.length() <= 512 ? description : "");
+		LLNotificationsUtil::add("MerchantTransactionFailed", subs);
+	}
 }
 void log_SLM_infos(const std::string& request, U32 status, const std::string& body)
 {
@@ -148,10 +174,13 @@ void log_SLM_infos(const std::string& request, U32 status, const std::string& bo
 		LL_INFOS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", body or description : " << body << LL_ENDL;
 	}
 }
-
-// Merov: This is a temporary hack used by dev while secondlife-staging is down...
-// *TODO : Suppress that before shipping!
-static bool sBypassMerchant = false;
+void log_SLM_infos(const std::string& request, const std::string& url, const std::string& body)
+{
+	if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
+	{
+		LL_INFOS("SLM") << "SLM API : Sending " << request << ". url : " << url << ", body : " << body << LL_ENDL;
+	}
+}
 
 class LLSLMGetMerchantResponder : public LLHTTPClient::ResponderWithResult
 {
@@ -163,13 +192,7 @@ public:
 protected:
 	virtual void httpFailure()
 	{
-		if (sBypassMerchant)
-		{
-			// *TODO : Suppress that before shipping!
-			log_SLM_infos("Get /merchant", getStatus(), "SLM Connection error bypassed (debug only)");
-			LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
-		}
-		else if (HTTP_NOT_FOUND == getStatus())
+		if (HTTP_NOT_FOUND == getStatus())
 		{
 			log_SLM_infos("Get /merchant", getStatus(), "User is not a merchant");
 			LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
@@ -213,11 +236,12 @@ public:
 		LLBufferStream istr(channels, buffer.get());
 		std::stringstream strstrm;
 		strstrm << istr.rdbuf();
-		const std:string body = strstrm.str();
+		const std::string body = strstrm.str();
 
-		if (!isGoodStatus())
+		if (!isGoodStatus(mStatus))
 		{
 			log_SLM_warning("Get /listings", getStatus(), getReason(), "", body);
+			LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
 			update_marketplace_category(mExpectedFolderId, false);
 			gInventory.notifyObservers();
 			return;
@@ -228,6 +252,7 @@ public:
 		if (!reader.parse(body, root))
 		{
 			log_SLM_warning("Get /listings", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+			LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
 			update_marketplace_category(mExpectedFolderId, false);
 			gInventory.notifyObservers();
 			return;
@@ -253,17 +278,13 @@ public:
 			LLUUID version_id(version_uuid_string);
 			if (folder_id.notNull())
 			{
-				LLMarketplaceData::instance().deleteListing(folder_id, false);
-				LLMarketplaceData::instance().addListing(folder_id, listing_id, version_id, is_listed, false);
-				LLMarketplaceData::instance().setListingURL(folder_id, edit_url, false);
-				LLMarketplaceData::instance().setCountOnHand(folder_id, count, false);
-				update_marketplace_category(folder_id, false);
-				gInventory.notifyObservers();
+				LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
 			}
 			it++;
 		}
 
 		// Update all folders under the root
+		LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_DONE);
 		update_marketplace_category(mExpectedFolderId, false);
 		gInventory.notifyObservers();
 	}
@@ -280,7 +301,7 @@ public:
 
 	LLSLMCreateListingsResponder(const LLUUID& folder_id)
 	{
-		mExpectedFolderId = folder_id
+		mExpectedFolderId = folder_id;
 	}
 
 	virtual void completedRaw(const LLChannelDescriptors& channels,
@@ -291,9 +312,9 @@ public:
 		LLBufferStream istr(channels, buffer.get());
 		std::stringstream strstrm;
 		strstrm << istr.rdbuf();
-		const std::String body = strstrm.str();
+		const std::string body = strstrm.str();
 
-		if (!isGoodStatus())
+		if (!isGoodStatus(mStatus))
 		{
 			log_SLM_warning("Post /listings", getStatus(), getReason(), "", body);
 			update_marketplace_category(mExpectedFolderId, false);
@@ -329,9 +350,7 @@ public:
 
 			LLUUID folder_id(folder_uuid_string);
 			LLUUID version_id(version_uuid_string);
-			LLMarketplaceData::instance().addListing(folder_id, listing_id, version_id, is_listed, false);
-			LLMarketplaceData::instance().setListingURL(folder_id, edit_url, false);
-			LLMarketplaceData::instance().setCountOnHand(folder_id, count, false);
+			LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
 			update_marketplace_category(folder_id, false);
 			gInventory.notifyObservers();
 			it++;
@@ -361,11 +380,19 @@ public:
 		LLBufferStream istr(channels, buffer.get());
 		std::stringstream strstrm;
 		strstrm << istr.rdbuf();
-		const std:string body = strstrm.str();
+		const std::string body = strstrm.str();
 
-		if (!isGoodStatus())
+		if (!isGoodStatus(mStatus))
 		{
-			log_SLM_warning("Get /listing", getStatus(), getReason(), "", body);
+			if (getStatus() == 404)
+			{
+				// That listing does not exist -> delete its record from the local SLM data store
+				LLMarketplaceData::instance().deleteListing(mExpectedFolderId, false);
+			}
+			else
+			{
+				log_SLM_warning("Get /listing", getStatus(), getReason(), "", body);
+			}
 			update_marketplace_category(mExpectedFolderId, false);
 			gInventory.notifyObservers();
 			return;
@@ -438,9 +465,9 @@ public:
 		LLBufferStream istr(channels, buffer.get());
 		std::stringstream strstrm;
 		strstrm << istr.rdbuf();
-		const std:string body = strstrm.str();
+		const std::string body = strstrm.str();
 
-		if (!isGoodStatus())
+		if (!isGoodStatus(mStatus))
 		{
 			log_SLM_warning("Put /listing", getStatus(), getReason(), "", body);
 			update_marketplace_category(mExpectedFolderId, false);
@@ -526,9 +553,9 @@ public:
 		LLBufferStream istr(channels, buffer.get());
 		std::stringstream strstrm;
 		strstrm << istr.rdbuf();
-		const std:string body = strstrm.str();
+		const std::string body = strstrm.str();
 
-		if (!isGoodStatus())
+		if (!isGoodStatus(mStatus))
 		{
 			log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), "", body);
 			update_marketplace_category(mExpectedFolderId, false);
@@ -576,14 +603,13 @@ public:
 			}
 
 			// Add the new association
-			LLMarketplaceData::instance().addListing(folder_id, listing_id, version_id, is_listed, false);
-			LLMarketplaceData::instance().setListingURL(folder_id, edit_url, false);
-			LLMarketplaceData::instance().setCountOnHand(folder_id, count, false);
+			LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
 			update_marketplace_category(folder_id, false);
 			gInventory.notifyObservers();
 
-			// Alert with DAMA informing the user that a version folder must be designated
-			LLNotificationsUtil::add("AlertMerchantAssociateNeedsVersion");
+			// the stock count needs to be updated with the new local count now
+			LLMarketplaceData::instance().updateCountOnHand(folder_id,1);
+
 			it++;
 		}
 
@@ -615,9 +641,9 @@ public:
 		LLBufferStream istr(channels, buffer.get());
 		std::stringstream strstrm;
 		strstrm << istr.rdbuf();
-		const std:string body = strstrm.str();
+		const std::string body = strstrm.str();
 
-		if (!isGoodStatus())
+		if (!isGoodStatus(mStatus))
 		{
 			log_SLM_warning("Delete /listing", getStatus(), getReason(), "", body);
 			update_marketplace_category(mExpectedFolderId, false);
@@ -1110,13 +1136,43 @@ public:
 
 void LLMarketplaceInventoryObserver::changed(U32 mask)
 {
+	// When things are added to the marketplace, we might need to re-validate and fix the containing listings
+	if (mask & LLInventoryObserver::ADD)
+	{
+		const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
+
+		std::set<LLUUID>::const_iterator id_it = changed_items.begin();
+		std::set<LLUUID>::const_iterator id_end = changed_items.end();
+		// First, count the number of items in this list...
+		S32 count = 0;
+		for (;id_it != id_end; ++id_it)
+		{
+			LLInventoryObject* obj = gInventory.getObject(*id_it);
+			if (obj && (LLAssetType::AT_CATEGORY != obj->getType()))
+			{
+				count++;
+			}
+		}
+		// Then, decrement the folders of that amount
+		// Note that of all of those, only one folder will be a listing folder (if at all).
+		// The other will be ignored by the decrement method.
+		id_it = changed_items.begin();
+		for (;id_it != id_end; ++id_it)
+		{
+			LLInventoryObject* obj = gInventory.getObject(*id_it);
+			if (obj && (LLAssetType::AT_CATEGORY == obj->getType()))
+			{
+				LLMarketplaceData::instance().decrementValidationWaiting(obj->getUUID(),count);
+			}
+		}
+	}
+
 	// When things are changed in the inventory, this can trigger a host of changes in the marketplace listings folder:
 	// * stock counts changing : no copy items coming in and out will change the stock count on folders
 	// * version and listing folders : moving those might invalidate the marketplace data itself
 	// Since we should cannot raise inventory change while the observer is called (the list will be cleared
 	// once observers are called) we need to raise a flag in the inventory to signal that things have been dirtied.
 
-	// That's the only changes that really do make sense for marketplace to worry about
 	if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
 	{
 		const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
@@ -1184,7 +1240,9 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, 
 // Data map
 LLMarketplaceData::LLMarketplaceData() :
  mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED),
+ mMarketPlaceDataFetched(MarketplaceFetchCodes::MARKET_FETCH_NOT_DONE),
  mStatusUpdatedSignal(NULL),
+ mDataFetchedSignal(NULL),
  mDirtyCount(false)
 {
 	mInventoryObserver = new LLMarketplaceInventoryObserver;
@@ -1212,11 +1270,23 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
 	else
 	{
 		// Initiate SLM connection and set responder
-		mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
 		std::string url = getSLMConnectURL("/merchant");
-		log_SLM_infos("LLHTTPClient::get", url, "");
-		LLHTTPClient::get(url, new LLSLMGetMerchantResponder(), LLSD());
+		if (url != "")
+		{
+			mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
+			log_SLM_infos("LLHTTPClient::get", url, "");
+			LLHTTPClient::get(url, LLSD(), new LLSLMGetMerchantResponder());
+		}
 	}
+}
+
+void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot_type& cb)
+{
+	if (mDataFetchedSignal == NULL)
+	{
+		mDataFetchedSignal = new status_updated_signal_t();
+	}
+	mDataFetchedSignal->connect(cb);
 }
 
 // Get/Post/Put requests to the SLM Server using the SLM API
@@ -1248,19 +1318,21 @@ void LLMarketplaceData::getSLMListing(S32 listing_id)
 	LLHTTPClient::get(url, new LLSLMGetListingResponder(folder_id), headers);
 }
 
-void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
+void LLMarketplaceData::createSLMListing(const LLUUID& folder_id, const LLUUID& version_id, S32 count)
 {
 	AIHTTPHeaders headers;
 	headers.addHeader("Accept", "application/json");
 	headers.addHeader("Content-Type", "application/json");
 
-	LLViewerInventoryCategory* category = gInventory.getCategory(folder_id);
-
+	// Build the json message
 	Json::Value root;
 	Json::FastWriter writer;
 
+	LLViewerInventoryCategory* category = gInventory.getCategory(folder_id);
 	root["listing"]["name"] = category->getName();
-	root["listing"]["inventory_info"]["listing_folder_id"] = category->getUUID().asString();
+	root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
+	root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
+	root["listing"]["inventory_info"]["count_on_hand"] = count;
 
 	std::string json_str = writer.write(root);
 
@@ -1285,11 +1357,18 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 	Json::Value root;
 	Json::FastWriter writer;
 
+	// Note : auto unlist if the count is 0 (out of stock)
+	if (is_listed && (count == 0))
+	{
+		is_listed = false;
+		LLNotificationsUtil::add("AlertMerchantStockFolderEmpty");
+	}
+
 	// Note : we're assuming that sending unchanged info won't break anything server side...
 	root["listing"]["id"] = listing_id;
 	root["listing"]["is_listed"] = is_listed;
-	root["listing"]["inventory_info"]["listing_folder_id"] = folder_id;
-	root["listing"]["inventory_info"]["version_folder_id"] = version_id;
+	root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
+	root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
 	root["listing"]["inventory_info"]["count_on_hand"] = count;
 
 	std::string json_str = writer.write(root);
@@ -1303,10 +1382,10 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 	std::string url = getSLMConnectURL("/listing/") + llformat("%d", listing_id);
 	log_SLM_infos("LLHTTPClient::putRaw", url, json_str);
 	setUpdating(folder_id, true);
-	LLHTTPClient::putRaw(url, data, size, new LLSLMCreateListingsResponder(folder_id, is_listed, version_id), headers);
+	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(folder_id, is_listed, version_id), headers);
 }
 
-void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& source_folder_id)
+void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, const LLUUID& source_folder_id)
 {
 	AIHTTPHeaders headers;
 	headers.addHeader("Accept", "application/json");
@@ -1317,10 +1396,8 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
 
 	// Note : we're assuming that sending unchanged info won't break anything server side...
 	root["listing"]["id"] = listing_id;
-	root["listing"]["is_listed"] = false;
 	root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
-	root["listing"]["inventory_info"]["version_folder_id"] = LLUUID::null.asString();
-	root["listing"]["inventory_info"]["count_on_hand"] = -1;
+	root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
 
 	std::string json_str = writer.write(root);
 
@@ -1348,7 +1425,7 @@ void LLMarketplaceData::deleteSLMListing(S32 listing_id)
 	log_SLM_infos("LLHTTPClient::del", url, "");
 	LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
 	setUpdating(folder_id, true);
-	LLHTTPClient::del(url, new LLSLMDeleteListingsResponder(folder_id, is_listed, version_id), headers);
+	LLHTTPClient::del(url, new LLSLMDeleteListingsResponder(folder_id), headers);
 }
 
 std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
@@ -1359,16 +1436,10 @@ std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
 	{
 		// Get DirectDelivery cap
 		url = regionp->getCapability("DirectDelivery");
-		// *TODO : Take this DirectDelivery cap coping mechanism hack out
-		if (url == "")
+		if (url != "")
 		{
-			url = "https://marketplace.secondlife-staging.com/api/1/viewer/" + gAgentID.asString();
+			url += route;
 		}
-		else
-		{
-			llinfos << "Merov : DD cap = " << url << ", agent = " << gAgentID.asString() << llendl;
-		}
-		url += route;
 	}
 	return url;
 }
@@ -1378,7 +1449,16 @@ void LLMarketplaceData::setSLMStatus(U32 status)
 	mMarketPlaceStatus = status;
 	if (mStatusUpdatedSignal)
 	{
-		(*mStatusUpdatedSigal)();
+		(*mStatusUpdatedSignal)();
+	}
+}
+
+void LLMarketplaceData::setSLMDataFetched(U32 status)
+{
+	mMarketPlaceDataFetched = status;
+	if (mDataFetchedSignal)
+	{
+		(*mDataFetchedSignal)();
 	}
 }
 
@@ -1392,13 +1472,29 @@ bool LLMarketplaceData::createListing(const LLUUID& folder_id)
 		return false;
 	}
 
+	// Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
+	S32 count = -1;
+	LLUUID version_id = getVersionFolderIfUnique(folder_id);
+	if (version_id.notNull())
+	{
+		count = compute_stock_count(version_id, true);
+	}
+
+	// Validate the count on hand
+	if (count == COMPUTE_STOCK_NOT_EVALUATED)
+	{
+		// If the count on hand cannot be evaluated, we will consider it empty (out of stock) at creation time
+		// It will get reevaluated and updated once the items are fetched
+		count = 0;
+	}
+
 	// Post the listing creation request to SLM
-	createSLMListing(folder_id);
+	createSLMListing(folder_id, version_id, count);
 
 	return true;
 }
 
-bool LLMarketplaceData::clearListing(const LLUUID& folder_id)
+bool LLMarketplaceData::clearListing(const LLUUID& folder_id, S32 depth)
 {
 	if (folder_id.isNull())
 	{
@@ -1406,8 +1502,13 @@ bool LLMarketplaceData::clearListing(const LLUUID& folder_id)
 		return false;
 	}
 
+	// Evaluate the depth if it wasn't passed as a parameter
+	if (depth < 0)
+	{
+		depth = depth_nesting_in_marketplace(folder_id);
+
+	}
 	// Folder id can be the root of the listing of not so we need to retrieve the root first
-	S32 depth = depth_nesting_in_marketplace(folder_id);
 	LLUUID listing_uuid = (isListed(folder_id) ? folder_id : nested_parent_id(folder_id, depth));
 	S32 listing_id = getListingID(listing_uuid);
 
@@ -1423,7 +1524,7 @@ bool LLMarketplaceData::clearListing(const LLUUID& folder_id)
 	return true;
 }
 
-bool LLMarketplaceData::getListing(const LLUUID& folder_id)
+bool LLMarketplaceData::getListing(const LLUUID& folder_id, S32 depth)
 {
 	if (folder_id.isNull())
 	{
@@ -1431,8 +1532,13 @@ bool LLMarketplaceData::getListing(const LLUUID& folder_id)
 		return false;
 	}
 
+	// Evaluate the depth if it wasn't passed as a parameter
+	if (depth < 0)
+	{
+		depth = depth_nesting_in_marketplace(folder_id);
+
+	}
 	// Folder id can be the root of the listing or not so we need to retrieve the root first
-	S32 depth = depth_nesting_in_marketplace(folder_id);
 	LLUUID listing_uuid = (isListed(folder_id) ? folder_id : nested_parent_id(folder_id, depth));
 	S32 listing_id = getListingID(listing_uuid);
 
@@ -1460,10 +1566,15 @@ bool LLMarketplaceData::getListing(S32 listing_id)
 	return true;
 }
 
-bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
+bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate, S32 depth)
 {
+	// Evaluate the depth if it wasn't passed as a parameter
+	if (depth < 0)
+	{
+		depth = depth_nesting_in_marketplace(folder_id);
+
+	}
 	// Folder id can be the root of the listing or not so we need to retrieve the root first
-	S32 depth = depth_nesting_in_marketplace(folder_id);
 	LLUUID listing_uuid = nested_parent_id(folder_id, depth);
 	S32 listing_id = getListingID(listing_uuid);
 	if (listing_id == 0)
@@ -1472,10 +1583,22 @@ bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
 		return false;
 	}
 
+	if (getActivationState(listing_uuid) == activate)
+	{
+		// If activation state is unchanged, no point spamming SLM with an update
+		return true;
+	}
+
 	LLUUID version_uuid = getVersionFolder(listing_uuid);
 
 	// Also update the count on hand
 	S32 count = compute_stock_count(folder_id);
+	if (count == COMPUTE_STOCK_NOT_EVALUATED)
+	{
+		// If the count on hand cannot be evaluated locally, we should not change that SLM value
+		// We are assuming that this issue is local and should not modify server side values
+		count = getCountOnHand(listing_uuid);
+	}
 
 	// Post the listing update request to SLM
 	updateSLMListing(listing_uuid, listing_id, version_uuid, activate, count);
@@ -1483,16 +1606,27 @@ bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
 	return true;
 }
 
-bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id)
+bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id, S32 depth)
 {
+	// Evaluate the depth if it wasn't passed as a parameter
+	if (depth < 0)
+	{
+		depth = depth_nesting_in_marketplace(folder_id);
+
+	}
 	// Folder id can be the root of the listing or not so we need to retrieve the root first
-	S32 depth = depth_nesting_in_marketplace(folder_id);
 	LLUUID listing_uuid = nested_parent_id(folder_id, depth);
 	S32 listing_id = getListingID(listing_uuid);
 	if (listing_id == 0)
 	{
 		// Listing doesn't exist -> exit with error
 		return false;
+	}
+
+	if (getVersionFolder(listing_uuid) == version_id)
+	{
+		// If version folder is unchanged, no point spamming SLM with an update
+		return true;
 	}
 
 	// Note: if the version_id is cleared, we need to unlist the listing, otherwise, state unchanged
@@ -1500,6 +1634,12 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
 
 	// Also update the count on hand
 	S32 count = compute_stock_count(version_id);
+	if (count == COMPUTE_STOCK_NOT_EVALUATED)
+	{
+		// If the count on hand cannot be evaluated, we will consider it empty (out of stock) when resetting the version folder
+		// It will get reevaluated and updated once the items are fetched
+		count = 0;
+	}
 
 	// Post the listing update requesst to SLM
 	updateSLMListing(listing_uuid, listing_id, version_id, is_listed, count);
@@ -1507,10 +1647,15 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
 	return true;
 }
 
-bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id)
+bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id, S32 depth)
 {
+	// Evaluate the depth if it wasn't passed as a parameter
+	if (depth < 0)
+	{
+		depth = depth_nesting_in_marketplace(folder_id);
+
+	}
 	// Folder id can be the root of the listing or not so we need to retrieve the root first
-	S32 depth = depth_nesting_in_marketplace(folder_id);
 	LLUUID listing_uuid = nested_parent_id(folder_id, depth);
 	S32 listing_id = getListingID(listing_uuid);
 	if (listing_id == 0)
@@ -1519,15 +1664,30 @@ bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id)
 		return false;
 	}
 
-	// Get the unchanged values
-	bool is_listed = getActivationState(lissting_uuid);
-	LLUUID version_uuid = getVersionFolder(listing_uuid);
-
 	// Compute the new count on hand
 	S32 count = compute_stock_count(folder_id);
 
+	if (count == getCountOnHand(listing_uuid))
+	{
+		// If count on hand is unchanged, no point spamming SLM with an update
+		return true;
+	}
+	else if (count == COMPUTE_STOCK_NOT_EVALUATED)
+	{
+		// If local count on hand is not known at that point, do *not* force an update to SLM
+		return false;
+	}
+
+	// Get the unchanged values
+	bool is_listed = getActivationState(listing_uuid);
+	LLUUID version_uuid = getVersionFolder(listing_uuid);
+
 	// Post the listing update request to SLM
 	updateSLMListing(listing_uuid, listing_id, version_uuid, is_listed, count);
+
+	// Force the local value as it prevents spamming (count update may occur in burst when restocking)
+	// Note that if SLM has a good reason to return a different value, it'll be updated by the responder
+	setCountOnHand(listing_uuid, count, false);
 
 	return true;
 }
@@ -1540,38 +1700,38 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
 		return false;
 	}
 
-	// Post the listing update request to SLM
-	associateSLMListing(folder_id, listing_id, source_folder_id);
+	// Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
+	LLUUID version_id = getVersionFolderIfUnique(folder_id);
+
+	// Post the listing associate request to SLM
+	associateSLMListing(folder_id, listing_id, version_id, source_folder_id);
 
 	return true;
 }
 
 // Methods privately called or called by SLM responders to perform changes
-bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, bool update)
+bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, const std::string& edit_url, S32 count)
 {
-	if (isListed(folder_id))
-	{
-		// Listing already exists -> exit with error
-		return false;
-	}
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
 
-	if (update)
+	mMarketplaceItems[folder_id].mEditURL = edit_url;
+	mMarketplaceItems[folder_id].mCountOnHand = count;
+	if (version_id.notNull())
 	{
-		update_marketplace_category(folder_id, false);
-		gInventory.notifyObservers();
+		mVersionFolders[version_id] = folder_id;
 	}
 	return true;
 }
 
 bool LLMarketplaceData::deleteListing(const LLUUID& folder_id, bool update)
 {
-	if (!isListed(folder_id))
+	LLUUID version_folder = getVersionFolder(folder_id);
+
+	if (mMarketplaceItems.erase(folder_id) != 1)
 	{
-		// Listing doesn't exist -> exit with error
 		return false;
 	}
-	mMarketplaceItems.erase(folder_id);
+	mVersionFolders.erase(version_folder);
 
 	if (update)
 	{
@@ -1596,20 +1756,20 @@ bool LLMarketplaceData::deleteListing(S32 listing_id, bool update)
 bool LLMarketplaceData::getActivationState(const LLUUID& folder_id)
 {
 	// Listing folder case
+	marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
 	if (isListed(folder_id))
 	{
-		marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
 		return (it->second).mIsActive;
 	}
-	// We need to iterate through the list to check it's not a version folder
-	marketplace_items_list_t::iterator it = mMarketplaceItems.begin();
-	while (it != mMarketplaceItems.end())
+	// Version folder case
+	version_folders_list_t::iterator it_version = mVersionFolders.find(folder_id);
+	if (it_version != mVersionFolders.end())
 	{
-		if ((it->second).mVersionFolderId == folder_id)
+		marketplace_items_list_t::iterator it = mMarketplaceItems.find(it_version->second);
+		if (it != mMarketplaceItems.end())
 		{
 			return (it->second).mIsActive;
 		}
-		it++;
 	}
 	return false;
 }
@@ -1646,9 +1806,15 @@ LLUUID LLMarketplaceData::getListingFolder(S32 listing_id)
 	}
 }
 
-std::string LLMarketplaceData::getListingURL(const LLUUID& folder_id)
+std::string LLMarketplaceData::getListingURL(const LLUUID& folder_id, S32 depth)
 {
-	S32 depth = depth_nesting_in_marketplace(folder_id);
+	// Evaluate the depth if it wasn't passed as a parameter
+	if (depth < 0)
+	{
+		depth = depth_nesting_in_marketplace(folder_id);
+
+	}
+
 	LLUUID listing_uuid = nested_parent_id(folder_id, depth);
 
 	marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
@@ -1661,44 +1827,53 @@ bool LLMarketplaceData::isListed(const LLUUID& folder_id)
 	return (it != mMarketplaceItems.end());
 }
 
-bool LLMarketplaceData:isListedAndActive(const LLUUID& folder_id)
+bool LLMarketplaceData::isListedAndActive(const LLUUID& folder_id)
 {
 	return (isListed(folder_id) && getActivationState(folder_id));
 }
 
 bool LLMarketplaceData::isVersionFolder(const LLUUID& folder_id)
 {
-	marketplace_items_list_t::iterator it = mMarketplaceItems.begin():
-	while (it != mMarketplaceItems.end())
-	{
-		if ((it->second).mVersionFolderId == folder_id)
-		{
-			return true;
-		}
-		it++;
-	}
-	return false;
+	version_folders_list_t::iterator it = mVersionFolders.find(folder_id);
+	return (it != mVersionFolders.end());
 }
 
-bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id)
+bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id, S32 depth)
 {
-	S32 depth = depth_nesting_in_marketplace(obj_id);
+	// Evaluate the depth if it wasn't passed as a parameter
+	if (depth < 0)
+	{
+		depth = depth_nesting_in_marketplace(obj_id);
+
+	}
+
 	LLUUID listing_uuid = nested_parent_id(obj_id, depth);
 	bool active = getActivationState(listing_uuid);
 	LLUUID version_uuid = getVersionFolder(listing_uuid);
 	return (active && ((obj_id == version_uuid) || gInventory.isObjectDescendentOf(obj_id, version_uuid)));
 }
 
-LLUUID LLMarketplaceData::getActiveFolder(const LLUUID& obj_id)
+LLUUID LLMarketplaceData::getActiveFolder(const LLUUID& folder_id, S32 depth)
 {
-	S32 depth = depth_nesting_in_marketplace(obj_id);
-	LLUUID listing_uuid = nested_parent_id(obj_id, depth);
+	// Evaluate the depth if it wasn't passed as a parameter
+	if (depth < 0)
+	{
+		depth = depth_nesting_in_marketplace(folder_id);
+
+	}
+
+	LLUUID listing_uuid = nested_parent_id(folder_id, depth);
 	return (getActivationState(listing_uuid) ? getVersionFolder(listing_uuid) : LLUUID::null);
 }
 
-bool LLMarketplaceData::isUpdating(const LLUUID& folder_id)
+bool LLMarketplaceData::isUpdating(const LLUUID& folder_id, S32 depth)
 {
-	S32 depth = depth_nesting_in_marketplace(folder_id);
+	// Evaluate the depth if it wasn't passed as a parameter
+	if (depth < 0)
+	{
+		depth = depth_nesting_in_marketplace(folder_id);
+
+	}
 	if ((depth <= 0) || (depth > 2))
 	{
 		// Only listing and version folders though are concerned by that status
@@ -1733,6 +1908,28 @@ void LLMarketplaceData::setUpdating(const LLUUID& folder_id, bool isUpdating)
 	if (isUpdating)
 	{
 		mPendingUpdateSet.insert(folder_id);
+	}
+}
+
+void LLMarketplaceData::setValidationWaiting(const LLUUID& folder_id, S32 count)
+{
+	mValidationWaitingList[folder_id] = count;
+}
+
+void LLMarketplaceData::decrementValidationWaiting(const LLUUID& folder_id, S32 count)
+{
+	waiting_list_t::iterator found = mValidationWaitingList.find(folder_id);
+	if (found != mValidationWaitingList.end())
+	{
+		found->second -= count;
+		if (found->second <= 0)
+		{
+			mValidationWaitingList.erase(found);
+			LLInventoryCategory *cat = gInventory.getCategory(folder_id);
+			validate_marketplacelistings(cat);
+			update_marketplace_category(folder_id);
+			gInventory.notifyObservers();
+		}
 	}
 }
 
@@ -1783,6 +1980,11 @@ bool LLMarketplaceData::setVersionFolderID(const LLUUID& folder_id, const LLUUID
 	}
 
 	(it->second).mVersionFolderId = version_id;
+	mVersionFolders.erase(old_version_id);
+	if (version_id.notNull())
+	{
+		mVersionFolders[version_id] = folder_id;
+	}
 
 	if (update)
 	{
@@ -1811,7 +2013,7 @@ bool LLMarketplaceData::setActivationState(const LLUUID& folder_id, bool activat
 	return true;
 }
 
-bool LLMarketplaceData:setListingURL(const LLUUID& folder_id, const std::string& edit_url, bool update)
+bool LLMarketplaceData::setListingURL(const LLUUID& folder_id, const std::string& edit_url, bool update)
 {
 	marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
 	if (it == mMarketplaceItems.end())

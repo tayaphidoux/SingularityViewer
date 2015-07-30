@@ -919,7 +919,7 @@ bool LLAppViewer::init()
 	load_default_bindings(gSavedSettings.getBOOL("LiruUseZQSDKeys"));
 
 	// If we don't have the right GL requirements, exit.
-	if (!gGLManager.mHasRequirements && !gNoRender)
+	if (!gGLManager.mHasRequirements)
 	{	
 		// can't use an alert here since we're exiting and
 		// all hell breaks lose.

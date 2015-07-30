@@ -122,6 +122,9 @@ public:
 
 		AT_LINK_FOLDER = 25,
 			// Inventory folder link
+
+		AT_MARKETPLACE_FOLDER = 26,
+			// Marketplace folder. Same as an AT_CATEGORY but different display methods.
 	
 		AT_CURRENT_OUTFIT = 46,
 

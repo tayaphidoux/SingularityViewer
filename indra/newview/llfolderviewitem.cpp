@@ -588,7 +588,7 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 void LLFolderViewItem::openItem( void )
 {
 	if (!mListener) return;
-	if (mAllowWear || mListener->isItemWearable())
+	if (mAllowOpen || mListener->isItemWearable())
 	{
 		mListener->openItem();
 	}
@@ -1771,7 +1771,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 			{
 				return;
 			}
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -1790,7 +1790,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 				return;
 			}
 
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -1812,7 +1812,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 				return;
 			}
 
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -1831,7 +1831,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 				return;
 			}
 
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -2878,21 +2878,21 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 	}
 	else if (mFoldersByWeight)
 	{
-		S32 weight_a = compute_stock_count(a->getUUID());
-		S32 weight_b = compute_stock_count(b->getUUID());
+		S32 weight_a = compute_stock_count(a->getListener()->getUUID());
+		S32 weight_b = compute_stock_count(b->getListener()->getUUID());
 		if (weight_a == weight_b)
 		{
 			// Equal weight -> use alphabetical order
-			return (LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName()) < 0);
+			return (LLStringUtil::compareDict(a->getListener()->getDisplayName(), b->getListener()->getDisplayName()) < 0);
 		}
-		else if (weight_a == -1)
+		else if (weight_a == COMPUTE_STOCK_INFINITE)
 		{
-			// No weight -> move a at the end of the list
+			// No stock -> move a at the end of the list
 			return false;
 		}
-		else if (weight_b == -1)
+		else if (weight_b == COMPUTE_STOCK_INFINITE)
 		{
-			// No weight -> move b at the end of the list
+			// No stock -> move b at the end of the list
 			return true;
 		}
 		else
