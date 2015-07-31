@@ -329,7 +329,9 @@ void LLInvFVBridge::showProperties()
 		LLFloater* floater_properties = LLFloaterProperties::find(mUUID, LLUUID::null);
 		if (floater_properties)
 		{
-			floater_properties->open()/*setVisibleAndFrontmost()*/;
+			floater_properties->setVisible(true);
+			floater_properties->setFrontmost(true);
+			//floater_properties->setVisibleAndFrontmost();
 		}
 	}
 	else
