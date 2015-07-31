@@ -195,7 +195,7 @@ void LLInventoryPanel::buildFolderView()
 	LLFolderView* folder_view = createFolderView(new_listener, true/*params.use_label_suffix()*/);
 	mFolderRoot = folder_view->getHandle();
 
-	addItemID(root_id, mFolderRoot.get());
+	//addItemID(root_id, mFolderRoot.get());
 }
 BOOL LLInventoryPanel::postBuild()
 {
@@ -374,7 +374,7 @@ LLView* LLInventoryPanel::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 void LLInventoryPanel::draw()
 {
 	// Select the desired item (in case it wasn't loaded when the selection was requested)
-	mFolderRoot.get()->updateSelection();
+	updateSelection();
 
 	LLPanel::draw();
 }
@@ -392,7 +392,9 @@ const LLInventoryFilter& LLInventoryPanel::getFilter() const
 void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
 {
 	if (filter_type == LLInventoryFilter::FILTERTYPE_OBJECT)
+	{
 		getFilter().setFilterObjectTypes(types);
+	}
 	if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
 		getFilter().setFilterCategoryTypes(types);
 }
@@ -510,6 +512,7 @@ LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 	return getFilter().getShowFolderState();
 }
 
+// Called when something changed in the global model (new item, item coming through the wire, rename, move, etc...) (CHUI-849)
 void LLInventoryPanel::modelChanged(U32 mask)
 {
 	static LLTrace::BlockTimerStatHandle FTM_REFRESH("Inventory Refresh");
@@ -529,7 +532,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	{
 		const LLUUID& item_id = (*items_iter);
 		const LLInventoryObject* model_item = model->getObject(item_id);
-		LLFolderViewItem* view_item = mFolderRoot.get()->getItemByID(item_id);
+		LLFolderViewItem* view_item = getItemByID(item_id);
 
 		// LLFolderViewFolder is derived from LLFolderViewItem so dynamic_cast from item
 		// to folder is the fast way to get a folder without searching through folders tree.
@@ -573,9 +576,9 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		{
 			if (model_item && view_item)
 			{
-				const LLUUID& idp = view_item->getListener()->getUUID();
+				//const LLUUID& idp = view_item->getListener()->getUUID();
 				view_item->destroyView();
-				removeItemID(idp);
+				//removeItemID(idp);
 			}
 			view_item = buildNewViews(item_id);
 			view_folder = dynamic_cast<LLFolderViewFolder *>(view_item);
@@ -631,19 +634,20 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			// This item already exists in both memory and UI.  It was probably reparented.
 			else if (model_item && view_item)
 			{
+				LLFolderViewFolder* old_parent = view_item->getParentFolder();
 				// Don't process the item if it is the root
 				if (view_item->getRoot() != view_item)
 				{
-					LLFolderViewFolder* new_parent = (LLFolderViewFolder*)mFolderRoot.get()->getItemByID(model_item->getParentUUID());
+					LLFolderViewFolder* new_parent = (LLFolderViewFolder*)getItemByID(model_item->getParentUUID());
 					// Item has been moved.
-					if (view_item->getParentFolder() != new_parent)
+					if (old_parent != new_parent)
 					{
 						if (new_parent != NULL)
 						{
 							// Item is to be moved and we found its new parent in the panel's directory, so move the item's UI.
 							view_item->getParentFolder()->extractItem(view_item);
 							view_item->addToFolder(new_parent, mFolderRoot.get());
-							addItemID(view_item->getListener()->getUUID(), view_item);
+							//addItemID(view_item->getListener()->getUUID(), view_item);
 							if (mInventory)
 							{
 								const LLUUID trash_id = mInventory->findCategoryUUIDForType(LLFolderType::FT_TRASH);
@@ -657,7 +661,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 						{
 							// Remove the item ID before destroying the view because the view-model-item gets
 							// destroyed when the view is destroyed
-							removeItemID(view_item->getListener()->getUUID());
+							//removeItemID(view_item->getListener()->getUUID());
 
 							// Item is to be moved outside the panel's directory (e.g. moved to trash for a panel that
 							// doesn't include trash).  Just remove the item's UI.
@@ -674,7 +678,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			{
 				// Remove the item's UI.
 				LLFolderViewFolder* parent = view_item->getParentFolder();
-				removeItemID(view_item->getListener()->getUUID());
+				//removeItemID(view_item->getListener()->getUUID());
 				view_item->destroyView();
 			}
 		}
@@ -734,14 +738,14 @@ void LLInventoryPanel::initializeViews()
 	if (gAgent.isFirstLogin())
 	{
 		// Auto open the user's library
-		LLFolderViewFolder* lib_folder = mFolderRoot.get()->getFolderByID(gInventory.getLibraryRootFolderID());
+		LLFolderViewFolder* lib_folder = getFolderByID(gInventory.getLibraryRootFolderID());
 		if (lib_folder)
 		{
 			lib_folder->setOpen(TRUE);
 		}
 		
 		// Auto close the user's my inventory folder
-		LLFolderViewFolder* my_inv_folder = mFolderRoot.get()->getFolderByID(gInventory.getRootFolderID());
+		LLFolderViewFolder* my_inv_folder = getFolderByID(gInventory.getRootFolderID());
 		if (my_inv_folder)
 		{
 			my_inv_folder->setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_DOWN);
@@ -810,10 +814,10 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 		return NULL;
 	}
 
- 	LLFolderViewItem* folder_view_item = mFolderRoot.get()->getItemByID(id);
+ 	LLFolderViewItem* folder_view_item = getItemByID(id);
 
 	const LLUUID& parent_id = objectp->getParentUUID();
- 	LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)mFolderRoot.get()->getItemByID(parent_id);
+ 	LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
 	LLUUID root_id = getRootFolderID();
 
 	// Force the creation of an extra root level folder item if required by the inventory panel (default is "false")
@@ -893,7 +897,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 		{
 			llassert(parent_folder != NULL);
 			folder_view_item->addToFolder(parent_folder, mFolderRoot.get());
-			addItemID(id, folder_view_item);
+			//addItemID(id, folder_view_item);
 			// In the case of the root folder been shown, open that folder by default once the widget is created
 			if (create_root)
 			{
@@ -995,7 +999,8 @@ BOOL LLInventoryPanel::handleHover(S32 x, S32 y, MASK mask)
 	BOOL handled = LLView::handleHover(x, y, mask);
 	if(handled)
 	{
-		if (LLInventoryModelBackgroundFetch::instance().folderFetchActive())
+		ECursorType cursor = getWindow()->getCursor();
+		if (LLInventoryModelBackgroundFetch::instance().folderFetchActive() && cursor == UI_CURSOR_ARROW)
 		{
 			// replace arrow cursor with arrow and hourglass cursor
 			getWindow()->setCursor(UI_CURSOR_WORKING);
@@ -1232,9 +1237,11 @@ void LLInventoryPanel::removeItemID(const LLUUID& id)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
+//static LLFastTimer::DeclareTimer FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
 LLFolderViewItem* LLInventoryPanel::getItemByID(const LLUUID& id)
 {
+	return mFolderRoot.get()->getItemByID(id);
+	/*
 	LLFastTimer mew(FTM_GET_ITEM_BY_ID);
 
 	std::map<LLUUID, LLFolderViewItem*>::iterator map_it;
@@ -1244,17 +1251,23 @@ LLFolderViewItem* LLInventoryPanel::getItemByID(const LLUUID& id)
 		return map_it->second;
 	}
 
-	return NULL;
+	return NULL;*/
 }
 
 LLFolderViewFolder* LLInventoryPanel::getFolderByID(const LLUUID& id)
 {
+	return mFolderRoot.get()->getFolderByID(id);
+/*
 	LLFolderViewItem* item = getItemByID(id);
 	return dynamic_cast<LLFolderViewFolder*>(item);
+*/
 }
+
 
 void LLInventoryPanel::setSelectionByID( const LLUUID& obj_id, BOOL    take_keyboard_focus )
 {
+	mFolderRoot.get()->setSelectionByID(obj_id, take_keyboard_focus);
+	/*
 	LLFolderViewItem* itemp = getItemByID(obj_id);
 	if(itemp && itemp->getListener())
 	{
@@ -1266,15 +1279,18 @@ void LLInventoryPanel::setSelectionByID( const LLUUID& obj_id, BOOL    take_keyb
 	{
 		// save the desired item to be selected later (if/when ready)
 		mSelectThisID = obj_id;
-	}
+	}*/
 }
 
 void LLInventoryPanel::updateSelection()
 {
+	mFolderRoot.get()->updateSelection();
+/*
 	if (mSelectThisID.notNull())
 	{
 		setSelectionByID(mSelectThisID, false);
 	}
+*/
 }
 
 namespace LLInventoryAction
