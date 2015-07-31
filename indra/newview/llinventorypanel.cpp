@@ -677,7 +677,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			else if (!model_item && view_item)
 			{
 				// Remove the item's UI.
-				LLFolderViewFolder* parent = view_item->getParentFolder();
+				//LLFolderViewFolder* parent = view_item->getParentFolder();
 				//removeItemID(view_item->getListener()->getUUID());
 				view_item->destroyView();
 			}

@@ -1804,6 +1804,7 @@ LLUUID LLMarketplaceData::getListingFolder(S32 listing_id)
 		}
 		it++;
 	}
+	return LLUUID::null;
 }
 
 std::string LLMarketplaceData::getListingURL(const LLUUID& folder_id, S32 depth)
