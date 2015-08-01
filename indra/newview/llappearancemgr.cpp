@@ -530,6 +530,15 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 	}
 }
 
+LLRequestServerAppearanceUpdateOnDestroy::~LLRequestServerAppearanceUpdateOnDestroy()
+{
+	LL_DEBUGS("Avatar") << "ATT requesting server appearance update" << LL_ENDL;
+	if (!LLApp::isExiting())
+	{
+		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+	}
+}
+
 U32 LLUpdateAppearanceOnDestroy::sActiveCallbacks = 0;
 
 LLUpdateAppearanceAndEditWearableOnDestroy::LLUpdateAppearanceAndEditWearableOnDestroy(const LLUUID& item_id):
@@ -1568,9 +1577,11 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
             break;
                 
             case LLAssetType::AT_OBJECT:
-            {
-                rez_attachment(item_to_wear, NULL, replace);
-            }
+	    {
+	    	LL_DEBUGS("Avatar") << "ATT wearing object. calling rez_attachment, item " << item_to_wear->getName()
+							<< " id " << item_to_wear->getLinkedUUID() << LL_ENDL;
+		    rez_attachment(item_to_wear, NULL, replace);
+	    }
             break;
 
             default: continue;
@@ -3759,7 +3770,7 @@ void RequestAgentUpdateAppearanceResponder::onRequestRequested()
 	}
 
 	// Actually send the request.
-	LL_DEBUGS("Avatar") << "Will send request for cof_version " << cof_version << LL_ENDL;
+	LL_DEBUGS("Avatar") << "ATT sending bake request for cof_version " << cof_version << LL_ENDL;
 	mRetryPolicy->reset();
 	sendRequest();
 }

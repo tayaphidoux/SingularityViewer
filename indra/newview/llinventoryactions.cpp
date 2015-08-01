@@ -99,6 +99,34 @@ void LLInventoryAction::callback_copySelected(const LLSD& notification, const LL
 	}
 }
 
+// Succeeds iff all selected items are bridges to objects, in which
+// case returns their corresponding uuids.
+bool get_selection_object_uuids(LLFolderView *root, uuid_vec_t& ids)
+{
+	uuid_vec_t results;
+	//S32 no_object = 0;
+	std::set<LLUUID> selectedItems = root->getSelectionList();
+	for(std::set<LLUUID>::iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+	{
+		const LLUUID& id(*it);
+
+		if(id.notNull())
+		{
+			results.push_back(id);
+		}
+		else
+		{
+			return false; //non_object++;
+		}
+	}
+	//if (non_object == 0)
+	{
+		ids = results;
+		return true;
+	}
+	//return false;
+}
+
 bool LLInventoryAction::doToSelected(LLFolderView* root, std::string action, BOOL user_confirm)
 {
 	if (!root)
@@ -206,18 +234,31 @@ bool LLInventoryAction::doToSelected(LLFolderView* root, std::string action, BOO
 
 	std::set<LLUUID>::iterator set_iter;
 
-	for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+
+	// This rather warty piece of code is to allow items to be removed
+	// from the avatar in a batch, eliminating redundant
+	// updateAppearanceFromCOF() requests further down the line. (MAINT-4918)
+	//
+	// There are probably other cases where similar batching would be
+	// desirable, but the current item-by-item performAction()
+	// approach would need to be reworked.
+	uuid_vec_t object_uuids_to_remove;
+	if (isRemoveAction(action) && get_selection_object_uuids(root, object_uuids_to_remove))
 	{
-		LLFolderViewItem* folder_item = root->getItemByID(*set_iter);
-		if(!folder_item) continue;
-		LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getListener();
-		if(!bridge) continue;
-
-		bridge->performAction(model, action);
+		LLAppearanceMgr::instance().removeItemsFromAvatar(object_uuids_to_remove);
 	}
+	else
+	{
+		for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+		{
+			LLFolderViewItem* folder_item = root->getItemByID(*set_iter);
+			if(!folder_item) continue;
+			LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getListener();
+			if(!bridge) continue;
 
-	// Update the marketplace listings that have been affected by the operation
-	updateMarketplaceFolders();
+			bridge->performAction(model, action);
+		}
+	}
 
 	LLFloater::setFloaterHost(NULL);
 	if (multi_floaterp)
@@ -239,10 +280,16 @@ void LLInventoryAction::buildMarketplaceFolders(LLFolderView* root)
 	// Note: do not however put the marketplace listings root itself in this list or the whole marketplace data will be rebuilt.
 	sMarketplaceFolders.clear();
 	const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+	if (marketplacelistings_id.isNull())
+	{
+		return;
+	}
+
 	std::set<LLUUID> selected_items = root->getSelectionList();
 	for (std::set<LLUUID>::const_iterator set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
 	{
 		const LLInventoryObject* obj(gInventory.getObject(*set_iter));
+		if (!obj) continue;
 		if (gInventory.isObjectDescendentOf(obj->getParentUUID(), marketplacelistings_id))
 		{
 			const LLUUID& parent_id = obj->getParentUUID();

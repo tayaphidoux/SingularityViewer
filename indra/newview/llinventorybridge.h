@@ -719,4 +719,10 @@ public:
     virtual void groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu);
 };
 
+// Helper functions to classify actions.
+bool isAddAction(const std::string& action);
+bool isRemoveAction(const std::string& action);
+bool isMarketplaceCopyAction(const std::string& action);
+bool isMarketplaceSendAction(const std::string& action);
+
 #endif // LL_LLINVENTORYBRIDGE_H

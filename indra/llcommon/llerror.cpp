@@ -120,6 +120,7 @@ namespace {
 				LL_INFOS() << "Error setting log file to " << filename << LL_ENDL;
 			}
 			mWantsTime = true;
+			mWantsTags = true;
 		}
 		
 		~RecordToFile()
@@ -600,7 +601,7 @@ namespace LLError
 			mFunctionString += std::string(mFunction) + ":";
 			for (size_t i = 0; i < mTagCount; i++)
 			{
-				mTagString += std::string("#") + mTags[i] + ((i == mTagCount - 1) ? "" : " ");
+				mTagString += std::string("#") + mTags[i] + ((i == mTagCount - 1) ? "" : ",");
 			}
 		}
 	}
@@ -983,13 +984,19 @@ namespace
 			}
 
 			if (show_level && r->wantsLevel())
-				{
-				message_stream << site.mLevelString << " ";
-				}
+			{
+				message_stream << site.mLevelString;
+			}
 				
 			if (show_tags && r->wantsTags())
 			{
-				message_stream << site.mTagString << " ";
+				message_stream << site.mTagString;
+			}
+
+			if ((show_level && r->wantsLevel())||
+				(show_tags && r->wantsTags()))
+			{
+				message_stream << " ";
 			}
 
 			if (show_function && r->wantsFunctionName())

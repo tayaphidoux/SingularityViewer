@@ -451,7 +451,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				compressed_dp.unpackU32(local_id, "LocalID");
 				compressed_dp.unpackU8(pcode, "PCode");
 			}
-			else
+			else //OUT_TERSE_IMPROVED
 			{
 				compressed_dp.unpackU32(local_id, "LocalID");
 				getUUIDFromLocal(fullid,
@@ -460,7 +460,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 								 gMessageSystem->getSenderPort());
 				if (fullid.isNull())
 				{
-					// LL_WARNS() << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << ":" << gMessageSystem->getSenderPort() << LL_ENDL;
+					LL_DEBUGS() << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << ":" << gMessageSystem->getSenderPort() << LL_ENDL;
 					mNumUnknownUpdates++;
 				}
 			}

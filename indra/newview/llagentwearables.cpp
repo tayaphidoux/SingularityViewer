@@ -32,6 +32,7 @@
 #include "llagentcamera.h"
 #include "llagentwearablesfetch.h"
 #include "llappearancemgr.h"
+#include "llattachmentsmgr.h"
 #include "llcallbacklist.h"
 #include "llfloatercustomize.h"
 #include "llfolderview.h"

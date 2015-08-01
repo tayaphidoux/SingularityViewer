@@ -34,6 +34,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"
+#include "llsdserialize.h"
 #include "lltimer.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -214,8 +215,8 @@ protected:
 		log_SLM_infos("Get /merchant", getStatus(), "User is a merchant");
 		LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
 	}
-
 	virtual char const* getName() const { return "LLSLMGetMerchantResponder"; }
+
 };
 
 class LLSLMGetListingsResponder : public LLHTTPClient::ResponderWithCompleted
@@ -288,7 +289,6 @@ public:
 		update_marketplace_category(mExpectedFolderId, false);
 		gInventory.notifyObservers();
 	}
-
 	virtual char const* getName() const { return "LLSLMGetListingsResponder"; }
 private:
 	LLUUID mExpectedFolderId;
@@ -356,7 +356,6 @@ public:
 			it++;
 		}
 	}
-
 	virtual char const* getName() const { return "LLSLMCreateListingsResponder"; }
 private:
 	LLUUID mExpectedFolderId;
@@ -439,7 +438,6 @@ public:
 			it++;
 		}
 	}
-
 	virtual char const* getName() const { return "LLSLMGetListingResponder"; }
 private:
 	LLUUID mExpectedFolderId;
@@ -525,7 +523,6 @@ public:
 			it++;
 		}
 	}
-
 	virtual char const* getName() const { return "LLSLMUpdateListingsResponder"; }
 private:
 	LLUUID mExpectedFolderId;
@@ -607,7 +604,7 @@ public:
 			update_marketplace_category(folder_id, false);
 			gInventory.notifyObservers();
 
-			// the stock count needs to be updated with the new local count now
+			// The stock count needs to be updated with the new local count now
 			LLMarketplaceData::instance().updateCountOnHand(folder_id,1);
 
 			it++;
@@ -689,11 +686,10 @@ namespace LLMarketplaceImport
 {
 	// Basic interface for this namespace
 
-
 	bool hasSessionCookie();
 	bool inProgress();
 	bool resultPending();
-	U32 getResultStatus();
+	S32 getResultStatus();
 	const LLSD& getResults();
 
 	bool establishMarketplaceSessionCookie();
@@ -707,7 +703,7 @@ namespace LLMarketplaceImport
 	static bool sImportInProgress = false;
 	static bool sImportPostPending = false;
 	static bool sImportGetPending = false;
-	static U32 sImportResultStatus = 0;
+	static S32 sImportResultStatus = 0;
 	static LLSD sImportResults = LLSD::emptyMap();
 
 	static LLTimer slmGetTimer;
@@ -717,30 +713,32 @@ namespace LLMarketplaceImport
 
 	class LLImportPostResponder : public LLHTTPClient::ResponderWithCompleted
 	{
+		LOG_CLASS(LLImportPostResponder);
 	public:
-		/*virtual*/ void httpCompleted(void)
+		/*virtual*/ void httpCompleted()
 		{
 			slmPostTimer.stop();
 
 			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 			{
-				LL_INFOS() << " SLM POST status: " << mStatus << LL_ENDL;
-				LL_INFOS() << " SLM POST reason: " << mReason << LL_ENDL;
-				LL_INFOS() << " SLM POST content: " << mContent.asString() << LL_ENDL;
-				LL_INFOS() << " SLM POST timer: " << slmPostTimer.getElapsedTimeF32() << LL_ENDL;
+				LL_INFOS() << " SLM [timer:" << slmPostTimer.getElapsedTimeF32() << "] "
+						   << dumpResponse() << LL_ENDL;
 			}
 
-			// MAINT-2301 : we determined we can safely ignore that error in that context
-			if (mStatus == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT)
+			S32 status = getStatus();
+			if ((status == MarketplaceErrorCodes::IMPORT_REDIRECT) ||
+				(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
+				// MAINT-2301 : we determined we can safely ignore that error in that context
+				(status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
 					LL_INFOS() << " SLM POST : Ignoring time out status and treating it as success" << LL_ENDL;
 				}
-				mStatus = MarketplaceErrorCodes::IMPORT_DONE;
+				status = MarketplaceErrorCodes::IMPORT_DONE;
 			}
 
-			if (mStatus >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
+			if (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
@@ -749,10 +747,10 @@ namespace LLMarketplaceImport
 				sMarketplaceCookie.clear();
 			}
 
-			sImportInProgress = (mStatus == MarketplaceErrorCodes::IMPORT_DONE);
+			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_DONE);
 			sImportPostPending = false;
-			sImportResultStatus = mStatus;
-			sImportId = mContent;
+			sImportResultStatus = status;
+			sImportId = getContent();
 		}
 
 		/*virtual*/ char const* getName(void) const { return "LLImportPostResponder"; }
@@ -760,6 +758,7 @@ namespace LLMarketplaceImport
 
 	class LLImportGetResponder : public LLHTTPClient::ResponderWithCompleted
 	{
+		LOG_CLASS(LLImportGetResponder);
 	public:
 		/*virtual*/ bool needsHeaders(void) const { return true; }
 
@@ -779,39 +778,38 @@ namespace LLMarketplaceImport
 			}
 		}
 
-		/*virtual*/ void httpCompleted(void)
+		/*virtual*/ void httpCompleted()
 		{
 			slmGetTimer.stop();
 
 			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 			{
-				LL_INFOS() << " SLM GET status: " << mStatus << LL_ENDL;
-				LL_INFOS() << " SLM GET reason: " << mReason << LL_ENDL;
-				LL_INFOS() << " SLM GET content: " << mContent.asString() << LL_ENDL;
-				LL_INFOS() << " SLM GET timer: " << slmGetTimer.getElapsedTimeF32() << LL_ENDL;
+				LL_INFOS() << " SLM [timer:" << slmGetTimer.getElapsedTimeF32() << "] "
+						   << dumpResponse() << LL_ENDL;
 			}
 
 			// MAINT-2452 : Do not clear the cookie on IMPORT_DONE_WITH_ERRORS : Happens when trying to import objects with wrong permissions
 			// ACME-1221 : Do not clear the cookie on IMPORT_NOT_FOUND : Happens for newly created Merchant accounts that are initially empty
-			if ((mStatus >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST) &&
-				(mStatus != MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS) &&
-				(mStatus != MarketplaceErrorCodes::IMPORT_NOT_FOUND))
+			S32 status = getStatus();
+			if ((status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST) &&
+				(status != MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS) &&
+				(status != MarketplaceErrorCodes::IMPORT_NOT_FOUND))
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					LL_INFOS() << " SLM GET clearing marketplace cookie due to client or server error (" << mStatus << " / " << mReason << ")." << LL_ENDL;
+					LL_INFOS() << " SLM GET clearing marketplace cookie due to client or server error" << LL_ENDL;
 				}
 				sMarketplaceCookie.clear();
 			}
-			else if (gSavedSettings.getBOOL("InventoryOutboxLogging") && (mStatus >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST))
+			else if (gSavedSettings.getBOOL("InventoryOutboxLogging") && (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST))
 			{
-				LL_INFOS() << " SLM GET : Got error status = " << mStatus << ", but marketplace cookie not cleared." << LL_ENDL;
+				LL_INFOS() << " SLM GET : Got error status = " << status << ", but marketplace cookie not cleared." << LL_ENDL;
 			}
 
-			sImportInProgress = (mStatus == MarketplaceErrorCodes::IMPORT_PROCESSING);
+			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_PROCESSING);
 			sImportGetPending = false;
-			sImportResultStatus = mStatus;
-			sImportResults = mContent;
+			sImportResultStatus = status;
+			sImportResults = getContent();
 		}
 
 		/*virtual*/ char const* getName(void) const { return "LLImportGetResponder"; }
@@ -834,7 +832,7 @@ namespace LLMarketplaceImport
 		return (sImportPostPending || sImportGetPending);
 	}
 
-	U32 getResultStatus()
+	S32 getResultStatus()
 	{
 		return sImportResultStatus;
 	}
@@ -871,8 +869,10 @@ namespace LLMarketplaceImport
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
 			LL_INFOS() << " SLM GET: establishMarketplaceSessionCookie, LLHTTPClient::get, url = " << url << LL_ENDL;
+			std::stringstream str;
+			str << headers; //LLSDSerialize::toPrettyXML(headers, str);
 			LL_INFOS() << " SLM GET: headers " << LL_ENDL;
-			LL_INFOS() << headers << LL_ENDL;
+			LL_INFOS() << str.str() << LL_ENDL;
 		}
 
 		slmGetTimer.start();
@@ -898,14 +898,17 @@ namespace LLMarketplaceImport
 		AIHTTPHeaders headers;
 		headers.addHeader("Accept", "*/*");
 		headers.addHeader("Cookie", sMarketplaceCookie);
+		// *TODO: Why are we setting Content-Type for a GET request?
 		headers.addHeader("Content-Type", "application/llsd+xml");
 		headers.addHeader("User-Agent", LLViewerMedia::getCurrentUserAgent());
 
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
 			LL_INFOS() << " SLM GET: pollStatus, LLHTTPClient::get, url = " << url << LL_ENDL;
+			std::stringstream str;
+			str << headers; //LLSDSerialize::toPrettyXML(headers, str);
 			LL_INFOS() << " SLM GET: headers " << LL_ENDL;
-			LL_INFOS() << headers << LL_ENDL;
+			LL_INFOS() << str.str() << LL_ENDL;
 		}
 
 		slmGetTimer.start();
@@ -940,8 +943,10 @@ namespace LLMarketplaceImport
 		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
 			LL_INFOS() << " SLM POST: triggerImport, LLHTTPClient::post, url = " << url << LL_ENDL;
+			std::stringstream str;
+			str << headers; //LLSDSerialize::toPrettyXML(headers, str);
 			LL_INFOS() << " SLM POST: headers " << LL_ENDL;
-			LL_INFOS() << headers << LL_ENDL;
+			LL_INFOS() << str.str() << LL_ENDL;
 		}
 
 		slmPostTimer.start();
@@ -967,7 +972,6 @@ void LLMarketplaceInventoryImporter::update()
 		if (update_timer.hasExpired())
 		{
 			LLMarketplaceInventoryImporter::instance().updateImport();
-			//static LLCachedControl<F32> MARKET_IMPORTER_UPDATE_FREQUENCY("MarketImporterUpdateFreq", 1.0f);
 			update_timer.setTimerExpirySec(MARKET_IMPORTER_UPDATE_FREQUENCY);
 		}
 	}
@@ -1114,12 +1118,12 @@ void LLMarketplaceInventoryImporter::updateImport()
 				}
 			}
 		}
+	}
 
-		// Make sure we trigger the status change with the final state (in case of auto trigger after initialize)
-		if (mStatusChangedSignal)
-		{
-			(*mStatusChangedSignal)(mImportInProgress);
-		}
+	// Make sure we trigger the status change with the final state (in case of auto trigger after initialize)
+	if (mStatusChangedSignal)
+	{
+		(*mStatusChangedSignal)(mImportInProgress);
 	}
 }
 
@@ -1197,7 +1201,7 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
 				{
 					// If it's not a category, it's an item...
 					LLInventoryItem* item = (LLInventoryItem*)(obj);
-					// If it's a no copy item, we may need to update the label count of marketplace listing
+					// If it's a no copy item, we may need to update the label count of marketplace listings
 					if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
 					{
 						LLMarketplaceData::instance().setDirtyCount();
@@ -1313,7 +1317,7 @@ void LLMarketplaceData::getSLMListing(S32 listing_id)
 	// Send request
 	std::string url = getSLMConnectURL("/listing/") + llformat("%d", listing_id);
 	log_SLM_infos("LLHTTPClient::get", url, "");
-	const LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
+	LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
 	setUpdating(folder_id, true);
 	LLHTTPClient::get(url, new LLSLMGetListingResponder(folder_id), headers);
 }
@@ -1508,7 +1512,7 @@ bool LLMarketplaceData::clearListing(const LLUUID& folder_id, S32 depth)
 		depth = depth_nesting_in_marketplace(folder_id);
 
 	}
-	// Folder id can be the root of the listing of not so we need to retrieve the root first
+	// Folder id can be the root of the listing or not so we need to retrieve the root first
 	LLUUID listing_uuid = (isListed(folder_id) ? folder_id : nested_parent_id(folder_id, depth));
 	S32 listing_id = getListingID(listing_uuid);
 
@@ -1641,7 +1645,7 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
 		count = 0;
 	}
 
-	// Post the listing update requesst to SLM
+	// Post the listing update request to SLM
 	updateSLMListing(listing_uuid, listing_id, version_id, is_listed, count);
 
 	return true;
@@ -1682,6 +1686,7 @@ bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id, S32 depth)
 	bool is_listed = getActivationState(listing_uuid);
 	LLUUID version_uuid = getVersionFolder(listing_uuid);
 
+
 	// Post the listing update request to SLM
 	updateSLMListing(listing_uuid, listing_id, version_uuid, is_listed, count);
 
@@ -1713,7 +1718,6 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
 bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, const std::string& edit_url, S32 count)
 {
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
-
 	mMarketplaceItems[folder_id].mEditURL = edit_url;
 	mMarketplaceItems[folder_id].mCountOnHand = count;
 	if (version_id.notNull())
@@ -1757,7 +1761,7 @@ bool LLMarketplaceData::getActivationState(const LLUUID& folder_id)
 {
 	// Listing folder case
 	marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
-	if (isListed(folder_id))
+	if (it != mMarketplaceItems.end())
 	{
 		return (it->second).mIsActive;
 	}
@@ -1818,7 +1822,7 @@ std::string LLMarketplaceData::getListingURL(const LLUUID& folder_id, S32 depth)
 
 	LLUUID listing_uuid = nested_parent_id(folder_id, depth);
 
-	marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+	marketplace_items_list_t::iterator it = mMarketplaceItems.find(listing_uuid);
 	return (it == mMarketplaceItems.end() ? "" : (it->second).mEditURL);
 }
 
@@ -1854,16 +1858,16 @@ bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id, S32 depth)
 	return (active && ((obj_id == version_uuid) || gInventory.isObjectDescendentOf(obj_id, version_uuid)));
 }
 
-LLUUID LLMarketplaceData::getActiveFolder(const LLUUID& folder_id, S32 depth)
+LLUUID LLMarketplaceData::getActiveFolder(const LLUUID& obj_id, S32 depth)
 {
 	// Evaluate the depth if it wasn't passed as a parameter
 	if (depth < 0)
 	{
-		depth = depth_nesting_in_marketplace(folder_id);
+		depth = depth_nesting_in_marketplace(obj_id);
 
 	}
 
-	LLUUID listing_uuid = nested_parent_id(folder_id, depth);
+	LLUUID listing_uuid = nested_parent_id(obj_id, depth);
 	return (getActivationState(listing_uuid) ? getVersionFolder(listing_uuid) : LLUUID::null);
 }
 
@@ -1873,7 +1877,6 @@ bool LLMarketplaceData::isUpdating(const LLUUID& folder_id, S32 depth)
 	if (depth < 0)
 	{
 		depth = depth_nesting_in_marketplace(folder_id);
-
 	}
 	if ((depth <= 0) || (depth > 2))
 	{

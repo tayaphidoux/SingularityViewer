@@ -321,6 +321,16 @@ private:
 	nullary_func_t mPostUpdateFunc;
 };
 
+class LLRequestServerAppearanceUpdateOnDestroy: public LLInventoryCallback
+{
+public:
+	LLRequestServerAppearanceUpdateOnDestroy() {}
+	~LLRequestServerAppearanceUpdateOnDestroy();
+
+	/* virtual */ void fire(const LLUUID& item_id) {}
+};
+
+// [SL:KB] - Patch: Appearance-SyncAttach | Checked: 2010-08-31 (Catznip-2.1)
 class LLUpdateAppearanceAndEditWearableOnDestroy: public LLInventoryCallback
 {
 public:
