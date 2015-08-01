@@ -879,22 +879,23 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 				}
 				folder_view_item = folderp;
 			}
-		}
-		else
-		{
-			// Build new view for item.
-			LLInventoryItem* item = (LLInventoryItem*)objectp;
-			LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(item->getType(),
-			item->getActualType(),
-			item->getInventoryType(),
-																			this,
-																			mFolderRoot.get(),
-																			item->getUUID(),
-																			item->getFlags());
-
-			if (new_listener)
+			else
 			{
-				folder_view_item = createFolderViewItem(new_listener);
+				// Build new view for item.
+				const LLInventoryItem* item = (LLInventoryItem*)objectp;
+				llassert_always(item);
+				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(item->getType(),
+				item->getActualType(),
+				item->getInventoryType(),
+																				this,
+																				mFolderRoot.get(),
+																				item->getUUID(),
+																				item->getFlags());
+
+				if (new_listener)
+				{
+					folder_view_item = createFolderViewItem(new_listener);
+				}
 			}
 		}
 
