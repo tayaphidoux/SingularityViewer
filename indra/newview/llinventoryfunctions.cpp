@@ -291,11 +291,6 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
 				LLNotificationsUtil::add("AlertMerchantVersionFolderEmpty");
 				LLMarketplaceData::instance().activateListing(listing_uuid, false,1);
 			}
-			else if (version_folder_uuid.notNull() && (count_descendants_items(version_folder_uuid) == 0))
-			{
-				LL_INFOS("SLM") << "Unlist as the version folder is empty of any item!!" << LL_ENDL;
-				LLMarketplaceData::instance().activateListing(listing_uuid, false);
-			}
 		}
 
 		// Check if the count on hand needs to be updated on SLM
@@ -364,37 +359,7 @@ void update_all_marketplace_count()
 	{
 		update_all_marketplace_count(marketplace_listings_uuid);
 	}
-}
-
-// Path should already end on '/' if it is not empty.
-void append_path_short(LLUUID const& id, std::string& path)
-{
-	LLInventoryObject const* obj = gInventory.getObject(id);
-	if (!obj) return;
-
-	LLUUID const root_id = gInventory.getRootFolderID();
-	std::string const forward_slash("/");
-
-	std::string result;
-	while(1)
-	{
-		LLUUID parent_id = obj->getParentUUID();
-		if (parent_id == root_id ||
-			!(obj = gInventory.getCategory(parent_id)))
-		{
-			break;
-		}
-		std::string temp;
-		temp.swap(result);
-		result = obj->getName();
-		if (!temp.empty())
-		{
-			result.append(forward_slash);
-			result.append(temp);
-		}
-	}
-
-	path.append(result);
+	return;
 }
 
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name)
@@ -533,8 +498,9 @@ BOOL get_is_parent_to_worn_item(const LLUUID& id)
 	return FALSE;
 }
 
-BOOL get_is_item_worn(const LLInventoryItem *item)
+BOOL get_is_item_worn(const LLUUID& id)
 {
+	const LLViewerInventoryItem* item = gInventory.getItem(id);
 	if (!item)
 		return FALSE;
 
@@ -566,11 +532,6 @@ BOOL get_is_item_worn(const LLInventoryItem *item)
 			break;
 	}
 	return FALSE;
-}
-
-BOOL get_is_item_worn(const LLUUID& id)
-{
-	return get_is_item_worn(gInventory.getItem(id));
 }
 
 BOOL get_can_item_be_worn(const LLUUID& id)
@@ -1038,7 +999,7 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
 			// "COMPUTE_STOCK_NOT_EVALUATED" denotes that a stock folder has a count that cannot be evaluated at this time (folder not up to date)
 			return COMPUTE_STOCK_NOT_EVALUATED;
 		}
-		// Note: stock folders are *not* supposed to have nested subfolder so we stop recursion here but we count only items (subfolders will be ignored)
+		// Note: stock folders are *not* supposed to have nested subfolders so we stop recursion here but we count only items (subfolders will be ignored)
 		// Note: we *always* give a stock count for stock folders, it's useful even if the listing is unassociated
 		LLInventoryModel::cat_array_t* cat_array;
 		LLInventoryModel::item_array_t* item_array;
@@ -1144,6 +1105,14 @@ bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg
 		return false;
 	}
 
+	// Check worn/not worn status: worn items cannot be put on the marketplace
+	bool worn = get_is_item_worn(inv_item->getUUID());
+	if (worn)
+	{
+		tooltip_msg = LLTrans::getString("TooltipOutboxWorn");
+		return false;
+	}
+
 	// Check library status: library items cannot be put on the marketplace
 	if (!gInventory.isObjectDescendentOf(inv_item->getUUID(), gInventory.getRootFolderID()))
 	{
@@ -1185,15 +1154,19 @@ int get_folder_levels(LLInventoryCategory* inv_cat)
 int get_folder_path_length(const LLUUID& ancestor_id, const LLUUID& descendant_id)
 {
 	int depth = 0;
+
 	if (ancestor_id == descendant_id) return depth;
 
 	const LLInventoryCategory* category = gInventory.getCategory(descendant_id);
+
 	while (category)
 	{
 		LLUUID parent_id = category->getParentUUID();
+
 		if (parent_id.isNull()) break;
 
 		depth++;
+
 		if (parent_id == ancestor_id) return depth;
 
 		category = gInventory.getCategory(parent_id);
@@ -1279,7 +1252,9 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
 
 			LLInventoryModel::cat_array_t existing_categories;
 			LLInventoryModel::item_array_t existing_items;
+
 			gInventory.collectDescendents(version_folder->getUUID(), existing_categories, existing_items, FALSE);
+
 			existing_item_count += count_copyable_items(existing_items) + count_stock_folders(existing_categories);
 			existing_stock_count += count_stock_items(existing_items);
 			existing_folder_count += existing_categories.size();
@@ -1597,7 +1572,7 @@ void dump_trace(std::string& message, S32 depth, LLError::ELevel log_level)
 // Make all relevant business logic checks on the marketplace listings starting with the folder as argument.
 // This function does no deletion of listings but a mere audit and raises issues to the user (through the
 // optional callback cb). It also returns a boolean, true if things validate, false if issues are raised.
-// The only inventory changes that are done is to move ad sort folders containing no-copy items to stock folders.
+// The only inventory changes that are done is to move and sort folders containing no-copy items to stock folders.
 bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_t cb, bool fix_hierarchy, S32 depth)
 {
 #if 0
@@ -1607,7 +1582,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 		cb =  boost::bind(&dump_trace, _1, _2, _3);
 	}
 #endif
-	// Folder is valid unless an issues is raised
+    // Folder is valid unless issue is raised
 	bool result = true;
 
 	// Get the type and the depth of the folder
@@ -1615,7 +1590,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 	const LLFolderType::EType folder_type = cat->getPreferredType();
 	if (depth < 0)
 	{
-		// If the depth argument was not provided, evaluate the depth directlyu
+		// If the depth argument was not provided, evaluate the depth directly
 		depth = depth_nesting_in_marketplace(cat->getUUID());
 	}
 	if (depth < 0)
@@ -1659,7 +1634,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 				std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Warning") + " " + LLTrans::getString("Marketplace Validation Warning Stock");
 				cb(message, depth, LLError::LEVEL_WARN);
 			}
-			// Nest the stock folder one level deeper in a normal folder ad restart from there
+			// Nest the stock folder one level deeper in a normal folder and restart from there
 			LLUUID parent_uuid = cat->getParentUUID();
 			LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, LLFolderType::FT_NONE, cat->getName());
 			LLInventoryCategory* new_cat = gInventory.getCategory(folder_uuid);
@@ -1762,7 +1737,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 		}
 		else
 		{
-			// Done with that folder : PRint out the folder name unless we alreaady found an error here
+			// Done with that folder : Print out the folder name unless we already found an error here
 			if (cb && result && (depth >= 1))
 			{
 				std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Log");
@@ -1773,7 +1748,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 	// If we have a single type of items of the right type in the right place, we're done
 	else if ((count == 1) && !has_bad_items && (((unique_key == default_key) && (depth > 1)) || ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2) && (cat_array->size() == 0))))
 	{
-		// Done with that folder : Print out the folder name unless we alreaady found an error here
+		// Done with that folder : Print out the folder name unless we already found an error here
 		if (cb && result && (depth >= 1))
 		{
 			std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Log");

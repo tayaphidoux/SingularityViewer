@@ -63,7 +63,15 @@ public:
 		FILTERTYPE_MARKETPLACE_INACTIVE = 0x1 << 7,		// pass if folder is a marketplace inactive folder
 		FILTERTYPE_MARKETPLACE_UNASSOCIATED = 0x1 << 8,	// pass if folder is a marketplace non associated (no market ID) folder
 		FILTERTYPE_MARKETPLACE_LISTING_FOLDER = 0x1 << 9, // pass iff folder is a listing folder
-		FILTERTYPE_NO_MARKETPLACE_ITEMS = 0x1 << 10		// pass iff folder is not under the marketplace
+		FILTERTYPE_NO_MARKETPLACE_ITEMS = 0x1 << 10,		// pass iff folder is not under the marketplace
+		FILTERTYPE_WORN = 0x1 << 11		// search by worn items
+
+	};
+
+	enum EFilterDateDirection
+	{
+		FILTERDATEDIRECTION_NEWER,
+		FILTERDATEDIRECTION_OLDER
 	};
 
 	enum EFilterLink
@@ -82,19 +90,66 @@ public:
 		SO_FOLDERS_BY_WEIGHT = 0x1 << 3,	// Force folder sort by weight, usually, amount of some elements in their descendents
 	};
 
-struct FilterOps
+	struct FilterOps
 	{
-		FilterOps();
+		struct DateRange : public LLInitParam::Block<DateRange>
+		{
+			Optional<time_t>	min_date,
+								max_date;
+
+			DateRange()
+			:	min_date("min_date", time_min()),
+				max_date("max_date", time_max())
+			{}
+
+			bool validateBlock(bool emit_errors = true) const;
+		};
+
+		struct Params : public LLInitParam::Block<Params>
+		{
+			Optional<U32>				types;
+			Optional<U64>				object_types,
+										wearable_types,
+										category_types,
+										worn_items;
+			Optional<EFilterLink>		links;
+			Optional<LLUUID>			uuid;
+			Optional<DateRange>			date_range;
+			Optional<U32>				hours_ago;
+			Optional<U32>				date_search_direction;
+			Optional<EFolderShow>		show_folder_state;
+			Optional<PermissionMask>	permissions;
+
+			Params()
+			:	types("filter_types", FILTERTYPE_OBJECT),
+				object_types("object_types", 0xffffFFFFffffFFFFULL),
+				wearable_types("wearable_types", 0xffffFFFFffffFFFFULL),
+				category_types("category_types", 0xffffFFFFffffFFFFULL),
+				worn_items("worn_items", 0xffffFFFFffffFFFFULL),
+				links("links", FILTERLINK_INCLUDE_LINKS),
+				uuid("uuid"),
+				date_range("date_range"),
+				hours_ago("hours_ago", 0),
+				date_search_direction("date_search_direction", FILTERDATEDIRECTION_NEWER),
+				show_folder_state("show_folder_state", SHOW_NON_EMPTY_FOLDERS),
+				permissions("permissions", PERM_NONE)
+			{}
+		};
+
+		FilterOps(const Params& = Params());
+
 		U32 			mFilterTypes;
-		U64				mFilterObjectTypes,   // For _OBJECT
+		U64				mFilterObjectTypes,  // For _OBJECT
 						mFilterWearableTypes,
-						mFilterLinks,
-						mFilterCategoryTypes; // For _CATEGORY
+						mFilterCategoryTypes, // For _CATEGORY
+						mFilterWornItems;
+		EFilterLink		mFilterLinks;
 		LLUUID      	mFilterUUID; // for UUID
 
 		time_t			mMinDate,
 						mMaxDate;
 		U32				mHoursAgo;
+		U32				mDateSearchDirection;
 		EFolderShow		mShowFolderState;
 		PermissionMask	mPermissions;
 
@@ -102,7 +157,7 @@ struct FilterOps
 	};
 
 	LLInventoryFilter(const std::string& name);
-	virtual ~LLInventoryFilter();
+	virtual ~LLInventoryFilter() {}
 
 	// +-------------------------------------------------------------------+
 	// + Parameters
@@ -111,6 +166,7 @@ struct FilterOps
 	U64 				getFilterObjectTypes() const;
 	U64					getFilterCategoryTypes() const;
 	U64					getFilterWearableTypes() const;
+	U64					getFilterWornItems() const;
 	bool 				isFilterObjectTypesWith(LLInventoryType::EType t) const;
 	void 				setFilterObjectTypes(U64 types);
 	void 				setFilterCategoryTypes(U64 types);
@@ -123,14 +179,12 @@ struct FilterOps
 	void				setFilterMarketplaceListingFolders(bool select_only_listing_folders);
 	void				setFilterNoMarketplaceFolder();
 	void				updateFilterTypes(U64 types, U64& current_types);
+	void				setFilterWornItems();
 
 	void 				setFilterSubString(const std::string& string);
 	const std::string& 	getFilterSubString(BOOL trim = FALSE) const;
 	const std::string& 	getFilterSubStringOrig() const { return mFilterSubStringOrig; } 
 	bool 				hasFilterString() const;
-	
-	void setFilterWorn(bool worn) { mFilterOps.mFilterWorn = worn; }
-	bool getFilterWorn() const { return mFilterOps.mFilterWorn; }
 
 	void setFilterPermissions(PermissionMask perms);
 	PermissionMask 		getFilterPermissions() const;
@@ -142,9 +196,11 @@ struct FilterOps
 
 	void setHoursAgo(U32 hours);
 	U32 				getHoursAgo() const;
+	void				setDateSearchDirection(U32 direction);
+	U32					getDateSearchDirection() const;
 
-	void 				setFilterLinks(U64 filter_link);
-	U64					getFilterLinks() const;
+	void 				setFilterLinks(EFilterLink filter_link);
+	EFilterLink			getFilterLinks() const;
 
 	// +-------------------------------------------------------------------+
 	// + Execution And Results
@@ -189,6 +245,7 @@ struct FilterOps
 	// +-------------------------------------------------------------------+
 	// + Default
 	// +-------------------------------------------------------------------+
+	bool 				isDefault() const;
 	bool 				isNotDefault() const;
 	void 				markDefault();
 	void 				resetDefault();
@@ -234,6 +291,7 @@ private:
 	EFilterModified 		mFilterModified;
 
 	std::string 			mFilterText;
+	std::string 			mEmptyLookupMessage;
 };
 
 #endif

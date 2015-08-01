@@ -115,13 +115,13 @@ public:
 	void setFilterWearableTypes(U64 filter);
 	void setFilterSubString(const std::string& string);
 	const std::string getFilterSubString();
-	void setFilterWorn(bool worn);
-	bool getFilterWorn() const { return mFolderRoot.get()->getFilterWorn(); }
+	void setFilterWornItems();
 
 	void setSinceLogoff(BOOL sl);
 	void setHoursAgo(U32 hours);
+	void setDateSearchDirection(U32 direction);
 	BOOL getSinceLogoff();
-	void setFilterLinks(U64 filter_links);
+	void setFilterLinks(LLInventoryFilter::EFilterLink filter_links);
 
 	void setShowFolderState(LLInventoryFilter::EFolderShow show);
 	LLInventoryFilter::EFolderShow getShowFolderState();
@@ -213,7 +213,7 @@ private:
 	const std::string			mStartFolder;
 	bool					mShowRootFolder;
 	bool					mAllowDropOnRoot;
-	bool					mAllowOpen;
+	bool					mAllowWear;
 	bool					mUseMarketplaceFolders;
 	const std::string			mSortOrderSetting;
 

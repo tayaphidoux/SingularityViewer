@@ -25,6 +25,9 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
+#include <typeinfo>
+
 #include "llinventorymodel.h"
 
 #include "llaisapi.h"
@@ -51,7 +54,6 @@
 #include "llvoavatarself.h"
 #include "llgesturemgr.h"
 #include "llsdutil.h"
-#include <typeinfo>
 #include "statemachine/aievent.h"
 
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
@@ -151,6 +153,7 @@ LLInventoryModel::LLInventoryModel()
 	mCategoryLock(),
 	mItemLock()
 {}
+
 
 // Destroys the object
 LLInventoryModel::~LLInventoryModel()
@@ -562,12 +565,13 @@ public:
 	{
 	}
 
-	/*virtual*/ void httpFailure(void)
+protected:
+	virtual void httpFailure()
 	{
-		LL_WARNS(LOG_INV) << "CreateInventoryCategory failed.   status = " << mStatus << ", reason = \"" << mReason << "\"" << LL_ENDL;
+		LL_WARNS(LOG_INV) << dumpResponse() << LL_ENDL;
 	}
 
-	/*virtual*/ void httpSuccess(void)
+	virtual void httpSuccess()
 	{
 		//Server has created folder.
 		const LLSD& content = getContent();
@@ -596,7 +600,6 @@ public:
 		{
 			mCallback.get()(category_id);
 		}
-
 	}
 
 	/*virtual*/ char const* getName(void) const { return "LLCreateInventoryCategoryResponder"; }
@@ -625,7 +628,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 
 	if(LLFolderType::lookup(preferred_type) == LLFolderType::badLookup())
 	{
-		LL_DEBUGS(LOG_INV) << "Attempt to create undefined category. (" <<  preferred_type << ")" << LL_ENDL;
+		LL_DEBUGS(LOG_INV) << "Attempt to create undefined category." << LL_ENDL;
 		return id;
 	}
 
@@ -1300,7 +1303,8 @@ void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
 void LLInventoryModel::onAISUpdateReceived(const std::string& context, const LLSD& update)
 {
 	LLTimer timer;
-	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	static LLCachedControl<bool> debug_ava_appr_msg(gSavedSettings, "DebugAvatarAppearanceMessage");
+	if (debug_ava_appr_msg)
 	{
 		dump_sequential_xml(gAgentAvatarp->getFullname() + "_ais_update", update);
 	}
@@ -1553,11 +1557,11 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 	// Can't have links to links, so there's no need for this update
 	// if the item removed is a link. Can also skip if source of the
 	// update is getting broken link info separately.
-	obj = NULL; // delete obj
 	if (fix_broken_links && !is_link_type)
 	{
 		updateLinkedObjectsFromPurge(id);
 	}
+	obj = NULL; // delete obj
 	if (do_notify_observers)
 	{
 		notifyObservers();
@@ -1854,7 +1858,7 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 // Empty the entire contents
 void LLInventoryModel::empty()
 {
-//	LL_INFOS() << "LLInventoryModel::empty()" << LL_ENDL;
+//	LL_INFOS(LOG_INV) << "LLInventoryModel::empty()" << LL_ENDL;
 	std::for_each(
 		mParentChildCategoryTree.begin(),
 		mParentChildCategoryTree.end(),
@@ -2181,7 +2185,7 @@ bool LLInventoryModel::loadSkeleton(
 					{
 						bad_link_count++;
 						invalid_categories.insert(cit->second);
-						//LL_INFOS() << "link still broken: " << item->getName() << " in folder " << cat->getName() << LL_ENDL;
+						//LL_INFOS(LOG_INV) << "link still broken: " << item->getName() << " in folder " << cat->getName() << LL_ENDL;
 					}
 					else
 					{
@@ -2363,22 +2367,24 @@ void LLInventoryModel::buildParentChildMap()
 		// plop it into the lost & found.
 		LLFolderType::EType pref = cat->getPreferredType();
 		if(LLFolderType::FT_NONE == pref)
-			{
-				cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
-			}
-			else if(LLFolderType::FT_ROOT_INVENTORY == pref)
-			{
-				// it's the root
-				cat->setParent(LLUUID::null);
-			}
-			else
-			{
-				// it's a protected folder.
-				cat->setParent(gInventory.getRootFolderID());
-			}
-			cat->updateServer(TRUE);
-			catsp = getUnlockedCatArray(cat->getParentUUID());
-			if(catsp)
+		{
+			cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
+		}
+		else if(LLFolderType::FT_ROOT_INVENTORY == pref)
+		{
+			// it's the root
+			cat->setParent(LLUUID::null);
+		}
+		else
+		{
+			// it's a protected folder.
+			cat->setParent(gInventory.getRootFolderID());
+		}
+		// FIXME note that updateServer() fails with protected
+		// types, so this will not work as intended in that case.
+		cat->updateServer(TRUE);
+		catsp = getUnlockedCatArray(cat->getParentUUID());
+		if(catsp)
 		{
 			catsp->push_back(cat);
 		}
@@ -2510,6 +2516,7 @@ void LLInventoryModel::buildParentChildMap()
 			// root of the agent's inv found.
 			// The inv tree is built.
 			mIsAgentInvUsable = true;
+
 			AIEvent::trigger(AIEvent::LLInventoryModel_mIsAgentInvUsable_true);
 			// notifyObservers() has been moved to
 			// llstartup/idle_startup() after this func completes.
@@ -4110,7 +4117,8 @@ void  LLInventoryModel::FetchItemHttpHandler::httpSuccess()
 //If we get back an error (not found, etc...), handle it here
 void LLInventoryModel::FetchItemHttpHandler::httpFailure()
 {
-	LL_INFOS() << "FetchItemHttpHandler::error "
+	LL_WARNS(LOG_INV) << "FetchItemHttpHandler::error "
 		<< mStatus << ": " << mReason << LL_ENDL;
 	gInventory.notifyObservers();
 }
+

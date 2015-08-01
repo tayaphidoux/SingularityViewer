@@ -3877,8 +3877,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		const bool is_cof(isCOFFolder());
 		if (!is_cof && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
 		{
-			LLInventoryPanel* panel = mInventoryPanel.get();
-			if(panel && !panel->getFilterWorn())
 			if (!isInboxFolder() && !isOutboxFolder()) // don't allow creation in inbox or outbox
 			{
 				{
@@ -7404,7 +7402,7 @@ void LLWearableBridgeAction::wearOnAvatar()
 	LLViewerInventoryItem* item = getItem();
 	if(item)
 	{
-		if (get_is_item_worn(item))
+		if (get_is_item_worn(item->getUUID()))
 		{
 			LLAppearanceMgr::instance().removeItemFromAvatar(item->getUUID());
 		}

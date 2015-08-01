@@ -45,7 +45,6 @@ const S32 COMPUTE_STOCK_NOT_EVALUATED = -2;
 BOOL get_is_parent_to_worn_item(const LLUUID& id);
 
 // Is this item or its baseitem is worn, attached, etc...
-BOOL get_is_item_worn(const LLInventoryItem *item);
 BOOL get_is_item_worn(const LLUUID& id);
 
 // Could this item be worn (correct type + not already being worn)
@@ -70,9 +69,6 @@ void copy_inventory_category(LLInventoryModel* model, LLViewerInventoryCategory*
 
 // Generates a string containing the path to the item specified by item_id.
 void append_path(const LLUUID& id, std::string& path);
-
-// Same as append_path but omits the root prefix "/My Inventory/".
-void append_path_short(const LLUUID& id, std::string& path);
 
 void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LLUUID& top_level_folder, S32 operation_id);
 void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, S32 operation_id);

@@ -176,7 +176,7 @@ BOOL LLPanelMainInventory::postBuild()
 		worn_items_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::WORNITEMS_SORT_ORDER));
 		worn_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		worn_items_panel->getFilter().markDefault();
-		worn_items_panel->setFilterWorn(true);
+		worn_items_panel->setFilterWornItems();
 		worn_items_panel->setFilterLinks(LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS);
 		worn_items_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, worn_items_panel, _1, _2));
 	}

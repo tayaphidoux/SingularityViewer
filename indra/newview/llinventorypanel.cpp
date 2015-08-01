@@ -143,7 +143,7 @@ LLInventoryPanel::LLInventoryPanel(const std::string& name,
 	mStartFolder(start_folder),
 	mShowRootFolder(false),
 	mAllowDropOnRoot(true),
-	mAllowOpen(true),
+	mAllowWear(true),
 	mUseMarketplaceFolders(false),
 	mInventory(inventory),
 	mAllowMultiSelect(allow_multi_select),
@@ -361,7 +361,7 @@ LLView* LLInventoryPanel::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 	// Singu TODO: Turn these into mParams like upstream.
 	node->getAttribute_bool("show_root_folder", panel->mShowRootFolder);
 	node->getAttribute_bool("allow_drop_on_root", panel->mAllowDropOnRoot);
-	node->getAttribute_bool("allow_open", panel->mAllowOpen);
+	node->getAttribute_bool("allow_wear", panel->mAllowWear);
 	node->getAttribute_bool("use_marketplace_folders", panel->mUseMarketplaceFolders);
 
 	panel->initFromXML(node, parent);
@@ -401,12 +401,12 @@ void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType 
 
 U32 LLInventoryPanel::getFilterObjectTypes() const 
 { 
-	return mFolderRoot.get()->getFilterObjectTypes();
+	return getFilter().getFilterObjectTypes();
 }
 
 U32 LLInventoryPanel::getFilterPermMask() const 
 { 
-	return mFolderRoot.get()->getFilterPermissions();
+	return getFilter().getFilterPermissions();
 }
 
 
@@ -420,9 +420,9 @@ void LLInventoryPanel::setFilterWearableTypes(U64 types)
 	getFilter().setFilterWearableTypes(types);
 }
 
-void LLInventoryPanel::setFilterWorn(bool worn)
+void LLInventoryPanel::setFilterWornItems()
 {
-	getFilter().setFilterWorn(worn);
+	getFilter().setFilterWornItems();
 }
 
 void LLInventoryPanel::setFilterSubString(const std::string& string)
@@ -463,7 +463,7 @@ void LLInventoryPanel::setFilterSubString(const std::string& string)
 
 const std::string LLInventoryPanel::getFilterSubString() 
 { 
-	return mFolderRoot.get()->getFilterSubString();
+	return getFilter().getFilterSubString();
 }
 
 void LLInventoryPanel::setSortOrder(U32 order)
@@ -497,7 +497,12 @@ void LLInventoryPanel::setHoursAgo(U32 hours)
 	getFilter().setHoursAgo(hours);
 }
 
-void LLInventoryPanel::setFilterLinks(U64 filter_links)
+void LLInventoryPanel::setDateSearchDirection(U32 direction)
+{
+	getFilter().setDateSearchDirection(direction);
+}
+
+void LLInventoryPanel::setFilterLinks(LLInventoryFilter::EFilterLink filter_links)
 {
 	getFilter().setFilterLinks(filter_links);
 }
@@ -561,7 +566,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		//////////////////////////////
 		// DESCRIPTION Operation (singu only)
 		// Alert listener.
-		if ((mask & LLInventoryObserver::DESCRIPTION))
+		else if (mask & LLInventoryObserver::DESCRIPTION)
 		{
 			if (view_item)
 			{
@@ -859,7 +864,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 			{
 				// Singu Note: new_listener disappeared in the last merge, be sure that adding it back here doesn't break anything. ~Liru
 				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
-												objectp->getType(),
+												(mUseMarketplaceFolders ? LLAssetType::AT_MARKETPLACE_FOLDER : LLAssetType::AT_CATEGORY),
 												LLInventoryType::IT_CATEGORY,
 												this,
 												mFolderRoot.get(),
@@ -870,7 +875,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 				{
 					folderp->setItemSortOrder(mFolderRoot.get()->getSortOrder());
 					folderp->setAllowDrop(allow_drop);
-					folderp->setAllowOpen(mAllowOpen);
+					folderp->setAllowWear(mAllowWear);
 				}
 				folder_view_item = folderp;
 			}
@@ -1028,7 +1033,7 @@ BOOL LLInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		// If folder view is empty the (x, y) point won't be in its rect
 		// so the handler must be called explicitly.
 		// but only if was not handled before. See EXT-6746.
-		if (!handled && /*mParams.allow_drop_on_root*/mAllowDropOnRoot && !mFolderRoot.get()->hasVisibleChildren())
+		if (!handled && mAllowDropOnRoot && !mFolderRoot.get()->hasVisibleChildren())
 		{
 			handled = mFolderRoot.get()->handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}
@@ -1088,7 +1093,7 @@ void LLInventoryPanel::setSelection(const LLUUID& obj_id, BOOL take_keyboard_foc
 	{
 		return;
 	}
-	mFolderRoot.get()->setSelectionByID(obj_id, take_keyboard_focus);
+	setSelectionByID(obj_id, take_keyboard_focus);
 }
 
 void LLInventoryPanel::setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb) 
@@ -1120,7 +1125,7 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 		}
 	}
 
-	LLFolderView* fv = getRootFolder();
+	LLFolderView* fv = mFolderRoot.get();
 	if (fv->needsAutoRename()) // auto-selecting a new user-created asset and preparing to rename
 	{
 		fv->setNeedsAutoRename(FALSE);

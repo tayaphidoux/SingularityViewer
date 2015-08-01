@@ -142,6 +142,10 @@ LLFolderView* LLFolderViewItem::getRoot()
 	return mRoot;
 }
 
+const LLFolderView* LLFolderViewItem::getRoot() const
+{
+	return mRoot;
+}
 // Returns true if this object is a child (or grandchild, etc.) of potential_ancestor.
 BOOL LLFolderViewItem::isDescendantOf( const LLFolderViewFolder* potential_ancestor )
 {
@@ -374,12 +378,6 @@ void LLFolderViewItem::setSelectionFromRoot(LLFolderViewItem* selection,
 	getRoot()->setSelection(selection, openitem, take_keyboard_focus);
 }
 
-// helper function to change the selection from the root.
-void LLFolderViewItem::changeSelectionFromRoot(LLFolderViewItem* selection, BOOL selected)
-{
-	getRoot()->changeSelection(selection, selected);
-}
-
 std::set<LLUUID> LLFolderViewItem::getSelectionList() const
 {
 	std::set<LLUUID> selection;
@@ -588,7 +586,7 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 void LLFolderViewItem::openItem( void )
 {
 	if (!mListener) return;
-	if (mAllowOpen || mListener->isItemWearable())
+	if (mAllowWear || mListener->isItemWearable())
 	{
 		mListener->openItem();
 	}
@@ -679,7 +677,7 @@ BOOL LLFolderViewItem::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
 	if(!mIsSelected)
 	{
-		setSelectionFromRoot(this, FALSE);
+		getRoot()->setSelection(this, FALSE);
 	}
 	make_ui_sound("UISndClick");
 	return TRUE;
@@ -700,7 +698,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 	{
 		if(mask & MASK_CONTROL)
 		{
-			changeSelectionFromRoot(this, !mIsSelected);
+			getRoot()->changeSelection(this, !mIsSelected);
 		}
 		else if (mask & MASK_SHIFT)
 		{
@@ -708,12 +706,14 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 		}
 		else
 		{
-			setSelectionFromRoot(this, FALSE);
+			getRoot()->setSelection(this, FALSE);
 		}
 		make_ui_sound("UISndClick");
 	}
 	else
 	{
+		// If selected, we reserve the decision of deselecting/reselecting to the mouse up moment.
+		// This is necessary so we maintain selection consistent when starting a drag.
 		mSelectPending = TRUE;
 	}
 
@@ -782,6 +782,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 		{
 			gViewerWindow->setCursor(UI_CURSOR_NOLOCKED);
 		}
+
 		return TRUE;
 	}
 	else
@@ -822,7 +823,7 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 		//...then select
 		if(mask & MASK_CONTROL)
 		{
-			changeSelectionFromRoot(this, !mIsSelected);
+			getRoot()->changeSelection(this, !mIsSelected);
 		}
 		else if (mask & MASK_SHIFT)
 		{
@@ -830,7 +831,7 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 		}
 		else
 		{
-			setSelectionFromRoot(this, FALSE);
+			getRoot()->setSelection(this, FALSE);
 		}
 	}
 	
@@ -838,7 +839,10 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 
 	if( hasMouseCapture() )
 	{
-		getRoot()->setShowSelectionContext(FALSE);
+		if (getRoot())
+		{
+			getRoot()->setShowSelectionContext(FALSE);
+		}
 		gFocusMgr.setMouseCapture( NULL );
 	}
 	return TRUE;
@@ -2814,34 +2818,6 @@ bool LLInventorySort::updateSort(U32 order)
 
 bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolderViewItem* const& b)
 {
-	/*	TO-DO
-	// ignore sort order for landmarks in the Favorites folder.
-	// they should be always sorted as in Favorites bar. See EXT-719
-	if (a->getSortGroup() == SG_ITEM
-		&& b->getSortGroup() == SG_ITEM
-		&& a->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK
-		&& b->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
-	{
-
-		static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-
-		LLUUID a_uuid = a->getParentFolder()->getListener()->getUUID();
-		LLUUID b_uuid = b->getParentFolder()->getListener()->getUUID();
-
-		if ((a_uuid == favorites_folder_id && b_uuid == favorites_folder_id))
-		{
-			// *TODO: mantipov: probably it is better to add an appropriate method to LLFolderViewItem
-			// or to LLInvFVBridge
-			LLViewerInventoryItem* aitem = (static_cast<const LLItemBridge*>(a->getListener()))->getItem();
-			LLViewerInventoryItem* bitem = (static_cast<const LLItemBridge*>(b->getListener()))->getItem();
-			if (!aitem || !bitem)
-				return false;
-			S32 a_sort = aitem->getSortField();
-			S32 b_sort = bitem->getSortField();
-			return a_sort < b_sort;
-		}
-	}*/
-
 	// We sort by name if we aren't sorting by date
 	// OR if these are folders and we are sorting folders by name.
 	bool by_name = ((!mByDate || (mFoldersByName && (a->getSortGroup() != SG_ITEM))) && !mFoldersByWeight);
