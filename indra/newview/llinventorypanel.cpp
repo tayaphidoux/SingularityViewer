@@ -195,7 +195,7 @@ void LLInventoryPanel::buildFolderView()
 	LLFolderView* folder_view = createFolderView(new_listener, true/*params.use_label_suffix()*/);
 	mFolderRoot = folder_view->getHandle();
 
-	//addItemID(root_id, mFolderRoot.get());
+	addItemID(root_id, mFolderRoot.get());
 }
 BOOL LLInventoryPanel::postBuild()
 {
@@ -381,12 +381,12 @@ void LLInventoryPanel::draw()
 
 LLInventoryFilter& LLInventoryPanel::getFilter()
 {
-	return *mFolderRoot.get()->getFilter();
+	return mFolderRoot.get()->getFilter();
 }
 
 const LLInventoryFilter& LLInventoryPanel::getFilter() const
 {
-	return *mFolderRoot.get()->getFilter();
+	return mFolderRoot.get()->getFilter();
 }
 
 void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
@@ -588,9 +588,9 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		{
 			if (model_item && view_item)
 			{
-				//const LLUUID& idp = view_item->getListener()->getUUID();
+				const LLUUID& idp = view_item->getListener()->getUUID();
 				view_item->destroyView();
-				//removeItemID(idp);
+				removeItemID(idp);
 			}
 			view_item = buildNewViews(item_id);
 			view_folder = dynamic_cast<LLFolderViewFolder *>(view_item);
@@ -659,7 +659,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 							// Item is to be moved and we found its new parent in the panel's directory, so move the item's UI.
 							view_item->getParentFolder()->extractItem(view_item);
 							view_item->addToFolder(new_parent, mFolderRoot.get());
-							//addItemID(view_item->getListener()->getUUID(), view_item);
+							addItemID(view_item->getListener()->getUUID(), view_item);
 							if (mInventory)
 							{
 								const LLUUID trash_id = mInventory->findCategoryUUIDForType(LLFolderType::FT_TRASH);
@@ -673,7 +673,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 						{
 							// Remove the item ID before destroying the view because the view-model-item gets
 							// destroyed when the view is destroyed
-							//removeItemID(view_item->getListener()->getUUID());
+							removeItemID(view_item->getListener()->getUUID());
 
 							// Item is to be moved outside the panel's directory (e.g. moved to trash for a panel that
 							// doesn't include trash).  Just remove the item's UI.
@@ -690,7 +690,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			{
 				// Remove the item's UI.
 				//LLFolderViewFolder* parent = view_item->getParentFolder();
-				//removeItemID(view_item->getListener()->getUUID());
+				removeItemID(view_item->getListener()->getUUID());
 				view_item->destroyView();
 			}
 		}
@@ -900,7 +900,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 		{
 			llassert(parent_folder != NULL);
 			folder_view_item->addToFolder(parent_folder, mFolderRoot.get());
-			//addItemID(id, folder_view_item);
+			addItemID(id, folder_view_item);
 			// In the case of the root folder been shown, open that folder by default once the widget is created
 			if (create_root)
 			{

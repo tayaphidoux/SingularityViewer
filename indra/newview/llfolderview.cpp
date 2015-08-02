@@ -201,7 +201,7 @@ LLFolderView::LLFolderView( const std::string& name,
 	mNeedsAutoRename(FALSE),
 	mDebugFilters(FALSE),
 	mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME),	// This gets overridden by a pref immediately
-	mFilter( new LLInventoryFilter(name) ),
+	mFilter(LLInventoryFilter::Params().name(name)),
 	mShowSelectionContext(FALSE),
 	mShowSingleSelection(FALSE),
 	mArrangeGeneration(0),
@@ -298,9 +298,6 @@ LLFolderView::~LLFolderView( void )
 	mFolders.clear();
 
 	mItemMap.clear();
-
-	delete mFilter;
-	mFilter = NULL;
 }
 
 BOOL LLFolderView::canFocusChildren() const
@@ -371,7 +368,7 @@ U32 LLFolderView::toggleSearchType(std::string toggle)
 
 	if (getFilterSubString().length())
 	{
-		mFilter->setModified(LLInventoryFilter::FILTER_RESTART);
+		mFilter.setModified(LLInventoryFilter::FILTER_RESTART);
 	}
 
 	return mSearchType;
@@ -447,7 +444,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 
 	LL_RECORD_BLOCK_TIME(FTM_ARRANGE);
 
-	filter_generation = mFilter->getFirstSuccessGeneration();
+	filter_generation = mFilter.getFirstSuccessGeneration();
 	mMinWidth = 0;
 
 	mHasVisibleChildren = hasFilteredDescendants(filter_generation);
@@ -455,7 +452,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 	mLastArrangeGeneration = getRoot()->getArrangeGeneration();
 
 	LLInventoryFilter::EFolderShow show_folder_state =
-		getRoot()->getFilter()->getShowFolderState();
+		getRoot()->getFilter().getShowFolderState();
 
 	S32 total_width = LEFT_PAD;
 	S32 running_height = mDebugFilters ? llceil(LLFontGL::getFontMonospace()->getLineHeight()) : 0;
@@ -541,7 +538,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 
 const std::string LLFolderView::getFilterSubString(BOOL trim)
 {
-	return mFilter->getFilterSubString(trim);
+	return mFilter.getFilterSubString(trim);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_FILTER("Filter Inventory");
@@ -749,7 +746,7 @@ void LLFolderView::sanitizeSelection()
 	LLFolderViewItem* original_selected_item = getCurSelectedItem();
 
 	// Cache "Show all folders" filter setting
-	BOOL show_all_folders = (getRoot()->getFilter()->getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS);
+	BOOL show_all_folders = (getRoot()->getFilter().getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS);
 
 	std::vector<LLFolderViewItem*> items_to_remove;
 	selected_items_t::iterator item_iter;
@@ -913,7 +910,7 @@ void LLFolderView::draw()
 	if (mDebugFilters)
 	{
 		std::string current_filter_string = llformat("Current Filter: %d, Least Filter: %d, Auto-accept Filter: %d",
-										mFilter->getCurrentGeneration(), mFilter->getFirstSuccessGeneration(), mFilter->getFirstRequiredGeneration());
+										mFilter.getCurrentGeneration(), mFilter.getFirstSuccessGeneration(), mFilter.getFirstRequiredGeneration());
 		LLFontGL::getFontMonospace()->renderUTF8(current_filter_string, 0, 2, 
 			getRect().getHeight() - LLFontGL::getFontMonospace()->getLineHeight(), LLColor4(0.5f, 0.5f, 0.8f, 1.f), 
 			LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,  S32_MAX, S32_MAX, NULL, FALSE );
@@ -945,7 +942,7 @@ void LLFolderView::draw()
 	}
 
 	if (hasVisibleChildren()
-		|| mFilter->getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS)
+		|| mFilter.getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS)
 	{
 		mStatusText.clear();
 		mStatusTextBox->setVisible( FALSE );
@@ -953,7 +950,7 @@ void LLFolderView::draw()
 	else if (mShowEmptyMessage)
 	{
 		static LLCachedControl<LLColor4> sSearchStatusColor(gColors, "InventorySearchStatusColor", LLColor4::white );
-		if (LLInventoryModelBackgroundFetch::instance().folderFetchActive() || mCompletedFilterGeneration < mFilter->getFirstSuccessGeneration())
+		if (LLInventoryModelBackgroundFetch::instance().folderFetchActive() || mCompletedFilterGeneration < mFilter.getFirstSuccessGeneration())
 		{
 			mStatusText = LLTrans::getString("Searching");
 		}
@@ -962,7 +959,7 @@ void LLFolderView::draw()
 		//	if(getFilter())
 		//	{
 		//		LLStringUtil::format_map_t args;
-		//		args["[SEARCH_TERM]"] = LLURI::escape(getFilter()->getFilterSubStringOrig());
+		//		args["[SEARCH_TERM]"] = LLURI::escape(getFilter().getFilterSubStringOrig());
 				mStatusText = LLTrans::getString("InventoryNoMatchingItems"); //, args);
 		//	}
 		}
@@ -1899,7 +1896,7 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 	S32 count = mSelectedItems.size();
 	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
 	if (   handled
-		&& ( count > 0 && (hasVisibleChildren() || mFilter->getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS) ) // show menu only if selected items are visible
+		&& ( count > 0 && (hasVisibleChildren() || mFilter.getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS) ) // show menu only if selected items are visible
 		&& menu )
 	{
 		updateMenuOptions(menu);
@@ -2178,9 +2175,9 @@ void LLFolderView::doIdle()
 		arrangeAll();
 	}
 
-	mFilter->clearModified();
-	BOOL filter_modified_and_active = mCompletedFilterGeneration < mFilter->getCurrentGeneration() && 
-										mFilter->isNotDefault();
+	mFilter.clearModified();
+	BOOL filter_modified_and_active = mCompletedFilterGeneration < mFilter.getCurrentGeneration() && 
+										mFilter.isNotDefault();
 	mNeedsAutoSelect = filter_modified_and_active &&
 							!(gFocusMgr.childHasKeyboardFocus(this) || gFocusMgr.getMouseCapture());
 	
@@ -2206,7 +2203,7 @@ void LLFolderView::doIdle()
 
 		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
 		// Used by LLPlacesFolderView.
-		if (mAutoSelectOverride && !mFilter->getFilterSubString().empty())
+		if (mAutoSelectOverride && !mFilter.getFilterSubString().empty())
 		{
 			LLOpenFilteredFolders filter;
 			applyFunctorRecursively(filter);
@@ -2359,7 +2356,7 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 	}
 
 	// Successively filter out invalid options
-	U32 multi_select_flag = (/*mSelectedItems.size() > 1 ? ITEM_IN_MULTI_SELECTION :*/ 0x0);
+	U32 multi_select_flag = (mSelectedItems.size() > 1 ? ITEM_IN_MULTI_SELECTION : 0x0);
 	U32 flags = multi_select_flag | FIRST_SELECTED_ITEM;
 	for (selected_items_t::iterator item_itor = mSelectedItems.begin();
 			item_itor != mSelectedItems.end();
@@ -2509,29 +2506,24 @@ void LLFolderView::onRenamerLost()
 	}
 }
 
-LLInventoryFilter* LLFolderView::getFilter()
-{
-	return mFilter;
-}
-
 void LLFolderView::setFilterPermMask( PermissionMask filter_perm_mask )
 {
-	mFilter->setFilterPermissions(filter_perm_mask);
+	mFilter.setFilterPermissions(filter_perm_mask);
 }
 
 U32 LLFolderView::getFilterObjectTypes() const
 {
-	return mFilter->getFilterObjectTypes();
+	return mFilter.getFilterObjectTypes();
 }
 
 PermissionMask LLFolderView::getFilterPermissions() const
 {
-	return mFilter->getFilterPermissions();
+	return mFilter.getFilterPermissions();
 }
 
 BOOL LLFolderView::isFilterModified()
 {
-	return mFilter->isNotDefault();
+	return mFilter.isNotDefault();
 }
 
 void delete_selected_item(void* user_data)

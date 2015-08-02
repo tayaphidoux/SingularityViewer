@@ -1,3 +1,4 @@
+
 /** 
  * @file llfolderview.h
  * @brief Definition of the folder view collection of classes.
@@ -49,6 +50,7 @@
 #include "lldepthstack.h"
 #include "lleditmenuhandler.h"
 #include "llfontgl.h"
+#include "llinventoryfilter.h"
 #include "lltooldraganddrop.h"
 #include "llviewertexture.h"
 
@@ -103,11 +105,11 @@ public:
 	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 	void setAllowMultiSelect(BOOL allow) { mAllowMultiSelect = allow; }
 
-	LLInventoryFilter* getFilter();
+	LLInventoryFilter& getFilter() { return mFilter; }
 	const std::string getFilterSubString(BOOL trim = FALSE);
 	U32 getFilterObjectTypes() const;
 	PermissionMask getFilterPermissions() const;
-	// *NOTE: use getFilter()->getShowFolderState();
+	// *NOTE: use getFilter().getShowFolderState();
 	//LLInventoryFilter::EFolderShow getShowFolderState();
 	U32 getSortOrder() const;
 	BOOL isFilterModified();
@@ -180,6 +182,7 @@ public:
 	void autoOpenItem(LLFolderViewFolder* item);
 	void closeAutoOpenedFolders();
 	BOOL autoOpenTest(LLFolderViewFolder* item);
+	BOOL isOpen() const { return TRUE; } // root folder always open
 
 	// Copy & paste
 	virtual BOOL	canCopy() const;
@@ -315,7 +318,7 @@ protected:
 	LLFrameTimer					mAutoOpenTimer;
 	LLFrameTimer					mSearchTimer;
 	LLWString						mSearchString;
-	LLInventoryFilter*				mFilter;
+	LLInventoryFilter				mFilter;
 	LLFrameTimer					mMultiSelectionFadeTimer;
 	S32								mArrangeGeneration;
 
@@ -348,11 +351,10 @@ public:
 
 };
 
-bool sort_item_name(LLFolderViewItem* a, LLFolderViewItem* b);
-bool sort_item_date(LLFolderViewItem* a, LLFolderViewItem* b);
 
 // Flags for buildContextMenu()
 const U32 SUPPRESS_OPEN_ITEM = 0x1;
 const U32 FIRST_SELECTED_ITEM = 0x2;
+const U32 ITEM_IN_MULTI_SELECTION = 0x4;
 
 #endif // LL_LLFOLDERVIEW_H

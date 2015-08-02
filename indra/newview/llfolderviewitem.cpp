@@ -214,12 +214,12 @@ BOOL LLFolderViewItem::potentiallyVisible()
 {
 	// we haven't been checked against min required filter
 	// or we have and we passed
-	return getLastFilterGeneration() < getRoot()->getFilter()->getFirstSuccessGeneration() || getFiltered();
+	return getLastFilterGeneration() < getRoot()->getFilter().getFirstSuccessGeneration() || getFiltered();
 }
 
 BOOL LLFolderViewItem::getFiltered() 
 { 
-	return mPassedFilter && mLastFilterGeneration >= getRoot()->getFilter()->getFirstSuccessGeneration(); 
+	return mPassedFilter && mLastFilterGeneration >= getRoot()->getFilter().getFirstSuccessGeneration(); 
 }
 
 BOOL LLFolderViewItem::getFiltered(S32 filter_generation) 
@@ -328,7 +328,7 @@ void LLFolderViewItem::filterFromRoot( void )
 {
 	LLFolderViewItem* root = getRoot();
 
-	root->filter(*((LLFolderView*)root)->getFilter());
+	root->filter(((LLFolderView*)root)->getFilter());
 }
 
 // This function is called when the folder view is dirty. It's
@@ -1037,7 +1037,7 @@ void LLFolderViewItem::draw()
 		{
 			color.mV[VALPHA] *= 0.5f;
 		}
-		LLColor4 filter_color = mLastFilterGeneration >= getRoot()->getFilter()->getCurrentGeneration() ? 
+		LLColor4 filter_color = mLastFilterGeneration >= getRoot()->getFilter().getCurrentGeneration() ? 
 			LLColor4(0.5f, 0.8f, 0.5f, 1.f) : 
 			LLColor4(0.8f, 0.5f, 0.5f, 1.f);
 		LLFontGL::getFontMonospace()->renderUTF8(mStatusText, 0, text_left, y, filter_color,
@@ -1163,7 +1163,7 @@ void LLFolderViewFolder::setFilteredFolder(bool filtered, S32 filter_generation)
 
 bool LLFolderViewFolder::getFilteredFolder(S32 filter_generation)
 {
-	return mPassedFolderFilter && mLastFilterGeneration >= getRoot()->getFilter()->getFirstSuccessGeneration();
+	return mPassedFolderFilter && mLastFilterGeneration >= getRoot()->getFilter().getFirstSuccessGeneration();
 }
 
 // addToFolder() returns TRUE if it succeeds. FALSE otherwise
@@ -1557,7 +1557,7 @@ void LLFolderViewFolder::dirtyFilter()
 
 BOOL LLFolderViewFolder::getFiltered() 
 { 
-	return getFilteredFolder(getRoot()->getFilter()->getFirstSuccessGeneration()) 
+	return getFilteredFolder(getRoot()->getFilter().getFirstSuccessGeneration()) 
 		&& LLFolderViewItem::getFiltered(); 
 }
 
@@ -1574,7 +1574,7 @@ BOOL LLFolderViewFolder::hasFilteredDescendants(S32 filter_generation)
 
 BOOL LLFolderViewFolder::hasFilteredDescendants()
 {
-	return mMostFilteredDescendantGeneration >= getRoot()->getFilter()->getCurrentGeneration();
+	return mMostFilteredDescendantGeneration >= getRoot()->getFilter().getCurrentGeneration();
 }
 
 // Passes selection information on to children and record selection
@@ -2585,9 +2585,9 @@ BOOL	LLFolderViewFolder::potentiallyVisible()
 	// folder should be visible by it's own filter status
 	return LLFolderViewItem::potentiallyVisible() 	
 		// or one or more of its descendants have passed the minimum filter requirement
-		|| hasFilteredDescendants(getRoot()->getFilter()->getFirstSuccessGeneration())
+		|| hasFilteredDescendants(getRoot()->getFilter().getFirstSuccessGeneration())
 		// or not all of its descendants have been checked against minimum filter requirement
-		|| getCompletedFilterGeneration() < getRoot()->getFilter()->getFirstSuccessGeneration(); 
+		|| getCompletedFilterGeneration() < getRoot()->getFilter().getFirstSuccessGeneration(); 
 }
 
 // this does prefix traversal, as folders are listed above their contents

@@ -1651,7 +1651,7 @@ void LLPanelObjectInventory::reset()
 	LLRect dummy_rect(0, 1, 1, 0);
 	mFolders = new LLFolderView(std::string("task inventory"), dummy_rect, getTaskUUID(), this, LLTaskInvFVBridge::createObjectBridge(this, NULL));
 	// this ensures that we never say "searching..." or "no items found"
-	mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
+	mFolders->getFilter().setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 
 	LLRect scroller_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	mScroller = new LLScrollContainer(std::string("task inventory scroller"), scroller_rect, mFolders );

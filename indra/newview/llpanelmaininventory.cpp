@@ -40,6 +40,7 @@
 #include "llresmgr.h"
 #include "llscrollcontainer.h"
 #include "llsdserialize.h"
+#include "llsdparam.h"
 #include "llspinctrl.h"
 #include "lltooldraganddrop.h"
 #include "llviewermenu.h"
@@ -57,7 +58,6 @@ const S32 INV_MIN_HEIGHT = 150;
 const S32 INV_FINDER_WIDTH = 160;
 const S32 INV_FINDER_HEIGHT = 408;
 
-//BOOL LLPanelMainInventory::sOpenNextNewItem = FALSE;
 class LLFloaterInventoryFinder : public LLFloater
 {
 public:
@@ -69,8 +69,10 @@ public:
 	virtual void onClose(bool app_quitting);
 	void changeFilter(LLInventoryFilter* filter);
 	void updateElementsFromFilter();
+	BOOL getCheckShowLinks();
 	BOOL getCheckShowEmpty();
 	BOOL getCheckSinceLogoff();
+	U32 getDateSearchDirection();
 
 	void onLinks(const LLSD& val);
 	static void onTimeAgo(LLUICtrl*, void *);
@@ -85,7 +87,6 @@ protected:
 	LLUICtrl*			mRadioLinks;
 	LLInventoryFilter*	mFilter;
 };
-
 
 ///----------------------------------------------------------------------------
 /// LLPanelMainInventory
@@ -167,7 +168,9 @@ BOOL LLPanelMainInventory::postBuild()
 		recent_items_panel->setSinceLogoff(TRUE);
 		recent_items_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::RECENTITEMS_SORT_ORDER));
 		recent_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-		recent_items_panel->getFilter().markDefault();
+		LLInventoryFilter& recent_filter = recent_items_panel->getFilter();
+		recent_filter.setFilterObjectTypes(recent_filter.getFilterObjectTypes() & ~(0x1 << LLInventoryType::IT_CATEGORY));
+		recent_filter.markDefault();
 		recent_items_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, recent_items_panel, _1, _2));
 	}
 	LLInventoryPanel* worn_items_panel = getChild<LLInventoryPanel>("Worn Items");
@@ -193,18 +196,32 @@ BOOL LLPanelMainInventory::postBuild()
 		file.close();
 
 		// Load the persistent "Recent Items" settings.
-		// Note that the "All Items" and "Worn Items" settings do not persist per-account.
+		// Note that the "All Items" settings do not persist.
 		if(recent_items_panel)
 		{
 			if(savedFilterState.has(recent_items_panel->getFilter().getName()))
 			{
 				LLSD recent_items = savedFilterState.get(
 					recent_items_panel->getFilter().getName());
-				recent_items_panel->getFilter().fromLLSD(recent_items);
+				LLInventoryFilter::Params p;
+				LLParamSDParser parser;
+				parser.readSD(recent_items, p);
+				recent_items_panel->getFilter().fromParams(p);
+			}
+		}
+		if(worn_items_panel)
+		{
+			if(savedFilterState.has(worn_items_panel->getFilter().getName()))
+			{
+				LLSD worn_items = savedFilterState.get(
+					worn_items_panel->getFilter().getName());
+				LLInventoryFilter::Params p;
+				LLParamSDParser parser;
+				parser.readSD(worn_items, p);
+				worn_items_panel->getFilter().fromParams(p);
 			}
 		}
 	}
-
 
 	mFilterEditor = getChild<LLFilterEditor>("inventory search editor");
 	if (mFilterEditor)
@@ -238,39 +255,52 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 	LLInventoryPanel* all_items_panel = getChild<LLInventoryPanel>("All Items");
 	if (all_items_panel)
 	{
-		LLInventoryFilter& filter = all_items_panel->getFilter();
 		LLSD filterState;
-		filter.toLLSD(filterState);
-		filterRoot[filter.getName()] = filterState;
+		LLInventoryPanel::InventoryState p;
+		all_items_panel->getFilter().toParams(p.filter);
+		if (p.validateBlock(false))
+		{
+			LLParamSDParser().writeSD(filterState, p);
+			filterRoot[all_items_panel->getName()] = filterState;
+		}
 	}
 
-	LLInventoryPanel* recent_items_panel = getChild<LLInventoryPanel>("Recent Items");
-	if (recent_items_panel)
+	LLInventoryPanel* recent_panel = findChild<LLInventoryPanel>("Recent Items");
+	if (recent_panel)
 	{
-		LLInventoryFilter& filter = recent_items_panel->getFilter();
 		LLSD filterState;
-		filter.toLLSD(filterState);
-		filterRoot[filter.getName()] = filterState;
+		LLInventoryPanel::InventoryState p;
+		recent_panel->getFilter().toParams(p.filter);
+		if (p.validateBlock(false))
+		{
+			LLParamSDParser().writeSD(filterState, p);
+			filterRoot[recent_panel->getName()] = filterState;
+		}
 	}
 	
-	LLInventoryPanel* worn_items_panel = getChild<LLInventoryPanel>("Worn Items");
-	if (worn_items_panel)
+	LLInventoryPanel* worn_panel = findChild<LLInventoryPanel>("Worn Items");
+	if (worn_panel)
 	{
-		LLInventoryFilter& filter = worn_items_panel->getFilter();
 		LLSD filterState;
-		filter.toLLSD(filterState);
-		filterRoot[filter.getName()] = filterState;
+		LLInventoryPanel::InventoryState p;
+		worn_panel->getFilter().toParams(p.filter);
+		if (p.validateBlock(false))
+		{
+			LLParamSDParser().writeSD(filterState, p);
+			filterRoot[worn_panel->getName()] = filterState;
+		}
 	}
 
-	std::ostringstream filterSaveName;
-	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "filters.xml");
-	llofstream filtersFile(filterSaveName.str());
+	std::string filterSaveName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME));
+	llofstream filtersFile(filterSaveName.c_str());
 	if(!LLSDSerialize::toPrettyXML(filterRoot, filtersFile))
 	{
-		LL_WARNS() << "Could not write to filters save file " << filterSaveName.str().c_str() << LL_ENDL;
+		LL_WARNS() << "Could not write to filters save file " << filterSaveName.c_str() << LL_ENDL;
 	}
 	else
+	{
 		filtersFile.close();
+	}
 
 	vector_replace_with_last(sActiveViews, this);
 	gInventory.removeObserver(this);

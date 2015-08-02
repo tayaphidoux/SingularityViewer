@@ -65,6 +65,32 @@ class LLFolderViewGroupedItemBridge;
 
 class LLInventoryPanel : public LLPanel
 {
+	//--------------------------------------------------------------------
+	// Data
+	//--------------------------------------------------------------------
+public:
+	struct Filter : public LLInitParam::Block<Filter>
+	{
+		Optional<U32>			sort_order;
+		Optional<U32>			types;
+		Optional<std::string>	search_string;
+
+		Filter()
+		:	sort_order("sort_order"),
+			types("types", 0xffffffff),
+			search_string("search_string")
+		{}
+	};
+
+	struct InventoryState : public LLInitParam::Block<InventoryState>
+	{
+		Mandatory<LLInventoryFilter::Params> filter;
+		//Mandatory<LLInventorySort::Params> sort;
+	};
+
+	//--------------------------------------------------------------------
+	// Initialization
+	//--------------------------------------------------------------------
 protected:
 	friend class LFFloaterInvPanel;
 	LLInventoryPanel(const std::string& name,

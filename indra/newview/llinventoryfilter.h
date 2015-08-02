@@ -32,6 +32,7 @@
 
 class LLFolderViewItem;
 class LLFolderViewFolder;
+class LLInventoryItem;
 
 class LLInventoryFilter
 {
@@ -156,7 +157,23 @@ public:
 		bool			mFilterWorn;
 	};
 
-	LLInventoryFilter(const std::string& name);
+	struct Params : public LLInitParam::Block<Params>
+	{
+		Optional<std::string>		name;
+		Optional<FilterOps::Params>	filter_ops;
+		Optional<std::string>		substring;
+		Optional<bool>				since_logoff;
+
+		Params()
+		:	name("name"),
+			filter_ops(""),
+			substring("substring"),
+			since_logoff("since_logoff")
+		{}
+	};
+
+	LLInventoryFilter(const Params& p = Params());
+	LLInventoryFilter(const LLInventoryFilter& other) { *this = other; }
 	virtual ~LLInventoryFilter() {}
 
 	// +-------------------------------------------------------------------+
@@ -206,6 +223,7 @@ public:
 	// + Execution And Results
 	// +-------------------------------------------------------------------+
 	bool 				check(LLFolderViewItem* item);
+	bool				check(const LLInventoryItem* item);
 	bool				checkFolder(const LLFolderViewFolder* folder) const;
 	bool				checkFolder(const LLUUID& folder_id) const;
 
@@ -260,13 +278,17 @@ public:
 	// +-------------------------------------------------------------------+
 	// + Conversion
 	// +-------------------------------------------------------------------+
-	void toLLSD(LLSD& data) const;
-	void fromLLSD(LLSD& data);
+	void 				toParams(Params& params) const;
+	void 				fromParams(const Params& p);
+
+	LLInventoryFilter& operator =(const LLInventoryFilter& other);
 
 private:
 	bool				areDateLimitsSet();
 	bool 				checkAgainstFilterType(const LLFolderViewItem* item) const;
+	bool 				checkAgainstFilterType(const LLInventoryItem* item) const;
 	bool 				checkAgainstPermissions(const LLFolderViewItem* item) const;
+	bool 				checkAgainstPermissions(const LLInventoryItem* item) const;
 	bool 				checkAgainstFilterLinks(const LLFolderViewItem* item) const;
 	bool				checkAgainstClipboard(const LLUUID& object_id) const;
 
