@@ -123,7 +123,7 @@ public:
 			Params()
 			:	types("filter_types", FILTERTYPE_OBJECT),
 				object_types("object_types", 0xffffFFFFffffFFFFULL),
-				wearable_types("wearable_types", 0xffffFFFFffffFFFFULL),
+				wearable_types("wearable_types", 0/*0xffffFFFFffffFFFFULL*/),
 				category_types("category_types", 0xffffFFFFffffFFFFULL),
 				worn_items("worn_items", 0xffffFFFFffffFFFFULL),
 				links("links", FILTERLINK_INCLUDE_LINKS),
