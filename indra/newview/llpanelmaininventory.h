@@ -113,11 +113,11 @@ public:
 		
 	static void onQuickFilterCommit(LLUICtrl* ctrl, void* user_data);
 	static void refreshQuickFilter(LLUICtrl* ctrl);
-	
+
 	static void onResetAll(void* userdata);
 	static void onExpandAll(void* userdata);
-    static void onCollapseAll(void* userdata);
-	
+	static void onCollapseAll(void* userdata);
+
 	void updateSortControls();
 
 	void resetFilters();

@@ -48,6 +48,8 @@
 #include "llpanelobjectinventory.h"
 #include "llappviewer.h"
 
+#include "llradiogroup.h"
+
 #include "rlvhandler.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
@@ -386,16 +388,10 @@ BOOL LLPanelMainInventory::handleKeyHere(KEY key, MASK mask)
 // *TODO: remove take_keyboard_focus param
 LLPanelMainInventory* LLPanelMainInventory::showAgentInventory(BOOL take_keyboard_focus)
 {
-	if (gDisconnected || gNoRender)
-	{
-		return NULL;
-	}
+	if (gDisconnected) return NULL;
 
 // [RLVa:KB] - Checked: 2009-07-10 (RLVa-1.0.0g)
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWINV))
-	{
-		return NULL;
-	}
+	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWINV)) return NULL;
 // [/RLVa:KB]
 
 	LLPanelMainInventory* iv = LLPanelMainInventory::getActiveInventory();
@@ -424,11 +420,6 @@ LLPanelMainInventory* LLPanelMainInventory::showAgentInventory(BOOL take_keyboar
 		iv->setTitle(std::string("Inventory"));
 		iv->open();		/*Flawfinder: ignore*/
 	}
-	//if (take_keyboard_focus)
-	//{
-	//	iv->startSearch();
-	//	gFocusMgr.triggerFocusFlash();
-	//}
 	return iv;
 }
 
@@ -439,13 +430,13 @@ LLPanelMainInventory* LLPanelMainInventory::getActiveInventory()
 	S32 count = sActiveViews.size();
 	if(count > 0)
 	{
-		iv = sActiveViews.at(0);
+		iv = sActiveViews.front();
 		S32 z_order = gFloaterView->getZOrder(iv);
 		S32 z_next = 0;
 		LLPanelMainInventory* next_iv = NULL;
 		for(S32 i = 1; i < count; ++i)
 		{
-			next_iv = sActiveViews.at(i);
+			next_iv = sActiveViews[i];
 			z_next = gFloaterView->getZOrder(next_iv);
 			if(z_next < z_order)
 			{
@@ -469,9 +460,9 @@ void LLPanelMainInventory::toggleVisibility()
 	}
 	else if (1 == count)
 	{
-		if (sActiveViews.at(0)->getVisible())
+		if (sActiveViews.front()->getVisible())
 		{
-			sActiveViews.at(0)->close();
+			sActiveViews.front()->close();
 			gSavedSettings.setBOOL("ShowInventory", FALSE);
 		}
 		else
@@ -485,8 +476,7 @@ void LLPanelMainInventory::toggleVisibility()
 		// is visible.
 
 		// Close all the last one spawned.
-		S32 last_index = sActiveViews.size() - 1;
-		sActiveViews.at(last_index)->close();
+		sActiveViews.back()->close();
 	}
 }
 
@@ -498,6 +488,7 @@ void LLPanelMainInventory::cleanup()
 	{
 		sActiveViews.at(i)->destroy();
 	}
+	sActiveViews.clear();
 }
 
 
@@ -516,9 +507,8 @@ void LLPanelMainInventory::updateSortControls()
 
 void LLPanelMainInventory::resetFilters()
 {
-	LLFloaterInventoryFinder *finder = getFinder();
 	getActivePanel()->getFilter().resetDefault();
-	if (finder)
+	if (LLFloaterInventoryFinder* finder = getFinder())
 	{
 		finder->updateElementsFromFilter();
 	}
@@ -534,7 +524,6 @@ BOOL LLPanelMainInventory::filtersVisible(void* user_data)
 
 	return self->getFinder() != NULL;
 }
-
 
 void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 {
@@ -630,8 +619,7 @@ void LLPanelMainInventory::onQuickFilterCommit(LLUICtrl* ctrl, void* user_data)
 			view->mActivePanel->setFilterTypes( filter_type );
 
 			// Force the filters window to update itself, if it's open.
-			LLFloaterInventoryFinder* finder = view->getFinder();
-			if( finder )
+			if (LLFloaterInventoryFinder* finder = view->getFinder())
 				finder->updateElementsFromFilter();
 		}
 	}
@@ -671,7 +659,7 @@ void LLPanelMainInventory::refreshQuickFilter(LLUICtrl* ctrl)
  
 	filter_type &= filter_mask;
 
-  //LL_INFOS() << "filter_type: " << filter_type << LL_ENDL;
+	//LL_INFOS() << "filter_type: " << filter_type << LL_ENDL;
 	std::string selection;
 
 	if (filter_type == filter_mask)
@@ -680,17 +668,14 @@ void LLPanelMainInventory::refreshQuickFilter(LLUICtrl* ctrl)
 	}
 	else
 	{
-		const FilterEntry *entry = LLFilterDictionary::instance().lookup(filter_type);
-		if(entry)
+		if (const FilterEntry *entry = LLFilterDictionary::instance().lookup(filter_type))
 			selection = entry->mName;
 		else
 			selection = view->getString("filter_type_custom");
 	}
 
 	// Select the chosen item by label text
-	BOOL result = quickfilter->setSimple( (selection) );
-
-	if( !result )
+	if (!quickfilter->setSimple(selection))
 	{
 		LL_INFOS() << "The item didn't exist: " << selection << LL_ENDL;
 	}
@@ -709,7 +694,7 @@ void LLPanelMainInventory::onResetAll(void* userdata)
 	{
 		self->mFilterEditor->setText(LLStringUtil::null);
 	}
-	self->onFilterEdit("");
+	self->onFilterEdit(LLStringUtil::null);
 	self->mActivePanel->setFilterTypes(0xffffffffffffffffULL);
 	if (auto* finder = self->getFinder())
 		LLFloaterInventoryFinder::selectAllTypes(finder);
@@ -746,20 +731,20 @@ void LLPanelMainInventory::onCollapseAll(void* userdata)
 void LLPanelMainInventory::onFilterSelected()
 {
 	// Find my index
-	mActivePanel = (LLInventoryPanel*)childGetVisibleTab("inventory filter tabs");
+	mActivePanel = (LLInventoryPanel*)getChild<LLTabContainer>("inventory filter tabs")->getCurrentPanel();
 
 	if (!mActivePanel)
 	{
 		return;
 	}
 
-	LLInventoryFilter* filter = &mActivePanel->getFilter();
+	LLInventoryFilter& filter = mActivePanel->getFilter();
 	LLFloaterInventoryFinder *finder = getFinder();
 	if (finder)
 	{
-		finder->changeFilter(filter);
+		finder->changeFilter(&filter);
 	}
-	if (filter->isActive())
+	if (filter.isActive())
 	{
 		// If our filter is active we may be the first thing requiring a fetch so we better start it here.
 		LLInventoryModelBackgroundFetch::instance().start();
@@ -821,7 +806,6 @@ void LLPanelMainInventory::draw()
 	{
 		refreshQuickFilter( mQuickFilterCombo );
 	}
-		
 	if (mActivePanel && mResortActivePanel)
 	{
 		// EXP-756: Force resorting of the list the first time we draw the list: 
@@ -833,7 +817,6 @@ void LLPanelMainInventory::draw()
 		mActivePanel->setSortOrder(order);
 		mResortActivePanel = false;
 	}
-	
 	updateItemcountText();
 	LLFloater::draw();
 }
@@ -999,14 +982,19 @@ void LLFloaterInventoryFinder::changeFilter(LLInventoryFilter* filter)
 
 void LLFloaterInventoryFinder::updateElementsFromFilter()
 {
+	if (!mFilter)
+		return;
+
 	// Get data needed for filter display
 	U32 filter_types = mFilter->getFilterObjectTypes();
 	std::string filter_string = mFilter->getFilterSubString();
+	LLInventoryFilter::EFilterLink show_links = mFilter->getFilterLinks();
 	LLInventoryFilter::EFolderShow show_folders = mFilter->getShowFolderState();
 	U32 hours = mFilter->getHoursAgo();
+	U32 date_search_direction = mFilter->getDateSearchDirection();
 
 	// update the ui elements
-	LLFloater::setTitle(mFilter->getName());
+	setTitle(mFilter->getName());
 
 	getChild<LLUICtrl>("check_animation")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_ANIMATION));
 
@@ -1020,12 +1008,14 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	getChild<LLUICtrl>("check_sound")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SOUND));
 	getChild<LLUICtrl>("check_texture")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_TEXTURE));
 	getChild<LLUICtrl>("check_snapshot")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SNAPSHOT));
+	getChild<LLUICtrl>("check_show_links")->setValue(show_links == LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
 	getChild<LLUICtrl>("check_show_empty")->setValue(show_folders == LLInventoryFilter::SHOW_ALL_FOLDERS);
 	getChild<LLUICtrl>("check_since_logoff")->setValue(mFilter->isSinceLogoff());
 	mSpinSinceHours->set((F32)(hours % 24));
 	mSpinSinceDays->set((F32)(hours / 24));
 	auto value = mFilter->getFilterLinks();
 	mRadioLinks->setValue(value == LLInventoryFilter::FILTERLINK_INCLUDE_LINKS ? 0 : value == LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS ? 1 : 2);
+	getChild<LLRadioGroup>("date_search_direction")->setSelectedIndex(date_search_direction);
 }
 
 void LLFloaterInventoryFinder::draw()
@@ -1104,13 +1094,16 @@ void LLFloaterInventoryFinder::draw()
 		filtered_by_all_types = FALSE;
 	}
 
-	if (!filtered_by_all_types)
+	if (!filtered_by_all_types || (mInventoryView->getPanel()->getFilter().getFilterTypes() & LLInventoryFilter::FILTERTYPE_DATE))
 	{
-		// don't include folders in filter, unless I've selected everything
+		// don't include folders in filter, unless I've selected everything or filtering by date
 		filter &= ~(0x1 << LLInventoryType::IT_CATEGORY);
 	}
 
 	// update the panel, panel will update the filter
+	mPanelMainInventory->getPanel()->setFilterLinks(getCheckShowLinks() ?
+		LLInventoryFilter::FILTERLINK_INCLUDE_LINKS : LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS);
+
 	mPanelMainInventory->getPanel()->setShowFolderState(getCheckShowEmpty() ?
 		LLInventoryFilter::SHOW_ALL_FOLDERS : LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 	mPanelMainInventory->getPanel()->setFilterTypes(filter);
@@ -1121,9 +1114,9 @@ void LLFloaterInventoryFinder::draw()
 	}
 	U32 days = (U32)mSpinSinceDays->get();
 	U32 hours = (U32)mSpinSinceHours->get();
-	if (hours > 24)
+	if (hours >= 24)
 	{
-		days += hours / 24;
+		days = hours / 24;
 		hours = (U32)hours % 24;
 		mSpinSinceDays->set((F32)days);
 		mSpinSinceHours->set((F32)hours);
@@ -1132,6 +1125,7 @@ void LLFloaterInventoryFinder::draw()
 	mPanelMainInventory->getPanel()->setHoursAgo(hours);
 	mPanelMainInventory->getPanel()->setSinceLogoff(getCheckSinceLogoff());
 	mPanelMainInventory->setFilterTextFromFilter();
+	mPanelMainInventory->getPanel()->setDateSearchDirection(getDateSearchDirection());
 
 	LLFloater::draw();
 }
@@ -1150,6 +1144,10 @@ void  LLFloaterInventoryFinder::onClose(bool app_quitting)
 	destroy();
 }
 
+BOOL LLFloaterInventoryFinder::getCheckShowLinks()
+{
+	return getChild<LLUICtrl>("check_show_links")->getValue();
+}
 
 BOOL LLFloaterInventoryFinder::getCheckShowEmpty()
 {
@@ -1160,6 +1158,11 @@ BOOL LLFloaterInventoryFinder::getCheckShowEmpty()
 BOOL LLFloaterInventoryFinder::getCheckSinceLogoff()
 {
 	return getChild<LLUICtrl>("check_since_logoff")->getValue();
+}
+
+U32 LLFloaterInventoryFinder::getDateSearchDirection()
+{
+	return getChild<LLRadioGroup>("date_search_direction")->getSelectedIndex();
 }
 
 void LLFloaterInventoryFinder::onCloseBtn(void* user_data)
