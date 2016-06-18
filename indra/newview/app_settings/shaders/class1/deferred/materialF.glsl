@@ -537,10 +537,12 @@ void main()
 #endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+	#if (HAS_SPECULAR_MAP == false)
 	if(diffcol.a < .01)
 	{
 		discard;
 	}
+	#endif
 	vec3 gamma_diff = diffcol.rgb;
 	diffcol.rgb = srgb_to_linear(diffcol.rgb);
 #endif
