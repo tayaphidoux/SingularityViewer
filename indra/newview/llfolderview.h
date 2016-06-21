@@ -248,6 +248,7 @@ public:
 	void setNeedsAutoRename(BOOL val) { mNeedsAutoRename = val; }
 	void setPinningSelectedItem(BOOL val) { mPinningSelectedItem = val; }
 	void setAutoSelectOverride(BOOL val) { mAutoSelectOverride = val; }
+	bool getAutoSelectOverride() const { return mAutoSelectOverride; }
 
 	BOOL getDebugFilters() { return mDebugFilters; }
 
