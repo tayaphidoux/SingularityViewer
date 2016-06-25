@@ -173,7 +173,15 @@ void do_create(LLInventoryModel *model, LLInventoryPanel *ptr, const LLSD& sdtyp
 												LLFolderType::FT_NONE, LLStringUtil::null);
 		}
 		model->notifyObservers();
+
+		// Singu Note: SV-2036
+		// Hack! setSelection sets category to fetching state, which disables scrolling. Scrolling, however, is desired.
+		// Setting autoSelectOverride to true just happens to skip the fetch check, thus allowing the scroll to proceed.
+		bool autoselected = ptr->getRootFolder()->getAutoSelectOverride();
+		ptr->getRootFolder()->setAutoSelectOverride(true);
 		ptr->setSelection(category, TRUE);
+		// Restore autoSelectOverride to whatever it was before we hijacked it.
+		ptr->getRootFolder()->setAutoSelectOverride(autoselected);
 	}
 	else if ("lsl" == type)
 	{

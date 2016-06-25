@@ -2315,7 +2315,11 @@ bool LLViewerRegion::meshUploadEnabled() const
 
 bool LLViewerRegion::meshRezEnabled() const
 {
-	if (getCapability("SimulatorFeatures").empty())
+	if (!capabilitiesReceived())
+	{
+		return false;
+	}
+	else if (getCapability("SimulatorFeatures").empty())
 	{
 		return !getCapability("GetMesh").empty() || !getCapability("GetMesh2").empty();
 	}
