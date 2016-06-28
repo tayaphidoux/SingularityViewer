@@ -520,6 +520,13 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 		return;
 	}
 
+	if (search_string.empty())
+	{
+		mActivePanel->setFilterTypes(0xffffffffffffffffULL);
+		if (auto* finder = getFinder())
+			LLFloaterInventoryFinder::selectAllTypes(finder);
+	}
+
 	// set new filter string
 	// Internally handles saving/restoring folder states.
 	mActivePanel->setFilterSubString(search_string);
