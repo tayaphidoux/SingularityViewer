@@ -8090,8 +8090,8 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 
 	std::string button = LLNotification::getSelectedOptionName(response);
 	S32 button_idx = LLNotification::getSelectedOption(notification, response);
-	// Didn't click "Ignore"
-	if (button_idx != -1)
+	// Didn't click "Ignore" or "Block"
+	if (button_idx > -1)
 	{
 		if (notification["payload"].has("textbox"))
 		{
@@ -8108,6 +8108,10 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 		msg->addS32("ButtonIndex", button_idx);
 		msg->addString("ButtonLabel", button);
 		msg->sendReliable(LLHost(notification["payload"]["sender"].asString()));
+	}
+	else if (button_idx == -2) // Block
+	{
+		LLMuteList::getInstance()->add(LLMute(notification["payload"]["object_id"].asUUID(), notification["substitutions"]["TITLE"].asString(), LLMute::OBJECT));
 	}
 
 	return false;

@@ -390,9 +390,9 @@ LLButton* LLNotifyBox::addButton(const std::string& name, const std::string& lab
 
 	if (layout_script_dialog)
 	{
-		// Add two "blank" option spaces, before the "Ignore" button
-		index = button_index + 2;
-		if (button_index == 0)
+		// Add one "blank" option space, before the "Block" and "Ignore" buttons
+		index = button_index + 1;
+		if (button_index == 0 || button_index == 1)
 		{
 			// Ignore button is smaller, less wide
 			btn_height = BTN_HEIGHT_SMALL;
@@ -625,9 +625,9 @@ LLRect LLNotifyBox::getNotifyRect(S32 num_options, bool layout_script_dialog, bo
 	if (num_options < 1)
 		num_options = 1;
 
-	// Add two "blank" option spaces.
+	// Add one "blank" option space.
 	if (layout_script_dialog)
-		num_options += 2;
+		num_options += 1;
 
 	S32 additional_lines = (num_options-1) / 3;
 

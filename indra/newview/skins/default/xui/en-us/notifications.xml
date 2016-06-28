@@ -7538,6 +7538,10 @@ Grant this request?
 [MESSAGE]
     <form name="form">
       <button
+       index="-2"
+       name="Block"
+       text="Block"/>
+      <button
        index="-1"
        name="Ignore"
        text="Ignore"/>
@@ -7551,6 +7555,10 @@ Grant this request?
 [GROUPNAME]&apos;s &apos;[TITLE]&apos;
 [MESSAGE]
     <form name="form">
+      <button
+       index="-2"
+       name="Block"
+       text="Block"/>
       <button
        index="-1"
        name="Ignore"
@@ -7567,6 +7575,10 @@ Grant this request?
     <form name="form">
       <input name="message">
       </input>
+      <button
+       index="-2"
+       name="Block"
+       text="Block"/>
       <button
        index="-1"
        name="Ignore"
