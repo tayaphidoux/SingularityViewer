@@ -756,7 +756,7 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
 			LLNotifications::instance().add("FriendOnlineOffline",
 									 args,
 									 payload,
-									 behavior == 1 ? boost::bind(&LLAvatarActions::startIM, agent_id) : boost::bind(LLAvatarActions::showProfile, agent_id, false));
+									 behavior == 1 ? boost::bind(&LLAvatarActions::startIM, agent_id) : (LLNotificationResponder)boost::bind(LLAvatarActions::showProfile, agent_id, false));
 	}
 	else
 	{
