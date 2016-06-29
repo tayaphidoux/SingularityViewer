@@ -520,12 +520,15 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 		return;
 	}
 
+	/* Singu Note: This is the old behavior, desired by SV-2078, but we'd prefer the new behavior.
+	 * I've left this here in case we want to add it back in some way.
 	if (search_string.empty())
 	{
 		mActivePanel->setFilterTypes(0xffffffffffffffffULL);
 		if (auto* finder = getFinder())
 			LLFloaterInventoryFinder::selectAllTypes(finder);
 	}
+	 */
 
 	// set new filter string
 	// Internally handles saving/restoring folder states.
