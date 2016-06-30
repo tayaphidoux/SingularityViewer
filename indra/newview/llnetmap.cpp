@@ -1128,7 +1128,7 @@ void LLNetMap::renderPropertyLinesForRegion(const LLViewerRegion* pRegion, const
 	// Draw the north and east region borders
 	//
 	const F32 real_width(pRegion->getWidth());
-const S32 borderY = originY + ll_round(real_width * mObjectMapTPM);
+	const S32 borderY = originY + ll_round(real_width * mObjectMapTPM);
 	if ( (borderY >= 0) && (borderY < imgHeight) )
 	{
 		S32 curX = llclamp(originX, 0, imgWidth), endX = llclamp(originX + ll_round(real_width * mObjectMapTPM), 0, imgWidth - 1);
@@ -1146,8 +1146,8 @@ const S32 borderY = originY + ll_round(real_width * mObjectMapTPM);
 	//
 	// Render parcel lines
 	//
-	static const F32 GRID_STEP = PARCEL_GRID_STEP_METERS;
-	static const S32 GRIDS_PER_EDGE = real_width / GRID_STEP;
+	const F32 GRID_STEP = PARCEL_GRID_STEP_METERS;
+	const S32 GRIDS_PER_EDGE = real_width / GRID_STEP;
 
 	const U8* pOwnership = pRegion->getParcelOverlay()->getOwnership();
 	const U8* pCollision = (pRegion->getHandle() == LLViewerParcelMgr::instance().getCollisionRegionHandle()) ? LLViewerParcelMgr::instance().getCollisionBitmap() : NULL;
