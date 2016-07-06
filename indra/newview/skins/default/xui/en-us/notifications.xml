@@ -4164,9 +4164,10 @@ Remove estate manager for this estate only or for [ALL_ESTATES]?
 Kick [EVIL_USER] from this estate?
     <tag>confirm</tag>
     <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="OK"/>
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="Kick Home"
+     yestext="Kick"/>
   </notification>
 
   <notification

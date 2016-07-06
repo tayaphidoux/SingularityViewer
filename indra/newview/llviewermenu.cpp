@@ -9182,17 +9182,18 @@ class ListFreeze : public view_listener_t
 	}
 };
 
-void estate_bulk_eject(const uuid_vec_t& ids, bool ban, S32 zero)
+void estate_bulk_eject(const uuid_vec_t& ids, bool ban, S32 option)
 {
-	if (ids.empty() || zero != 0) return;
+	if (ids.empty() || option == (ban ? 1 : 2)) return;
 	std::vector<std::string> strings(2, gAgentID.asString()); // [0] = our agent id
+	const std::string request(option == 1 ? "teleporthomeuser" : "kickestate");
 	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		LLUUID id(*it);
 		if (id.isNull()) continue;
 		strings[1] = id.asString(); // [1] = target agent id
 
-		LLRegionInfoModel::sendEstateOwnerMessage(gMessageSystem, "teleporthomeuser", LLFloaterRegionInfo::getLastInvoice(), strings);
+		LLRegionInfoModel::sendEstateOwnerMessage(gMessageSystem, request, LLFloaterRegionInfo::getLastInvoice(), strings);
 		if (ban)
 			LLPanelEstateInfo::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, id);
 	}

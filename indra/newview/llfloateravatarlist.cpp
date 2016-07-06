@@ -1398,7 +1398,8 @@ static void cmd_freeze(const LLAvatarListEntry* entry)		{ send_freeze(entry->get
 static void cmd_unfreeze(const LLAvatarListEntry* entry)	{ send_freeze(entry->getID(), false); }
 static void cmd_eject(const LLAvatarListEntry* entry)		{ send_eject(entry->getID(), false); }
 static void cmd_ban(const LLAvatarListEntry* entry)			{ send_eject(entry->getID(), true); }
-static void cmd_estate_eject(const LLAvatarListEntry* entry){ send_estate_message("teleporthomeuser", entry->getID()); }
+static void cmd_estate_eject(const LLAvatarListEntry* entry){ send_estate_message("kickestate", entry->getID()); }
+static void cmd_estate_tp_home(const LLAvatarListEntry* entry){ send_estate_message("teleporthomeuser", entry->getID()); }
 static void cmd_estate_ban(const LLAvatarListEntry* entry)	{ LLPanelEstateInfo::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, entry->getID()); }
 
 void LLFloaterAvatarList::doCommand(avlist_command_t func, bool single/*=false*/) const
@@ -1469,8 +1470,9 @@ void LLFloaterAvatarList::callbackEjectFromEstate(const LLSD& notification, cons
 {
 	if (!instanceExists()) return;
 	LLFloaterAvatarList& inst(instance());
-	if (!LLNotification::getSelectedOption(notification, response)) // if == 0
-		inst.doCommand(cmd_estate_eject);
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (option != 2)
+		inst.doCommand(option ? cmd_estate_tp_home : cmd_estate_eject);
 }
 
 //static
