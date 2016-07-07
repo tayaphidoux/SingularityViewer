@@ -54,27 +54,27 @@ class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
 class LLAudioSourceVO;
 class LLBBox;
-class LLDataPacker;
 class LLColor4;
-class LLFrameTimer;
+class LLDataPacker;
 class LLDrawable;
+class LLFrameTimer;
 class LLHost;
-class LLWorld;
+class LLMessageSystem;
 class LLNameValue;
 class LLNetMap;
-class LLMessageSystem;
 class LLPartSysData;
-class LLPrimitive;
 class LLPipeline;
+class LLPrimitive;
 class LLTextureEntry;
-class LLViewerTexture;
+class LLVOAvatar;
+class LLVOInventoryListener;
 class LLViewerInventoryItem;
 class LLViewerObject;
+class LLViewerObjectMedia;
 class LLViewerPartSourceScript;
 class LLViewerRegion;
-class LLViewerObjectMedia;
-class LLVOInventoryListener;
-class LLVOAvatar;
+class LLViewerTexture;
+class LLWorld;
 
 typedef enum e_object_update_type
 {
@@ -112,7 +112,7 @@ struct PotentialReturnableObject
 
 //============================================================================
 
-class LLViewerObject : public LLPrimitive, public LLRefCount, public LLGLUpdate
+class LLViewerObject: public LLPrimitive, public LLRefCount, public LLGLUpdate
 {
 protected:
 	~LLViewerObject(); // use unref()
@@ -446,8 +446,8 @@ public:
 	void removeInventoryListener(LLVOInventoryListener* listener);
 	BOOL isInventoryPending() { return mInventoryPending; }
 	void clearInventoryListeners();
+	bool hasInventoryListeners();
 	void requestInventory();
-	void fetchInventoryFromServer();
 	static void processTaskInv(LLMessageSystem* msg, void** user_data);
 	void removeInventory(const LLUUID& item_id);
 
@@ -594,6 +594,9 @@ private:
 	
 	// Motion prediction between updates
 	void interpolateLinearMotion(const F64SecondsImplicit & time, const F32SecondsImplicit & dt);
+
+	// forms task inventory request if none are pending
+	void fetchInventoryFromServer();
 
 public:
 	//

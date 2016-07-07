@@ -976,11 +976,14 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		return TRUE;
 	}
 
-	// In case the inventory has not been updated (e.g. due to some recent operation
-	// causing a dirty inventory), stall the user while fetching the inventory.
-	if (hit_obj->isInventoryDirty())
+	// In case the inventory has not been loaded (e.g. due to some recent operation
+	// causing a dirty inventory) and we can do an update, stall the user
+	// while fetching the inventory.
+	//
+	// Fetch if inventory is dirty and listener is present (otherwise we will not receive update)
+	if (hit_obj->isInventoryDirty() && hit_obj->hasInventoryListeners())
 	{
-		hit_obj->fetchInventoryFromServer();
+		hit_obj->requestInventory();
 		LLSD args;
 		args["ERROR_MESSAGE"] = "Unable to add texture.\nPlease wait a few seconds and try again.";
 		LLNotificationsUtil::add("ErrorMessage", args);
@@ -1060,10 +1063,12 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		{
 			hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
 		}
-		// Force the object to update its refetch its inventory so it has this texture.
-		hit_obj->fetchInventoryFromServer();
+		// Force the object to update and refetch its inventory so it has this texture.
+		hit_obj->dirtyInventory();
+		hit_obj->requestInventory();
  		// TODO: Check to see if adding the item was successful; if not, then
-		// we should return false here.
+		// we should return false here. This will requre a separate listener
+		// since without listener, we have no way to receive update
 	}
 	return TRUE;
 }
