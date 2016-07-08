@@ -1355,7 +1355,7 @@ void send_eject(const LLUUID& avatar_id, bool ban)
 	}
 }
 
-static void send_estate_message(const std::string request, const std::vector<std::string>& strings);
+void send_estate_message(const std::string request, const std::vector<std::string>& strings);
 
 static void cmd_append_names(const LLAvatarListEntry* entry, std::string &str, std::string &sep)
 															{ if(!str.empty())str.append(sep);str.append(entry->getName()); }

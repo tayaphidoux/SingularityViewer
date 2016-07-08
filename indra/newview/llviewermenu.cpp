@@ -9182,7 +9182,7 @@ class ListFreeze : public view_listener_t
 	}
 };
 
-static void send_estate_message(const std::string request, const std::vector<std::string>& strings)
+void send_estate_message(const std::string request, const std::vector<std::string>& strings)
 {
 	LLRegionInfoModel::sendEstateOwnerMessage(gMessageSystem, request, LLFloaterRegionInfo::getLastInvoice(), strings); 
 }
