@@ -2248,7 +2248,7 @@ LLImportMaterial LLDAELoader::profileToMaterial(domProfile_COMMON* material, DAE
 			if (newparams.getCount())
 			{
 
-				for (S32 i = 0; i < newparams.getCount(); i++)
+				for (U32 i = 0; i < newparams.getCount(); i++)
 				{
 					domFx_surface_common* surface = newparams[i]->getSurface();
 				if (surface)
