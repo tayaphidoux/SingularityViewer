@@ -9182,18 +9182,22 @@ class ListFreeze : public view_listener_t
 	}
 };
 
+static void send_estate_message(const std::string request, const std::vector<std::string>& strings)
+{
+	LLRegionInfoModel::sendEstateOwnerMessage(gMessageSystem, request, LLFloaterRegionInfo::getLastInvoice(), strings); 
+}
+
 void estate_bulk_eject(const uuid_vec_t& ids, bool ban, S32 option)
 {
 	if (ids.empty() || option == (ban ? 1 : 2)) return;
-	std::vector<std::string> strings(2, gAgentID.asString()); // [0] = our agent id
-	const std::string request(option == 1 ? "teleporthomeuser" : "kickestate");
-	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	const bool tphome(option == 1);
+	const std::string request(tphome ? "teleporthomeuser" : "kickestate");
+	const std::string agent(tphome ? gAgentID.asString() : LLStringUtil::null);
+	for (const LLUUID& id : ids)
 	{
-		LLUUID id(*it);
 		if (id.isNull()) continue;
-		strings[1] = id.asString(); // [1] = target agent id
-
-		LLRegionInfoModel::sendEstateOwnerMessage(gMessageSystem, request, LLFloaterRegionInfo::getLastInvoice(), strings);
+		const string idstr(id.asString());
+		send_estate_message(request, tphome ? {agent, idstr} : {idstr});
 		if (ban)
 			LLPanelEstateInfo::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, id);
 	}
