@@ -9197,7 +9197,7 @@ void estate_bulk_eject(const uuid_vec_t& ids, bool ban, S32 option)
 	{
 		if (id.isNull()) continue;
 		const std::string idstr(id.asString());
-		send_estate_message(request, tphome ? {agent, idstr} : {idstr});
+		send_estate_message(request, tphome ?  std::vector<std::string>({agent, idstr}) :  std::vector<std::string>({idstr}));
 		if (ban)
 			LLPanelEstateInfo::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, id);
 	}
