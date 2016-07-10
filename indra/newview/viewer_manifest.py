@@ -675,12 +675,13 @@ class DarwinManifest(ViewerManifest):
 
                 self.path("licenses-mac.txt", dst="licenses.txt")
                 self.path("featuretable_mac.txt")
-                self.path("SecondLife.nib")
 
                 icon_path = self.icon_path()
                 if self.prefix(src=icon_path, dst="") :
-                    self.path("%s_icon.icns" % self.viewer_branding_id())
+                    self.path("%s.icns" % self.viewer_branding_id())
                     self.end_prefix(icon_path)
+
+                self.path("SecondLife.nib")
 
                 # Translations
                 self.path("English.lproj")
@@ -706,7 +707,6 @@ class DarwinManifest(ViewerManifest):
                 # in our bundled sub-apps. For each of these we'll create a
                 # symlink from sub-app/Contents/Resources to the real .dylib.
                 # Need to get the llcommon dll from any of the build directories as well.
-                
                 libfile = "libllcommon.dylib"
 
                 dylibs = self.path_optional(self.find_existing_file(os.path.join(os.pardir,
@@ -760,19 +760,29 @@ class DarwinManifest(ViewerManifest):
                     # create a symlink to the real copy of the dylib.
                     resource_path = self.dst_path_of(os.path.join(app, "Contents", "Resources"))
                     for libfile in dylibs:
-                        symlinkf(os.path.join(os.pardir, os.pardir, os.pardir, os.path.basename(libfile)),
-                                 os.path.join(resource_path, os.path.basename(libfile)))
+                        src = os.path.join(os.pardir, os.pardir, os.pardir, libfile)
+                        dst = os.path.join(resource_path, libfile)
+                        try:
+                            symlinkf(src, dst)
+                        except OSError as err:
+                            print "Can't symlink %s -> %s: %s" % (src, dst, err)
+
+                # LLCefLib helper apps go inside AlchemyPlugin.app
+                if self.prefix(src="", dst="AlchemyPlugin.app/Contents/Frameworks"):
+                    for helperappfile in ('LLCefLib Helper.app',
+                                          'LLCefLib Helper EH.app'):
+                        self.path2basename(relpkgdir, helperappfile)
+
+                    pluginframeworkpath = self.dst_path_of('Chromium Embedded Framework.framework');
+
+                    self.end_prefix()
 
                 # plugins
                 if self.prefix(src="", dst="llplugin"):
-                    self.path2basename(os.path.join(os.pardir,"plugins", "filepicker", self.args['configuration']),
-                                       "basic_plugin_filepicker.dylib")
-                    self.path2basename(os.path.join(os.pardir,"plugins", "quicktime", self.args['configuration']),
+                    self.path2basename("../media_plugins/quicktime/" + self.args['configuration'],
                                        "media_plugin_quicktime.dylib")
-                    self.path2basename(os.path.join(os.pardir,"plugins", "webkit", self.args['configuration']),
-                                       "media_plugin_webkit.dylib")
-                    self.path2basename(os.path.join(os.pardir,"packages", "libraries", "universal-darwin", "lib", "release"),
-                                       "libllqtwebkit.dylib")
+                    self.path2basename("../media_plugins/cef/" + self.args['configuration'],
+                                       "media_plugin_cef.dylib")
 
                     self.end_prefix("llplugin")
 
@@ -780,6 +790,30 @@ class DarwinManifest(ViewerManifest):
                 self.put_in_file(self.flags_list(), 'arguments.txt')
 
                 self.end_prefix("Resources")
+
+                # CEF framework goes inside Second Life.app/Contents/Frameworks
+                if self.prefix(src="", dst="Frameworks"):
+                    frameworkfile="Chromium Embedded Framework.framework"
+                    self.path2basename(relpkgdir, frameworkfile)
+                    self.end_prefix("Frameworks")
+
+                # This code constructs a relative path from the
+                # target framework folder back to the location of the symlink.
+                # It needs to be relative so that the symlink still works when
+                # (as is normal) the user moves the app bunlde out of the DMG
+                # and into the /Applications folder. Note we also call 'raise'
+                # to terminate the process if we get an error since without
+                # this symlink, Second Life web media can't possibly work.
+                # Real Framework folder:
+                #   Second Life.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                # Location of symlink and why it'ds relavie 
+                #   Second Life.app/Contents/Resources/AlchemyPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                frameworkpath = os.path.join(os.pardir, os.pardir, os.pardir, os.pardir, "Frameworks", "Chromium Embedded Framework.framework")
+                try:
+                    symlinkf(frameworkpath, pluginframeworkpath)
+                except OSError as err:
+                    print "Can't symlink %s -> %s: %s" % (frameworkpath, pluginframeworkpath, err)
+                    raise
 
             self.end_prefix("Contents")
 
