@@ -1008,7 +1008,7 @@ class LinuxManifest(ViewerManifest):
         icon_path = self.icon_path()
         print "DEBUG: icon_path '%s'" % icon_path
         if self.prefix(src=icon_path, dst="") :
-            self.path("viewer_icon.png")
+            self.path("viewer.png","viewer_icon.png")
             if self.prefix(src="",dst="res-sdl") :
                 self.path("viewer_256.BMP","viewer_icon.BMP")
                 self.end_prefix("res-sdl")
