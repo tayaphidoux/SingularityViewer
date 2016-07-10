@@ -210,7 +210,7 @@ class ViewerManifest(LLManifest):
         return ''.join(self.app_name().split())
 
     def icon_path(self):
-        return "icons/default"
+        return "icons/" + ("default", "alpha")[self.channel_type() == "alpha"]
 
     def extract_names(self,src):
         try:
