@@ -687,6 +687,9 @@ void LLPanelMainInventory::onResetAll(void* userdata)
 		self->mFilterEditor->setText(LLStringUtil::null);
 	}
 	self->onFilterEdit("");
+	self->mActivePanel->setFilterTypes(0xffffffffffffffffULL);
+	if (auto* finder = self->getFinder())
+		LLFloaterInventoryFinder::selectAllTypes(finder);
 	self->mActivePanel->closeAllFolders();
 }
 
