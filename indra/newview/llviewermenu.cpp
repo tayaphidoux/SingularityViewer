@@ -9191,16 +9191,21 @@ void estate_bulk_eject(const uuid_vec_t& ids, bool ban, S32 option)
 {
 	if (ids.empty() || option == (ban ? 1 : 2)) return;
 	const bool tphome(option == 1);
-	const std::string request(tphome ? "teleporthomeuser" : "kickestate");
 	const std::string agent(tphome ? gAgentID.asString() : LLStringUtil::null);
+	std::vector<std::string> strings;
+	if (!tphome) strings.reserve(ids.size());
 	for (const LLUUID& id : ids)
 	{
 		if (id.isNull()) continue;
 		const std::string idstr(id.asString());
-		send_estate_message(request, tphome ?  std::vector<std::string>({agent, idstr}) :  std::vector<std::string>({idstr}));
+		if (tphome)
+			send_estate_message("teleporthomeuser", {agent, idstr});
+		else
+			strings.push_back(idstr);
 		if (ban)
 			LLPanelEstateInfo::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, id);
 	}
+	if (!tphome) send_estate_message("kickestate", strings);
 }
 
 class ListEstateBan : public view_listener_t
