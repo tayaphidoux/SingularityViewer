@@ -352,13 +352,13 @@ bool handle_media_filter_callback(const LLSD& notification, const LLSD& response
 	LLParcel* queue = inst.getQueuedMedia();
 	switch(option)
 	{
-		case 2:	// Whitelist domain
+		case 3:	// Whitelist domain
 			inst.addToMediaList(url, LLMediaFilter::WHITELIST);
 		case 0:	// Allow
 			if (inst.getCurrentParcel() == LLViewerParcelMgr::getInstance()->getAgentParcel())
 				LLViewerParcelMedia::play(parcel);
 			break;
-		case 3:	// Blacklist domain
+		case 2:	// Blacklist domain
 			inst.addToMediaList(url, LLMediaFilter::BLACKLIST);
 		case 1:	// Deny
 			break;
