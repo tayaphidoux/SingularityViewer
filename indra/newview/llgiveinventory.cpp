@@ -331,7 +331,7 @@ void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im
 		      (!RlvUIEnabler::hasOpenProfile(to_agent)) )
 	{
 		// Log to chat history if the user didn't drop on an IM session or a profile to avoid revealing the name of the recipient
-		std::string strMsgName = "inventory_item_offered"; LLSD args; LLAvatarName avName;
+		std::string strMsgName = "inventory_item_offered-im"; LLSD args; LLAvatarName avName;
 		if (LLAvatarNameCache::get(to_agent, &avName))
 		{
 			args["NAME"] = RlvStrings::getAnonym(avName);
