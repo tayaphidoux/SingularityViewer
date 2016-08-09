@@ -70,6 +70,7 @@ F32 LLDrawPoolAvatar::sMinimumAlpha = 0.2f;
 
 static bool is_deferred_render = false;
 static bool is_post_deferred_render = false;
+static bool is_mats_render = false;
 
 extern BOOL gUseGLPick;
 
@@ -1588,7 +1589,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			const LLTextureEntry* te = face->getTextureEntry();
 			LLMaterial* mat = te->getMaterialParams().get();
 
-			if (mat && is_deferred_render)
+			if (mat && is_mats_render)
 			{
 				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(LLRender::DIFFUSE_MAP));
 				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP));
@@ -1684,7 +1685,9 @@ void LLDrawPoolAvatar::renderDeferredRiggedBump(LLVOAvatar* avatar)
 
 void LLDrawPoolAvatar::renderDeferredRiggedMaterial(LLVOAvatar* avatar, S32 pass)
 {
+	is_mats_render = true;
 	renderRigged(avatar, pass);
+	is_mats_render = false;
 }
 
 static LLFastTimer::DeclareTimer FTM_RIGGED_VBO("Rigged VBO");
