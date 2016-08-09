@@ -4987,9 +4987,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							if(te->getColor().mV[3] > 0.f)
 							{
 								U32 mask = te->getFullbright() ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA : LLDrawPoolAvatar::RIGGED_ALPHA;
-								if (mat && LLPipeline::sRenderDeferred && te->getColor().mV[3] >= 0.999f )
+								if (mat && LLPipeline::sRenderDeferred)
 								{
-									if(mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
+									if(te->getColor().mV[3] < 0.999f || mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
 										mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND);
 									else
 										mask = mat->getShaderMask();
