@@ -1654,7 +1654,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 			if (face->mTextureMatrix && vobj->mTexAnimMode)
 			{
-				gGL.matrixMode(LLRender::MM_TEXTURE);
+				gGL.matrixMode(LLRender::MM_TEXTURE0 + sDiffuseChannel);
 				gGL.loadMatrix(*face->mTextureMatrix);
 				buff->setBuffer(data_mask);
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
