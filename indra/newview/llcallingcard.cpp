@@ -749,13 +749,14 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
 
 	// Popup a notify box with online status of this agent
 	LLNotificationPtr notification;
-	if (online)
+	static const LLCachedControl<S32> behavior(gSavedSettings, "LiruOnlineNotificationBehavior", 1);
+	if (online && behavior)
 	{
 		notification =
 			LLNotifications::instance().add("FriendOnlineOffline",
 									 args,
 									 payload,
-									 boost::bind(&LLAvatarActions::startIM, agent_id));
+									 behavior == 1 ? boost::bind(&LLAvatarActions::startIM, agent_id) : (LLNotificationResponder)boost::bind(LLAvatarActions::showProfile, agent_id, false));
 	}
 	else
 	{

@@ -8464,7 +8464,7 @@ static void handle_load_from_xml_continued(AIFilePicker* filepicker)
 
 void handle_web_browser_test(void*)
 {
-	LLWeb::loadURL("http://secondlife.com/app/search/slurls.html");
+	LLWeb::loadURLInternal("http://secondlife.com/app/search/slurls.html");
 }
 
 void handle_buy_currency_test(void*)
@@ -9182,20 +9182,30 @@ class ListFreeze : public view_listener_t
 	}
 };
 
-void estate_bulk_eject(const uuid_vec_t& ids, bool ban, S32 zero)
+void send_estate_message(const std::string request, const std::vector<std::string>& strings)
 {
-	if (ids.empty() || zero != 0) return;
-	std::vector<std::string> strings(2, gAgentID.asString()); // [0] = our agent id
-	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
-	{
-		LLUUID id(*it);
-		if (id.isNull()) continue;
-		strings[1] = id.asString(); // [1] = target agent id
+	LLRegionInfoModel::sendEstateOwnerMessage(gMessageSystem, request, LLFloaterRegionInfo::getLastInvoice(), strings); 
+}
 
-		LLRegionInfoModel::sendEstateOwnerMessage(gMessageSystem, "teleporthomeuser", LLFloaterRegionInfo::getLastInvoice(), strings);
+void estate_bulk_eject(const uuid_vec_t& ids, bool ban, S32 option)
+{
+	if (ids.empty() || option == (ban ? 1 : 2)) return;
+	const bool tphome(option == 1);
+	const std::string agent(tphome ? gAgentID.asString() : LLStringUtil::null);
+	std::vector<std::string> strings;
+	if (!tphome) strings.reserve(ids.size());
+	for (const LLUUID& id : ids)
+	{
+		if (id.isNull()) continue;
+		const std::string idstr(id.asString());
+		if (tphome)
+			send_estate_message("teleporthomeuser", {agent, idstr});
+		else
+			strings.push_back(idstr);
 		if (ban)
 			LLPanelEstateInfo::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, id);
 	}
+	if (!tphome) send_estate_message("kickestate", strings);
 }
 
 class ListEstateBan : public view_listener_t

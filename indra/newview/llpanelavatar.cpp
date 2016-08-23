@@ -1324,6 +1324,7 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id)
 	view = getChildView("Pay...");
 	view->setVisible(!own_avatar);
 	view->setEnabled(false);
+	getChildView("Log")->setVisible(!own_avatar);
 
 	getChild<LLNameEditor>("avatar_key")->setText(avatar_id.asString());
 

@@ -379,7 +379,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 		{
 			if (!model[lod].empty())
 			{
-				if (idx >= model[lod].size())
+				if (idx >= (S32)model[lod].size())
 				{
 					if (model[lod].size())
 					{

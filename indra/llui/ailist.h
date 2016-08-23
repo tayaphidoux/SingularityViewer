@@ -253,7 +253,11 @@ class AIConstListIterator {
 	typedef AIConstListIterator<T>					_Self;
 	typedef std::list<AINode<T> >					_Container;
 	typedef typename _Container::iterator			_Iterator;
+#if LL_LINUX && GCC_VERSION <= 40899
+	typedef _Iterator _ConstIterator;
+#else
 	typedef typename _Container::const_iterator		_ConstIterator;
+#endif
 	typedef AIListIterator<T>						iterator;
 
 	_Container const* mContainer;

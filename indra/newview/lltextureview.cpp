@@ -594,7 +594,7 @@ void LLGLTexMemBar::draw()
 					max_bound_mem.value(),
 					LLRenderTarget::sBytesAllocated/(1024*1024),
 					global_raw_memory >> 20,	discard_bias,
-					cache_usage, cache_max_usage, total_texture_downloaded, total_object_downloaded, total_http_requests);
+					cache_usage, cache_max_usage, total_texture_downloaded.valueInUnits<LLUnits::Megabytes>(), total_object_downloaded.valueInUnits<LLUnits::Megabytes>(), total_http_requests);
 	//, cache_entries, cache_max_entries
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,

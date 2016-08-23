@@ -324,7 +324,7 @@ void LLOverlayBar::refresh()
 	}
 	buttons_changed |= updateButtonVisiblity(mNotBusy, gAgent.isDoNotDisturb()) != NULL;
 	buttons_changed |= updateButtonVisiblity(mFlyCam,LLViewerJoystick::getInstance()->getOverrideCamera()) != NULL;
-	buttons_changed |= updateButtonVisiblity(mMouseLook,gAgent.isControlGrabbed(CONTROL_ML_LBUTTON_DOWN_INDEX)||gAgent.isControlGrabbed(CONTROL_ML_LBUTTON_UP_INDEX)) != NULL;
+	buttons_changed |= updateButtonVisiblity(mMouseLook,gAgent.isControlBlocked(CONTROL_ML_LBUTTON_DOWN_INDEX)||gAgent.isControlBlocked(CONTROL_ML_LBUTTON_UP_INDEX)) != NULL;
 // [RLVa:KB] - Checked: 2009-07-10 (RLVa-1.0.0g)
 //  buttons_changed |= updateButtonVisiblity("Stand Up", isAgentAvatarValid() && gAgentAvatarp->isSitting()) != NULL;
 	buttons_changed |= updateButtonVisiblity(mStandUp,isAgentAvatarValid() && gAgentAvatarp->isSitting() && !gRlvHandler.hasBehaviour(RLV_BHVR_UNSIT)) != NULL;
