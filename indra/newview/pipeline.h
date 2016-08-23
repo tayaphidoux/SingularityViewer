@@ -286,7 +286,7 @@ public:
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
 	void renderGeomShadow(LLCamera& camera);
-	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
+	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader);
@@ -586,6 +586,7 @@ public:
 public:
 	//screen texture
 	LLRenderTarget			mScreen;
+	LLRenderTarget			mFinalScreen;
 	LLRenderTarget			mDeferredScreen;
 private:
 	LLRenderTarget			mFXAABuffer;
