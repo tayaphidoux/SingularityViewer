@@ -7540,8 +7540,8 @@ Grant this request?
     <form name="form">
       <button
        index="-2"
-       name="Block"
-       text="Block"/>
+       name="Mute"
+       text="Mute"/>
       <button
        index="-1"
        name="Ignore"
@@ -7558,8 +7558,8 @@ Grant this request?
     <form name="form">
       <button
        index="-2"
-       name="Block"
-       text="Block"/>
+       name="Mute"
+       text="Mute"/>
       <button
        index="-1"
        name="Ignore"
@@ -7578,8 +7578,8 @@ Grant this request?
       </input>
       <button
        index="-2"
-       name="Block"
-       text="Block"/>
+       name="Mute"
+       text="Mute"/>
       <button
        index="-1"
        name="Ignore"
