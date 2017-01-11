@@ -2912,6 +2912,10 @@ void renderAvatarCollisionVolumes(LLVOAvatar* avatar)
 	avatar->renderCollisionVolumes();
 }
 
+void renderAvatarBones(LLVOAvatar* avatar)
+{
+	avatar->renderBones();
+}
 void renderAgentTarget(LLVOAvatar* avatar)
 {
 	// render these for self only (why, i don't know)
@@ -3072,7 +3076,7 @@ public:
 
 			if (avatar && gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_JOINTS))
 			{
-				avatar->renderJoints();
+				renderAvatarBones(avatar);
 			}
 
 			if (avatar && gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AGENT_TARGET))

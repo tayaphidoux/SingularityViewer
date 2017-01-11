@@ -79,7 +79,7 @@
 		<pie_menu enabled="true" label="HUD" name="Object Detach HUD" />
 		<menu_item_separator />
 		<pie_menu enabled="true" label="Detach" name="Object Detach" />
-		<menu_item_separator />
+    <pie_menu enabled="true" label="Detach More" name="Object Detach More" />
 		<menu_item_call enabled="true" label="Detach All" name="Detach All">
 			<on_click function="Self.RemoveAllAttachments" userdata="" />
 			<on_enable function="Self.EnableRemoveAllAttachments" />
@@ -89,6 +89,12 @@
       <menu_item_call enabled="true" label="Reload" mouse_opaque="true" name="Reload Textures">
           <on_click function="Avatar.ReloadTextures" />
       </menu_item_call>
+    <menu_item_call enabled="true" label="Reset Skel" mouse_opaque="true" name="Reset Skeleton">
+      <on_click function="Avatar.ResetSkeleton" />
+    </menu_item_call>
+    <menu_item_call enabled="true" label="Reset Anims" mouse_opaque="true" name="Reset Skeleton And Animations">
+      <on_click function="Avatar.ResetSkeletonAndAnimations" />
+    </menu_item_call>
 	  <menu_item_call enabled="true" hidden="false" label="Anims..." mouse_opaque="true"
 						   name="Anims...">
 		<on_click function="ShowFloater" userdata="anims_explorer" />
@@ -101,9 +107,9 @@
 		  <on_click function="ShowFloater" userdata="script info" />
 		  <on_visible function="Self.VisibleScriptInfo" />
 	  </menu_item_call>
-    <menu_item_call enabled="true" label="Debug..." mouse_opaque="true" name="Debug Layers">
+    <!--<menu_item_call enabled="true" label="Debug..." mouse_opaque="true" name="Debug Layers">
       <on_click function="Avatar.Debug" />
-    </menu_item_call>
+    </menu_item_call>-->
     <menu_item_call enabled="true" label="Copy UUID" mouse_opaque="true" name="CopyUUID">
       <on_click function="Avatar.CopyUUID" />
     </menu_item_call>

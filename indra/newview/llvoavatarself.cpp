@@ -394,128 +394,115 @@ static LLContextMenu* make_part_menu(const std::string& label, bool context)
 
 void LLVOAvatarSelf::buildContextMenus()
 {
-	gAttachBodyPartPieMenus[0] = gDetachBodyPartPieMenus[0] = NULL;
-
 	bool context(gSavedSettings.getBOOL("LiruUseContextMenus"));
-	std::string label = LLTrans::getString("BodyPartsRightArm");
-	gAttachBodyPartPieMenus[1] = make_part_menu(label, context);
-	gDetachBodyPartPieMenus[1] = make_part_menu(label, context);
 
-	label = LLTrans::getString("BodyPartsHead");
-	gAttachBodyPartPieMenus[2] = make_part_menu(label, context);
-	gDetachBodyPartPieMenus[2] = make_part_menu(label, context);
-
-	label = LLTrans::getString("BodyPartsLeftArm");
-	gAttachBodyPartPieMenus[3] = make_part_menu(label, context);
-	gDetachBodyPartPieMenus[3] = make_part_menu(label, context);
-
-	gAttachBodyPartPieMenus[4] = gDetachBodyPartPieMenus[4] = NULL;
-
-	label = LLTrans::getString("BodyPartsLeftLeg");
-	gAttachBodyPartPieMenus[5] = make_part_menu(label, context);
-	gDetachBodyPartPieMenus[5] = make_part_menu(label, context);
-
-	label = LLTrans::getString("BodyPartsTorso");
-	gAttachBodyPartPieMenus[6] = make_part_menu(label, context);
-	gDetachBodyPartPieMenus[6] = make_part_menu(label, context);
-
-	label = LLTrans::getString("BodyPartsRightLeg");
-	gAttachBodyPartPieMenus[7] = make_part_menu(label, context);
-	gDetachBodyPartPieMenus[7] = make_part_menu(label, context);
-
-	for (S32 i = 0; i < 8; i++)
+	struct EntryData
 	{
-		if (gAttachBodyPartPieMenus[i])
+		const char * subMenu;
+		LLContextMenu* attachMenu;
+		LLContextMenu* detachMenu;
+	} entries[NUM_ATTACHMENT_GROUPS] = {
+		{ nullptr,					gAttachPieMenu,		gDetachPieMenu }, //Group 0 = Right Hand
+		{ "BodyPartsRightArm",		gAttachPieMenu,		gDetachPieMenu },
+		{ "BodyPartsHead",			gAttachPieMenu,		gDetachPieMenu },
+		{ "BodyPartsLeftArm",		gAttachPieMenu,		gDetachPieMenu },
+		{ nullptr,					gAttachPieMenu,		gDetachPieMenu }, //Group 4 = Left Hand
+		{ "BodyPartsLeftLeg",		gAttachPieMenu,		gDetachPieMenu },
+		{ "BodyPartsTorso",			gAttachPieMenu,		gDetachPieMenu },
+		{ "BodyPartsRightLeg",		gAttachPieMenu,		gDetachPieMenu },
+
+		// BENTO
+		{ nullptr,					gAttachPieMenu2,	gDetachPieMenu2 }, // Group 8 = Right Ring Finger
+		{ nullptr,					gAttachPieMenu2,	gDetachPieMenu2 }, // Group 9 = Right Wing
+		{ "BodyPartsHead",			gAttachPieMenu2,	gDetachPieMenu2 },
+		{ nullptr,					gAttachPieMenu2,	gDetachPieMenu2 }, // Group 11 = Left Wing
+		{ nullptr,					gAttachPieMenu2,	gDetachPieMenu2 }, // Group 12 = Left Ring Finger
+		{ nullptr,					gAttachPieMenu2,	gDetachPieMenu2 }, // Group 13 = Left Hind Foot
+		{ "BodyPartsWaist",			gAttachPieMenu2,	gDetachPieMenu2 },
+		{ nullptr,					gAttachPieMenu2,	gDetachPieMenu2 }, // Group 15 = Right Hind Foot
+
+		// HUD
+		{ nullptr,					gAttachScreenPieMenu,	gDetachScreenPieMenu }, // Group 16 = Center 2
+		{ nullptr,					gAttachScreenPieMenu,	gDetachScreenPieMenu }, // Group 17 = Top Right
+		{ nullptr,					gAttachScreenPieMenu,	gDetachScreenPieMenu }, // Group 18 = Top
+		{ nullptr,					gAttachScreenPieMenu,	gDetachScreenPieMenu }, // Group 19 = Top Left
+		{ nullptr,					gAttachScreenPieMenu,	gDetachScreenPieMenu }, // Group 20 = Center
+		{ nullptr,					gAttachScreenPieMenu,	gDetachScreenPieMenu }, // Group 21 = Bottom Left
+		{ nullptr,					gAttachScreenPieMenu,	gDetachScreenPieMenu }, // Group 22 = Bottom
+		{ nullptr,					gAttachScreenPieMenu,	gDetachScreenPieMenu } // Group 23 = Bottom Right
+	};
+
+	for (S32 group = 0; group < NUM_ATTACHMENT_GROUPS; group++)
+	{
+		LLContextMenu* attach_menu = entries[group].attachMenu;
+		LLContextMenu* detach_menu = entries[group].detachMenu;
+
+		if (attach_menu && detach_menu)
 		{
-			gAttachPieMenu->appendContextSubMenu( gAttachBodyPartPieMenus[i] );
-		}
-		else
-		{
-			BOOL attachment_found = FALSE;
-			for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
-				 iter != mAttachmentPoints.end();
-				 ++iter)
+			if (entries[group].subMenu != nullptr)
+			{
+				std::string label = LLTrans::getString(entries[group].subMenu);
+				LLContextMenu* new_menu = make_part_menu(label, context); // Attach
+				attach_menu->appendContextSubMenu(new_menu);
+				attach_menu = new_menu;
+				new_menu = make_part_menu(label, context); // Detach
+				detach_menu->appendContextSubMenu(new_menu);
+				detach_menu = new_menu;
+			}
+
+			if (!attach_menu || !detach_menu)
+			{
+				continue;
+			}
+
+			std::multimap<S32, S32> attachment_pie_menu_map;
+
+			// gather up all attachment points assigned to this group, and throw into map sorted by pie slice number
+			for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
+				iter != mAttachmentPoints.end();
+				++iter)
 			{
 				LLViewerJointAttachment* attachment = iter->second;
-				if (attachment->getGroup() == i)
+				if (attachment && attachment->getGroup() == group)
 				{
-					LLMenuItemCallGL* item;
-// [RLVa:KB] - Checked: 2009-07-06 (RLVa-1.0.0c)
-					// We need the userdata param to disable options in this pie menu later on (Left Hand / Right Hand option)
-					item = new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
-												NULL, 
-												object_selected_and_point_valid, attachment);
-// [/RLVa:KB]
-//						item = new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
-//													NULL, 
-//													object_selected_and_point_valid);
-					item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", iter->first);
-					
-					gAttachPieMenu->addChild(item);
-
-					attachment_found = TRUE;
-					break;
-
+					// use multimap to provide a partial order off of the pie slice key
+					S32 pie_index = attachment->getPieSlice();
+					attachment_pie_menu_map.insert(std::make_pair(pie_index, iter->first));
 				}
 			}
 
-			if (!context && !attachment_found)
+			// add in requested order to pie menu, inserting separators as necessary
+			for (std::multimap<S32, S32>::iterator attach_it = attachment_pie_menu_map.begin();
+				attach_it != attachment_pie_menu_map.end(); ++attach_it)
 			{
-				gAttachPieMenu->addSeparator();
-			}
-		}
-
-		if (gDetachBodyPartPieMenus[i])
-		{
-			gDetachPieMenu->appendContextSubMenu( gDetachBodyPartPieMenus[i] );
-		}
-		else
-		{
-			BOOL attachment_found = FALSE;
-			for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
-				 iter != mAttachmentPoints.end();
-				 ++iter)
-			{
-				LLViewerJointAttachment* attachment = iter->second;
-				if (attachment->getGroup() == i)
+				if (!context) // Singu Note: Separators are only needed to keep slices of pies from moving
 				{
-					gDetachPieMenu->addChild(new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
-						&handle_detach_from_avatar, object_attached, attachment));
+					S32 requested_pie_slice = attach_it->first;
+					while ((S32)attach_menu->getItemCount() < requested_pie_slice)
+					{
+						attach_menu->addSeparator();
+						detach_menu->addSeparator();
+					}
+				}
+				S32 attach_index = attach_it->second;
 
-					attachment_found = TRUE;
-					break;
+				LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attach_index, (LLViewerJointAttachment*)NULL);
+				if (attachment)
+				{
+					// [RLVa:KB] - Checked: 2009-07-06 (RLVa-1.0.0c)
+					// We need the userdata param to disable options in this pie menu later on
+					LLMenuItemCallGL* item = new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
+						NULL, object_selected_and_point_valid, attachment);
+					// [/RLVa:KB]
+					//					LLMenuItemCallGL* item = new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
+					//																  NULL, object_selected_and_point_valid);
+					attach_menu->addChild(item);
+					item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", attach_index);
+					detach_menu->addChild(new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
+						&handle_detach_from_avatar,
+						object_attached, attachment));
 				}
 			}
-
-			if (!context && !attachment_found)
-			{
-				gDetachPieMenu->addSeparator();
-			}
-		}
-	}
-
-	// add screen attachments
-	for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
-		 iter != mAttachmentPoints.end();
-		 ++iter)
-	{
-		LLViewerJointAttachment* attachment = iter->second;
-		if (attachment->getGroup() == 8)
-		{
-			LLMenuItemCallGL* item;
-// [RLVa:KB] - Checked: 2009-07-06 (RLVa-1.0.0c)
-			// We need the userdata param to disable options in this pie menu later on
-			item = new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
-										NULL, 
-										object_selected_and_point_valid, attachment);
-// [/RLVa:KB]
-//				item = new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
-//											NULL, 
-//											object_selected_and_point_valid);
-			item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", iter->first);
-			gAttachScreenPieMenu->addChild(item);
-			gDetachScreenPieMenu->addChild(new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
-						&handle_detach_from_avatar, object_attached, attachment));
 		}
 	}
 
@@ -551,67 +538,6 @@ void LLVOAvatarSelf::buildContextMenus()
 			// put separator between non-hud and hud attachments
 			gAttachSubMenu->addSeparator();
 			gDetachSubMenu->addSeparator();
-		}
-	}
-
-	for (S32 group = 0; group < 8; group++)
-	{
-		// skip over groups that don't have sub menus
-		if (!gAttachBodyPartPieMenus[group] || !gDetachBodyPartPieMenus[group])
-		{
-			continue;
-		}
-
-		std::multimap<S32, S32> attachment_pie_menu_map;
-
-		// gather up all attachment points assigned to this group, and throw into map sorted by pie slice number
-		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
-			 iter != mAttachmentPoints.end();
-			 ++iter)
-		{
-			LLViewerJointAttachment* attachment = iter->second;
-			if(attachment->getGroup() == group)
-			{
-				// use multimap to provide a partial order off of the pie slice key
-				S32 pie_index = attachment->getPieSlice();
-				attachment_pie_menu_map.insert(std::make_pair(pie_index, iter->first));
-			}
-		}
-
-		// add in requested order to pie menu, inserting separators as necessary
-		S32 cur_pie_slice = 0;
-		for (std::multimap<S32, S32>::iterator attach_it = attachment_pie_menu_map.begin();
-			 attach_it != attachment_pie_menu_map.end(); ++attach_it)
-		{
-			if (!context) // Singu Note: Separators are only needed to keep slices of pies from moving
-			{
-				S32 requested_pie_slice = attach_it->first;
-				while (cur_pie_slice < requested_pie_slice)
-				{
-					gAttachBodyPartPieMenus[group]->addSeparator();
-					gDetachBodyPartPieMenus[group]->addSeparator();
-					cur_pie_slice++;
-				}
-			}
-			S32 attach_index = attach_it->second;
-
-			LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attach_index, (LLViewerJointAttachment*)NULL);
-			if (attachment)
-			{
-// [RLVa:KB] - Checked: 2009-07-06 (RLVa-1.0.0c)
-				// We need the userdata param to disable options in this pie menu later on
-				LLMenuItemCallGL* item = new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
-															  NULL, object_selected_and_point_valid, attachment);
-// [/RLVa:KB]
-//					LLMenuItemCallGL* item = new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
-//																  NULL, object_selected_and_point_valid);
-				gAttachBodyPartPieMenus[group]->addChild(item);
-				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", attach_index);
-				gDetachBodyPartPieMenus[group]->addChild(new LLMenuItemCallGL(LLTrans::getString(attachment->getName()),
-																			&handle_detach_from_avatar,
-																			object_attached, attachment));
-				if (!context) cur_pie_slice++;
-			}
 		}
 	}
 }
@@ -3180,7 +3106,7 @@ BOOL LLVOAvatarSelf::needsRenderBeam()
 	return is_touching_or_grabbing || (mState & AGENT_STATE_EDITING && LLSelectMgr::getInstance()->shouldShowSelection());
 }
 
-void dump_visual_param(LLAPRFile& file, LLVisualParam const* viewer_param, F32 value);
+void dump_visual_param(apr_file_t* file, LLVisualParam const* viewer_param, F32 value);
 
 void LLVOAvatarSelf::dumpWearableInfo(LLAPRFile& outfile)
 {
@@ -3208,7 +3134,7 @@ void LLVOAvatarSelf::dumpWearableInfo(LLAPRFile& outfile)
 				 it != v_params.end(); ++it)
 			{
 				LLVisualParam *param = *it;
-				dump_visual_param(outfile, param, param->getWeight());
+				dump_visual_param(file, param, param->getWeight());
 			}
 		}
 	}

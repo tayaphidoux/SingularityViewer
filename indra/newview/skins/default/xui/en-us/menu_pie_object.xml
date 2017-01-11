@@ -39,6 +39,7 @@
 		</menu_item_call>
 		<pie_menu label="Attach HUD" name="Object Attach HUD" />
 		<pie_menu label="Attach" name="Object Attach" />
+    <pie_menu label="Attach More" name="Object Attach More" />
 		<menu_item_call enabled="false" label="Return..." mouse_opaque="true" name="Return...">
 			<on_click function="Object.Return" />
 			<on_enable function="Object.EnableReturn" />

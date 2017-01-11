@@ -155,7 +155,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
                 if (!joint)
                 {
                         LL_WARNS() << "Joint " << bone_info->mBoneName << " not found." << LL_ENDL;
-                        continue;
+                        return FALSE;
                 }
 
                 if (mJointScales.find(joint) != mJointScales.end())
@@ -205,10 +205,10 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 {
 	LLFastTimer t(FTM_POLYSKELETAL_DISTORTION_APPLY);
 
-        F32 effective_weight = ( getSex() & avatar_sex ) ? mCurWeight : getDefaultWeight();
+    F32 effective_weight = ( getSex() & avatar_sex ) ? mCurWeight : getDefaultWeight();
 
-        LLJoint* joint;
-        joint_vec_map_t::iterator iter;
+    LLJoint* joint;
+    joint_vec_map_t::iterator iter;
 
 	for (iter = mJointScales.begin();
 		 iter != mJointScales.end();
@@ -216,9 +216,18 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 	{
 		joint = iter->first;
 		LLVector3 newScale = joint->getScale();
-		LLVector3 scaleDelta = iter->second;
-		newScale = newScale + (effective_weight * scaleDelta) - (mLastWeight * scaleDelta);
-		joint->setScale(newScale);
+        LLVector3 scaleDelta = iter->second;
+        LLVector3 offset = (effective_weight - mLastWeight) * scaleDelta;
+        newScale = newScale + offset;
+        //An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
+        // needed? 
+        // joint->storeScaleForReset( newScale );				
+
+        // BENTO for detailed stack tracing of params.
+      //  std::stringstream ostr;
+      //  ostr << "LLPolySkeletalDistortion::apply, id " << getID() << " " << getName() << " effective wt " << effective_weight << " last wt " << mLastWeight << " scaleDelta " << scaleDelta << " offset " << offset;
+
+        joint->setScale(newScale, true);
 	}
 
 	for (iter = mJointOffsets.begin();
@@ -229,14 +238,16 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 		LLVector3 newPosition = joint->getPosition();
 		LLVector3 positionDelta = iter->second;
 		newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);
-		joint->setPosition(newPosition);
-	}
+        // SL-315
+        bool allow_attachment_pos_overrides = true;
+        joint->setPosition(newPosition, allow_attachment_pos_overrides);
+    }
 
-	if (mLastWeight != mCurWeight && !mIsAnimating)
+    if (mLastWeight != effective_weight && !mIsAnimating)
 	{
 		mAvatar->setSkeletonSerialNum(mAvatar->getSkeletonSerialNum() + 1);
 	}
-	mLastWeight = mCurWeight;
+    mLastWeight = effective_weight;
 }
 
 

@@ -223,10 +223,10 @@ LLMenuGL* gMeshesAndMorphsMenu = NULL;
 LLContextMenu* gPieRate = NULL;
 LLContextMenu* gAttachScreenPieMenu = NULL;
 LLContextMenu* gAttachPieMenu = NULL;
-LLContextMenu* gAttachBodyPartPieMenus[8];
+LLContextMenu* gAttachPieMenu2 = NULL;
 LLContextMenu* gDetachPieMenu = NULL;
+LLContextMenu* gDetachPieMenu2 = NULL;
 LLContextMenu* gDetachScreenPieMenu = NULL;
-LLContextMenu* gDetachBodyPartPieMenus[8];
 
 LLMenuItemCallGL* gAFKMenu = NULL;
 LLMenuItemCallGL* gBusyMenu = NULL;
@@ -555,6 +555,7 @@ void build_pie_menus()
 	// TomY TODO: what shall we do about these?
 	gDetachScreenPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Detach HUD", true);
 	gDetachPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Detach", true);
+	gDetachPieMenu2 = gMenuHolder->getChild<LLContextMenu>("Object Detach More", true);
 
 	if (gPieAvatar) delete gPieAvatar;
 	gPieAvatar = LLUICtrlFactory::getInstance()->buildContextMenu("menu_pie_avatar.xml", gMenuHolder);
@@ -564,6 +565,7 @@ void build_pie_menus()
 
 	gAttachScreenPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Attach HUD");
 	gAttachPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Attach");
+	gAttachPieMenu2 = gMenuHolder->getChild<LLContextMenu>("Object Attach More");
 	gPieRate = gMenuHolder->getChild<LLContextMenu>("Rate Menu");
 
 	if (gPieAttachment) delete gPieAttachment;
@@ -6039,6 +6041,33 @@ class LLAvatarAddFriend : public view_listener_t
 	}
 };
 
+class LLAvatarResetSkeleton: public view_listener_t
+{
+    bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+    {
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+        {
+            avatar->resetSkeleton(false);
+        }
+        return true;
+    }
+};
+
+
+class LLAvatarResetSkeletonAndAnimations : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+		if (avatar)
+		{
+			avatar->resetSkeleton(true);
+		}
+		return true;
+	}
+};
+
 bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
@@ -9411,6 +9440,8 @@ void initialize_menus()
 	addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	addMenu(new LLObjectEnableMute(), "Avatar.EnableMute");
+	addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
+	addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeletonAndAnimations");
 	addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
 	addMenu(new LLAvatarEnableFreezeEject(), "Avatar.EnableFreezeEject");
 	addMenu(new LLAvatarCopyUUID(), "Avatar.CopyUUID");

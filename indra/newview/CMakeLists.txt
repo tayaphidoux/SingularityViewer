@@ -440,6 +440,7 @@ set(viewer_SOURCE_FILES
     llscrollingpanelparambase.cpp
     llselectmgr.cpp
     llshareavatarhandler.cpp
+    llskinningutil.cpp
     llsky.cpp
     llslurl.cpp
     llspatialpartition.cpp
@@ -973,6 +974,7 @@ set(viewer_HEADER_FILES
     llscrollingpanelparambase.h
     llselectmgr.h
     llsimplestat.h
+    llskinningutil.h
     llsky.h
     llslurl.h
     llspatialpartition.h

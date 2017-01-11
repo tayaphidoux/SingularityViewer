@@ -331,7 +331,7 @@ public:
 	
 
 	//rigged volume update (for raycasting)
-	void updateRiggedVolume();
+	void updateRiggedVolume(bool force_update = false);
 	LLRiggedVolume* getRiggedVolume();
 
 	//returns true if volume should be treated as a rigged volume

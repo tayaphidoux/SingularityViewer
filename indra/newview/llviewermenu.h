@@ -183,8 +183,8 @@ extern LLContextMenu* gAttachScreenPieMenu;
 extern LLContextMenu* gDetachScreenPieMenu;
 extern LLContextMenu* gAttachPieMenu;
 extern LLContextMenu* gDetachPieMenu;
-extern LLContextMenu* gAttachBodyPartPieMenus[8];
-extern LLContextMenu* gDetachBodyPartPieMenus[8];
+extern LLContextMenu* gAttachPieMenu2;
+extern LLContextMenu* gDetachPieMenu2;
 
 extern LLMenuItemCallGL* gAFKMenu;
 extern LLMenuItemCallGL* gBusyMenu;

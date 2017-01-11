@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldrawpoolavatar.h"
+#include "llskinningutil.h"
 #include "llrender.h"
 
 #include "llvoavatar.h"
@@ -366,7 +367,7 @@ void LLDrawPoolAvatar::endPostDeferredAlpha()
 
 void LLDrawPoolAvatar::renderPostDeferred(S32 pass)
 {
-	const S32 actual_pass[] =
+	static const S32 actual_pass[] =
 	{ //map post deferred pass numbers to what render() expects
 		2, //skinned
 		4, // rigged fullbright
@@ -1516,33 +1517,18 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 		{
 			if (sShaderLevel > 0)
 			{ //upload matrix palette to shader
-				LLMatrix4 mat[JOINT_COUNT];
+				// upload matrix palette to shader
+				LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
+				U32 count = LLSkinningUtil::getMeshJointCount(skin);
+				LLSkinningUtil::initSkinningMatrixPalette(mat, count, skin, avatar);
 
-				U32 count = llmin((U32) skin->mJointNames.size(), (U32) JOINT_COUNT);
-
-				for (U32 i = 0; i < count; ++i)
-				{
-					LLJoint* joint = avatar->getJoint(skin->mJointNames[i]);
-					if(!joint)
-					{
-						joint = avatar->getJoint("mRoot");
-					}
-					if (joint)
-					{
-						LLMatrix4a tmp;
-						tmp.loadu((F32*)skin->mInvBindMatrix[i].mMatrix);
-						tmp.setMul(joint->getWorldMatrix(),tmp);
-						mat[i] = LLMatrix4(tmp.getF32ptr());
-					}
-				}
-				
 				stop_glerror();
 
-				F32 mp[JOINT_COUNT*12];
+				F32 mp[LL_MAX_JOINTS_PER_MESH_OBJECT*12];
 
 				for (U32 i = 0; i < count; ++i)
 				{
-					F32* m = (F32*) mat[i].mMatrix;
+					F32* m = (F32*) mat[i].getF32ptr();
 
 					U32 idx = i*12;
 

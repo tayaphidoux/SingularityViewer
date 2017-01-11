@@ -33,6 +33,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <boost/lexical_cast.hpp>
+
 #include "llfeaturemanager.h"
 #include "llviewershadermgr.h"
 
@@ -46,6 +48,8 @@
 #include "llsky.h"
 #include "llvosky.h"
 #include "llrender.h"
+#include "lljoint.h"
+#include "llskinningutil.h"
 
 #if LL_DARWIN
 #include "OpenGL/OpenGL.h"
@@ -583,11 +587,15 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	}
 	shaders.push_back( make_pair( "objects/nonindexedTextureV.glsl",		1 ) );
 
+	std::map<std::string, std::string> attribs;
+	attribs["MAX_JOINTS_PER_MESH_OBJECT"] = 
+		boost::lexical_cast<std::string>(LLSkinningUtil::getMaxJointCount());
+	
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
 	for (U32 i = 0; i < shaders.size(); i++)
 	{
 		// Note usage of GL_VERTEX_SHADER_ARB
-		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB) == 0)
+		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB, &attribs) == 0)
 		{
 			return FALSE;
 		}
@@ -634,7 +642,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	for (U32 i = 0; i < shaders.size(); i++)
 	{
 		// Note usage of GL_FRAGMENT_SHADER_ARB
-		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB, NULL, index_channels[i]) == 0)
+		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB, &attribs, index_channels[i]) == 0)
 		{
 			return FALSE;
 		}

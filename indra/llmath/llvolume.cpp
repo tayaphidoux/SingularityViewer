@@ -2540,7 +2540,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 						U16 influence = weights[idx++];
 						influence |= ((U16) weights[idx++] << 8);
 
-						F32 w = llclamp((F32) influence / 65535.f, 0.f, 0.99999f);
+						F32 w = llclamp((F32) influence / 65535.f, 0.001f, 0.999f);
 						wght.mV[cur_influence] = w;
 						joints[cur_influence] = joint;
 						cur_influence++;
@@ -2554,15 +2554,19 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 							joint = weights[idx++];
 						}
 					}
-                    F32 wsum = wght.mV[VX] + wght.mV[VY] + wght.mV[VZ] + wght.mV[VW];
-                    if (wsum <= 0.f)
-                    {
-                        wght = LLVector4(0.99999f,0.f,0.f,0.f);
-                    }
-                    for (U32 k=0; k<4; k++)
-                    {
-                        joints_with_weights[k] = (F32) joints[k] + wght[k];
-                    }
+					F32 wsum = wght.mV[VX] + wght.mV[VY] + wght.mV[VZ] + wght.mV[VW];
+					if (wsum <= 0.f)
+					{
+						wght = LLVector4(0.999f,0.f,0.f,0.f);
+					}
+					for (U32 k=0; k<4; k++)
+					{
+						F32 f_combined = (F32) joints[k] + wght[k];
+						joints_with_weights[k] = f_combined;
+						// Any weights we added above should wind up non-zero and applied to a specific bone.
+						// A failure here would indicate a floating point precision error in the math.
+						llassert((k >= cur_influence) || (f_combined - S32(f_combined) > 0.0f));
+					}
 					face.mWeights[cur_vertex].loadua(joints_with_weights.mV);
 
 					cur_vertex++;
@@ -4600,6 +4604,7 @@ LLVolumeFace::LLVolumeFace() :
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+	mWeightsScrubbed(FALSE),
 	mOctree(NULL),
 	mOptimized(FALSE)
 {
@@ -4625,6 +4630,7 @@ LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+	mWeightsScrubbed(FALSE),
 	mOctree(NULL),
 	mOptimized(FALSE)
 { 
@@ -4687,6 +4693,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		{
 			LLVector4a::memcpyNonAliased16((F32*) mWeights, (F32*) src.mWeights, vert_size);
 		}
+		mWeightsScrubbed = src.mWeightsScrubbed;
 	}
 
 	if (mNumIndices)
@@ -5992,7 +5999,10 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	}
 	else
 	{ //degenerate, make up a value
-		normal.set(0,0,1);
+		if(normal.getF32ptr()[2] >= 0)
+			normal.set(0.f,0.f,1.f);
+		else
+			normal.set(0.f,0.f,-1.f);
 	}
 
 	llassert(std::isfinite(normal.getF32ptr()[0]));

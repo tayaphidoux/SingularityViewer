@@ -61,6 +61,7 @@
 #include "llspatialpartition.h"
 #include "llhudmanager.h"
 #include "llflexibleobject.h"
+#include "llskinningutil.h"
 #include "llsky.h"
 #include "lltexturefetch.h"
 #include "llvector4a.h"
@@ -93,7 +94,7 @@
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
-U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 20;
+U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 1;
 
 BOOL gAnimateTextures = TRUE;
 //extern BOOL gHideSelectedObjects;
@@ -3833,8 +3834,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 		static const LLCachedControl<bool> allow_mesh_picking("SGAllowRiggedMeshSelection");
 		if (allow_mesh_picking && (gFloaterTools->getVisible() || LLFloaterInspect::findInstance()))
 		{
-			updateRiggedVolume();
-			//genBBoxes(FALSE);
+			updateRiggedVolume(true);
 			volume = mRiggedVolume;
 			transform = false;
 		}
@@ -4033,12 +4033,12 @@ void LLVOVolume::clearRiggedVolume()
 	}
 }
 
-void LLVOVolume::updateRiggedVolume()
+void LLVOVolume::updateRiggedVolume(bool force_update)
 {
 	//Update mRiggedVolume to match current animation frame of avatar. 
 	//Also update position/size in octree.  
 
-	if (!treatAsRigged())
+	if ((!force_update) && (!treatAsRigged()))
 	{
 		clearRiggedVolume();
 		
@@ -4103,26 +4103,11 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	}
 
 	//build matrix palette
-	LLMatrix4a mp[JOINT_COUNT];
+	static const size_t kMaxJoints = LL_MAX_JOINTS_PER_MESH_OBJECT;
 
-	U32 count = llmin((U32) skin->mJointNames.size(), (U32) JOINT_COUNT);
-
-	llassert_always(count);
-
-	for (U32 j = 0; j < count; ++j)
-	{
-		LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
-		if(!joint)
-		{
-			joint = avatar->getJoint("mRoot");
-		}
-		if (joint)
-		{
-			LLMatrix4a mat;
-			mat.loadu((F32*)skin->mInvBindMatrix[j].mMatrix);
-			mp[j].setMul(joint->getWorldMatrix(), mat);
-		}
-	}
+	LLMatrix4a mat[kMaxJoints];
+	U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);
+	LLSkinningUtil::initSkinningMatrixPalette(mat, maxJoints, skin, avatar);
 
 	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 	{
@@ -4136,7 +4121,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 		{
 			continue;
 		}
-
+		LLSkinningUtil::checkSkinWeights(weight, dst_face.mNumVertices, skin);
 		LLMatrix4a bind_shape_matrix;
 		bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 
@@ -4146,42 +4131,11 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 		{
 			LLFastTimer t(FTM_SKIN_RIGGED);
 
+			U32 max_joints = LLSkinningUtil::getMaxJointCount();
 			for (U32 j = 0; j < (U32)dst_face.mNumVertices; ++j)
 			{
 				LLMatrix4a final_mat;
-				final_mat.clear();
-
-				S32 idx[4];
-
-				LLVector4 wght;
-
-				F32 scale = 0.f;
-				for (U32 k = 0; k < 4; k++)
-				{
-					F32 w = weight[j][k];
-
-					const F32 w_floor = floorf(w);
-					idx[k] = (S32) w_floor;
-					wght[k] = w - w_floor;
-					scale += wght[k];
-				}
-
-				if(scale > 0.f)
-					wght *= 1.f/scale;
-				else
-					wght = LLVector4(F32_MAX,F32_MAX,F32_MAX,F32_MAX);
-
-				for (U32 k = 0; k < 4; k++)
-				{
-					F32 w = wght[k];
-
-					LLMatrix4a src;
-					// clamp k to kMaxJoints to avoid reading garbage off stack in release
-					src.setMul(mp[(idx[k] < (S32)count) ? idx[k] : 0], w);
-
-					final_mat.add(src);
-				}
-
+				LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
 				
 				LLVector4a& v = vol_face.mPositions[j];
 				LLVector4a t;
@@ -4802,6 +4756,16 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 			bool is_rigged = false;
 
+			if (rigged && pAvatarVO)
+			{
+				pAvatarVO->addAttachmentOverridesForObject(vobj);
+				/*if (!LLApp::isExiting() && pAvatarVO->isSelf() && debugLoggingEnabled("AvatarAttachments"))
+				{
+					bool verbose = true;
+					pAvatarVO->showAttachmentOverrides(verbose);
+				}*/
+			}
+
 			static const LLCachedControl<bool> alt_batching("SHAltBatching",true);
 			
 			//for each face
@@ -4837,10 +4801,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					
 					// FIXME should this be inside the face loop?
 					// doesn't seem to depend on any per-face state.
-					if ( pAvatarVO )
+					/*if ( pAvatarVO )
 					{
-						pAvatarVO->addAttachmentPosOverridesForObject(vobj);
-					}
+						pAvatarVO->addAttachmentOverridesForObject(vobj);
+					}*/
 
 					if (pool)
 					{
