@@ -506,6 +506,10 @@ void LLVOAvatarSelf::buildContextMenus()
 		}
 	}
 
+	//buildContextMenus can be called whenever "LiruUseContextMenus" setting changes. Clear out Edit->Attach/Detach menus before (re)populating them.
+	gAttachSubMenu->empty();
+	gDetachSubMenu->empty();
+
 	for (S32 pass = 0; pass < 2; pass++)
 	{
 		// *TODO: Skinning - gAttachSubMenu is an awful, awful hack
