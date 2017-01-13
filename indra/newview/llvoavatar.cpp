@@ -9761,11 +9761,14 @@ void LLVOAvatar::updateSoftwareSkinnedVertices(const LLMeshSkinInfo* skin, const
 	//build matrix palette
 	LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
 	U32 count = LLSkinningUtil::getMeshJointCount(skin);
-	LLSkinningUtil::initSkinningMatrixPalette(mat, count, skin, this);
+	LLSkinningUtil::initSkinningMatrixPalette(mat, count, skin, this, true);
 	LLSkinningUtil::checkSkinWeights(weight, buffer->getNumVerts(), skin);
 
 	LLMatrix4a bind_shape_matrix;
 	bind_shape_matrix.loadu(skin->mBindShapeMatrix);
+
+	LLVector4a av_pos;
+	av_pos.load3(getPosition().mV);
 
 	const U32 max_joints = LLSkinningUtil::getMaxJointCount();
 	for (U32 j = 0; j < (U32)buffer->getNumVerts(); ++j)
@@ -9777,6 +9780,8 @@ void LLVOAvatar::updateSoftwareSkinnedVertices(const LLMeshSkinInfo* skin, const
 
 		final_mat.mul(bind_shape_matrix);
 		final_mat.affineTransform(v, pos[j]);
+
+		pos[j].add(av_pos);
 
 		if (norm)
 		{

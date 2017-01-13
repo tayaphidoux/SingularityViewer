@@ -76,7 +76,8 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     LLMatrix4a* mat,
     S32 count, 
     const LLMeshSkinInfo* skin,
-    LLVOAvatar *avatar)
+    LLVOAvatar *avatar,
+	bool relative_to_avatar)
 {
 	for (U32 j = 0; j < (U32)count; ++j)
 	{
@@ -117,7 +118,14 @@ void LLSkinningUtil::initSkinningMatrixPalette(
 		{
 			LLMatrix4a bind;
 			bind.loadu((F32*)skin->mInvBindMatrix[j].mMatrix);
-			mat[j].setMul(joint->getWorldMatrix(), bind);
+			if (relative_to_avatar)
+			{
+				LLMatrix4a trans = joint->getWorldMatrix();
+				trans.translate_affine(avatar->getPosition() * -1.f);
+				mat[j].setMul(trans, bind);
+			}
+			else
+				mat[j].setMul(joint->getWorldMatrix(), bind);
 		}
 		else
 		{

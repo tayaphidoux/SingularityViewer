@@ -38,7 +38,7 @@ public:
     static U32 getMaxJointCount();
     static U32 getMeshJointCount(const LLMeshSkinInfo *skin);
     static void scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin);
-    static void initSkinningMatrixPalette(LLMatrix4a* mat, S32 count, const LLMeshSkinInfo* skin, LLVOAvatar *avatar);
+    static void initSkinningMatrixPalette(LLMatrix4a* mat, S32 count, const LLMeshSkinInfo* skin, LLVOAvatar *avatar, bool relative_to_avatar = false);
     static void checkSkinWeights(const LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin);
     static void scrubSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin);
     static void getPerVertexSkinMatrix(const F32* weights, LLMatrix4a* mat, bool handle_bad_scale, LLMatrix4a& final_mat, U32 max_joints);

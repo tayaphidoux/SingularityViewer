@@ -4107,7 +4107,10 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 	LLMatrix4a mat[kMaxJoints];
 	U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);
-	LLSkinningUtil::initSkinningMatrixPalette(mat, maxJoints, skin, avatar);
+	LLSkinningUtil::initSkinningMatrixPalette(mat, maxJoints, skin, avatar, true);
+
+	LLVector4a av_pos;
+	av_pos.load3(avatar->getPosition().mV);
 
 	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 	{
@@ -4143,6 +4146,8 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 				bind_shape_matrix.affineTransform(v, t);
 				final_mat.affineTransform(t, dst);
 				pos[j] = dst;
+
+				pos[j].add(av_pos);
 			}
 
 			//update bounding box
