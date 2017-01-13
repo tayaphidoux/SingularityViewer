@@ -9785,9 +9785,10 @@ void LLVOAvatar::updateSoftwareSkinnedVertices(const LLMeshSkinInfo* skin, const
 
 		if (norm)
 		{
+			LLVector4a& n = vol_face.mNormals[j];
 			final_mat.invert();
 			final_mat.transpose();
-			final_mat.affineTransform(v, norm[j]);
+			final_mat.affineTransform(n, norm[j]);
 		}
 	}
 }
