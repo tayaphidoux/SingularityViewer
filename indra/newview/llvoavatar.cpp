@@ -6232,7 +6232,7 @@ const LLUUID& LLVOAvatar::getID() const
 // RN: avatar joints are multi-rooted to include screen-based attachments
 LLJoint *LLVOAvatar::getJoint( const std::string &name )
 {
-	joint_map_t::iterator iter = std::find_if(mJointMap.begin(), mJointMap.end(), [&name](auto &pair) { return strcmp(name.c_str(), pair.first) == 0; });
+	joint_map_t::iterator iter = std::find_if(mJointMap.begin(), mJointMap.end(), [&name](joint_map_t::value_type &pair) { return strcmp(name.c_str(), pair.first) == 0; });
 
 	LLJoint* jointp = NULL;
 
