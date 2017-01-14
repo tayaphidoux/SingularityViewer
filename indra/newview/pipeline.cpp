@@ -6999,15 +6999,17 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 		LLGLEnable test(GL_ALPHA_TEST);
 		
 		gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
+
+		LLRenderTarget& target_screen = LLPipeline::sRenderDeferred ? mFinalScreen : mScreen;
 		
-		mFinalScreen.bindTexture(0, 0);
+		target_screen.bindTexture(0, 0);
 		
 		gGL.color4f(1,1,1,1);
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 
 		drawFullScreenRect(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
 		
-		gGL.getTexUnit(0)->unbind(mFinalScreen.getUsage());
+		gGL.getTexUnit(0)->unbind(target_screen.getUsage());
 
 		mGlow[1].flush();
 	}
