@@ -1509,11 +1509,18 @@ void LLMenuItemBranchGL::openMenu()
 		branch->localPointToOtherView( 0, 0, &x, &y, branch->getParent() ); 
 		
 		F32 center_y = top - (getRect().getHeight() / 2.f);
+
 		if( y < menu_region_rect.mBottom  && center_y <= menu_region_rect.getCenterY())
 		{
 			// open upwards if menu extends past bottom
 			// adjust by the height of the menu item branch since it is a submenu
-			delta_y = branch_rect.getHeight() - getRect().getHeight();		
+			delta_y = branch_rect.getHeight() - getRect().getHeight();
+			// Singu: Handle menu clipping off the top of the screen too.
+			if ( branch_rect.mTop + delta_y > menu_region_rect.mTop )
+			{
+				delta_y -= branch_rect.mTop + delta_y - menu_region_rect.mTop;
+				delta_y -= delta_y % getRect().getHeight();
+			}
 		}
 
 		if( x + branch_rect.getWidth() > menu_region_rect.mRight )
