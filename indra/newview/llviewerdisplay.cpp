@@ -998,11 +998,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot, boo
 					gGL.loadIdentity();
 					gGL.color4fv( LLColor4::white.mV );
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-					gGL.begin( LLRender::QUADS );
+					gGL.begin( LLRender::TRIANGLE_STRIP );
 						gGL.vertex3f(rect.mLeft, rect.mTop,0.f);
 						gGL.vertex3f(rect.mLeft, rect.mBottom,0.f);
+						gGL.vertex3f(rect.mRight, rect.mTop, 0.f);
 						gGL.vertex3f(rect.mRight, rect.mBottom,0.f);
-						gGL.vertex3f(rect.mRight, rect.mTop,0.f);
 					gGL.end();
 
 					gGL.matrixMode(LLRender::MM_PROJECTION);

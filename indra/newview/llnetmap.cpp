@@ -363,15 +363,15 @@ void LLNetMap::draw()
 					if (pRegionImage && pRegionImage->hasGLTexture())
 					{
 						gGL.getTexUnit(0)->bind(pRegionImage);
-						gGL.begin(LLRender::QUADS);
+						gGL.begin(LLRender::TRIANGLE_STRIP);
 							gGL.texCoord2f(0.f, 1.f);
 							gGL.vertex2f(local_left, local_top);
 							gGL.texCoord2f(0.f, 0.f);
 							gGL.vertex2f(local_left, local_bottom);
-							gGL.texCoord2f(1.f, 0.f);
-							gGL.vertex2f(local_right, local_bottom);
 							gGL.texCoord2f(1.f, 1.f);
 							gGL.vertex2f(local_right, local_top);
+							gGL.texCoord2f(1.f, 0.f);
+							gGL.vertex2f(local_right, local_bottom);
 						gGL.end();
 
 						pRegionImage->setBoostLevel(LLViewerTexture::BOOST_MAP_VISIBLE);
@@ -387,15 +387,15 @@ void LLNetMap::draw()
 // [/SL:KB]
 			// Draw using texture.
 			gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture());
-			gGL.begin(LLRender::QUADS);
+			gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.texCoord2f(0.f, 1.f);
 				gGL.vertex2f(left, top);
 				gGL.texCoord2f(0.f, 0.f);
 				gGL.vertex2f(left, bottom);
-				gGL.texCoord2f(1.f, 0.f);
-				gGL.vertex2f(right, bottom);
 				gGL.texCoord2f(1.f, 1.f);
 				gGL.vertex2f(right, top);
+				gGL.texCoord2f(1.f, 0.f);
+				gGL.vertex2f(right, bottom);
 			gGL.end();
 
 			// Draw water
@@ -404,15 +404,15 @@ void LLNetMap::draw()
 				if (regionp->getLand().getWaterTexture())
 				{
 					gGL.getTexUnit(0)->bind(regionp->getLand().getWaterTexture());
-					gGL.begin(LLRender::QUADS);
+					gGL.begin(LLRender::TRIANGLE_STRIP);
 						gGL.texCoord2f(0.f, 1.f);
 						gGL.vertex2f(left, top);
 						gGL.texCoord2f(0.f, 0.f);
 						gGL.vertex2f(left, bottom);
-						gGL.texCoord2f(1.f, 0.f);
-						gGL.vertex2f(right, bottom);
 						gGL.texCoord2f(1.f, 1.f);
 						gGL.vertex2f(right, top);
+						gGL.texCoord2f(1.f, 0.f);
+						gGL.vertex2f(right, bottom);
 					gGL.end();
 				}
 			}
@@ -502,15 +502,15 @@ void LLNetMap::draw()
 		{
 			gGL.getTexUnit(0)->bind(mObjectImagep);
 // [/SL:KB]
-		gGL.begin(LLRender::QUADS);
+		gGL.begin(LLRender::TRIANGLE_STRIP);
 			gGL.texCoord2f(0.f, 1.f);
 			gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, image_half_height + map_center_agent.mV[VY]);
 			gGL.texCoord2f(0.f, 0.f);
 			gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, map_center_agent.mV[VY] - image_half_height);
-			gGL.texCoord2f(1.f, 0.f);
-			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
 			gGL.texCoord2f(1.f, 1.f);
 			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], image_half_height + map_center_agent.mV[VY]);
+			gGL.texCoord2f(1.f, 0.f);
+			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
 		gGL.end();
 // [SL:KB] - Patch: World-MinimapOverlay | Checked: 2012-07-26 (Catznip-3.3)
 		}
@@ -524,15 +524,15 @@ void LLNetMap::draw()
 			map_center_agent.mV[VY] *= mScale / region_width;
 
 			gGL.getTexUnit(0)->bind(mParcelImagep);
-			gGL.begin(LLRender::QUADS);
+			gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.texCoord2f(0.f, 1.f);
 				gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, image_half_height + map_center_agent.mV[VY]);
 				gGL.texCoord2f(0.f, 0.f);
 				gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, map_center_agent.mV[VY] - image_half_height);
-				gGL.texCoord2f(1.f, 0.f);
-				gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
 				gGL.texCoord2f(1.f, 1.f);
 				gGL.vertex2f(image_half_width + map_center_agent.mV[VX], image_half_height + map_center_agent.mV[VY]);
+				gGL.texCoord2f(1.f, 0.f);
+				gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
 			gGL.end();
 		}
 // [/SL:KB]

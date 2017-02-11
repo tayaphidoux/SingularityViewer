@@ -281,7 +281,6 @@ public:
 		POINTS,
 		LINES,
 		LINE_STRIP,
-		QUADS,
 		LINE_LOOP,
 		NUM_MODES
 	} eGeomModes;
@@ -471,7 +470,6 @@ private:
 	LLColor4 mAmbientLightColor;
 	
 	bool			mDirty;
-	U32				mQuadCycle;
 	U32				mCount;
 	U32				mMode;
 	U32				mCurrTextureUnitIndex;
