@@ -1030,8 +1030,6 @@ void LLPipeline::releaseScreenBuffers()
 	}
 
 	mSampleBuffer.release();
-
-	mDebugDisplay.release();
 }
 
 

@@ -601,8 +601,6 @@ public:
 private:
 	LLRenderTarget			mPhysicsDisplay;
 
-	LLRenderTarget			mDebugDisplay;
-
 	//utility buffer for rendering post effects, gets abused by renderDeferredLighting
 	LLPointer<LLVertexBuffer> mAuxScreenRectVB;
 
