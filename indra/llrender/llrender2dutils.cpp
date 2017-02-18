@@ -123,10 +123,12 @@ void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 	// Counterclockwise quad will face the viewer
 	if( filled )
 	{
-		gGL.begin( LLRender::TRIANGLE_STRIP );
+		gGL.begin( LLRender::TRIANGLES );
 			gGL.vertex2i(left, top);
 			gGL.vertex2i(left, bottom);
 			gGL.vertex2i(right, top);
+			gGL.vertex2i(right, top);
+			gGL.vertex2i(left, bottom);
 			gGL.vertex2i(right, bottom);
 		gGL.end();
 	}
@@ -1058,22 +1060,24 @@ void gl_rect_2d_simple_tex( S32 width, S32 height )
 
 void gl_rect_2d_simple( S32 width, S32 height )
 {
-	gGL.begin( LLRender::TRIANGLE_STRIP);
+	gGL.begin( LLRender::TRIANGLES);
 		gGL.vertex2i(0, 0);
 		gGL.vertex2i(0, height);
 		gGL.vertex2i(width, 0);
+		gGL.vertex2i(width, 0);
+		gGL.vertex2i(0, height);
 		gGL.vertex2i(width, height);
 	gGL.end();
 }
 
-void gl_segmented_rect_2d_tex(const S32 left, 
-							  const S32 top, 
-							  const S32 right, 
-							  const S32 bottom, 
-							  const S32 texture_width, 
-							  const S32 texture_height, 
-							  const S32 border_size, 
-							  const U32 edges)
+void gl_segmented_rect_2d_tex(const S32 left,
+	const S32 top,
+	const S32 right,
+	const S32 bottom,
+	const S32 texture_width,
+	const S32 texture_height,
+	const S32 border_size,
+	const U32 edges)
 {
 	S32 width = llabs(right - left);
 	S32 height = llabs(top - bottom);
