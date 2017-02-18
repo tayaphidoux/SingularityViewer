@@ -2508,7 +2508,7 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 
 	{
 		LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
-		drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+		drawFullScreenRect();
 	}
 	
 	dest.flush();
@@ -6994,7 +6994,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 		gGL.color4f(1,1,1,1);
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 
-		drawFullScreenRect(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+		drawFullScreenRect();
 		
 		gGL.getTexUnit(0)->unbind(render_target.getUsage());
 
@@ -7038,7 +7038,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 			gGlowProgram.uniform2f(LLShaderMgr::GLOW_DELTA, 0, delta);
 		}
 
-		drawFullScreenRect(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD1);
+		drawFullScreenRect();
 		
 		mGlow[i%2].flush();
 	}
@@ -7192,7 +7192,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
 
-				drawFullScreenRect(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+				drawFullScreenRect();
 
 				unbindDeferredShader(*shader);
 				mDeferredLight.flush();
@@ -7212,7 +7212,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
 
-				drawFullScreenRect(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+				drawFullScreenRect();
 
 				unbindDeferredShader(*shader);
 				mFinalScreen.flush();
@@ -7255,7 +7255,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 				shader->uniform1f(LLShaderMgr::DOF_WIDTH, dof_width-1);
 				shader->uniform1f(LLShaderMgr::DOF_HEIGHT, dof_height-1);
 
-				drawFullScreenRect(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+				drawFullScreenRect();
 
 				if (channel > -1)
 				{
@@ -7293,7 +7293,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0f);
 			}
 
-			drawFullScreenRect(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+			drawFullScreenRect();
 
 			if (channel > -1)
 			{
@@ -7328,7 +7328,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 			}
 						
-			drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+			drawFullScreenRect();
 
 			if (channel > -1)
 			{
@@ -7359,7 +7359,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 			shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT, -0.5f/width, -0.5f/height, 0.5f/width, 0.5f/height);
 			shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT2, -2.f/width, -2.f/height, 2.f/width, 2.f/height);
 			
-			drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+			drawFullScreenRect();
 
 			shader->unbind();
 		}
@@ -7390,7 +7390,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 		
 		LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);
 		
-		drawFullScreenRect(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1);
+		drawFullScreenRect();
 		
 		if (LLGLSLShader::sNoFixedFunction)
 		{
@@ -7760,7 +7760,7 @@ void LLPipeline::renderDeferredLighting()
 				bindDeferredShader(gDeferredDownsampleDepthNearestProgram);
 				{
 					LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
-					drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+					drawFullScreenRect();
 				}
 				mDeferredDownsampledDepth.flush();
 				unbindDeferredShader(gDeferredDownsampleDepthNearestProgram);
@@ -7779,7 +7779,7 @@ void LLPipeline::renderDeferredLighting()
 				}
 				{
 					LLGLDepthTest depth(GL_FALSE);
-					drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+					drawFullScreenRect();
 				}
 				mScreen.flush();
 				unbindDeferredShader(gDeferredSSAOProgram);
@@ -7808,7 +7808,7 @@ void LLPipeline::renderDeferredLighting()
 				{
 					LLGLDisable blend(GL_BLEND);
 					LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-					drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+					drawFullScreenRect();
 				}
 
 				if (channel > -1)
@@ -7846,7 +7846,7 @@ void LLPipeline::renderDeferredLighting()
 			{
 				LLGLDisable blend(GL_BLEND);
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-				drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+				drawFullScreenRect();
 			}
 			
 			mScreen.flush();
@@ -7860,7 +7860,7 @@ void LLPipeline::renderDeferredLighting()
 			{
 				LLGLDisable blend(GL_BLEND);
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-				drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+				drawFullScreenRect();
 			}
 			mDeferredLight.flush();
 			unbindDeferredShader(gDeferredBlurLightProgram);
@@ -7895,7 +7895,7 @@ void LLPipeline::renderDeferredLighting()
 				gGL.pushMatrix();
 				gGL.loadIdentity();
 
-				drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+				drawFullScreenRect();
 
 				gGL.popMatrix();
 				gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -8128,7 +8128,7 @@ void LLPipeline::renderDeferredLighting()
 						gDeferredMultiLightProgram[idx].uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
 						far_z = 0.f;
 						count = 0; 
-						drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+						drawFullScreenRect();
 						unbindDeferredShader(gDeferredMultiLightProgram[idx]);
 					}
 				}
@@ -8164,7 +8164,7 @@ void LLPipeline::renderDeferredLighting()
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
-					drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+					drawFullScreenRect();
 				}
 
 				gDeferredMultiSpotLightProgram.disableTexture(LLShaderMgr::DEFERRED_PROJECTION);
@@ -8204,7 +8204,7 @@ void LLPipeline::renderDeferredLighting()
 			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 		
-		drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+		drawFullScreenRect();
 		
 		gGL.getTexUnit(channel)->unbind(mScreen.getUsage());
 		gDeferredPostGammaCorrectProgram.unbind();
@@ -8342,7 +8342,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 				bindDeferredShader(gDeferredDownsampleDepthNearestProgram);
 				{
 					LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
-					drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+					drawFullScreenRect();
 				}
 				mDeferredDownsampledDepth.flush();
 				unbindDeferredShader(gDeferredDownsampleDepthNearestProgram);
@@ -8361,7 +8361,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 				}
 				{
 					LLGLDepthTest depth(GL_FALSE);
-					drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+					drawFullScreenRect();
 				}
 				mScreen.flush();
 				unbindDeferredShader(gDeferredSSAOProgram);
@@ -8390,7 +8390,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 				{
 					LLGLDisable blend(GL_BLEND);
 					LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
-					drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+					drawFullScreenRect();
 				}
 
 				if (channel > -1)
@@ -8433,7 +8433,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 				gGL.pushMatrix();
 				gGL.loadIdentity();
 
-				drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+				drawFullScreenRect();
 
 				gGL.popMatrix();
 				gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -8673,7 +8673,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 						gDeferredMultiLightProgram[idx].uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
 						far_z = 0.f;
 						count = 0; 
-						drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+						drawFullScreenRect();
 					}
 				}
 				
@@ -8710,7 +8710,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
-					drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+					drawFullScreenRect();
 				}
 
 				gDeferredMultiSpotLightProgram.disableTexture(LLShaderMgr::DEFERRED_PROJECTION);
@@ -8749,7 +8749,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 		
-		drawFullScreenRect(LLVertexBuffer::MAP_VERTEX);
+		drawFullScreenRect();
 		
 		gGL.getTexUnit(channel)->unbind(mScreen.getUsage());
 		gDeferredPostGammaCorrectProgram.unbind();
@@ -10945,26 +10945,21 @@ void LLPipeline::restoreHiddenObject( const LLUUID& id )
 }
 */
 
-void LLPipeline::drawFullScreenRect(U32 data_mask)
+void LLPipeline::drawFullScreenRect()
 {
 	if(mAuxScreenRectVB.isNull())
 	{
 		mAuxScreenRectVB = new LLVertexBuffer(AUX_VB_MASK, 0);
 		mAuxScreenRectVB->allocateBuffer(3, 0, true);
 		LLStrider<LLVector3> vert;
-		LLStrider<LLVector2> tc0;
 		mAuxScreenRectVB->getVertexStrider(vert);
-		mAuxScreenRectVB->getTexCoord0Strider(tc0);
 
 		vert[0].set(-1.f,-1.f,0.f);
 		vert[1].set(3.f,-1.f,0.f);
 		vert[2].set(-1.f,3.f,0.f);
 
-		tc0[0].set(0.f, 0.f);
-		tc0[1].set(2.f, 0.f);
-		tc0[2].set(0.f, 2.f);
 	}
-	mAuxScreenRectVB->setBuffer(data_mask);
+	mAuxScreenRectVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 	mAuxScreenRectVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 }
 

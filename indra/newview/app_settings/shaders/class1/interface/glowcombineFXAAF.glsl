@@ -33,11 +33,11 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 
-VARYING vec2 vary_tc;
+VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	vec3 col = texture2D(diffuseRect, vary_tc).rgb;
+	vec3 col = texture2D(diffuseRect, vary_texcoord0).rgb;
 	
 	frag_color = vec4(col.rgb, dot(col.rgb, vec3(0.299, 0.587, 0.144)));
 }

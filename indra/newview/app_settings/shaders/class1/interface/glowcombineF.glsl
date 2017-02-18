@@ -35,10 +35,9 @@ uniform sampler2D glowMap;
 uniform sampler2D screenMap;
 
 VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
 
 void main() 
 {
-	frag_color = texture2D(glowMap, vary_texcoord1.xy) +
+	frag_color = texture2D(glowMap, vary_texcoord0.xy) +
 					texture2D(screenMap, vary_texcoord0.xy);
 }

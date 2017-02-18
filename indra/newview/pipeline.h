@@ -427,7 +427,7 @@ private:
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
 
-	void drawFullScreenRect( U32 data_mask );
+	void drawFullScreenRect();
 public:
 	enum {GPU_CLASS_MAX = 3 };
 
