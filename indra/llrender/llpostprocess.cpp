@@ -67,9 +67,9 @@ static LLStaticHashedString sVignettRadius("vignette_radius");
 static LLStaticHashedString sVignetteDarkness("vignette_darkness");
 static LLStaticHashedString sVignetteDesaturation("vignette_desaturation");
 static LLStaticHashedString sVignetteChromaticAberration("vignette_chromatic_aberration");
-static LLStaticHashedString sScreenRes("screen_res");
 
 static LLStaticHashedString sHorizontalPass("horizontalPass");
+static LLStaticHashedString sKern("kern");
 
 static LLStaticHashedString sPrevProj("prev_proj");
 static LLStaticHashedString sInvProj("inv_proj");
@@ -262,7 +262,6 @@ public:
 		getShader().uniform1f(sVignetteDarkness, mDarkness);
 		getShader().uniform1f(sVignetteDesaturation, mDesaturation);
 		getShader().uniform1f(sVignetteChromaticAberration, mChromaticAberration);
-		getShader().uniform2fv(sScreenRes, 1, screen_rect.mV);
 		return QUAD_NORMAL;
 	}
 };
@@ -284,7 +283,11 @@ public:
 	/*virtual*/ S32 getDepthChannel()	const	{ return -1; }
 	/*virtual*/ QuadType preDraw()
 	{
+		LLVector2 screen_rect = LLPostProcess::getInstance()->getDimensions();
+
 		mPassLoc = getShader().getUniformLocation(sHorizontalPass);
+		LLVector4 vec[] = { LLVector4(1.3846153846, 3.2307692308, 0, 0) / screen_rect.mV[VX], LLVector4( 0,0, 1.3846153846, 3.2307692308 ) / screen_rect.mV[VY] };
+		getShader().uniform4fv(sKern, LL_ARRAY_SIZE(vec), (GLfloat*)vec);
 		return QUAD_NORMAL;
 	}
 	/*virtual*/ bool draw(U32 pass) 
@@ -322,7 +325,6 @@ public:
 
 		getShader().uniformMatrix4fv(sPrevProj, 1, GL_FALSE, prev_proj.getF32ptr());
 		getShader().uniformMatrix4fv(sInvProj, 1, GL_FALSE, inv_proj.getF32ptr());
-		getShader().uniform2fv(sScreenRes, 1, screen_rect.mV);
 		getShader().uniform1i(sBlurStrength, mStrength);
 		
 		return QUAD_NORMAL;
@@ -411,11 +413,22 @@ void LLPostProcess::initialize(unsigned int width, unsigned int height)
 		mVBO->getVertexStrider(v);
 		mVBO->getTexCoord0Strider(uv1);
 		mVBO->getTexCoord1Strider(uv2);
-	
-		v[0] = LLVector3( uv2[0] = uv1[0] = LLVector2(0, 0) );
-		v[1] = LLVector3( uv2[1] = uv1[1] = LLVector2(0, mScreenHeight) );
-		v[2] = LLVector3( uv2[2] = uv1[2] = LLVector2(mScreenWidth, 0) );
-		v[3] = LLVector3( uv2[3] = uv1[3] = LLVector2(mScreenWidth, mScreenHeight) );
+
+		uv2[0] = uv1[0] = LLVector2(0, 0);
+		uv2[1] = uv1[1] = LLVector2(0, 1);
+		uv2[2] = uv1[2] = LLVector2(1, 0);
+		uv2[3] = uv1[3] = LLVector2(1, 1);
+
+		LLVector3 vec1[4] = {
+			 LLVector3(0, 0, 0),
+			 LLVector3(0, mScreenHeight, 0),
+			 LLVector3(mScreenWidth, 0, 0),
+			 LLVector3(mScreenWidth, mScreenHeight, 0) };
+
+		v[0] = vec1[0];
+		v[1] = vec1[1];
+		v[2] = vec1[2];
+		v[3] = vec1[3];
 
 		mVBO->flush();
 	}
@@ -424,7 +437,7 @@ void LLPostProcess::initialize(unsigned int width, unsigned int height)
 
 void LLPostProcess::createScreenTextures()
 {
-	const LLTexUnit::eTextureType type = LLTexUnit::TT_RECT_TEXTURE;
+	const LLTexUnit::eTextureType type = LLTexUnit::TT_TEXTURE;
 
 	mRenderTarget[0].allocate(mScreenWidth,mScreenHeight,GL_RGBA,FALSE,FALSE,type,FALSE);
 	if(mRenderTarget[0].getFBO())//Only need pingpong between two rendertargets if FBOs are supported.
@@ -504,7 +517,7 @@ void LLPostProcess::destroyGL()
 void LLPostProcess::copyFrameBuffer()
 {
 	mRenderTarget[!!mRenderTarget[0].getFBO()].bindTexture(0,0);
-	glCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,0,0,mScreenWidth, mScreenHeight);
+	glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,mScreenWidth, mScreenHeight);
 	stop_glerror();
 
 	if(mDepthTexture)
@@ -513,8 +526,8 @@ void LLPostProcess::copyFrameBuffer()
 		{
 			if((*it)->isEnabled() && (*it)->getDepthChannel()>=0)
 			{
-				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, mDepthTexture);
-				glCopyTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,0,0,mScreenWidth, mScreenHeight);
+				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mDepthTexture);
+				glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,mScreenWidth, mScreenHeight);
 				stop_glerror();
 				break;
 			}
@@ -594,7 +607,7 @@ void LLPostProcess::applyShaders(void)
 			S32 color_channel = (*it)->getColorChannel();
 			S32 depth_channel = (*it)->getDepthChannel();
 			if(depth_channel >= 0)
-				gGL.getTexUnit(depth_channel)->bindManual(LLTexUnit::TT_RECT_TEXTURE, mDepthTexture);
+				gGL.getTexUnit(depth_channel)->bindManual(LLTexUnit::TT_TEXTURE, mDepthTexture);
 			U32 pass = 1;
 
 			(*it)->bindShader();
@@ -639,11 +652,11 @@ void LLPostProcess::drawOrthoQuad(QuadType type)
 		mVBO->getTexCoord1Strider(uv2);
 
 		float offs[2] = {
-			/*ll_round*/(((float) rand() / (float) RAND_MAX) * (float)NOISE_SIZE)/float(NOISE_SIZE),
-			/*ll_round*/(((float) rand() / (float) RAND_MAX) * (float)NOISE_SIZE)/float(NOISE_SIZE) };
+			/*ll_round*/((float) rand() / (float) RAND_MAX),
+			/*ll_round*/((float) rand() / (float) RAND_MAX) };
 		float scale[2] = {
-			(float)mScreenWidth * mNoiseTextureScale,
-			(float)mScreenHeight * mNoiseTextureScale };
+			((float)mScreenWidth * mNoiseTextureScale),
+			((float)mScreenHeight * mNoiseTextureScale) };
 
 		uv2[0] = LLVector2(offs[0],offs[1]);
 		uv2[1] = LLVector2(offs[0],offs[1]+scale[1]);

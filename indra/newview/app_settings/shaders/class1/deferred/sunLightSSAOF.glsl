@@ -33,17 +33,15 @@ out vec4 frag_color;
 
 VARYING vec2 vary_fragcoord;
 
-uniform sampler2DRect depthMapDownsampled;
-uniform sampler2DRect depthMap;
+uniform sampler2D depthMapDownsampled;
+uniform sampler2D depthMap;
 
-uniform sampler2DRect diffuseRect;
-uniform float		  downsampled_depth_scale;
-uniform vec2 screen_res;
+uniform sampler2D diffuseRect;
 
 void main() 
 {	
 	frag_color[0] = 1.0;
-    frag_color[1] = texture2DRect(diffuseRect,vary_fragcoord.xy*downsampled_depth_scale).r;
+    frag_color[1] = texture2D(diffuseRect,vary_fragcoord.xy).r;
 	frag_color[2] = 1.0;
 	frag_color[3] = 1.0;
 }

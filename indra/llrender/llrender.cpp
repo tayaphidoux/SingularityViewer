@@ -2442,9 +2442,6 @@ void LLRender::debugTexUnits(void)
 				case LLTexUnit::TT_TEXTURE:
 					LL_CONT << "Texture 2D";
 					break;
-				case LLTexUnit::TT_RECT_TEXTURE:
-					LL_CONT << "Texture Rectangle";
-					break;
 				case LLTexUnit::TT_CUBE_MAP:
 					LL_CONT << "Cube Map";
 					break;

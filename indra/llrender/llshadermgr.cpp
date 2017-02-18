@@ -1124,8 +1124,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("object_plane_t");
 	llassert(mReservedUniforms.size() == LLShaderMgr::OBJECT_PLANE_T+1);
 
-	mReservedUniforms.push_back("viewport");
-
 	mReservedUniforms.push_back("light_position");
 	mReservedUniforms.push_back("light_direction");
 	mReservedUniforms.push_back("light_attenuation");
@@ -1216,7 +1214,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("ssao_factor");
 	mReservedUniforms.push_back("ssao_factor_inv");
 	mReservedUniforms.push_back("ssao_effect");
-	mReservedUniforms.push_back("screen_res");
+	mReservedUniforms.push_back("kern_scale");
 	mReservedUniforms.push_back("near_clip");
 	mReservedUniforms.push_back("shadow_offset");
 	mReservedUniforms.push_back("shadow_bias");
@@ -1232,7 +1230,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 	
 	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_DOWNSAMPLED_DEPTH_SCALE+1);
 
-	mReservedUniforms.push_back("tc_scale");
 	mReservedUniforms.push_back("rcp_screen_res");
 	mReservedUniforms.push_back("rcp_frame_opt");
 	mReservedUniforms.push_back("rcp_frame_opt2");

@@ -93,7 +93,6 @@ vec3 vary_AdditiveColor;
 vec3 vary_AtmosAttenuation;
 
 uniform mat4 inv_proj;
-uniform vec2 screen_res;
 
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
@@ -486,7 +485,6 @@ void main()
 
 #if HAS_SHADOW
 	vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
-	frag *= screen_res;
 	vec4 spos = pos;
 		
 	if (spos.z > -shadow_clip.w)

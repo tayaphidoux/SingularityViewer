@@ -649,14 +649,6 @@ void LLDrawPoolWater::shade()
 		sWaterFogColor.mV[3] = param_mgr->mDensitySliderValue;
 		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
 	}
-
-	F32 screenRes[] = 
-	{
-		1.f/gGLViewport[2],
-		1.f/gGLViewport[3]
-	};
-	shader->uniform2fv(LLShaderMgr::DEFERRED_SCREEN_RES, 1, screenRes);
-	stop_glerror();
 	
 	S32 diffTex = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
 	stop_glerror();
