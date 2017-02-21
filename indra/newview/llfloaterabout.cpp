@@ -362,7 +362,7 @@ void LLFloaterAbout::show(void*)
 
 static std::string get_viewer_release_notes_url()
 {
-	return "http://www.singularityviewer.org";
+	return LLTrans::getString("APP_SITE");
 	/*std::ostringstream version;
 	version <<  gVersionMajor
 		<< "." << gVersionMinor
