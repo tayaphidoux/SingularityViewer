@@ -1043,7 +1043,8 @@ LLRender::LLRender()
     mCount(0),
     mMode(LLRender::TRIANGLES),
     mCurrTextureUnitIndex(0),
-    mMaxAnisotropy(0.f) 
+    mMaxAnisotropy(0.f),
+	mPrimitiveReset(false)
 {	
 	mTexUnits.reserve(LL_NUM_TEXTURE_LAYERS);
 	for (U32 i = 0; i < LL_NUM_TEXTURE_LAYERS; i++)
@@ -2056,7 +2057,8 @@ void LLRender::begin(const GLuint& mode)
 	{
 		if (mMode == LLRender::LINES ||
 			mMode == LLRender::TRIANGLES ||
-			mMode == LLRender::POINTS)
+			mMode == LLRender::POINTS ||
+			mMode == LLRender::TRIANGLE_STRIP )
 		{
 			flush();
 		}
@@ -2079,10 +2081,15 @@ void LLRender::end()
 
 	if ((mMode != LLRender::LINES &&
 		mMode != LLRender::TRIANGLES &&
-		mMode != LLRender::POINTS) ||
+		mMode != LLRender::POINTS &&
+		mMode != LLRender::TRIANGLE_STRIP) ||
 		mCount > 2048)
 	{
 		flush();
+	}
+	else if (mMode == LLRender::TRIANGLE_STRIP)
+	{
+		mPrimitiveReset = true;
 	}
 }
 void LLRender::flush()
@@ -2177,6 +2184,7 @@ void LLRender::flush()
 		mColorsp[0] = mColorsp[count];
 		
 		mCount = 0;
+		mPrimitiveReset = false;
 	}
 }
 
@@ -2190,6 +2198,21 @@ void LLRender::vertex4a(const LLVector4a& vertex)
 			case LLRender::POINTS: flush(); break;
 			case LLRender::TRIANGLES: if (mCount%3==0) flush(); break;
 			case LLRender::LINES: if (mCount%2 == 0) flush(); break;
+			case LLRender::TRIANGLE_STRIP:
+			{
+				LLVector4a vert[] = { mVerticesp[mCount - 2], mVerticesp[mCount - 1], mVerticesp[mCount] };
+				LLColor4U col[] = { mColorsp[mCount - 2], mColorsp[mCount - 1], mColorsp[mCount] };
+				LLVector2 tc[] = { mTexcoordsp[mCount - 2], mTexcoordsp[mCount - 1], mTexcoordsp[mCount] };
+				flush();
+				for (int i = 0; i < LL_ARRAY_SIZE(vert); ++i)
+				{
+					mVerticesp[i] = vert[i];
+					mColorsp[i] = col[i];
+					mTexcoordsp[i] = tc[i];
+				}
+				mCount = 2;
+				break;
+			}
 		}
 	}
 			
@@ -2197,6 +2220,18 @@ void LLRender::vertex4a(const LLVector4a& vertex)
 	{
 	//	LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
 		return;
+	}
+
+	if (mPrimitiveReset && mCount)
+	{
+		// Insert degenerate
+		++mCount;
+		mVerticesp[mCount] = mVerticesp[mCount - 1];
+		mColorsp[mCount] = mColorsp[mCount - 1];
+		mTexcoordsp[mCount] = mTexcoordsp[mCount - 1];
+		mVerticesp[mCount - 1] = mVerticesp[mCount - 2];
+		mColorsp[mCount - 1] = mColorsp[mCount - 2];
+		mTexcoordsp[mCount - 1] = mTexcoordsp[mCount - 2];
 	}
 
 	if (mUIOffset.empty())
@@ -2213,7 +2248,17 @@ void LLRender::vertex4a(const LLVector4a& vertex)
 	mCount++;
 	mVerticesp[mCount] = mVerticesp[mCount-1];
 	mColorsp[mCount] = mColorsp[mCount-1];
-	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];	
+	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+
+	if (mPrimitiveReset && mCount)
+	{
+		mCount++;
+		mVerticesp[mCount] = mVerticesp[mCount - 1];
+		mColorsp[mCount] = mColorsp[mCount - 1];
+		mTexcoordsp[mCount] = mTexcoordsp[mCount - 1];
+	}
+
+	mPrimitiveReset = false;
 }
 
 void LLRender::vertexBatchPreTransformed(LLVector4a* verts, S32 vert_count)
@@ -2222,6 +2267,21 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, S32 vert_count)
 	{
 		//	LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
 		return;
+	}
+
+	if (mPrimitiveReset && mCount)
+	{
+		// Insert degenerate
+		++mCount;
+		mVerticesp[mCount] = verts[0];
+		mColorsp[mCount] = mColorsp[mCount - 1];
+		mTexcoordsp[mCount] = mTexcoordsp[mCount - 1];
+		mVerticesp[mCount - 1] = mVerticesp[mCount - 2];
+		mColorsp[mCount - 1] = mColorsp[mCount - 2];
+		mTexcoordsp[mCount - 1] = mTexcoordsp[mCount - 2];
+		++mCount;
+		mColorsp[mCount] = mColorsp[mCount - 1];
+		mTexcoordsp[mCount] = mTexcoordsp[mCount - 1];
 	}
 
 	for (S32 i = 0; i < vert_count; i++)
@@ -2234,6 +2294,8 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, S32 vert_count)
 	}
 
 	mVerticesp[mCount] = mVerticesp[mCount-1];
+
+	mPrimitiveReset = false;
 }
 
 void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, S32 vert_count)
@@ -2242,6 +2304,21 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, S32 
 	{
 		//	LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
 		return;
+	}
+
+	if (mPrimitiveReset && mCount)
+	{
+		// Insert degenerate
+		++mCount;
+		mVerticesp[mCount] = verts[0];
+		mColorsp[mCount] = mColorsp[mCount - 1];
+		mTexcoordsp[mCount] = uvs[0];
+		mVerticesp[mCount - 1] = mVerticesp[mCount - 2];
+		mColorsp[mCount - 1] = mColorsp[mCount - 2];
+		mTexcoordsp[mCount - 1] = mTexcoordsp[mCount - 2];
+		++mCount;
+		mColorsp[mCount] = mColorsp[mCount - 1];
+		mTexcoordsp[mCount] = mTexcoordsp[mCount - 1];
 	}
 
 	for (S32 i = 0; i < vert_count; i++)
@@ -2255,6 +2332,8 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, S32 
 	
 	mVerticesp[mCount] = mVerticesp[mCount-1];
 	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+
+	mPrimitiveReset = false;
 }
 
 void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, LLColor4U* colors, S32 vert_count)
@@ -2265,7 +2344,21 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, LLCo
 		return;
 	}
 
-	
+	if (mPrimitiveReset && mCount)
+	{
+		// Insert degenerate
+		++mCount;
+		mVerticesp[mCount] = verts[0];
+		mColorsp[mCount] = colors[mCount - 1];
+		mTexcoordsp[mCount] = uvs[0];
+		mVerticesp[mCount - 1] = mVerticesp[mCount - 2];
+		mColorsp[mCount - 1] = mColorsp[mCount - 2];
+		mTexcoordsp[mCount - 1] = mTexcoordsp[mCount - 2];
+		++mCount;
+		mColorsp[mCount] = mColorsp[mCount - 1];
+		mTexcoordsp[mCount] = mTexcoordsp[mCount - 1];
+	}
+
 	for (S32 i = 0; i < vert_count; i++)
 	{
 		mVerticesp[mCount] = verts[i];
@@ -2278,6 +2371,8 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, LLCo
 	mVerticesp[mCount] = mVerticesp[mCount-1];
 	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
 	mColorsp[mCount] = mColorsp[mCount-1];
+
+	mPrimitiveReset = false;
 }
 
 void LLRender::texCoord2f(const GLfloat& x, const GLfloat& y)

@@ -493,6 +493,8 @@ private:
 
 	std::vector<LLVector4a, boost::alignment::aligned_allocator<LLVector4a, 64> > mUIOffset;
 	std::vector<LLVector4a, boost::alignment::aligned_allocator<LLVector4a, 64> > mUIScale;
+
+	bool			mPrimitiveReset;
 } LL_ALIGN_POSTFIX(16);
 
 
