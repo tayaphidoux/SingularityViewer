@@ -707,37 +707,28 @@ void LLNetMap::draw()
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		if (rotate_map)
-		{
-			LLColor4 c = map_frustum_color();
+		LLColor4 c = rotate_map ? map_frustum_color() : map_frustum_rotating_color();
 
-			gGL.begin( LLRender::TRIANGLES  );
-				gGL.color4fv(c.mV);
-				gGL.vertex2f( ctr_x, ctr_y );
-				c.mV[VW] *= .1f;
-				gGL.color4fv(c.mV);
-				gGL.vertex2f( ctr_x - half_width_pixels, ctr_y + far_clip_pixels );
-				gGL.vertex2f( ctr_x + half_width_pixels, ctr_y + far_clip_pixels );
-			gGL.end();
-		}
-		else
-		{
-			LLColor4 c = map_frustum_rotating_color();
+		gGL.pushMatrix();
 
-			// If we don't rotate the map, we have to rotate the frustum.
-			gGL.pushMatrix();
-				gGL.translatef( ctr_x, ctr_y, 0 );
-				gGL.rotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
-				gGL.begin( LLRender::TRIANGLES  );
-					gGL.color4fv(c.mV);
-					gGL.vertex2f( 0.f, 0.f );
-					c.mV[VW] *= .1f;
-					gGL.color4fv(c.mV);
-					gGL.vertex2f( -half_width_pixels, far_clip_pixels );
-					gGL.vertex2f(  half_width_pixels, far_clip_pixels );
-				gGL.end();
-			gGL.popMatrix();
+		gGL.translatef(ctr_x, ctr_y, 0);
+
+		// If we don't rotate the map, we have to rotate the frustum.
+		if (!rotate_map)
+		{
+			gGL.rotatef(atan2(LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY]) * RAD_TO_DEG, 0.f, 0.f, -1.f);
 		}
+
+		gGL.begin( LLRender::TRIANGLES  );
+			gGL.color4fv(c.mV);
+			gGL.vertex2f( 0, 0 );
+			c.mV[VW] *= .1f;
+			gGL.color4fv(c.mV);
+			gGL.vertex2f( half_width_pixels, far_clip_pixels );
+			gGL.vertex2f( -half_width_pixels, far_clip_pixels );
+		gGL.end();
+
+		gGL.popMatrix();
 
 		// <exodus> Draw mouse radius
 		static const LLCachedControl<LLColor4> map_avatar_rollover_color("ExodusMapRolloverCircleColor");
