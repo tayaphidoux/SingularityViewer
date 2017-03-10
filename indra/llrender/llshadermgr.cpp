@@ -538,7 +538,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	range = mShaderObjects.equal_range(filename);
 	for (std::multimap<std::string, CachedObjectInfo>::iterator it = range.first; it != range.second;++it)
 	{
-		if((*it).second.mLevel == shader_level && (*it).second.mType == type && (*it).second.mDefinitions == (defines ? *defines : std::map<std::string, std::string>()))
+		if((*it).second.mLevel == shader_level && (*it).second.mType == type && (*it).second.mIndexChannels == texture_index_channels && (*it).second.mDefinitions == (defines ? *defines : std::map<std::string, std::string>()))
 		{
 			//LL_INFOS("ShaderLoading") << "Loading cached shader for " << filename << LL_ENDL;
 			return (*it).second.mHandle;
@@ -935,7 +935,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	if (ret)
 	{
 		// Add shader file to map
-		mShaderObjects.insert(make_pair(filename,CachedObjectInfo(ret,try_gpu_class,type,defines)));
+		mShaderObjects.insert(make_pair(filename,CachedObjectInfo(ret,try_gpu_class,type, texture_index_channels,defines)));
 		shader_level = try_gpu_class;
 	}
 	else

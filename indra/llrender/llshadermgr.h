@@ -242,11 +242,12 @@ DISPLAY_GAMMA,
 public:
 	struct CachedObjectInfo
 	{
-		CachedObjectInfo(GLhandleARB handle, U32 level, GLenum type, std::map<std::string,std::string> *definitions) : 
-			mHandle(handle), mLevel(level), mType(type), mDefinitions(definitions ? *definitions : std::map<std::string,std::string>()){}
+		CachedObjectInfo(GLhandleARB handle, U32 level, GLenum type, U32 texture_index_channels, std::map<std::string,std::string> *definitions) : 
+			mHandle(handle), mLevel(level), mType(type), mIndexChannels(texture_index_channels), mDefinitions(definitions ? *definitions : std::map<std::string,std::string>()){}
 		GLhandleARB mHandle;	//Actual handle of the opengl shader object.
 		U32 mLevel;				//Level /might/ not be needed, but it's stored to ensure there's no change in behavior.
 		GLenum mType;			//GL_VERTEX_SHADER_ARB or GL_FRAGMENT_SHADER_ARB. Tracked because some utility shaders can be loaded as both types (carefully).
+		U32 mIndexChannels;     //LLShaderFeatures::mIndexedTextureChannels
 		std::map<std::string,std::string> mDefinitions;
 	};
 	// Map of shader names to compiled

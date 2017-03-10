@@ -40,6 +40,7 @@ uniform float max_cof;
 uniform float res_scale;
 uniform float dof_width;
 uniform float dof_height;
+uniform float kern_scale;
 
 VARYING vec2 vary_fragcoord;
 
@@ -53,9 +54,9 @@ vec4 dofSample(sampler2D tex, vec2 tc)
 
 void main() 
 {
-	vec2 tc = vary_fragcoord.xy;
+	vec2 tc = vary_fragcoord.xy * res_scale;
 	
-	vec4 dof = dofSample(diffuseRect, vary_fragcoord.xy*res_scale);
+	vec4 dof = dofSample(diffuseRect, tc);
 	
 	vec4 diff = texture2D(lightMap, vary_fragcoord.xy);
 
@@ -66,10 +67,10 @@ void main()
 		float sc = a/res_scale;
 		
 		vec4 col;
-		col = texture2D(lightMap, vary_fragcoord.xy+vec2(sc,sc));
-		col += texture2D(lightMap, vary_fragcoord.xy+vec2(-sc,sc));
-		col += texture2D(lightMap, vary_fragcoord.xy+vec2(sc,-sc));
-		col += texture2D(lightMap, vary_fragcoord.xy+vec2(-sc,-sc));
+		col = texture2D(lightMap, vary_fragcoord.xy+vec2(sc,sc)*kern_scale);
+		col += texture2D(lightMap, vary_fragcoord.xy+vec2(-sc,sc)*kern_scale);
+		col += texture2D(lightMap, vary_fragcoord.xy+vec2(sc,-sc)*kern_scale);
+		col += texture2D(lightMap, vary_fragcoord.xy+vec2(-sc,-sc)*kern_scale);
 		
 		diff = mix(diff, col*0.25, a);
 	}

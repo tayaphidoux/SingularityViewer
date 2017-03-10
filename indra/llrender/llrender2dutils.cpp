@@ -490,7 +490,6 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 		gGL.getTexUnit(0)->bind(image, true);
 
 	gGL.color4fv(color.mV);
-	gGL.diffuseColor4fv(color.mV); //workaround: Intel HD 4000
 	
 	const S32 NUM_VERTICES = (2 + 2 * 3) * 3 + 4;
 	LLVector2 uv[NUM_VERTICES];
@@ -894,12 +893,11 @@ void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor
 		if( render_center )
 		{
 			gGL.color4fv(center_color.mV);
-			gGL.diffuseColor4fv(center_color.mV);
 			gl_deep_circle( radius, width, steps );
 		}
 		else
 		{
-			gGL.diffuseColor4fv(side_color.mV);
+			gGL.color4fv(side_color.mV);
 			gl_washer_2d(radius - width, radius, steps, side_color, side_color);
 			gGL.translateUI(0.f, 0.f, width);
 			gl_washer_2d(radius, radius - width, steps, side_color, side_color);
@@ -1520,8 +1518,7 @@ void LLRender2D::setScaleFactor(const LLVector2 &scale_factor)
 //static
 void LLRender2D::setLineWidth(F32 width)
 {
-	gGL.flush();
-	glLineWidth(width * lerp(sGLScaleFactor.mV[VX], sGLScaleFactor.mV[VY], 0.5f));
+	gGL.setLineWidth(width * lerp(sGLScaleFactor.mV[VX], sGLScaleFactor.mV[VY], 0.5f));
 }
 
 //static

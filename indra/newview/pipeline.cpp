@@ -7194,7 +7194,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 
 				drawFullScreenRect();
 
-				unbindDeferredShader(*shader);
+				unbindDeferredShader(*shader, &mFinalScreen);
 				mDeferredLight.flush();
 			}
 
@@ -7214,7 +7214,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 
 				drawFullScreenRect();
 
-				unbindDeferredShader(*shader);
+				unbindDeferredShader(*shader, &mDeferredLight);
 				mFinalScreen.flush();
 				gGL.setColorMask(true, true);
 			}
@@ -7252,8 +7252,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
-				shader->uniform1f(LLShaderMgr::DOF_WIDTH, dof_width-1);
-				shader->uniform1f(LLShaderMgr::DOF_HEIGHT, dof_height-1);
+				shader->uniform1f(LLShaderMgr::DOF_WIDTH, CameraDoFResScale - CameraDoFResScale / dof_width);
+				shader->uniform1f(LLShaderMgr::DOF_HEIGHT, CameraDoFResScale - CameraDoFResScale / dof_height);
 
 				drawFullScreenRect();
 
@@ -7262,7 +7262,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 				}
 
-				unbindDeferredShader(*shader);
+				unbindDeferredShader(*shader, &mFinalScreen);
 
 				if (multisample)
 				{
@@ -7300,7 +7300,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 			}
 
-			unbindDeferredShader(*shader);
+			unbindDeferredShader(*shader, &mFinalScreen);
 
 			if (multisample)
 			{
@@ -7335,7 +7335,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield, b
 				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 			}
 
-			unbindDeferredShader(*shader);
+			unbindDeferredShader(*shader, &render_target);
 			
 			mFXAABuffer.flush();
 
@@ -7570,7 +7570,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffus
 
 	for (U32 i = 0; i < 4; i++)
 	{
-		channel = shader.enableTexture(LLShaderMgr::DEFERRED_SHADOW0+i, LLTexUnit::TT_TEXTURE);
+		channel = shader.enableTexture(LLShaderMgr::DEFERRED_SHADOW0+i);
 		stop_glerror();
 		if (channel > -1)
 		{
@@ -7671,8 +7671,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffus
 		norm_mat.transpose();
 		shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_NORM_MATRIX, 1, FALSE, norm_mat.getF32ptr());
 	}
-
-	//shader.uniform1f(LLShaderMgr::DEFERRED_DOWNSAMPLED_DEPTH_SCALE, llclamp(RenderSSAOResolutionScale.get(),.01f,1.f));
 }
 
 static LLFastTimer::DeclareTimer FTM_GI_TRACE("Trace");
@@ -7796,6 +7794,9 @@ void LLPipeline::renderDeferredLighting()
 				mDeferredLight.clear(GL_COLOR_BUFFER_BIT);
 				glClearColor(0,0,0,0);
 
+				F32 ssao_scale = llclamp(RenderSSAOResolutionScale.get(), .01f, 1.f);
+				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_KERN_SCALE, ssao_scale, ssao_scale);
+
 				//Enable bilinear filtering, as the screen tex resolution may not match current framebuffer resolution. Eg, half-res SSAO
 				// diffuse map should only be found if the sun shader is the SSAO variant.
 				S32 channel = gDeferredSunProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
@@ -7838,7 +7839,7 @@ void LLPipeline::renderDeferredLighting()
 			F32 dist_factor = RenderShadowBlurDistFactor;
 
 			// sample symmetrically with the middle sample falling exactly on 0.0
-			F32 x = 0.f;
+			//F32 x = 0.f;
 
 			gDeferredBlurLightProgram.uniform2f(sDelta, (blur_size * (kern_length / 2.f - 0.5f)) / mScreen.getWidth(), 0.f);
 			gDeferredBlurLightProgram.uniform1f(sDistFactor, dist_factor);
@@ -7863,7 +7864,7 @@ void LLPipeline::renderDeferredLighting()
 				drawFullScreenRect();
 			}
 			mDeferredLight.flush();
-			unbindDeferredShader(gDeferredBlurLightProgram);
+			unbindDeferredShader(gDeferredBlurLightProgram, &mScreen, &mScreen);
 		}
 
 		stop_glerror();
@@ -8374,6 +8375,10 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
 				LLFastTimer ftm(FTM_SUN_SHADOW);
 				bindDeferredShader(gDeferredSunProgram);
+
+				F32 ssao_scale = llclamp(RenderSSAOResolutionScale.get(), .01f, 1.f);
+				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_KERN_SCALE, ssao_scale, ssao_scale);
+
 				glClearColor(1,1,1,1);
 				mDeferredLight.clear(GL_COLOR_BUFFER_BIT);
 				glClearColor(0,0,0,0);
@@ -8935,14 +8940,17 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 		
 }
 
-void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
+void LLPipeline::unbindDeferredShader(LLGLSLShader &shader, LLRenderTarget* diffuse_source, LLRenderTarget* light_source)
 {
+	diffuse_source = diffuse_source ? diffuse_source : &mDeferredScreen;
+	light_source = light_source ? light_source : &mDeferredLight;
+
 	stop_glerror();
 	shader.disableTexture(LLShaderMgr::DEFERRED_NORMAL, mDeferredScreen.getUsage());
-	shader.disableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mDeferredScreen.getUsage());
+	shader.disableTexture(LLShaderMgr::DEFERRED_DIFFUSE, diffuse_source->getUsage());
 	shader.disableTexture(LLShaderMgr::DEFERRED_SPECULAR, mDeferredScreen.getUsage());
-	shader.disableTexture(LLShaderMgr::DEFERRED_DEPTH, mDeferredScreen.getUsage());
-	shader.disableTexture(LLShaderMgr::DEFERRED_LIGHT, mDeferredLight.getUsage());
+	shader.disableTexture(LLShaderMgr::DEFERRED_DEPTH, mDeferredDepth.getUsage());
+	shader.disableTexture(LLShaderMgr::DEFERRED_LIGHT, light_source->getUsage());
 	shader.disableTexture(LLShaderMgr::DIFFUSE_MAP);
 	shader.disableTexture(LLShaderMgr::DEFERRED_BLOOM);
 

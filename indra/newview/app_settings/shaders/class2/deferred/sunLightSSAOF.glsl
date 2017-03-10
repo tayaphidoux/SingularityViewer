@@ -50,6 +50,8 @@ uniform vec4 shadow_clip;
 
 VARYING vec2 vary_fragcoord;
 
+uniform vec2 kern_scale;
+
 uniform mat4 inv_proj;
 uniform vec2 proj_shadow_res;
 uniform vec3 sun_dir;
@@ -61,6 +63,7 @@ uniform float shadow_offset;
 
 uniform float spot_shadow_bias;
 uniform float spot_shadow_offset;
+
 
 vec2 encode_normal(vec3 n)
 {
@@ -241,7 +244,7 @@ void main()
 	}
 	
 	frag_color[0] = shadow;
-	frag_color[1] = texture2D(diffuseRect,vary_fragcoord).r;
+	frag_color[1] = texture2D(diffuseRect,vary_fragcoord.xy * kern_scale).r;
 	
 	spos = vec4(shadow_pos+norm*spot_shadow_offset, 1.0);
 	

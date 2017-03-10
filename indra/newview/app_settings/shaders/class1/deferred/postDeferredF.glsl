@@ -36,6 +36,7 @@ uniform sampler2D diffuseRect;
 uniform mat4 inv_proj;
 uniform float max_cof;
 uniform float res_scale;
+uniform vec2 kern_scale;
 
 VARYING vec2 vary_fragcoord;
 
@@ -76,7 +77,7 @@ void main()
 {
 	vec2 tc = vary_fragcoord.xy;
 	
-	vec4 diff = texture2D(diffuseRect, vary_fragcoord.xy);
+	vec4 diff = texture2D(diffuseRect, tc);
 	
 	{ 
 		float w = 1.0;
@@ -97,7 +98,7 @@ void main()
 					float samp_x = sc*sin(ang);
 					float samp_y = sc*cos(ang);
 					// you could test sample coords against an interesting non-circular aperture shape here, if desired.
-					dofSampleNear(diff, w, sc, vary_fragcoord.xy + vec2(samp_x,samp_y));
+					dofSampleNear(diff, w, sc, tc + vec2(samp_x,samp_y) * kern_scale);
 				}
 				sc -= 1.0;
 			}
@@ -114,7 +115,7 @@ void main()
 					float samp_x = sc*sin(ang);
 					float samp_y = sc*cos(ang);
 					// you could test sample coords against an interesting non-circular aperture shape here, if desired.
-					dofSample(diff, w, sc, vary_fragcoord.xy + vec2(samp_x,samp_y));
+					dofSample(diff, w, sc, tc + vec2(samp_x,samp_y) * kern_scale);
 				}
 				sc -= 1.0;
 			}

@@ -125,6 +125,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 
 		//prime simple shader (loads shadow relevant uniforms)
 		gPipeline.bindDeferredShader(*simple_shader);
+		gPipeline.unbindDeferredShader(*simple_shader);
 
 		//simple_shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 	}
@@ -154,7 +155,11 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 }
 
 void LLDrawPoolAlpha::endPostDeferredPass(S32 pass) 
-{ 
+{
+	if (current_shader)
+	{
+		gPipeline.unbindDeferredShader(*current_shader);
+	}
 	if (pass == 1 && !LLPipeline::sImpostorRender)
 	{
 		gPipeline.mDeferredDepth.flush();
@@ -437,6 +442,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 						// (this way we won't rebind shaders unnecessarily).
 						if (current_shader != target_shader)
 						{
+							if(current_shader)
+								gPipeline.unbindDeferredShader(*current_shader);
 							gPipeline.bindDeferredShader(*target_shader);
 						}
 					}
@@ -448,6 +455,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 						// (this way we won't rebind shaders unnecessarily).
 						if(current_shader != target_shader)
 						{
+							if(current_shader)
+								gPipeline.unbindDeferredShader(*current_shader);
 							target_shader->bind();
 						}
 					}
