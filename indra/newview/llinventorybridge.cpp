@@ -100,6 +100,8 @@
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
 typedef std::list<two_uuids_t> two_uuids_list_t;
 
+const F32 SOUND_GAIN = 1.0f;
+
 struct LLMoveInv
 {
 	LLUUID mObjectID;
@@ -1829,13 +1831,15 @@ BOOL LLItemBridge::removeItem()
 	}
 
 	// move it to the trash
-	LLPreview::hide(mUUID, TRUE);
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
 	const LLUUID& trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLViewerInventoryItem* item = getItem();
 	if (!item) return FALSE;
-
+	if (item->getType() != LLAssetType::AT_LSL_TEXT)
+	{
+		LLPreview::hide(mUUID, TRUE);
+	}
 	// Already in trash
 	if (model->isObjectDescendentOf(mUUID, trash_id)) return FALSE;
 
@@ -4488,7 +4492,7 @@ void LLSoundBridge::previewItem()
 	LLViewerInventoryItem* item = getItem();
 	if(item)
 	{
-		send_sound_trigger(item->getAssetUUID(), 1.0);
+		send_sound_trigger(item->getAssetUUID(), SOUND_GAIN);
 	}
 }
 
@@ -4554,7 +4558,7 @@ void LLSoundBridge::performAction(LLInventoryModel* model, std::string action)
 		LLViewerInventoryItem* item = getItem();
 		if(item)
 		{
-			send_sound_trigger(item->getAssetUUID(), 1.f);
+			send_sound_trigger(item->getAssetUUID(), SOUND_GAIN);
 		}
 	}
 	else if ("open" == action)

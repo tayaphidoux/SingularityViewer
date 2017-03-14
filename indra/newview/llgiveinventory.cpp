@@ -55,7 +55,7 @@
 // MAX ITEMS is based on (sizeof(uuid)+2) * count must be < MTUBYTES
 // or 18 * count < 1200 => count < 1200/18 => 66. I've cut it down a
 // bit from there to give some pad.
-const S32 MAX_ITEMS = 42;
+const size_t MAX_ITEMS = 42;
 
 class LLGiveable : public LLInventoryCollectFunctor
 {
@@ -259,9 +259,9 @@ bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 									items,
 									LLInventoryModel::EXCLUDE_TRASH,
 									giveable);
-	S32 count = cats.size();
+	size_t count = cats.size();
 	bool complete = true;
-	for(S32 i = 0; i < count; ++i)
+	for(size_t i = 0; i < count; ++i)
 	{
 		if(!gInventory.isCategoryComplete(cats.at(i)->getUUID()))
 		{
@@ -475,8 +475,8 @@ bool LLGiveInventory::handleCopyProtectedCategory(const LLSD& notification, cons
 											items,
 											LLInventoryModel::EXCLUDE_TRASH,
 											remove);
-			S32 count = items.size();
-			for(S32 i = 0; i < count; ++i)
+			size_t count = items.size();
+			for(size_t i = 0; i < count; ++i)
 			{
 				gInventory.deleteObject(items.at(i)->getUUID());
 			}
@@ -529,8 +529,8 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 	// MAX ITEMS is based on (sizeof(uuid)+2) * count must be <
 	// MTUBYTES or 18 * count < 1200 => count < 1200/18 =>
 	// 66. I've cut it down a bit from there to give some pad.
- 	S32 count = items.size() + cats.size();
- 	if(count > MAX_ITEMS)
+	size_t count = items.size() + cats.size();
+	if (count > MAX_ITEMS)
   	{
 		LLNotificationsUtil::add("TooManyItems");
 		give_successful = false;
@@ -546,7 +546,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 		LLAgentUI::buildFullname(name);
 		LLUUID transaction_id;
 		transaction_id.generate();
-		S32 bucket_size = (sizeof(U8) + UUID_BYTES) * (count + 1);
+		size_t bucket_size = (sizeof(U8) + UUID_BYTES) * (count + 1);
 		U8* bucket = new U8[bucket_size];
 		U8* pos = bucket;
 		U8 type = (U8)cat->getType();
@@ -554,7 +554,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
 		pos += sizeof(U8);
 		memcpy(pos, &(cat->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
 		pos += UUID_BYTES;
-		S32 i;
+		size_t i;
 		count = cats.size();
 		for(i = 0; i < count; ++i)
 		{

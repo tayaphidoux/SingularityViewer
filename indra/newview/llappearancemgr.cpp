@@ -60,6 +60,12 @@
 #include "rlvlocks.h"
 // [/RLVa:KB]
 
+void doAppearanceCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
+{
+    if (cb.notNull())
+        cb->fire(id);
+}
+
 std::string self_av_string()
 {
 	// On logout gAgentAvatarp can already be invalid
@@ -2842,8 +2848,7 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 			 << " )" << LL_ENDL;
 
 	// If we are copying from library, attempt to use AIS to copy the category.
-	bool ais_ran=false;
-	if (copy && AISCommand::isAPIAvailable())
+    if (copy && AISAPI::isAvailable())
 	{
 		LLUUID parent_id;
 		parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
@@ -2855,11 +2860,11 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 		LLPointer<LLInventoryCallback> copy_cb = new LLWearCategoryAfterCopy(append);
 		LLPointer<LLInventoryCallback> track_cb = new LLTrackPhaseWrapper(
 													std::string("wear_inventory_category_callback"), copy_cb);
-		boost::intrusive_ptr <AISCommand> cmd_ptr = new CopyLibraryCategoryCommand(category->getUUID(), parent_id, track_cb);
-		ais_ran=cmd_ptr->run_command();
-	}
 
-	if (!ais_ran)
+        AISAPI::completion_t cr = boost::bind(&doAppearanceCb, track_cb, _1);
+        AISAPI::CopyLibraryCategory(category->getUUID(), parent_id, false, cr);
+	}
+    else
 	{
 		selfStartPhase("wear_inventory_category_fetch");
 		callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
@@ -4123,7 +4128,7 @@ LLUUID LLAppearanceMgr::makeNewOutfitCore(const std::string& new_folder_name, bo
 
 	// First, make a folder in the My Outfits directory.
 	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	if (AISCommand::isAPIAvailable())
+	if (AISAPI::isAvailable())
 	{
 		// cap-based category creation was buggy until recently. use
 		// existence of AIS as an indicator the fix is present. Does
