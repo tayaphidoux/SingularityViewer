@@ -2135,12 +2135,8 @@ void LLRender::end()
 	}
 }
 
-extern bool countFlushes;
-extern unsigned int flushCount;
-
 void LLRender::flush()
 {
-	if (countFlushes) ++flushCount;
 	if (mCount > 0)
 	{
 #if 0

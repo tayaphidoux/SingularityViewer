@@ -337,8 +337,8 @@ void LLWorldMapView::draw()
 	mVisibleRegions.clear();
 	
 	// animate pan if necessary
-	sPanX = lerp(sPanX, sTargetPanX, LLCriticalDamp::getInterpolant(0.1f));
-	sPanY = lerp(sPanY, sTargetPanY, LLCriticalDamp::getInterpolant(0.1f));
+	sPanX = lerp(sPanX, sTargetPanX, LLSmoothInterpolation::getInterpolant(0.1f));
+	sPanY = lerp(sPanY, sTargetPanY, LLSmoothInterpolation::getInterpolant(0.1f));
 
 	const S32 width = getRect().getWidth();
 	const S32 height = getRect().getHeight();
@@ -905,7 +905,7 @@ F32 LLWorldMapView::drawLegacySimTile(LLSimInfo& sim_info, S32 left, S32 top, S3
 	if (!sim_drawable || sim_fetching)
 		sim_info.setAlpha( 0.f );
 	else if (llabs(sim_info.getAlpha() - fade_target) > ALPHA_CUTOFF) //This gives us a nice fade when a visible sims texture finishes loading, or visiblity has changed.
-		sim_info.setAlpha(lerp(sim_info.getAlpha(), fade_target, LLCriticalDamp::getInterpolant(0.15f)));
+		sim_info.setAlpha(lerp(sim_info.getAlpha(), fade_target, LLSmoothInterpolation::getInterpolant(0.15f)));
 	F32 alpha = sim_info.getAlpha();
 	
 	//call setKnownDrawSize if image is still loading, or its actually being drawn.

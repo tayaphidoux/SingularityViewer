@@ -3775,8 +3775,8 @@ void LLAppViewer::idle()
 		LLEventTimer::updateClass();
 	}
 	{
-		LAZY_FT("LLCriticalDamp::updateInterpolants");
-		LLCriticalDamp::updateInterpolants();
+		LAZY_FT("LLSmoothInterpolation::updateInterpolants");
+		LLSmoothInterpolation::updateInterpolants();
 	}
 	{
 		LAZY_FT("LLMortician::updateClass");

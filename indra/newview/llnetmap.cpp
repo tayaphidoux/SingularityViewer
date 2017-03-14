@@ -262,7 +262,7 @@ void LLNetMap::draw()
 	static LLUICachedControl<S32> center("MiniMapCenter");
 	if (center != MAP_CENTER_NONE)
 	{
-		mCurPan = lerp(mCurPan, mTargetPan, LLCriticalDamp::getInterpolant(0.1f));
+		mCurPan = lerp(mCurPan, mTargetPan, LLSmoothInterpolation::getInterpolant(0.1f));
 	}
 
 	// Prepare a scissor region
