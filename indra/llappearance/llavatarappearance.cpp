@@ -53,8 +53,6 @@
 #pragma warning (disable:4702)
 #endif
 
-#include <boost/lexical_cast.hpp>
-
 using namespace LLAvatarAppearanceDefines;
 
 //-----------------------------------------------------------------------------
@@ -212,8 +210,9 @@ void LLAvatarAppearance::initInstance()
 	mRoot = createAvatarJoint();
 	mRoot->setName( "mRoot" );
 
-	for (LLAvatarAppearanceDictionary::MeshEntries::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getMeshEntries().begin();
-		 iter != LLAvatarAppearanceDictionary::getInstance()->getMeshEntries().end();
+	const auto& mesh_entries = LLAvatarAppearanceDictionary::getInstance()->getMeshEntries();
+	for (LLAvatarAppearanceDictionary::MeshEntries::const_iterator iter = mesh_entries.begin();
+		 iter != mesh_entries.end();
 		 ++iter)
 	{
 		const EMeshIndex mesh_index = iter->first;
@@ -230,7 +229,7 @@ void LLAvatarAppearance::initInstance()
 		for (U32 lod = 0; lod < mesh_dict->mLOD; lod++)
 		{
 			LLAvatarJointMesh* mesh = createAvatarJointMesh();
-			std::string mesh_name = "m" + mesh_dict->mName + boost::lexical_cast<std::string>(lod);
+			std::string mesh_name = "m" + mesh_dict->mName + std::to_string(lod);
 			// We pre-pended an m - need to capitalize first character for camelCase
 			mesh_name[1] = toupper(mesh_name[1]);
 			mesh->setName(mesh_name);
@@ -258,8 +257,8 @@ void LLAvatarAppearance::initInstance()
 	//-------------------------------------------------------------------------
 	// associate baked textures with meshes
 	//-------------------------------------------------------------------------
-	for (LLAvatarAppearanceDictionary::MeshEntries::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getMeshEntries().begin();
-		 iter != LLAvatarAppearanceDictionary::getInstance()->getMeshEntries().end();
+	for (LLAvatarAppearanceDictionary::MeshEntries::const_iterator iter = mesh_entries.begin();
+		 iter != mesh_entries.end();
 		 ++iter)
 	{
 		const EMeshIndex mesh_index = iter->first;
@@ -298,7 +297,7 @@ LLAvatarAppearance::~LLAvatarAppearance()
 		mBakedTextureDatas[i].mJointMeshes.clear();
 
 		for (morph_list_t::iterator iter2 = mBakedTextureDatas[i].mMaskedMorphs.begin();
-			 iter2 != mBakedTextureDatas[i].mMaskedMorphs.end(); iter2++)
+			 iter2 != mBakedTextureDatas[i].mMaskedMorphs.end(); ++iter2)
 		{
 			LLMaskedMorph* masked_morph = (*iter2);
 			delete masked_morph;
@@ -382,8 +381,6 @@ void LLAvatarAppearance::initClass(const std::string& avatar_file_name_arg, cons
 	static LLStdStringHandle wearable_definition_version_string = LLXmlTree::addAttributeString("wearable_definition_version");
 	root->getFastAttributeS32( wearable_definition_version_string, wearable_def_version );
 	LLWearable::setCurrentDefinitionVersion( wearable_def_version );
-
-	std::string mesh_file_name;
 
 	LLXmlTreeNode* skeleton_node = root->getChildByName( "skeleton" );
 	if (!skeleton_node)
@@ -573,7 +570,8 @@ void LLAvatarAppearance::computeBodySize()
 	{
 		mBodySize = new_body_size;
 
-        compareJointStateMaps(mLastBodySizeState, mCurrBodySizeState);
+		compareJointStateMaps(mLastBodySizeState, mCurrBodySizeState);
+		bodySizeChanged();
 	}
 }
 
@@ -927,11 +925,11 @@ void LLAvatarAppearance::buildCharacter()
 //-----------------------------------------------------------------------------
 // loadAvatar()
 //-----------------------------------------------------------------------------
-//static LLFastTimer::DeclareTimer FTM_LOAD_AVATAR("Load Avatar");
+//static LLTrace::BlockTimerStatHandle FTM_LOAD_AVATAR("Load Avatar");
 
 BOOL LLAvatarAppearance::loadAvatar()
 {
-// 	LLFastTimer t(FTM_LOAD_AVATAR);
+// 	LL_RECORD_BLOCK_TIME(FTM_LOAD_AVATAR);
 	
 	// avatar_skeleton.xml
 	if( !buildSkeleton(sAvatarSkeletonInfo) )
@@ -1047,7 +1045,7 @@ BOOL LLAvatarAppearance::loadAvatar()
 			addVisualParam( driver_param );
 			driver_param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
 			LLVisualParam*(LLAvatarAppearance::*avatar_function)(S32)const = &LLAvatarAppearance::getVisualParam; 
-			if( !driver_param->linkDrivenParams(boost::bind(avatar_function,(LLAvatarAppearance*)this,_1 ), false))
+			if( !driver_param->linkDrivenParams(std::bind(avatar_function,(LLAvatarAppearance*)this, std::placeholders::_1 ), false))
 			{
 				LL_WARNS() << "could not link driven params for avatar " << getID().asString() << " param id: " << driver_param->getID() << LL_ENDL;
 				continue;
@@ -1222,7 +1220,7 @@ BOOL LLAvatarAppearance::loadMeshNodes()
 		}
 
 		// Multimap insert
-		mPolyMeshes.insert(std::make_pair(info->mMeshFileName, poly_mesh));
+		mPolyMeshes.emplace(info->mMeshFileName, poly_mesh);
 	
 		mesh->setMesh( poly_mesh );
 		mesh->setLOD( info->mMinPixelArea );

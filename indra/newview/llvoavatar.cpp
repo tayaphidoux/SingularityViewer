@@ -2755,7 +2755,7 @@ void LLVOAvatar::dumpAnimationState()
 //------------------------------------------------------------------------
 void LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	LLFastTimer t(FTM_AVATAR_UPDATE);
+	LL_RECORD_BLOCK_TIME(FTM_AVATAR_UPDATE);
 
 	if (isDead())
 	{
@@ -2776,7 +2776,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	// force asynchronous drawable update
 	if(mDrawable.notNull() && !gNoRender)
 	{
-		LLFastTimer t(FTM_JOINT_UPDATE);
+		LL_RECORD_BLOCK_TIME(FTM_JOINT_UPDATE);
 	
 		if (mIsSitting && getParent())
 		{
@@ -2808,7 +2808,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	if (isSelf())
 	{
 		{
-			LLFastTimer t(FTM_BASE_UPDATE);
+			LL_RECORD_BLOCK_TIME(FTM_BASE_UPDATE);
 			LLViewerObject::idleUpdate(agent, world, time);
 		}
 		
@@ -2823,7 +2823,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		// Should override the idleUpdate stuff and leave out the angular update part.
 		LLQuaternion rotation = getRotation();
 		{
-			LLFastTimer t(FTM_BASE_UPDATE);
+			LL_RECORD_BLOCK_TIME(FTM_BASE_UPDATE);
 			LLViewerObject::idleUpdate(agent, world, time);
 		}
 		setRotation(rotation);
@@ -2837,7 +2837,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	mLastRootPos = mRoot->getWorldPosition();
 	bool detailed_update;
 	{
-		LLFastTimer t(FTM_CHARACTER_UPDATE);
+		LL_RECORD_BLOCK_TIME(FTM_CHARACTER_UPDATE);
 		detailed_update = updateCharacter(agent);
 	}
 	if (gNoRender)
@@ -2850,13 +2850,13 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 						 LLVoiceClient::getInstance()->getVoiceEnabled(mID);
 
 	{
-		LLFastTimer t(FTM_MISC_UPDATE);
+		LL_RECORD_BLOCK_TIME(FTM_MISC_UPDATE);
 		idleUpdateVoiceVisualizer(voice_enabled);
 		idleUpdateMisc(detailed_update);
 		idleUpdateAppearanceAnimation();
 		if (detailed_update)
 		{
-			LLFastTimer t(FTM_DETAIL_UPDATE);
+			LL_RECORD_BLOCK_TIME(FTM_DETAIL_UPDATE);
 			idleUpdateLipSync(voice_enabled);
 			idleUpdateLoadingEffect();
 			idleUpdateBelowWater();	// wind effect uses this
@@ -3000,7 +3000,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	// update attachments positions
 	if (detailed_update || !sUseImpostors)
 	{
-		LLFastTimer t(FTM_ATTACHMENT_UPDATE);
+		LL_RECORD_BLOCK_TIME(FTM_ATTACHMENT_UPDATE);
 		/*for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 			 iter != mAttachmentPoints.end();
 			 ++iter)
@@ -5544,7 +5544,7 @@ void LLVOAvatar::releaseOldTextures()
 static LLFastTimer::DeclareTimer FTM_TEXTURE_UPDATE("Update Textures");
 void LLVOAvatar::updateTextures()
 {
-	LLFastTimer t(FTM_TEXTURE_UPDATE);
+	LL_RECORD_BLOCK_TIME(FTM_TEXTURE_UPDATE);
 	releaseOldTextures();
 	
 	BOOL render_avatar = TRUE;
@@ -6931,7 +6931,7 @@ BOOL LLVOAvatar::isActive() const
 static LLFastTimer::DeclareTimer FTM_PIXEL_AREA("Pixel Area");
 void LLVOAvatar::setPixelAreaAndAngle(LLAgent &agent)
 {
-	LLFastTimer t(FTM_PIXEL_AREA);
+	LL_RECORD_BLOCK_TIME(FTM_PIXEL_AREA);
 	if (mDrawable.isNull())
 	{
 		return;
@@ -7053,7 +7053,7 @@ void LLVOAvatar::updateGL()
 static LLFastTimer::DeclareTimer FTM_UPDATE_AVATAR("Update Avatar");
 BOOL LLVOAvatar::updateGeometry(LLDrawable *drawable)
 {
-	LLFastTimer ftm(FTM_UPDATE_AVATAR);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_AVATAR);
  	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_AVATAR)))
 	{
 		return TRUE;

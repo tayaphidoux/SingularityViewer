@@ -397,13 +397,13 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
-static LLFastTimer::DeclareTimer FTM_RENDER_TIMER("Timers", true);
+static LLTrace::BlockTimerStatHandle FTM_RENDER_TIMER("Timers", true);
 
 static std::map<LLFastTimer::NamedTimer*, LLColor4> sTimerColors;
 
 void LLFastTimerView::draw()
 {
-	LLFastTimer t(FTM_RENDER_TIMER);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_TIMER);
 	
 	std::string tdesc;
 

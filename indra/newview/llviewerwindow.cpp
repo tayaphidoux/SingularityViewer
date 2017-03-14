@@ -3047,8 +3047,8 @@ void LLViewerWindow::moveCursorToCenter()
 // event processing.
 void LLViewerWindow::updateUI()
 {
-	static LLFastTimer::DeclareTimer ftm("Update UI");
-	LLFastTimer t(ftm);
+	static LLTrace::BlockTimerStatHandle ftm("Update UI");
+	LL_RECORD_BLOCK_TIME(ftm);
 
 	static std::string last_handle_msg;
 	// animate layout stacks so we have up to date rect for world view

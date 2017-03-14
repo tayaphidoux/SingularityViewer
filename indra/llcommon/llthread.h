@@ -269,7 +269,7 @@ public:
 	~LLMutex()
 	{}
 
-	void lock(LLFastTimer::DeclareTimer* timer = NULL)	// blocks
+	void lock(LLTrace::BlockTimerStatHandle* timer = NULL)	// blocks
 	{
 		if (inc_lock_if_recursive())
 			return;
@@ -384,7 +384,7 @@ public:
 #endif
 
 private:
-	void lock_main(LLFastTimer::DeclareTimer* timer);
+	void lock_main(LLTrace::BlockTimerStatHandle* timer);
 
 	bool inc_lock_if_recursive()
 	{

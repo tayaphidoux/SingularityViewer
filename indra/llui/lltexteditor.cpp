@@ -4406,13 +4406,13 @@ void LLTextEditor::loadKeywords(const std::string& filename,
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
-static LLFastTimer::DeclareTimer FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
+static LLTrace::BlockTimerStatHandle FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
 
 void LLTextEditor::updateSegments()
 {
 	{
-		LLFastTimer ft(FTM_SYNTAX_HIGHLIGHTING);
+		LL_RECORD_BLOCK_TIME(FTM_SYNTAX_HIGHLIGHTING);
 		if (mKeywords.isLoaded())
 		{
 			// HACK:  No non-ascii keywords for now
@@ -4424,7 +4424,7 @@ void LLTextEditor::updateSegments()
 		}
 	}
 
-	LLFastTimer ft(FTM_UPDATE_TEXT_SEGMENTS);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TEXT_SEGMENTS);
 	// Make sure we have at least one segment
 	if (mSegments.size() == 1 && mSegments[0]->getIsDefault())
 	{
