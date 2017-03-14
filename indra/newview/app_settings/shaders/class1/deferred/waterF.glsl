@@ -23,7 +23,7 @@
  * $/LicenseInfo$
  */
  
-//#extension GL_ARB_texture_rectangle : enable
+
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
@@ -37,10 +37,6 @@ vec3 atmosTransport(vec3 inColor);
 uniform sampler2D bumpMap;   
 uniform sampler2D screenTex;
 uniform sampler2D refTex;
-uniform sampler2DRectShadow shadowMap0;
-uniform sampler2DRectShadow shadowMap1;
-uniform sampler2DRectShadow shadowMap2;
-uniform sampler2DRectShadow shadowMap3;
 uniform sampler2D noiseMap;
 
 uniform mat4 shadow_matrix[6];

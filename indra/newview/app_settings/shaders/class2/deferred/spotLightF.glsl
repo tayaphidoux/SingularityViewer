@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
  
-//#extension GL_ARB_texture_rectangle : enable
-//#extension GL_ARB_shader_texture_lod : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -230,7 +228,7 @@ void main()
 		
 	vec4 spec = texture2D(specularRect, frag.xy);
 
-	float noise = texture2D(noiseMap, frag.xy/128.0).b;
+	float noise = texture2D(noiseMap, frag.xy/128.0).b; // This is probably wrong
 	vec3 dlit = vec3(0, 0, 0);
 
 	if (proj_tc.z > 0.0 &&

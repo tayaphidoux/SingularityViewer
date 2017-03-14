@@ -23,7 +23,7 @@
  * $/LicenseInfo$
  */
 
-//#extension GL_ARB_texture_rectangle : enable
+
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -86,7 +86,7 @@ vec3 decode_normal (vec2 enc)
 
 void main() 
 {
-    vec2 tc = vary_fragcoord.xy;
+	vec2 tc = vary_fragcoord.xy;
 	vec3 norm = texture2D(normalMap, tc).xyz;
 	norm = decode_normal(norm.xy); // unpack norm
 
@@ -110,7 +110,7 @@ void main()
 	for (int i = 1; i < 4; i++)
 	{
 		vec2 samptc = (tc + i * dlt);
-	    vec3 samppos = getPosition(samptc).xyz; 
+		vec3 samppos = getPosition(samptc).xyz; 
 		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
 
 		if (d*d <= pointplanedist_tolerance_pow2)

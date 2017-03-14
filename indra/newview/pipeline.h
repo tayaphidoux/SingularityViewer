@@ -594,7 +594,6 @@ public:
 	LLRenderTarget			mDeferredDepth;
 private:
 	LLRenderTarget			mDeferredDownsampledDepth;
-	LLRenderTarget			mOcclusionDepth;
 	LLRenderTarget			mDeferredLight;
 public:
 	LLMultisampleBuffer		mSampleBuffer;
@@ -611,7 +610,6 @@ public:
 private:
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
-	LLRenderTarget			mShadowOcclusion[6];
 	std::vector<LLVector3>	mShadowFrustPoints[4];
 public:
 	LLCamera				mShadowCamera[8];

@@ -31,8 +31,6 @@ out vec4 frag_color;
 
 //class 1 -- no shadows
 
-//#extension GL_ARB_texture_rectangle : enable
-//#extension GL_ARB_shader_texture_lod : enable
 
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
@@ -286,11 +284,12 @@ void main()
 		if (ds < 0.0)
 		{
 			vec3 pfinal = pos + ref * dot(pdelta, proj_n)/ds;
-			
+
 			vec4 stc = (proj_mat * vec4(pfinal.xyz, 1.0));
-			stc /= stc.w;
+
 			if (stc.z > 0.0)
 			{
+				stc /= stc.w;
 				float fatten = clamp(envIntensity*envIntensity+envIntensity*0.25, 0.25, 1.0);
 				
 				stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
