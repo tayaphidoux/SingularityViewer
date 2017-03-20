@@ -1905,7 +1905,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("FetchInventoryDescendents2");
 	capabilityNames.append("IncrementCOFVersion");
 	capabilityNames.append("GamingData"); //Used by certain grids.
-	AISCommand::getCapabilityNames(capabilityNames);
+	AISAPI::getCapNames(capabilityNames);
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetMesh");
 	capabilityNames.append("GetMesh2");		// Used on SecondLife(tm) sim versions 280647 and higher (13.09.17).

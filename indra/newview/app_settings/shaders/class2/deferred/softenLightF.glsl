@@ -23,7 +23,7 @@
  * $/LicenseInfo$
  */
  
-//#extension GL_ARB_texture_rectangle : enable
+
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -31,11 +31,11 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect specularRect;
-uniform sampler2DRect normalMap;
-uniform sampler2DRect lightMap;
-uniform sampler2DRect depthMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
+uniform sampler2D normalMap;
+uniform sampler2D lightMap;
+uniform sampler2D depthMap;
 uniform samplerCube environmentMap;
 uniform sampler2D	  lightFunc;
 
@@ -76,7 +76,6 @@ vec3 vary_AdditiveColor;
 vec3 vary_AtmosAttenuation;
 
 uniform mat4 inv_proj;
-uniform vec2 screen_res;
 
 vec3 srgb_to_linear(vec3 cs)
 {
@@ -135,7 +134,6 @@ vec3 decode_normal (vec2 enc)
 vec4 getPosition_d(vec2 pos_screen, float depth)
 {
 	vec2 sc = pos_screen.xy*2.0;
-	sc /= screen_res;
 	sc -= vec2(1.0,1.0);
 	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
 	vec4 pos = inv_proj * ndc;
@@ -146,7 +144,7 @@ vec4 getPosition_d(vec2 pos_screen, float depth)
 
 vec4 getPosition(vec2 pos_screen)
 { //get position in screen space (world units) given window coordinate and depth map
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
+	float depth = texture2D(depthMap, pos_screen.xy).r;
 	return getPosition_d(pos_screen, depth);
 }
 
@@ -195,6 +193,52 @@ void setAtmosAttenuation(vec3 v)
 {
 	vary_AtmosAttenuation = v;
 }
+
+#ifdef WATER_FOG
+uniform vec4 waterPlane;
+uniform vec4 waterFogColor;
+uniform float waterFogDensity;
+uniform float waterFogKS;
+
+vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
+{
+	//normalize view vector
+	vec3 view = normalize(pos);
+	float es = -(dot(view, waterPlane.xyz));
+
+	//find intersection point with water plane and eye vector
+	
+	//get eye depth
+	float e0 = max(-waterPlane.w, 0.0);
+	
+	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
+	
+	//get object depth
+	float depth = length(pos - int_v);
+		
+	//get "thickness" of water
+	float l = max(depth, 0.1);
+
+	float kd = waterFogDensity;
+	float ks = waterFogKS;
+	vec4 kc = waterFogColor;
+	
+	float F = 0.98;
+	
+	float t1 = -kd * pow(F, ks * e0);
+	float t2 = kd + ks * es;
+	float t3 = pow(F, t2*l) - 1.0;
+	
+	float L = min(t1/t2*t3, 1.0);
+	
+	float D = pow(0.98, l*kd);
+	
+	color.rgb = color.rgb * D + kc.rgb * L;
+	color.a = kc.a + color.a;
+	
+	return color;
+}
+#endif
 
 void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 
@@ -276,52 +320,6 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
 }
 
-#ifdef WATER_FOG
-uniform vec4 waterPlane;
-uniform vec4 waterFogColor;
-uniform float waterFogDensity;
-uniform float waterFogKS;
-
-vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
-{
-	//normalize view vector
-	vec3 view = normalize(pos);
-	float es = -(dot(view, waterPlane.xyz));
-
-	//find intersection point with water plane and eye vector
-	
-	//get eye depth
-	float e0 = max(-waterPlane.w, 0.0);
-	
-	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
-	
-	//get object depth
-	float depth = length(pos - int_v);
-		
-	//get "thickness" of water
-	float l = max(depth, 0.1);
-
-	float kd = waterFogDensity;
-	float ks = waterFogKS;
-	vec4 kc = waterFogColor;
-	
-	float F = 0.98;
-	
-	float t1 = -kd * pow(F, ks * e0);
-	float t2 = kd + ks * es;
-	float t3 = pow(F, t2*l) - 1.0;
-	
-	float L = min(t1/t2*t3, 1.0);
-	
-	float D = pow(0.98, l*kd);
-	
-	color.rgb = color.rgb * D + kc.rgb * L;
-	color.a = kc.a + color.a;
-	
-	return color;
-}
-#endif
-
 vec3 atmosLighting(vec3 light)
 {
 	light *= getAtmosAttenuation().r;
@@ -394,13 +392,13 @@ float luminance(vec3 color)
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
-	float depth = texture2DRect(depthMap, tc.xy).r;
+	float depth = texture2D(depthMap, tc.xy).r;
 	vec3 pos = getPosition_d(tc, depth).xyz;
-	vec4 norm = texture2DRect(normalMap, tc);
+	vec4 norm = texture2D(normalMap, tc);
 	float envIntensity = norm.z;
 	norm.xyz = decode_normal(norm.xy); // unpack norm
 		
-	vec4 diffuse = texture2DRect(diffuseRect, tc);
+	vec4 diffuse = texture2D(diffuseRect, tc);
 
 	//convert to gamma space
 	diffuse.rgb = linear_to_srgb(diffuse.rgb);
@@ -408,7 +406,7 @@ void main()
 	vec3 col;
 	float bloom = 0.0;
 	{
-		vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
+		vec4 spec = texture2D(specularRect, vary_fragcoord.xy);
 		bloom = spec.r*norm.w;
 		
 		if (norm.w < 0.5)
@@ -419,7 +417,7 @@ void main()
 		float light_gamma = 1.0/1.3;
 		da = pow(da, light_gamma);
 	
-		vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
+		vec2 scol_ambocc = texture2D(lightMap, vary_fragcoord.xy).rg;
 		scol_ambocc = pow(scol_ambocc, vec2(light_gamma));
 
 		float scol = max(scol_ambocc.r, diffuse.a); 

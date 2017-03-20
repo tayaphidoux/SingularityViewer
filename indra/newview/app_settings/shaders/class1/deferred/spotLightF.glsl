@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
 
-//#extension GL_ARB_texture_rectangle : enable
-//#extension GL_ARB_shader_texture_lod : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -34,10 +32,10 @@ out vec4 frag_color;
 
 //class 1 -- no shadows
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect specularRect;
-uniform sampler2DRect depthMap;
-uniform sampler2DRect normalMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
+uniform sampler2D depthMap;
+uniform sampler2D normalMap;
 uniform samplerCube environmentMap;
 uniform sampler2D noiseMap;
 uniform sampler2D projectionMap;
@@ -64,7 +62,6 @@ uniform float falloff;
 
 VARYING vec3 trans_center;
 VARYING vec4 vary_fragcoord;
-uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 
@@ -159,9 +156,8 @@ vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 
 vec4 getPosition(vec2 pos_screen)
 {
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
+	float depth = texture2D(depthMap, pos_screen.xy).r;
 	vec2 sc = pos_screen.xy*2.0;
-	sc /= screen_res;
 	sc -= vec2(1.0,1.0);
 	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
 	vec4 pos = inv_proj * ndc;
@@ -175,7 +171,6 @@ void main()
 	vec4 frag = vary_fragcoord;
 	frag.xyz /= frag.w;
 	frag.xyz = frag.xyz*0.5+0.5;
-	frag.xy *= screen_res;
 	
 	vec3 pos = getPosition(frag.xy).xyz;
 	vec3 lv = trans_center.xyz-pos.xyz;
@@ -187,7 +182,7 @@ void main()
 	}
 	
 		
-	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
+	vec3 norm = texture2D(normalMap, frag.xy).xyz;
 	float envIntensity = norm.z;
 	norm = decode_normal(norm.xy);
 	
@@ -218,9 +213,9 @@ void main()
 		
 	vec3 col = vec3(0,0,0);
 		
-	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
+	vec3 diff_tex = texture2D(diffuseRect, frag.xy).rgb;
 		
-	vec4 spec = texture2DRect(specularRect, frag.xy);
+	vec4 spec = texture2D(specularRect, frag.xy);
 
 	
 

@@ -487,10 +487,20 @@ void LLFontFreetype::renderGlyph(const U32 glyph_index) const
 	if (mFTFace == NULL)
 		return;
 
-	llassert_always(! FT_Load_Glyph(mFTFace, glyph_index, FT_LOAD_DEFAULT));
-
-	llassert_always(! FT_Render_Glyph(mFTFace->glyph, gFontRenderMode) );
-
+	FT_Error error = FT_Load_Glyph(mFTFace, glyph_index, FT_LOAD_DEFAULT);
+#ifdef SHOW_ASSERT
+	if (error)
+	{
+		LL_ERRS() << "FT_Load_Glyph returned " << error << LL_ENDL;
+	}
+#endif
+	error = FT_Render_Glyph(mFTFace->glyph, gFontRenderMode);
+#ifdef SHOW_ASSERT
+	if (error)
+	{
+		LL_ERRS() << "FT_Render_Glyph returned " << error << LL_ENDL;
+	}
+#endif
 	mRenderGlyphCount++;
 }
 

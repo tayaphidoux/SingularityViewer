@@ -149,7 +149,7 @@ void LLDrawPoolWater::endPostDeferredPass(S32 pass)
 //===============================
 void LLDrawPoolWater::renderDeferred(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_WATER);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
 	deferred_render = TRUE;
 	shade();
 	deferred_render = FALSE;
@@ -159,7 +159,7 @@ void LLDrawPoolWater::renderDeferred(S32 pass)
 
 void LLDrawPoolWater::render(S32 pass)
 {
-	LLFastTimer ftm(FTM_RENDER_WATER);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
 	if (mDrawFace.empty() || LLDrawable::getCurrentFrame() <= 1)
 	{
 		return;
@@ -649,14 +649,6 @@ void LLDrawPoolWater::shade()
 		sWaterFogColor.mV[3] = param_mgr->mDensitySliderValue;
 		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
 	}
-
-	F32 screenRes[] = 
-	{
-		1.f/gGLViewport[2],
-		1.f/gGLViewport[3]
-	};
-	shader->uniform2fv(LLShaderMgr::DEFERRED_SCREEN_RES, 1, screenRes);
-	stop_glerror();
 	
 	S32 diffTex = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
 	stop_glerror();

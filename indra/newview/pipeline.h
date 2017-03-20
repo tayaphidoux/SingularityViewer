@@ -84,25 +84,25 @@ void glh_set_current_modelview(const LLMatrix4a& mat);
 const LLMatrix4a& glh_get_current_projection();
 void glh_set_current_projection(const LLMatrix4a& mat);
 
-extern LLFastTimer::DeclareTimer FTM_RENDER_GEOMETRY;
-extern LLFastTimer::DeclareTimer FTM_RENDER_GRASS;
-extern LLFastTimer::DeclareTimer FTM_RENDER_OCCLUSION;
-extern LLFastTimer::DeclareTimer FTM_RENDER_SHINY;
-extern LLFastTimer::DeclareTimer FTM_RENDER_SIMPLE;
-extern LLFastTimer::DeclareTimer FTM_RENDER_TERRAIN;
-extern LLFastTimer::DeclareTimer FTM_RENDER_TREES;
-extern LLFastTimer::DeclareTimer FTM_RENDER_UI;
-extern LLFastTimer::DeclareTimer FTM_RENDER_WATER;
-extern LLFastTimer::DeclareTimer FTM_RENDER_WL_SKY;
-extern LLFastTimer::DeclareTimer FTM_RENDER_ALPHA;
-extern LLFastTimer::DeclareTimer FTM_RENDER_CHARACTERS;
-extern LLFastTimer::DeclareTimer FTM_RENDER_BUMP;
-extern LLFastTimer::DeclareTimer FTM_RENDER_MATERIALS;
-extern LLFastTimer::DeclareTimer FTM_RENDER_FULLBRIGHT;
-extern LLFastTimer::DeclareTimer FTM_RENDER_GLOW;
-extern LLFastTimer::DeclareTimer FTM_STATESORT;
-extern LLFastTimer::DeclareTimer FTM_PIPELINE;
-extern LLFastTimer::DeclareTimer FTM_CLIENT_COPY;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_GEOMETRY;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_OCCLUSION;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_SHINY;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_TERRAIN;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_TREES;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_WATER;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_WL_SKY;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_CHARACTERS;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_BUMP;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_MATERIALS;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_FULLBRIGHT;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_GLOW;
+extern LLTrace::BlockTimerStatHandle FTM_STATESORT;
+extern LLTrace::BlockTimerStatHandle FTM_PIPELINE;
+extern LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY;
 
 
 LL_ALIGN_PREFIX(16)
@@ -289,7 +289,7 @@ public:
 	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
-	void unbindDeferredShader(LLGLSLShader& shader);
+	void unbindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
 	void renderDeferredLighting();
 	void renderDeferredLightingToRT(LLRenderTarget* target);
 	
@@ -427,7 +427,7 @@ private:
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
 
-	void drawFullScreenRect( U32 data_mask );
+	void drawFullScreenRect();
 public:
 	enum {GPU_CLASS_MAX = 3 };
 
@@ -594,7 +594,6 @@ public:
 	LLRenderTarget			mDeferredDepth;
 private:
 	LLRenderTarget			mDeferredDownsampledDepth;
-	LLRenderTarget			mOcclusionDepth;
 	LLRenderTarget			mDeferredLight;
 public:
 	LLMultisampleBuffer		mSampleBuffer;
@@ -611,7 +610,6 @@ public:
 private:
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
-	LLRenderTarget			mShadowOcclusion[6];
 	std::vector<LLVector3>	mShadowFrustPoints[4];
 public:
 	LLCamera				mShadowCamera[8];

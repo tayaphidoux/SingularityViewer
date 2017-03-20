@@ -397,13 +397,13 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
-static LLFastTimer::DeclareTimer FTM_RENDER_TIMER("Timers", true);
+static LLTrace::BlockTimerStatHandle FTM_RENDER_TIMER("Timers", true);
 
 static std::map<LLFastTimer::NamedTimer*, LLColor4> sTimerColors;
 
 void LLFastTimerView::draw()
 {
-	LLFastTimer t(FTM_RENDER_TIMER);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_TIMER);
 	
 	std::string tdesc;
 
@@ -1026,7 +1026,7 @@ void LLFastTimerView::draw()
 			}
 			
 			//interpolate towards new maximum
-			last_max = (U64) lerp((F32)last_max, (F32) cur_max, LLCriticalDamp::getInterpolant(0.1f));
+			last_max = (U64) lerp((F32)last_max, (F32) cur_max, LLSmoothInterpolation::getInterpolant(0.1f));
 			if (last_max - cur_max <= 1 ||  cur_max - last_max  <= 1)
 			{
 				last_max = cur_max;
@@ -1034,7 +1034,7 @@ void LLFastTimerView::draw()
 			F32 alpha_target = last_max > cur_max ?
 								llmin((F32) last_max/ (F32) cur_max - 1.f,1.f) :
 								llmin((F32) cur_max/ (F32) last_max - 1.f,1.f);
-			alpha_interp = lerp(alpha_interp, alpha_target, LLCriticalDamp::getInterpolant(0.1f));
+			alpha_interp = lerp(alpha_interp, alpha_target, LLSmoothInterpolation::getInterpolant(0.1f));
 
 			if (mHoverID != NULL)
 			{

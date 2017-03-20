@@ -246,19 +246,19 @@ void display_stats()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_PICK("Picking");
-static LLFastTimer::DeclareTimer FTM_RENDER("Render", true);
-static LLFastTimer::DeclareTimer FTM_UPDATE_SKY("Update Sky");
-static LLFastTimer::DeclareTimer FTM_UPDATE_TEXTURES("Update Textures");
-static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE("Update Images");
-static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_CLASS("Class");
-static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_BUMP("Bump");
-static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_LIST("List");
-static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_DELETE("Delete");
+static LLTrace::BlockTimerStatHandle FTM_PICK("Picking");
+static LLTrace::BlockTimerStatHandle FTM_RENDER("Render", true);
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_SKY("Update Sky");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_TEXTURES("Update Textures");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE("Update Images");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_CLASS("Class");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_BUMP("Bump");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_LIST("List");
+static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_DELETE("Delete");
 // Paint the display!
 void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot, bool tiling)
 {
-	LLFastTimer t(FTM_RENDER);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER);
 
 	if (gWindowResized)
 	{ //skip render on frames where window has been resized
@@ -332,7 +332,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot, boo
 	}
 	
 	{
-		LLFastTimer ftm(FTM_PICK);
+		LL_RECORD_BLOCK_TIME(FTM_PICK);
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Pick");
 		gViewerWindow->performPick();
 	}
@@ -634,7 +634,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot, boo
 	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES))
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:DynamicTextures");
-		LLFastTimer t(FTM_UPDATE_TEXTURES);
+		LL_RECORD_BLOCK_TIME(FTM_UPDATE_TEXTURES);
 		if (LLViewerDynamicTexture::updateAllInstances())
 		{
 			gGL.setColorMask(true, true);
@@ -819,29 +819,29 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot, boo
 		gFrameStats.start(LLFrameStats::IMAGE_UPDATE);
 
 		{
-			LLFastTimer t(FTM_IMAGE_UPDATE);
+			LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE);
 			
 			{
-				LLFastTimer t(FTM_IMAGE_UPDATE_CLASS);
+				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_CLASS);
 				LLViewerTexture::updateClass(LLViewerCamera::getInstance()->getVelocityStat()->getMean(),
 											LLViewerCamera::getInstance()->getAngularVelocityStat()->getMean());
 			}
 
 			
 			{
-				LLFastTimer t(FTM_IMAGE_UPDATE_BUMP);
+				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_BUMP);
 				gBumpImageList.updateImages();  // must be called before gTextureList version so that it's textures are thrown out first.
 			}
 
 			{
-				LLFastTimer t(FTM_IMAGE_UPDATE_LIST);
+				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_LIST);
 				F32 max_image_decode_time = 0.050f*gFrameIntervalSeconds; // 50 ms/second decode time
 				max_image_decode_time = llclamp(max_image_decode_time, 0.002f, 0.005f ); // min 2ms/frame, max 5ms/frame)
 				gTextureList.updateImages(max_image_decode_time);
 			}
 
 			/*{
-				LLFastTimer t(FTM_IMAGE_UPDATE_DELETE);
+				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_DELETE);
 				//remove dead textures from GL
 				LLImageGL::deleteDeadTextures();
 				stop_glerror();
@@ -886,7 +886,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot, boo
 
 		{
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Sky");
-			LLFastTimer t(FTM_UPDATE_SKY);	
+			LL_RECORD_BLOCK_TIME(FTM_UPDATE_SKY);	
 			gSky.updateSky();
 		}
 
@@ -998,11 +998,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot, boo
 					gGL.loadIdentity();
 					gGL.color4fv( LLColor4::white.mV );
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-					gGL.begin( LLRender::QUADS );
+					gGL.begin( LLRender::TRIANGLE_STRIP );
 						gGL.vertex3f(rect.mLeft, rect.mTop,0.f);
 						gGL.vertex3f(rect.mLeft, rect.mBottom,0.f);
+						gGL.vertex3f(rect.mRight, rect.mTop, 0.f);
 						gGL.vertex3f(rect.mRight, rect.mBottom,0.f);
-						gGL.vertex3f(rect.mRight, rect.mTop,0.f);
 					gGL.end();
 
 					gGL.matrixMode(LLRender::MM_PROJECTION);
@@ -1106,7 +1106,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot, boo
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderUI");
 		if (!for_snapshot || LLPipeline::sRenderDeferred)
 		{
-			LLFastTimer t(FTM_RENDER_UI);
+			LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
 			gFrameStats.start(LLFrameStats::RENDER_UI);
 			render_ui();
 		}
@@ -1152,7 +1152,7 @@ void render_hud_attachments()
 	gAgentCamera.mHUDTargetZoom = llclamp(gAgentCamera.mHUDTargetZoom, (!gRlvAttachmentLocks.hasLockedHUD()) ? 0.1f : 0.85f, 1.f);
 // [/RLVa:KB]
 	// smoothly interpolate current zoom level
-	gAgentCamera.mHUDCurZoom = lerp(gAgentCamera.mHUDCurZoom, gAgentCamera.mHUDTargetZoom, LLCriticalDamp::getInterpolant(0.03f));
+	gAgentCamera.mHUDCurZoom = lerp(gAgentCamera.mHUDCurZoom, gAgentCamera.mHUDTargetZoom, LLSmoothInterpolation::getInterpolant(0.03f));
 
 	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices())
 	{
@@ -1325,7 +1325,7 @@ BOOL setup_hud_matrices(const LLRect& screen_region)
 	return TRUE;
 }
 
-static LLFastTimer::DeclareTimer FTM_SWAP("Swap");
+static LLTrace::BlockTimerStatHandle FTM_SWAP("Swap");
 
 void render_ui(F32 zoom_factor, int subfield, bool tiling)
 {
@@ -1368,7 +1368,7 @@ void render_ui(F32 zoom_factor, int subfield, bool tiling)
 		gGL.color4f(1,1,1,1);
 		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 		{
-			LLFastTimer t(FTM_RENDER_UI);
+			LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
 
 			if (!gDisconnected)
 			{
@@ -1402,7 +1402,7 @@ void render_ui(F32 zoom_factor, int subfield, bool tiling)
 
 	if (gDisplaySwapBuffers)
 	{
-		LLFastTimer t(FTM_SWAP);
+		LL_RECORD_BLOCK_TIME(FTM_SWAP);
 		gViewerWindow->getWindow()->swapBuffers();
 	}
 	gDisplaySwapBuffers = TRUE;

@@ -353,11 +353,11 @@ void LLLayoutStack::collapsePanel(LLPanel* panel, BOOL collapsed)
 	mNeedsLayout = true;
 }
 
-static LLFastTimer::DeclareTimer FTM_UPDATE_LAYOUT("Update LayoutStacks");
+static LLTrace::BlockTimerStatHandle FTM_UPDATE_LAYOUT("Update LayoutStacks");
 
 void LLLayoutStack::updateLayout()
 {	
-	LLFastTimer ft(FTM_UPDATE_LAYOUT);
+	LL_RECORD_BLOCK_TIME(FTM_UPDATE_LAYOUT);
 
 	if (!mNeedsLayout) return;
 
@@ -621,7 +621,7 @@ bool LLLayoutStack::animatePanels()
 			{
 				if (!mAnimatedThisFrame)
 				{
-					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(mOpenTimeConstant));
+					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 1.f, LLSmoothInterpolation::getInterpolant(mOpenTimeConstant));
 					if (panelp->mVisibleAmt > 0.99f)
 					{
 						panelp->mVisibleAmt = 1.f;
@@ -646,7 +646,7 @@ bool LLLayoutStack::animatePanels()
 			{
 				if (!mAnimatedThisFrame)
 				{
-					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
+					panelp->mVisibleAmt = lerp(panelp->mVisibleAmt, 0.f, LLSmoothInterpolation::getInterpolant(mCloseTimeConstant));
 					if (panelp->mVisibleAmt < 0.001f)
 					{
 						panelp->mVisibleAmt = 0.f;
@@ -673,7 +673,7 @@ bool LLLayoutStack::animatePanels()
 			{
 				if (!mAnimatedThisFrame)
 				{
-					panelp->mCollapseAmt = lerp(panelp->mCollapseAmt, collapse_state, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
+					panelp->mCollapseAmt = lerp(panelp->mCollapseAmt, collapse_state, LLSmoothInterpolation::getInterpolant(mCloseTimeConstant));
 				}
 			
 				if (llabs(panelp->mCollapseAmt - collapse_state) < 0.001f)

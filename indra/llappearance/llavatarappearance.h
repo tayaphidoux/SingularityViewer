@@ -35,6 +35,7 @@
 #include "llviewervisualparam.h"
 #include "llxmltree.h"
 
+#include <boost/container/flat_map.hpp> // <alchemy/>
 class LLTexLayerSet;
 class LLTexGlobalColor;
 class LLTexGlobalColorInfo;
@@ -141,7 +142,7 @@ public:
 	LLVector3			mHeadOffset; // current head position
 	LLAvatarJoint		*mRoot;
 
-	typedef std::vector<std::pair<char[64], LLJoint*>> joint_map_t;
+	typedef std::vector<std::pair<char[64], LLJoint*> > joint_map_t;
 	joint_map_t			mJointMap;
 
 	typedef std::map<std::string, LLVector3> joint_state_map_t;
@@ -162,6 +163,7 @@ protected:
 	static BOOL			parseSkeletonFile(const std::string& filename);
 	virtual void		buildCharacter();
 	virtual BOOL		loadAvatar();
+	virtual void		bodySizeChanged() = 0;
 
 	BOOL				setupBone(const LLAvatarBoneInfo* info, LLJoint* parent, S32 &current_volume_num, S32 &current_joint_num);
 	BOOL				allocateCharacterJoints(U32 num);

@@ -22,9 +22,6 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-//#extension GL_ARB_texture_rectangle : enable
-//#extension GL_ARB_shader_texture_lod : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -34,7 +31,9 @@ out vec4 frag_color;
 
 #define FXAA_PC 1
 //#define FXAA_GLSL_130 1
+#ifndef FXAA_QUALITY_M_PRESET
 #define FXAA_QUALITY_M_PRESET 12
+#endif
 
 /*============================================================================
 
@@ -2109,11 +2108,10 @@ uniform vec2 rcp_screen_res;
 uniform vec4 rcp_frame_opt;
 uniform vec4 rcp_frame_opt2;
 VARYING vec2 vary_fragcoord;
-VARYING vec2 vary_tc;
 
 void main() 
 {
-	vec4 diff =			FxaaPixelShader(vary_tc,			//pos
+	vec4 diff =			FxaaPixelShader(vary_fragcoord,			//pos
 										vec4(vary_fragcoord.xy, 0, 0), //fxaaConsolePosPos
 										diffuseMap,					//tex
 										diffuseMap,					

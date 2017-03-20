@@ -46,7 +46,6 @@ uniform mat4 modelview_matrix;
 VARYING vec3 vary_position;
 #if HAS_SUN_SHADOW
 VARYING vec2 vary_fragcoord;
-uniform vec2 screen_res;
 #endif
 
 #endif
@@ -144,7 +143,7 @@ vary_normal  = n;
 	vary_position = pos;
 #endif
 #if HAS_SUN_SHADOW
-	vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
+	vary_fragcoord = (pos.xy*0.5+0.5);
 #endif
 #endif
 }

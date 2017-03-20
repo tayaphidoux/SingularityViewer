@@ -35,305 +35,314 @@
 #include "llviewerregion.h"
 #include "llinventoryobserver.h"
 #include "llviewercontrol.h"
+#include <boost/bind.hpp>
 
 ///----------------------------------------------------------------------------
 /// Classes for AISv3 support.
 ///----------------------------------------------------------------------------
 
-// AISCommand - base class for retry-able HTTP requests using the AISv3 cap.
-AISCommand::AISCommand(LLPointer<LLInventoryCallback> callback):
-	mCommandFunc(NULL),
-	mCallback(callback)
+class AISCommand : public LLHTTPClient::ResponderWithResult
 {
-	mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10);
-}
-
-bool AISCommand::run_command()
-{
-	if (NULL == mCommandFunc)
-	{
-		// This may happen if a command failed to initiate itself.
-		LL_WARNS("Inventory") << "AIS command attempted with null command function" << LL_ENDL;
-		return false;
-	}
-	else
-	{
-		mCommandFunc();
-		return true;
-	}
-}
-
-void AISCommand::setCommandFunc(command_func_type command_func)
-{
-	mCommandFunc = command_func;
-}
+public:
+	typedef boost::function<void()> command_func_type;
+	// AISCommand - base class for retry-able HTTP requests using the AISv3 cap.
+	AISCommand(AISAPI::COMMAND_TYPE type, const char* name, const LLUUID& targetId, AISAPI::completion_t callback) :
+		mCommandFunc(NULL),
+		mRetryPolicy(new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10)),
+		mCompletionFunc(callback),
+		mTargetId(targetId),
+		mName(name),
+		mType(type)
+	{}
 	
-// virtual
-bool AISCommand::getResponseUUID(const LLSD& content, LLUUID& id)
-{
-	return false;
-}
-	
-/* virtual */
-void AISCommand::httpSuccess()
-{
-	// Command func holds a reference to self, need to release it
-	// after a success or final failure.
-	setCommandFunc(no_op);
-		
-	const LLSD& content = getContent();
-	if (!content.isMap())
+	void run( command_func_type func )
 	{
-		failureResult(400, "Malformed response contents", content);
-		return;
+		(mCommandFunc = func)();
 	}
-	mRetryPolicy->onSuccess();
-		
-	gInventory.onAISUpdateReceived("AISCommand", content);
 
-	if (mCallback)
+	char const* getName(void) const
 	{
-		LLUUID id; // will default to null if parse fails.
-		getResponseUUID(content,id);
-		mCallback->fire(id);
+		return mName;
 	}
-}
 
-/*virtual*/
-void AISCommand::httpFailure()
-{
-	LL_WARNS("Inventory") << dumpResponse() << LL_ENDL;
-	S32 status = getStatus();
-	const AIHTTPReceivedHeaders& headers = getResponseHeaders();
-	mRetryPolicy->onFailure(status, headers);
-	F32 seconds_to_wait;
-	if (mRetryPolicy->shouldRetry(seconds_to_wait))
+	void markComplete()
 	{
-		doAfterInterval(boost::bind(&AISCommand::run_command,this),seconds_to_wait);
+		mRetryPolicy->onSuccess();
 	}
-	else
+
+protected:
+	/* virtual */
+	void httpSuccess()
 	{
 		// Command func holds a reference to self, need to release it
 		// after a success or final failure.
-		// *TODO: Notify user?  This seems bad.
-		setCommandFunc(no_op);
+		mCommandFunc = no_op;
+		AISAPI::InvokeAISCommandCoro(this, getURL(), mTargetId, getContent(), mCompletionFunc, (AISAPI::COMMAND_TYPE)mType);
 	}
-}
 
-//static
-bool AISCommand::isAPIAvailable()
+	/*virtual*/
+	void httpFailure()
+	{
+		LL_WARNS("Inventory") << dumpResponse() << LL_ENDL;
+		S32 status = getStatus();
+		const AIHTTPReceivedHeaders& headers = getResponseHeaders();
+		mRetryPolicy->onFailure(status, headers);
+		F32 seconds_to_wait;
+		if (mRetryPolicy->shouldRetry(seconds_to_wait))
+		{
+			doAfterInterval(mCommandFunc,seconds_to_wait);
+		}
+		else
+		{
+			// Command func holds a reference to self, need to release it
+			// after a success or final failure.
+			// *TODO: Notify user?  This seems bad.
+			mCommandFunc = no_op;
+		}
+	}
+
+	command_func_type mCommandFunc;
+	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
+	AISAPI::completion_t mCompletionFunc;
+	const LLUUID mTargetId;
+	const char* mName;
+	AISAPI::COMMAND_TYPE mType;
+};
+
+//=========================================================================
+const std::string AISAPI::INVENTORY_CAP_NAME("InventoryAPIv3");
+const std::string AISAPI::LIBRARY_CAP_NAME("LibraryAPIv3");
+
+//-------------------------------------------------------------------------
+/*static*/
+bool AISAPI::isAvailable()
 {
 	if (gAgent.getRegion())
 	{
-		return gAgent.getRegion()->isCapabilityAvailable("InventoryAPIv3");
+		return gAgent.getRegion()->isCapabilityAvailable(INVENTORY_CAP_NAME);
 	}
 	return false;
 }
 
-//static
-bool AISCommand::getInvCap(std::string& cap)
+/*static*/
+void AISAPI::getCapNames(LLSD& capNames)
 {
-	if (gAgent.getRegion())
-	{
-		cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
-	}
-	if (!cap.empty())
-	{
-		return true;
-	}
-	return false;
+    capNames.append(INVENTORY_CAP_NAME);
+    capNames.append(LIBRARY_CAP_NAME);
 }
 
-//static
-bool AISCommand::getLibCap(std::string& cap)
+/*static*/
+std::string AISAPI::getInvCap()
 {
-	if (gAgent.getRegion())
-	{
-		cap = gAgent.getRegion()->getCapability("LibraryAPIv3");
-	}
-	if (!cap.empty())
-	{
-		return true;
-	}
-	return false;
+    if (gAgent.getRegion())
+    {
+        return gAgent.getRegion()->getCapability(INVENTORY_CAP_NAME);
+    }
+    return std::string();
 }
 
-//static
-void AISCommand::getCapabilityNames(LLSD& capabilityNames)
+/*static*/
+std::string AISAPI::getLibCap()
 {
-	capabilityNames.append("InventoryAPIv3");
-	capabilityNames.append("LibraryAPIv3");
+    if (gAgent.getRegion())
+    {
+        return gAgent.getRegion()->getCapability(LIBRARY_CAP_NAME);
+    }
+    return std::string();
 }
 
-RemoveItemCommand::RemoveItemCommand(const LLUUID& item_id,
-									 LLPointer<LLInventoryCallback> callback):
-	AISCommand(callback)
+/*static*/ 
+void AISAPI::CreateInventory(const LLUUID& parentId, const LLSD& newInventory, completion_t callback)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	std::string url = cap + std::string("/item/") + item_id.asString();
+    std::string cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+
+    LLUUID tid;
+    tid.generate();
+
+	std::string url = cap + std::string("/category/") + parentId.asString() + "?tid=" + tid.asString();
 	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LLHTTPClient::ResponderPtr responder = this;
-	command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off));
-	setCommandFunc(cmd);
+
+	boost::intrusive_ptr< AISCommand > responder = new AISCommand(COPYINVENTORY, "CreateInventory",parentId, callback);
+	responder->run(boost::bind(&LLHTTPClient::post, url, newInventory, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off), keep_alive, (AIStateMachine*)NULL, 0));
 }
 
-RemoveCategoryCommand::RemoveCategoryCommand(const LLUUID& item_id,
-											 LLPointer<LLInventoryCallback> callback):
-	AISCommand(callback)
+/*static*/ 
+void AISAPI::SlamFolder(const LLUUID& folderId, const LLSD& newInventory, completion_t callback)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	std::string url = cap + std::string("/category/") + item_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LLHTTPClient::ResponderPtr responder = this;
-	command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off));
-	setCommandFunc(cmd);
-}
+    std::string cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
 
-PurgeDescendentsCommand::PurgeDescendentsCommand(const LLUUID& item_id,
-												 LLPointer<LLInventoryCallback> callback):
-	AISCommand(callback)
-{
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	std::string url = cap + std::string("/category/") + item_id.asString() + "/children";
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LLHTTPClient::ResponderPtr responder = this;
-	command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off));
-	setCommandFunc(cmd);
-}
+    LLUUID tid;
+    tid.generate();
 
-UpdateItemCommand::UpdateItemCommand(const LLUUID& item_id,
-									 const LLSD& updates,
-									 LLPointer<LLInventoryCallback> callback):
-	mUpdates(updates),
-	AISCommand(callback)
-{
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	std::string url = cap + std::string("/item/") + item_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LL_DEBUGS("Inventory") << "request: " << ll_pretty_print_sd(mUpdates) << LL_ENDL;
-	LLHTTPClient::ResponderPtr responder = this;
+    std::string url = cap + std::string("/category/") + folderId.asString() + "/links?tid=" + tid.asString();
+
 	AIHTTPHeaders headers;
 	headers.addHeader("Content-Type", "application/llsd+xml");
-	command_func_type cmd = boost::bind(&LLHTTPClient::patch, url, mUpdates, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off), keep_alive, (AIStateMachine*)NULL, 0);
-	setCommandFunc(cmd);
+	boost::intrusive_ptr< AISCommand > responder = new AISCommand(SLAMFOLDER, "SlamFolder", folderId, callback);
+	responder->run(boost::bind(&LLHTTPClient::put, url, newInventory, responder, headers/*,*/ DEBUG_CURLIO_PARAM(debug_off)));
+
 }
 
-UpdateCategoryCommand::UpdateCategoryCommand(const LLUUID& cat_id,
-											 const LLSD& updates,
-											 LLPointer<LLInventoryCallback> callback):
-	mUpdates(updates),
-	AISCommand(callback)
+void AISAPI::RemoveCategory(const LLUUID &categoryId, completion_t callback)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	std::string url = cap + std::string("/category/") + cat_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LLHTTPClient::ResponderPtr responder = this;
-	AIHTTPHeaders headers;
-	headers.addHeader("Content-Type", "application/llsd+xml");
-	command_func_type cmd = boost::bind(&LLHTTPClient::patch, url, mUpdates, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off), keep_alive, (AIStateMachine*)NULL, 0);
-	setCommandFunc(cmd);
+    std::string cap;
+
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+
+    std::string url = cap + std::string("/category/") + categoryId.asString();
+    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+
+	boost::intrusive_ptr< AISCommand > responder = new AISCommand(REMOVECATEGORY, "RemoveCategory",categoryId, callback);
+	responder->run(boost::bind(&LLHTTPClient::del, url, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off)));
 }
 
-CreateInventoryCommand::CreateInventoryCommand(const LLUUID& parent_id,
-							 				   const LLSD& new_inventory,
-							 				   LLPointer<LLInventoryCallback> callback):
-	mNewInventory(new_inventory),
-	AISCommand(callback)
+/*static*/ 
+void AISAPI::RemoveItem(const LLUUID &itemId, completion_t callback)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	LLUUID tid;
-	tid.generate();
-	std::string url = cap + std::string("/category/") + parent_id.asString() + "?tid=" + tid.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LLHTTPClient::ResponderPtr responder = this;
-	AIHTTPHeaders headers;
-	headers.addHeader("Content-Type", "application/llsd+xml");
-	command_func_type cmd = boost::bind(&LLHTTPClient::post, url, mNewInventory, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off), keep_alive, (AIStateMachine*)NULL, 0);
-	setCommandFunc(cmd);
+    std::string cap;
+
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+
+    std::string url = cap + std::string("/item/") + itemId.asString();
+    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+
+	boost::intrusive_ptr< AISCommand > responder = new AISCommand(REMOVEITEM,"RemoveItem",itemId, callback);
+	responder->run(boost::bind(&LLHTTPClient::del, url, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off)));
 }
 
-SlamFolderCommand::SlamFolderCommand(const LLUUID& folder_id, const LLSD& contents, LLPointer<LLInventoryCallback> callback):
-	mContents(contents),
-	AISCommand(callback)
+void AISAPI::CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	LLUUID tid;
-	tid.generate();
-	std::string url = cap + std::string("/category/") + folder_id.asString() + "/links?tid=" + tid.asString();
-	LL_INFOS() << url << LL_ENDL;
-	LLHTTPClient::ResponderPtr responder = this;
-	AIHTTPHeaders headers;
-	headers.addHeader("Content-Type", "application/llsd+xml");
-	command_func_type cmd = boost::bind(&LLHTTPClient::put, url, mContents, responder, headers/*,*/ DEBUG_CURLIO_PARAM(debug_off));
-	setCommandFunc(cmd);
+    std::string cap;
+
+    cap = getLibCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Library cap not found!" << LL_ENDL;
+        return;
+    }
+
+    LL_DEBUGS("Inventory") << "Copying library category: " << sourceId << " => " << destId << LL_ENDL;
+
+    LLUUID tid;
+    tid.generate();
+
+    std::string url = cap + std::string("/category/") + sourceId.asString() + "?tid=" + tid.asString();
+    if (!copySubfolders)
+    {
+        url += ",depth=0";
+    }
+    LL_INFOS() << url << LL_ENDL;
+
+    std::string destination = destId.asString();
+
+	boost::intrusive_ptr< AISCommand > responder = new AISCommand(COPYLIBRARYCATEGORY, "CopyLibraryCategory",destId, callback);
+	responder->run(boost::bind(&LLHTTPClient::copy, url, destination, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off)));
+
 }
 
-CopyLibraryCategoryCommand::CopyLibraryCategoryCommand(const LLUUID& source_id,
-													   const LLUUID& dest_id,
-													   LLPointer<LLInventoryCallback> callback):
-	AISCommand(callback)
+/*static*/ 
+void AISAPI::PurgeDescendents(const LLUUID &categoryId, completion_t callback)
 {
-	std::string cap;
-	if (!getLibCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	LL_DEBUGS("Inventory") << "Copying library category: " << source_id << " => " << dest_id << LL_ENDL;
-	LLUUID tid;
-	tid.generate();
-	std::string url = cap + std::string("/category/") + source_id.asString() + "?tid=" + tid.asString();
-	LL_INFOS() << url << LL_ENDL;
-	LLHTTPClient::ResponderPtr responder = this;
-	command_func_type cmd = boost::bind(&LLHTTPClient::copy, url, dest_id.asString(), responder);
-	setCommandFunc(cmd);
+    std::string cap;
+
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+
+    std::string url = cap + std::string("/category/") + categoryId.asString() + "/children";
+    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+
+    boost::intrusive_ptr< AISCommand > responder = new AISCommand(PURGEDESCENDENTS, "PurgeDescendents",categoryId, callback);
+	responder->run(boost::bind(&LLHTTPClient::del, url, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off)));
 }
 
-bool CopyLibraryCategoryCommand::getResponseUUID(const LLSD& content, LLUUID& id)
+/*static*/
+void AISAPI::UpdateCategory(const LLUUID &categoryId, const LLSD &updates, completion_t callback)
 {
-	if (content.has("category_id"))
-	{
-		id = content["category_id"];
-		return true;
-	}
-	return false;
+    std::string cap;
+
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+    std::string url = cap + std::string("/category/") + categoryId.asString();
+
+    boost::intrusive_ptr< AISCommand > responder = new AISCommand(UPDATECATEGORY, "UpdateCategory",categoryId, callback);
+	responder->run(boost::bind(&LLHTTPClient::patch, url, updates, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off), keep_alive, (AIStateMachine*)NULL, 0));
 }
 
+/*static*/
+void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t callback)
+{
+
+    std::string cap;
+
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+    std::string url = cap + std::string("/item/") + itemId.asString();
+
+    boost::intrusive_ptr< AISCommand > responder = new AISCommand(UPDATEITEM, "UpdateItem",itemId, callback);
+	responder->run(boost::bind(&LLHTTPClient::patch, url, updates, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off), keep_alive, (AIStateMachine*)NULL, 0));
+}
+void AISAPI::InvokeAISCommandCoro(LLHTTPClient::ResponderWithResult* responder, 
+        std::string url, 
+        LLUUID targetId, LLSD result, completion_t callback, COMMAND_TYPE type)
+{
+	{
+		if (!result.isMap())
+		{
+			responder->failureResult(400, "Malformed response contents", result);
+			return;
+		}
+		((AISCommand*)responder)->markComplete();
+	}
+		
+	gInventory.onAISUpdateReceived("AISCommand", result);
+
+	if (callback && callback != nullptr)
+	{
+		LLUUID id(LLUUID::null);
+
+		if (result.has("category_id") && (type == COPYLIBRARYCATEGORY))
+		{
+			id = result["category_id"];
+		}
+
+		callback(id);
+	}
+
+}
+
+//-------------------------------------------------------------------------
 AISUpdate::AISUpdate(const LLSD& update)
 {
 	parseUpdate(update);
@@ -550,13 +559,25 @@ void AISUpdate::parseCategory(const LLSD& category_map)
 		parseDescendentCount(category_id, category_map["_embedded"]);
 	}
 
-	LLPointer<LLViewerInventoryCategory> new_cat(new LLViewerInventoryCategory(category_id));
+	LLPointer<LLViewerInventoryCategory> new_cat;
 	LLViewerInventoryCategory *curr_cat = gInventory.getCategory(category_id);
 	if (curr_cat)
 	{
 		// Default to current values where not provided.
-		new_cat->copyViewerCategory(curr_cat);
+        new_cat = new LLViewerInventoryCategory(curr_cat);
 	}
+	else
+    {
+        if (category_map.has("agent_id"))
+        {
+            new_cat = new LLViewerInventoryCategory(category_map["agent_id"].asUUID());
+        }
+        else
+        {
+            LL_DEBUGS() << "No owner provided, folder might be assigned wrong owner" << LL_ENDL;
+            new_cat = new LLViewerInventoryCategory(LLUUID::null);
+        }
+    }
 	BOOL rv = new_cat->unpackMessage(category_map);
 	// *NOTE: unpackMessage does not unpack version or descendent count.
 	//if (category_map.has("version"))
@@ -749,7 +770,7 @@ void AISUpdate::doUpdate()
 	for (std::map<LLUUID,S32>::const_iterator catit = mCatDescendentDeltas.begin();
 		 catit != mCatDescendentDeltas.end(); ++catit)
 	{
-		LL_DEBUGS("Inventory") << "descendent accounting for " << catit->first << LL_ENDL;
+		LL_DEBUGS("Inventory") << "descendant accounting for " << catit->first << LL_ENDL;
 
 		const LLUUID cat_id(catit->first);
 		// Don't account for update if we just created this category.
@@ -772,7 +793,7 @@ void AISUpdate::doUpdate()
 		{
 			S32 descendent_delta = catit->second;
 			S32 old_count = cat->getDescendentCount();
-			LL_DEBUGS("Inventory") << "Updating descendent count for "
+			LL_DEBUGS("Inventory") << "Updating descendant count for "
 								   << cat->getName() << " " << cat_id
 								   << " with delta " << descendent_delta << " from "
 								   << old_count << " to " << (old_count+descendent_delta) << LL_ENDL;
@@ -850,7 +871,7 @@ void AISUpdate::doUpdate()
 	for (uuid_list_t::const_iterator del_it = mObjectsDeletedIds.begin();
 		 del_it != mObjectsDeletedIds.end(); ++del_it)
 	{
-		LL_INFOS("Inventory") << "deleted item " << *del_it << LL_ENDL;
+		LL_DEBUGS("Inventory") << "deleted item " << *del_it << LL_ENDL;
 		gInventory.onObjectDeletedFromServer(*del_it, false, false, false);
 	}
 
@@ -868,7 +889,16 @@ void AISUpdate::doUpdate()
 		{
 			LL_WARNS() << "Possible version mismatch for category " << cat->getName()
 					<< ", viewer version " << cat->getVersion()
-					<< " server version " << version << LL_ENDL;
+					<< " AIS version " << version << " !!!Adjusting local version!!!" <<  LL_ENDL;
+
+            // the AIS version should be considered the true version. Adjust 
+            // our local category model to reflect this version number.  Otherwise 
+            // it becomes possible to get stuck with the viewer being out of 
+            // sync with the inventory system.  Under normal circumstances 
+            // inventory COF is maintained on the viewer through calls to 
+            // LLInventoryModel::accountForUpdate when a changing operation 
+            // is performed.  This occasionally gets out of sync however.
+            cat->setVersion(version);
 		}
 	}
 

@@ -543,11 +543,11 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 	{
 		if (mHighlightedPart == MANIPULATOR_IDS[i])
 		{
-			mManipulatorScales[i] = lerp(mManipulatorScales[i], SELECTED_MANIPULATOR_SCALE, LLCriticalDamp::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+			mManipulatorScales[i] = lerp(mManipulatorScales[i], SELECTED_MANIPULATOR_SCALE, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
 		}
 		else
 		{
-			mManipulatorScales[i] = lerp(mManipulatorScales[i], 1.f, LLCriticalDamp::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+			mManipulatorScales[i] = lerp(mManipulatorScales[i], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
 		}
 	}
 
@@ -610,43 +610,55 @@ void LLManipScale::renderFaces( const LLBBox& bbox )
 	{
 		gGL.color4fv( default_normal_color.mV );
 		LLGLDepthTest gls_depth(GL_FALSE);
-		gGL.begin(LLRender::QUADS); 
+		gGL.begin(LLRender::TRIANGLES); 
 		{
 			// Face 0
 			gGL.vertex3f(min.mV[VX], max.mV[VY], max.mV[VZ]);
 			gGL.vertex3f(min.mV[VX], min.mV[VY], max.mV[VZ]);
-			gGL.vertex3f(max.mV[VX], min.mV[VY], max.mV[VZ]);
 			gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
+			gGL.vertex3f(min.mV[VX], min.mV[VY], max.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], min.mV[VY], max.mV[VZ]);
 
 			// Face 1
 			gGL.vertex3f(max.mV[VX], min.mV[VY], max.mV[VZ]);
 			gGL.vertex3f(max.mV[VX], min.mV[VY], min.mV[VZ]);
-			gGL.vertex3f(max.mV[VX], max.mV[VY], min.mV[VZ]);
 			gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], min.mV[VY], min.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], max.mV[VY], min.mV[VZ]);
 
 			// Face 2
 			gGL.vertex3f(min.mV[VX], max.mV[VY], min.mV[VZ]);
 			gGL.vertex3f(min.mV[VX], max.mV[VY], max.mV[VZ]);
-			gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
 			gGL.vertex3f(max.mV[VX], max.mV[VY], min.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], max.mV[VY], min.mV[VZ]);
+			gGL.vertex3f(min.mV[VX], max.mV[VY], max.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
 
 			// Face 3
 			gGL.vertex3f(min.mV[VX], max.mV[VY], max.mV[VZ]);
 			gGL.vertex3f(min.mV[VX], max.mV[VY], min.mV[VZ]);
-			gGL.vertex3f(min.mV[VX], min.mV[VY], min.mV[VZ]);
 			gGL.vertex3f(min.mV[VX], min.mV[VY], max.mV[VZ]);
+			gGL.vertex3f(min.mV[VX], min.mV[VY], max.mV[VZ]);
+			gGL.vertex3f(min.mV[VX], max.mV[VY], min.mV[VZ]);
+			gGL.vertex3f(min.mV[VX], min.mV[VY], min.mV[VZ]);
 
 			// Face 4
 			gGL.vertex3f(min.mV[VX], min.mV[VY], max.mV[VZ]);
 			gGL.vertex3f(min.mV[VX], min.mV[VY], min.mV[VZ]);
-			gGL.vertex3f(max.mV[VX], min.mV[VY], min.mV[VZ]);
 			gGL.vertex3f(max.mV[VX], min.mV[VY], max.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], min.mV[VY], max.mV[VZ]);
+			gGL.vertex3f(min.mV[VX], min.mV[VY], min.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], min.mV[VY], min.mV[VZ]);
 
 			// Face 5
 			gGL.vertex3f(min.mV[VX], min.mV[VY], min.mV[VZ]);
 			gGL.vertex3f(min.mV[VX], max.mV[VY], min.mV[VZ]);
-			gGL.vertex3f(max.mV[VX], max.mV[VY], min.mV[VZ]);
 			gGL.vertex3f(max.mV[VX], min.mV[VY], min.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], min.mV[VY], min.mV[VZ]);
+			gGL.vertex3f(min.mV[VX], max.mV[VY], min.mV[VZ]);
+			gGL.vertex3f(max.mV[VX], max.mV[VY], min.mV[VZ]);
 		}
 		gGL.end();
 	}

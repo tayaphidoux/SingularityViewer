@@ -1046,12 +1046,12 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 	sd[INV_CREATION_DATE_LABEL] = (S32) mCreationDate;
 }
 
-LLFastTimer::DeclareTimer FTM_INVENTORY_SD_DESERIALIZE("Inventory SD Deserialize");
+LLTrace::BlockTimerStatHandle FTM_INVENTORY_SD_DESERIALIZE("Inventory SD Deserialize");
 
 bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 {
 
-	LLFastTimer _(FTM_INVENTORY_SD_DESERIALIZE);
+	LL_RECORD_BLOCK_TIME(FTM_INVENTORY_SD_DESERIALIZE);
 	if (is_new)
 	{
 		// If we're adding LLSD to an existing object, need avoid

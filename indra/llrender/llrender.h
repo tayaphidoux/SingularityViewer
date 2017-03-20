@@ -64,9 +64,7 @@ public:
 	typedef enum
 	{
 		TT_TEXTURE = 0,			// Standard 2D Texture
-		TT_RECT_TEXTURE,	// Non power of 2 texture
 		TT_CUBE_MAP,		// 6-sided cube map texture
-		//TT_MULTISAMPLE_TEXTURE, // see GL_ARB_texture_multisample  Do not use
 		TT_NONE 		// No texture type is currently enabled
 	} eTextureType;
 
@@ -281,7 +279,6 @@ public:
 		POINTS,
 		LINES,
 		LINE_STRIP,
-		QUADS,
 		LINE_LOOP,
 		NUM_MODES
 	} eGeomModes;
@@ -382,6 +379,8 @@ public:
 
 	void translateUI(F32 x, F32 y, F32 z);
 	void scaleUI(F32 x, F32 y, F32 z);
+	// Rotates vertices, pre-translation/scale
+	void rotateUI(LLQuaternion& rot);
 	void pushUIMatrix();
 	void popUIMatrix();
 	void loadUIIdentity();
@@ -437,6 +436,8 @@ public:
 	LLLightState* getLight(U32 index);
 	void setAmbientLightColor(const LLColor4& color);
 
+	void setLineWidth(F32 line_width);
+
 	LLTexUnit* getTexUnit(U32 index);
 
 	U32	getCurrentTexUnitIndex(void) const { return mCurrTextureUnitIndex; }
@@ -471,13 +472,13 @@ private:
 	LLColor4 mAmbientLightColor;
 	
 	bool			mDirty;
-	U32				mQuadCycle;
 	U32				mCount;
 	U32				mMode;
 	U32				mCurrTextureUnitIndex;
 	bool				mCurrColorMask[4];
 	eCompareFunc			mCurrAlphaFunc;
 	F32				mCurrAlphaFuncVal;
+	F32				mLineWidth;
 
 	LLPointer<LLVertexBuffer>	mBuffer;
 	LLStrider<LLVector4a>		mVerticesp;
@@ -496,6 +497,9 @@ private:
 
 	std::vector<LLVector4a, boost::alignment::aligned_allocator<LLVector4a, 64> > mUIOffset;
 	std::vector<LLVector4a, boost::alignment::aligned_allocator<LLVector4a, 64> > mUIScale;
+	std::vector<LLQuaternion> mUIRotation;
+
+	bool			mPrimitiveReset;
 } LL_ALIGN_POSTFIX(16);
 
 

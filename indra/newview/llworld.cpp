@@ -1354,11 +1354,11 @@ void LLWorld::disconnectRegions()
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_ENABLE_SIMULATOR("Enable Sim");
+static LLTrace::BlockTimerStatHandle FTM_ENABLE_SIMULATOR("Enable Sim");
 
 void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 {
-	LLFastTimer t(FTM_ENABLE_SIMULATOR);
+	LL_RECORD_BLOCK_TIME(FTM_ENABLE_SIMULATOR);
 
 	if (!gAgent.getRegion())
 		return;

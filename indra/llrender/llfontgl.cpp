@@ -70,6 +70,8 @@ const F32 PIXEL_CORRECTION_DISTANCE = 0.01f;
 const F32 PAD_UVY = 0.5f; // half of vertical padding between glyphs in the glyph texture
 const F32 DROP_SHADOW_SOFT_STRENGTH = 0.3f;
 
+const U32 GLYPH_VERTICES = 6;
+
 LLFontGL::LLFontGL()
 {
 	clearEmbeddedChars();
@@ -100,7 +102,7 @@ BOOL LLFontGL::loadFace(const std::string& filename, const F32 point_size, const
 	return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, components, is_fallback);
 }
 
-static LLFastTimer::DeclareTimer FTM_RENDER_FONTS("Fonts");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_FONTS("Fonts");
 
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, F32* right_x, BOOL use_embedded, BOOL use_ellipses) const
@@ -130,7 +132,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_embedded, BOOL use_ellipses) const
 {
-	LLFastTimer _(FTM_RENDER_FONTS);
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_FONTS);
 
 	if(!sDisplayFont) //do not display texts
 	{
@@ -255,9 +257,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	const LLFontGlyphInfo* next_glyph = NULL;
 
 	const S32 GLYPH_BATCH_SIZE = 30;
-	static LL_ALIGN_16(LLVector4a vertices[GLYPH_BATCH_SIZE * 4]);
-	static LLVector2 uvs[GLYPH_BATCH_SIZE * 4];
-	static LLColor4U colors[GLYPH_BATCH_SIZE * 4];
+	static LL_ALIGN_16(LLVector4a vertices[GLYPH_BATCH_SIZE * GLYPH_VERTICES]);
+	static LLVector2 uvs[GLYPH_BATCH_SIZE * GLYPH_VERTICES];
+	static LLColor4U colors[GLYPH_BATCH_SIZE * GLYPH_VERTICES];
 
 	LLColor4U text_color(color);
 
@@ -302,18 +304,18 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 			if (glyph_count > 0)
 			{
-				gGL.begin(LLRender::QUADS);
+				gGL.begin(LLRender::TRIANGLES);
 				{
-					gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+					gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * GLYPH_VERTICES);
 				}
 				gGL.end();
 				glyph_count = 0;
 			}
 			renderQuad(vertices, uvs, colors, screen_rect, uv_rect, LLColor4U::white, 0);
 			//No batching here. It will never happen.
-			gGL.begin(LLRender::QUADS);
+			gGL.begin(LLRender::TRIANGLES);
 			{
-				gGL.vertexBatchPreTransformed(vertices, uvs, colors, 4);
+				gGL.vertexBatchPreTransformed(vertices, uvs, colors, GLYPH_VERTICES);
 			}
 			gGL.end();
 
@@ -358,9 +360,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 				// otherwise the queued glyphs will be taken from wrong textures.
 				if (glyph_count > 0)
 				{
-					gGL.begin(LLRender::QUADS);
+					gGL.begin(LLRender::TRIANGLES);
 					{
-						gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+						gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * GLYPH_VERTICES);
 					}
 					gGL.end();
 					glyph_count = 0;
@@ -391,9 +393,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 			
 			if (glyph_count >= GLYPH_BATCH_SIZE)
 			{
-				gGL.begin(LLRender::QUADS);
+				gGL.begin(LLRender::TRIANGLES);
 				{
-					gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+					gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * GLYPH_VERTICES);
 				}
 				gGL.end();
 
@@ -428,9 +430,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	if(glyph_count)
 	{
-		gGL.begin(LLRender::QUADS);
+		gGL.begin(LLRender::TRIANGLES);
 		{
-			gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+			gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * GLYPH_VERTICES);
 		}
 		gGL.end();
 	}
@@ -1271,13 +1273,23 @@ void LLFontGL::renderQuad(LLVector4a* vertex_out, LLVector2* uv_out, LLColor4U* 
 {
 	S32 index = 0;
 
+	vertex_out[index].set(screen_rect.mLeft, screen_rect.mTop, 0.f);
+	uv_out[index] = LLVector2(uv_rect.mLeft, uv_rect.mTop);
+	colors_out[index] = color;
+	index++;
+
+	vertex_out[index].set(screen_rect.mLeft + slant_amt, screen_rect.mBottom, 0.f);
+	uv_out[index] = LLVector2(uv_rect.mLeft, uv_rect.mBottom);
+	colors_out[index] = color;
+	index++;
+
 	vertex_out[index].set(screen_rect.mRight, screen_rect.mTop, 0.f);
 	uv_out[index] = LLVector2(uv_rect.mRight, uv_rect.mTop);
 	colors_out[index] = color;
 	index++;
 
-	vertex_out[index].set(screen_rect.mLeft, screen_rect.mTop, 0.f);
-	uv_out[index] = LLVector2(uv_rect.mLeft, uv_rect.mTop);
+	vertex_out[index].set(screen_rect.mRight, screen_rect.mTop, 0.f);
+	uv_out[index] = LLVector2(uv_rect.mRight, uv_rect.mTop);
 	colors_out[index] = color;
 	index++;
 
@@ -1305,7 +1317,8 @@ void LLFontGL::drawGlyph(S32& glyph_count, LLVector4a* vertex_out, LLVector2* uv
 			LLRectf screen_rect_offset = screen_rect;
 
 			screen_rect_offset.translate((F32)(pass * BOLD_OFFSET), 0.f);
-			renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect_offset, uv_rect, color, slant_offset);
+			const U32 idx = glyph_count * GLYPH_VERTICES;
+			renderQuad(&vertex_out[idx], &uv_out[idx], &colors_out[idx], screen_rect_offset, uv_rect, color, slant_offset);
 			glyph_count++;
 		}
 	}
@@ -1336,10 +1349,12 @@ void LLFontGL::drawGlyph(S32& glyph_count, LLVector4a* vertex_out, LLVector2* uv
 				break;
 			}
 		
-			renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect_offset, uv_rect, shadow_color, slant_offset);
+			const U32 idx = glyph_count * GLYPH_VERTICES;
+			renderQuad(&vertex_out[idx], &uv_out[idx], &colors_out[idx], screen_rect_offset, uv_rect, shadow_color, slant_offset);
 			glyph_count++;
 		}
-		renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect, uv_rect, color, slant_offset);
+		const U32 idx = glyph_count * GLYPH_VERTICES;
+		renderQuad(&vertex_out[idx], &uv_out[idx], &colors_out[idx], screen_rect, uv_rect, color, slant_offset);
 		glyph_count++;
 	}
 	else if (shadow == DROP_SHADOW)
@@ -1348,14 +1363,17 @@ void LLFontGL::drawGlyph(S32& glyph_count, LLVector4a* vertex_out, LLVector2* uv
 		shadow_color.mV[VALPHA] = U8(color.mV[VALPHA] * drop_shadow_strength);
 		LLRectf screen_rect_shadow = screen_rect;
 		screen_rect_shadow.translate(1.f, -1.f);
-		renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect_shadow, uv_rect, shadow_color, slant_offset);
+		U32 idx = glyph_count * GLYPH_VERTICES;
+		renderQuad(&vertex_out[idx], &uv_out[idx], &colors_out[idx], screen_rect_shadow, uv_rect, shadow_color, slant_offset);
 		glyph_count++;
-		renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect, uv_rect, color, slant_offset);
+		idx = glyph_count * GLYPH_VERTICES;
+		renderQuad(&vertex_out[idx], &uv_out[idx], &colors_out[idx], screen_rect, uv_rect, color, slant_offset);
 		glyph_count++;
 	}
 	else // normal rendering
 	{
-		renderQuad(&vertex_out[glyph_count * 4], &uv_out[glyph_count * 4], &colors_out[glyph_count * 4], screen_rect, uv_rect, color, slant_offset);
+		const U32 idx = glyph_count * GLYPH_VERTICES;
+		renderQuad(&vertex_out[idx], &uv_out[idx], &colors_out[idx], screen_rect, uv_rect, color, slant_offset);
 		glyph_count++;
 	}
 }

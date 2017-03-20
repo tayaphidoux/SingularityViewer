@@ -6364,7 +6364,7 @@ LLVivoxProtocolParser::~LLVivoxProtocolParser()
 		XML_ParserFree(parser);
 }
 
-static LLFastTimer::DeclareTimer FTM_VIVOX_PROCESS("Vivox Process");
+static LLTrace::BlockTimerStatHandle FTM_VIVOX_PROCESS("Vivox Process");
 
 // virtual
 LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
@@ -6374,7 +6374,7 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
 													  LLSD& context,
 													  LLPumpIO* pump)
 {
-	LLFastTimer t(FTM_VIVOX_PROCESS);
+	LL_RECORD_BLOCK_TIME(FTM_VIVOX_PROCESS);
 	LLBufferStream istr(channels, buffer.get());
 	std::ostringstream ostr;
 	while (istr.good())

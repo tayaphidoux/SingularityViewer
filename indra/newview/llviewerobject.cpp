@@ -123,13 +123,13 @@ F64Seconds	LLViewerObject::sMaxUpdateInterpolationTime(3.0);		// For motion inte
 F64Seconds	LLViewerObject::sPhaseOutUpdateInterpolationTime(2.0);	// For motion interpolation: after Y seconds with no updates, taper off motion prediction
 
 
-static LLFastTimer::DeclareTimer FTM_CREATE_OBJECT("Create Object");
+static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
 
 // static
 LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 {
 	LLViewerObject *res = NULL;
-	LLFastTimer t1(FTM_CREATE_OBJECT);
+	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
 	
 	switch (pcode)
 	{

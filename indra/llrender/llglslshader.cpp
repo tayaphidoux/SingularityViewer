@@ -313,6 +313,7 @@ LLGLSLShader::LLGLSLShader(S32 shader_class)
       mShaderGroup(SG_DEFAULT), 
       mUniformsDirty(FALSE),
       mTimerQuery(0),
+      mLightHash(0),
       mSamplesQuery(0)
 
 {

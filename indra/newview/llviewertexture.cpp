@@ -444,7 +444,7 @@ const S32 min_non_tex_system_mem = (128<<20); // 128 MB
 F32 texmem_lower_bound_scale = 0.85f;
 F32 texmem_middle_bound_scale = 0.925f;
 
-static LLFastTimer::DeclareTimer FTM_TEXTURE_MEMORY_CHECK("Memory Check");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_MEMORY_CHECK("Memory Check");
 //static 
 bool LLViewerTexture::isMemoryForTextureLow()
 {
@@ -457,7 +457,7 @@ bool LLViewerTexture::isMemoryForTextureLow()
 	}
 	timer.reset() ;
 
-	LLFastTimer t(FTM_TEXTURE_MEMORY_CHECK);
+	LL_RECORD_BLOCK_TIME(FTM_TEXTURE_MEMORY_CHECK);
 
 	static const S32Megabytes MIN_FREE_TEXTURE_MEMORY(5); //MB
 	static const S32Megabytes MIN_FREE_MAIN_MEMORY(100); //MB	
@@ -498,9 +498,9 @@ bool LLViewerTexture::isMemoryForTextureLow()
 	return low_mem ;
 }
 
-static LLFastTimer::DeclareTimer FTM_TEXTURE_UPDATE_MEDIA("Media");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UPDATE_MEDIA("Media");
 #if 0
-static LLFastTimer::DeclareTimer FTM_TEXTURE_UPDATE_TEST("Test");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UPDATE_TEST("Test");
 #endif
 //static
 void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity)
@@ -511,12 +511,12 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
 	if (tester)
 	{
-		LLFastTimer t(FTM_TEXTURE_UPDATE_TEST);
+		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_UPDATE_TEST);
 		tester->update() ;
 	}
 #endif
 	{
-		LLFastTimer t(FTM_TEXTURE_UPDATE_MEDIA);
+		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_UPDATE_MEDIA);
 		LLViewerMediaTexture::updateClass() ;
 	}
 
