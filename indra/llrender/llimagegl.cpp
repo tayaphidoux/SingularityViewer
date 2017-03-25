@@ -492,6 +492,7 @@ void LLImageGL::init(BOOL usemipmaps)
 
 	mIsMask = FALSE;
 	mMaskRMSE = 1.f ;
+	mMaskMidPercentile = 1.f;
 
 	mNeedsAlphaAndPickMask = FALSE ;
 	mAlphaStride = 0 ;
@@ -2083,6 +2084,9 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 	U32 sample[16];
 	memset(sample, 0, sizeof(U32)*16);
 
+	U32 min = 0, max = 0;
+	U32 mids = 0;
+
 	// generate histogram of quantized alpha.
 	// also add-in the histogram of a 2x2 box-sampled version.  The idea is
 	// this will mid-skew the data (and thus increase the chances of not
@@ -2114,6 +2118,10 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 				++sample[s3/16];
 				++sample[s4/16];
 
+				min = std::min(std::min(std::min(std::min(min, s1), s2), s3), s4);
+				max = std::max(std::max(std::max(std::max(max, s1), s2), s3), s4);
+				mids += (s1 > 2 && s1 < 253) + (s2 > 2 && s2 < 253) + (s3 > 2 && s3 < 253) + (s4 > 2 && s4 < 253);
+
 				const U32 asum = (s1+s2+s3+s4);
 				alphatotal += asum;
 				sample[asum/(16*4)] += 4;
@@ -2142,9 +2150,18 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 			++sample[s1/16];
 			current += mAlphaStride;
 
+			min = std::min(min, s1);
+			max = std::max(max, s1);
+			mids += (s1 > 2 && s1 < 253);
+
 			if(i%2==0)
 			{
-				S32 avg = (s1+current[mAlphaStride])/2;
+				const U32 s2 = *current;
+				min = std::min(min, s2);
+				max = std::max(max, s2);
+				mids += (s2 > 2 && s2 < 253);
+
+				S32 avg = (s1+s2)/2;
 				if(avg >=128)
 					avg-=255;
 				sum+=F64(avg*avg*2)/F64(length);
@@ -2186,7 +2203,8 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 		mIsMask = TRUE;
 	}
 
-	mMaskRMSE = sqrt(sum)/255.0;
+	mMaskMidPercentile = (F32)mids / (F32)length;
+	mMaskRMSE = ((max-min)%255)==0 ? sqrt(sum)/255.0 : FLT_MAX;
 	
 	/*std::list<std::pair<std::string,std::string> > &data = sTextureMaskMap[getTexName()];
 	data.clear();

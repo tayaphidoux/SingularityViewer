@@ -136,7 +136,7 @@ public:
 	BOOL getHasGLTexture() const { return mTexName != 0; }
 	LLGLuint getTexName() const { return mTexName; }
 
-	BOOL getIsAlphaMask(const F32 max_rmse) const { return mNeedsAlphaAndPickMask && (max_rmse < 0.f ? (bool)mIsMask : (mMaskRMSE <= max_rmse)); }
+	BOOL getIsAlphaMask(const F32 max_rmse, const F32 max_mid) const { return mNeedsAlphaAndPickMask && (max_rmse < 0.f ? (bool)mIsMask : (mMaskRMSE <= max_rmse && mMaskMidPercentile <= max_mid)); }
 
 	BOOL getIsResident(BOOL test_now = FALSE); // not const
 
@@ -191,6 +191,7 @@ private:
 
 	BOOL mIsMask;
 	F32  mMaskRMSE;
+	F32  mMaskMidPercentile;
 	BOOL mNeedsAlphaAndPickMask;
 	S8   mAlphaStride ;
 	S8   mAlphaOffset ;

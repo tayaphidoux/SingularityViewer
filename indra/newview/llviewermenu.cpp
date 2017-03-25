@@ -2044,6 +2044,27 @@ void handle_attachment_edit(const LLUUID& idItem)
 }
 // [/SL:KB]
 
+bool add_object_to_blacklist( const LLUUID& id, const std::string& entry_name )
+{
+	// ...don't kill the avatar
+	if (id != gAgentID)
+	{
+		LLSD indata;
+		indata["entry_type"] = LLAssetType::AT_OBJECT;
+		indata["entry_name"] = entry_name;
+		indata["entry_agent"] = gAgentID;
+
+		LLFloaterBlacklist::addEntry(id, indata);
+		LLViewerObject *objectp = gObjectList.findObject(id);
+		if (objectp)
+		{
+			gObjectList.killObject(objectp);
+		}
+		return true;
+	}
+	return false;
+}
+
 // <dogmode> Derenderizer. Originally by Phox.
 class LLObjectDerender : public view_listener_t
 {
@@ -2053,76 +2074,64 @@ class LLObjectDerender : public view_listener_t
 		if(!slct)return true;
 
 		LLUUID id = slct->getID();
-		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-		LLUUID root_key;
-		//delivers null in linked parts if used as getFirstRootNode()
-		LLSelectNode* node = selection->getFirstRootNode(NULL,TRUE);
 
-		/*this works for derendering entire object if child is selected
-
-		LLSelectNode* node = selection->getFirstNode();
-		//Delivers node even when linked parts, but only first node
-
-		LLViewerObject* obj = node->getObject();
-		LLViewerObject* parent = (LLViewerObject*)obj->getParent();*/
-
-		if(node)
-		{
-			root_key = node->getObject()->getID();
-			LL_INFOS() << "Derender node has key " << root_key << LL_ENDL;
-		}
-		else
-		{
-			LL_INFOS() << "Derender node is null " << LL_ENDL;
-		}
-
-		LLViewerRegion* cur_region = gAgent.getRegion();
+		bool added = false;
 		std::string entry_name;
 		if (slct->isAvatar())
 		{
 			LLNameValue* firstname = slct->getNVPair("FirstName");
 			LLNameValue* lastname =  slct->getNVPair("LastName");
 			entry_name = llformat("Derendered: (AV) %s %s",firstname->getString(),lastname->getString());
+			added |= add_object_to_blacklist(id, entry_name);
 		}
 		else
 		{
-			if (root_key.isNull())
-			{
-				return true;
-			}
-			id = root_key;
-			if (!node->mName.empty())
-			{
-				if(cur_region)
-					entry_name = llformat("Derendered: %s in region %s",node->mName.c_str(),cur_region->getName().c_str());
-				else
-					entry_name = llformat("Derendered: %s",node->mName.c_str());
-			}
-			else
-			{
-				if(cur_region)
-					entry_name = llformat("Derendered: (unknown object) in region %s",cur_region->getName().c_str());
-				else
-					entry_name = "Derendered: (unknown object)";
+			LLViewerRegion* cur_region = gAgent.getRegion();
 
+			std::list<LLSelectNode*> nodes;
+			for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
+				iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
+			{
+				nodes.push_back(*iter);
+			}
+			if (nodes.empty())
+			{
+				nodes.push_back(LLSelectMgr::getInstance()->getSelection()->getFirstNode());
+			}
+			
+			for( auto node : nodes )
+			{
+				if (node)
+				{
+					id = node->getObject()->getID();
+				}
+				if (id.isNull())
+				{
+					continue;
+				}
+				LL_INFOS() << "Derender node has key " << id << LL_ENDL;
+				if (!node->mName.empty())
+				{
+					if (cur_region)
+						entry_name = llformat("Derendered: %s in region %s", node->mName.c_str(), cur_region->getName().c_str());
+					else
+						entry_name = llformat("Derendered: %s", node->mName.c_str());
+				}
+				else
+				{
+					if (cur_region)
+						entry_name = llformat("Derendered: (unknown object) in region %s", cur_region->getName().c_str());
+					else
+						entry_name = "Derendered: (unknown object)";
+
+				}
+				added |= add_object_to_blacklist(id, entry_name);
 			}
 		}
 
-		// ...don't kill the avatar
-		if (id != gAgentID)
+		if (added)
 		{
-			LLSD indata;
-			indata["entry_type"] = 6; //AT_TEXTURE
-			indata["entry_name"] = entry_name;
-			indata["entry_agent"] = gAgentID;
-
-			LLFloaterBlacklist::addEntry(id,indata);
 			LLSelectMgr::getInstance()->deselectAll();
-			LLViewerObject *objectp = gObjectList.findObject(id);
-			if (objectp)
-			{
-				gObjectList.killObject(objectp);
-			}
 		}
 		return true;
 	}

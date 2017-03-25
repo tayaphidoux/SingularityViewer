@@ -216,7 +216,18 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.09</real>
+      <real>0.2</real>
+    </map>
+    <key>SHAutoMaskMaxMid</key>
+    <map>
+      <key>Comment</key>
+      <string>Sets the maximum percent of mid-range alpha pixels textures for alphamasking. (SHUseRMSEAutoMask must be TRUE for this to have any effect)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.25</real>
     </map>
     <key>SHAlwaysSoftenShadows</key>
     <map>
