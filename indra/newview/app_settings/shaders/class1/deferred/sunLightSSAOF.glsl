@@ -42,7 +42,7 @@ uniform vec2 kern_scale;
 void main() 
 {	
 	frag_color[0] = 1.0;
-    frag_color[1] = texture2D(diffuseRect,vary_fragcoord.xy * kern_scale).r;
+	frag_color[1] = texture2D(diffuseRect,vary_fragcoord.xy * kern_scale).r; // Scales to handle lower-res ssao.
 	frag_color[2] = 1.0;
 	frag_color[3] = 1.0;
 }

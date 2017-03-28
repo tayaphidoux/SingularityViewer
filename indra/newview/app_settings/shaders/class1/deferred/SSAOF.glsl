@@ -43,6 +43,7 @@ uniform float ssao_radius;
 uniform float ssao_max_radius;
 uniform float ssao_factor;
 uniform vec2 kern_scale;
+uniform vec2 noise_scale;
 
 vec3 decode_normal (vec2 enc)
 {
@@ -87,7 +88,7 @@ vec2 getKern(int i)
 float calcAmbientOcclusion(vec4 pos, vec3 norm)
 {
 	vec2 pos_screen = vary_fragcoord.xy;
-	vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy / kern_scale / 128).xy;
+	vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy * noise_scale).xy;
 	
 	 // We treat the first sample as the origin, which definitely doesn't obscure itself thanks to being visible for sampling in the first place.
 	float points = 1.0;

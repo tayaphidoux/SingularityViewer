@@ -51,6 +51,7 @@ VARYING vec3 trans_center;
 
 uniform mat4 inv_proj;
 uniform vec4 viewport;
+uniform vec2 noise_scale;
 
 vec2 encode_normal(vec3 n)
 {
@@ -108,7 +109,7 @@ void main()
 	lv = normalize(lv);
 	da = dot(norm, lv);
 	
-	float noise = texture2D(noiseMap, frag.xy/128.0).b;
+	float noise = texture2D(noiseMap, frag.xy*noise_scale).b;
 	
 	vec3 col = texture2D(diffuseRect, frag.xy).rgb;
 	float fa = falloff+1.0;

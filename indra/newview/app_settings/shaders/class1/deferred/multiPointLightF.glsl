@@ -53,6 +53,7 @@ VARYING vec4 vary_fragcoord;
 uniform float far_z;
 
 uniform mat4 inv_proj;
+uniform vec2 noise_scale;
 
 vec2 encode_normal(vec3 n)
 {
@@ -98,7 +99,7 @@ void main()
 	vec4 spec = texture2D(specularRect, frag.xy);
 	vec3 diff = texture2D(diffuseRect, frag.xy).rgb;
 	
-	float noise = texture2D(noiseMap, frag.xy/128.0).b;
+	float noise = texture2D(noiseMap, frag.xy*noise_scale).b;
 	vec3 out_col = vec3(0,0,0);
 	vec3 npos = normalize(-pos);
 

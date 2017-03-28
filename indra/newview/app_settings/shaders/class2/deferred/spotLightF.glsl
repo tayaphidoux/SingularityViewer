@@ -65,6 +65,7 @@ VARYING vec3 trans_center;
 VARYING vec4 vary_fragcoord;
 
 uniform mat4 inv_proj;
+uniform vec2 noise_scale;
 
 vec2 encode_normal(vec3 n)
 {
@@ -228,7 +229,7 @@ void main()
 		
 	vec4 spec = texture2D(specularRect, frag.xy);
 
-	float noise = texture2D(noiseMap, frag.xy/128.0).b; // This is probably wrong
+	float noise = texture2D(noiseMap, frag.xy*noise_scale).b;
 	vec3 dlit = vec3(0, 0, 0);
 
 	if (proj_tc.z > 0.0 &&

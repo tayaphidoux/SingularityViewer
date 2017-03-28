@@ -152,7 +152,7 @@ const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
 const S32 MAX_ACTIVE_OBJECT_QUIET_FRAMES = 40;
 const S32 MAX_OFFSCREEN_GEOMETRY_CHANGES_PER_FRAME = 10;
-const U32 REFLECTION_MAP_RES = 128;
+const U32 NOISE_MAP_RES = 256;
 const U32 AUX_VB_MASK = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1;
 // Max number of occluders to search for. JC
 const S32 MAX_OCCLUDER_COUNT = 2;
@@ -206,14 +206,8 @@ LLTrace::BlockTimerStatHandle FTM_RENDER_DEFERRED("Deferred Shading");
 static LLTrace::BlockTimerStatHandle FTM_STATESORT_DRAWABLE("Sort Drawables");
 static LLTrace::BlockTimerStatHandle FTM_STATESORT_POSTSORT("Post Sort");
 
-//static LLStaticHashedString sTint("tint");
-//static LLStaticHashedString sAmbiance("ambiance");
-//static LLStaticHashedString sAlphaScale("alpha_scale");
-static LLStaticHashedString sNormMat("norm_mat");
-//static LLStaticHashedString sOffset("offset");
 static LLStaticHashedString sDelta("delta");
 static LLStaticHashedString sDistFactor("dist_factor");
-static LLStaticHashedString sKernScale("kern_scale");
 
 //----------------------------------------
 std::string gPoolNames[] = 
@@ -388,7 +382,6 @@ LLPipeline::LLPipeline() :
 	mLightingDetail(0)
 {
 	mNoiseMap = 0;
-	mTrueNoiseMap = 0;
 	mLightFunc = 0;
 }
 
@@ -969,12 +962,6 @@ void LLPipeline::releaseGLBuffers()
 		mNoiseMap = 0;
 	}
 
-	if (mTrueNoiseMap)
-	{
-		LLImageGL::deleteTextures(1, &mTrueNoiseMap);
-		mTrueNoiseMap = 0;
-	}
-
 	releaseLUTBuffers();
 
 	mWaterRef.release();
@@ -1086,36 +1073,20 @@ void LLPipeline::createGLBuffers()
 	{
 		if (!mNoiseMap)
 		{
-			const U32 noiseRes = 128;
-			LLVector3 noise[noiseRes*noiseRes];
+			LLVector3 noise[NOISE_MAP_RES*NOISE_MAP_RES];
 
 			F32 scaler = gSavedSettings.getF32("RenderDeferredNoise")/100.f;
-			for (U32 i = 0; i < noiseRes*noiseRes; ++i)
+			for (auto& val : noise)
 			{
-				noise[i] = LLVector3(ll_frand()-0.5f, ll_frand()-0.5f, 0.f);
-				noise[i].normVec();
-				noise[i].mV[2] = ll_frand()*scaler+1.f-scaler/2.f;
+				val = LLVector3(ll_frand()-0.5f, ll_frand()-0.5f, 0.f);
+				val.normVec();
+				val.mV[2] = ll_frand()*scaler+1.f-scaler/2.f;
 			}
 
 			LLImageGL::generateTextures(1, &mNoiseMap);
 			
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mNoiseMap);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB, GL_FLOAT, noise, false);
-			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
-		}
-
-		if (!mTrueNoiseMap)
-		{
-			const U32 noiseRes = 128;
-			F32 noise[noiseRes*noiseRes*3];
-			for (U32 i = 0; i < noiseRes*noiseRes*3; i++)
-			{
-				noise[i] = ll_frand()*2.0-1.0;
-			}
-
-			LLImageGL::generateTextures(1, &mTrueNoiseMap);
-			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTrueNoiseMap);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB,GL_FLOAT, noise, false);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, NOISE_MAP_RES, NOISE_MAP_RES, GL_RGB, GL_FLOAT, noise, false);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 
@@ -7621,6 +7592,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffus
 	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_EFFECT, ssao_effect[0]);
 
 	shader.uniform2f(LLShaderMgr::DEFERRED_KERN_SCALE, 1.f / mDeferredScreen.getWidth(), 1.f / mDeferredScreen.getHeight());
+	shader.uniform2f(LLShaderMgr::DEFERRED_NOISE_SCALE, mDeferredScreen.getWidth() / NOISE_MAP_RES, mDeferredScreen.getHeight() / NOISE_MAP_RES);
 
 	//F32 shadow_offset_error = 1.f + RenderShadowOffsetError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
 	F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2])/3000.f;

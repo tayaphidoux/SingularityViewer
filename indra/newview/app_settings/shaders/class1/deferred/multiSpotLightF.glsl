@@ -64,6 +64,7 @@ uniform float size;
 VARYING vec4 vary_fragcoord;
 
 uniform mat4 inv_proj;
+uniform vec2 noise_scale;
 
 vec2 encode_normal(vec3 n)
 {
@@ -210,7 +211,7 @@ void main()
 	vec3 diff_tex = texture2D(diffuseRect, frag.xy).rgb;
 	vec3 dlit = vec3(0, 0, 0);
 	
-	float noise = texture2D(noiseMap, frag.xy/128.0).b;
+	float noise = texture2D(noiseMap, frag.xy*noise_scale).b;
 	if (proj_tc.z > 0.0 &&
 		proj_tc.x < 1.0 &&
 		proj_tc.y < 1.0 &&
