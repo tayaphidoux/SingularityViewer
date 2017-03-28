@@ -2,10 +2,10 @@
     <map>
     <key>ambient</key>
         <array>
-            <real>3</real>
-            <real>3</real>
-            <real>2.9999997615814209</real>
-            <real>1</real>
+            <real>1.5</real>
+            <real>1.5</real>
+            <real>1.5</real>
+            <real>0.5</real>
         </array>
     <key>blue_density</key>
         <array>

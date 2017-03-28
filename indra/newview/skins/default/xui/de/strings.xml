@@ -1836,6 +1836,8 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="BodyPartsLeftLeg">Linkes Bein</string>
 	<string name="BodyPartsTorso">Oberkörper</string>
 	<string name="BodyPartsRightLeg">Rechtes Bein</string>
+	<string name="BodyPartsEnhancedSkeleton">Erweitertes Skelett</string>
+	<string name="BodyPartsWaist">Taille</string>
 
 	<!-- mouselook -->
 	<string name="LeaveMouselook">ESC drücken, um zur Normalansicht zurückzukehren</string>
@@ -1963,8 +1965,23 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="Stomach">Bauch</string>
 	<string name="Left Pec">Linke Brust</string>
 	<string name="Right Pec">Rechts</string>
-    <string name="Neck">Hals</string>
-    <string name="Avatar Center">Basis</string>
+	<string name="Neck">Hals</string>
+	<string name="Avatar Center">Basis</string>
+	<string name="Left Ring Finger">Ringfinger links</string>
+	<string name="Right Ring Finger">Ringfinger rechts</string>
+	<string name="Tail Base">Schwanzwurzel</string>
+	<string name="Tail Tip">Schwanzspitze</string>
+	<string name="Left Wing">Flügel links</string>
+	<string name="Right Wing">Flügel rechts</string>
+	<string name="Jaw">Kiefer</string>
+	<string name="Alt Left Ear">Alt Ohr links</string>
+	<string name="Alt Right Ear">Alt Ohr rechts</string>
+	<string name="Alt Left Eye">Alt Auge links</string>
+	<string name="Alt Right Eye">Alt Auge rechts</string>
+	<string name="Tongue">Zunge</string>
+	<string name="Groin">Leiste</string>
+	<string name="Left Hind Foot">Hinterfuß links</string>
+	<string name="Right Hind Foot">Hinterfuß rechts</string>
 	<string name="Invalid Attachment">Ungültige Stelle für Anhang</string>
 
   <!-- HUD Position -->
@@ -2075,8 +2092,8 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="ATTACH_LULEG">Linker Oberschenkel</string>
 	<string name="ATTACH_LLLEG">Linker Unterschenkel</string>
 	<string name="ATTACH_BELLY">Bauch</string>
-	<string name="ATTACH_RPEC">Rechts</string>
-	<string name="ATTACH_LPEC">Linke Brust</string>
+	<string name="ATTACH_RIGHT_PEC">Rechte Brust</string>
+	<string name="ATTACH_LEFT_PEC">Linke Brust</string>
 	<string name="ATTACH_HUD_CENTER_2">HUD Mitte 2</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">HUD oben rechts</string>
 	<string name="ATTACH_HUD_TOP_CENTER">HUD oben Mitte</string>
@@ -2087,6 +2104,21 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD unten rechts</string>
 	<string name="ATTACH_NECK">Hals</string>
 	<string name="ATTACH_AVATAR_CENTER">Basis</string>
+	<string name="ATTACH_LHAND_RING1">Ringfinger links</string>
+	<string name="ATTACH_RHAND_RING1">Ringfinger rechts</string>
+	<string name="ATTACH_TAIL_BASE">Schwanzwurzel</string>
+	<string name="ATTACH_TAIL_TIP">Schwanzspitze</string>
+	<string name="ATTACH_LWING">Flügel links</string>
+	<string name="ATTACH_RWING">Flügel rechts</string>
+	<string name="ATTACH_FACE_JAW">Kiefer</string>
+	<string name="ATTACH_FACE_LEAR">Alt Ohr links</string>
+	<string name="ATTACH_FACE_REAR">Alt Ohr rechts</string>
+	<string name="ATTACH_FACE_LEYE">Alt Auge links</string>
+	<string name="ATTACH_FACE_REYE">Alt Auge rechts</string>
+	<string name="ATTACH_FACE_TONGUE">Zunge</string>
+	<string name="ATTACH_GROIN">Leiste</string>
+	<string name="ATTACH_HIND_LFOOT">Hinterfuß links</string>
+	<string name="ATTACH_HIND_RFOOT">Hinterfuß rechts</string>
 
 	<!-- panel contents -->
 	<string name="PanelContentsNewScript">Neues Skript</string>

@@ -366,6 +366,7 @@ LLPostProcess::LLPostProcess(void) :
 		parser->parse(effectsXML, mAllEffectInfo, LLSDSerialize::SIZE_UNLIMITED);
 	}
 
+	// Singu TODO: Make this configurable via settings
 	if (!mAllEffectInfo.has("default"))
 		mAllEffectInfo["default"] = LLSD::emptyMap();
 
