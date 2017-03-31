@@ -111,7 +111,7 @@ public:
 	virtual void move(LLFolderViewEventListener* new_parent_bridge) {}
 	virtual BOOL isItemCopyable() const { return FALSE; }
 	virtual BOOL copyToClipboard() const;
-	virtual void cutToClipboard();
+	virtual BOOL cutToClipboard();
 	virtual BOOL isClipboardPasteable() const;
 	bool isClipboardPasteableAsCopy() const;
 	virtual BOOL isClipboardPasteableAsLink() const;
@@ -187,11 +187,11 @@ class AIFilePicker;
 // This class intended to build Folder View Bridge via LLInvFVBridge::createBridge.
 // It can be overridden with another way of creation necessary Inventory-Folder-View-Bridge.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryFVBridgeBuilder
+class LLInventoryFolderViewModelBuilder
 {
 public:
-	LLInventoryFVBridgeBuilder() {}
- 	virtual ~LLInventoryFVBridgeBuilder() {}
+	LLInventoryFolderViewModelBuilder() {}
+ 	virtual ~LLInventoryFolderViewModelBuilder() {}
 	virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
 										LLAssetType::EType actual_asset_type,
 										LLInventoryType::EType inv_type,
@@ -631,7 +631,7 @@ public:
 };
 
 // Bridge builder to create Inventory-Folder-View-Bridge for Recent Inventory Panel
-class LLRecentInventoryBridgeBuilder : public LLInventoryFVBridgeBuilder
+class LLRecentInventoryBridgeBuilder : public LLInventoryFolderViewModelBuilder
 {
 public:
 	LLRecentInventoryBridgeBuilder() {}

@@ -180,34 +180,34 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
 		{
 		case STEP_ANIMATION:
 			{
-				LLGestureStepAnimation* step = new LLGestureStepAnimation();
+				std::unique_ptr<LLGestureStep> step(new LLGestureStepAnimation());
 				BOOL ok = step->deserialize(dp);
 				if (!ok) return FALSE;
-				mSteps.push_back(step);
+				mSteps.push_back(step.release());
 				break;
 			}
 		case STEP_SOUND:
 			{
-				LLGestureStepSound* step = new LLGestureStepSound();
+				std::unique_ptr<LLGestureStep> step(new LLGestureStepSound());
 				BOOL ok = step->deserialize(dp);
 				if (!ok) return FALSE;
-				mSteps.push_back(step);
+				mSteps.push_back(step.release());
 				break;
 			}
 		case STEP_CHAT:
 			{
-				LLGestureStepChat* step = new LLGestureStepChat();
+				std::unique_ptr<LLGestureStep> step(new LLGestureStepChat());
 				BOOL ok = step->deserialize(dp);
 				if (!ok) return FALSE;
-				mSteps.push_back(step);
+				mSteps.push_back(step.release());
 				break;
 			}
 		case STEP_WAIT:
 			{
-				LLGestureStepWait* step = new LLGestureStepWait();
+				std::unique_ptr<LLGestureStep> step(new LLGestureStepWait());
 				BOOL ok = step->deserialize(dp);
 				if (!ok) return FALSE;
-				mSteps.push_back(step);
+				mSteps.push_back(step.release());
 				break;
 			}
 		default:

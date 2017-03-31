@@ -447,7 +447,9 @@ void LLKeyframeMotion::JointMotion::update(LLJointState* joint_state, F32 time, 
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::LLKeyframeMotion(const LLUUID &id, LLMotionController* controller)
 	: LLMotion(id, controller),
+		mJointMotionList(NULL),
 		mPelvisp(NULL),
+		mCharacter(NULL),
 		mLastSkeletonSerialNum(0),
 		mLastUpdateTime(0.f),
 		mLastLoopedTime(0.f),
@@ -1101,11 +1103,11 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 	if (constraint->mSharedData->mChainLength != 0 &&
 		dist_vec_squared(root_pos, target_pos) * 0.95f > constraint->mTotalLength * constraint->mTotalLength)
 	{
-		constraint->mWeight = lerp(constraint->mWeight, 0.f, LLSmoothInterpolation::getInterpolant(0.1f));
+		constraint->mWeight = LLSmoothInterpolation::lerp(constraint->mWeight, 0.f, 0.1f);
 	}
 	else
 	{
-		constraint->mWeight = lerp(constraint->mWeight, 1.f, LLSmoothInterpolation::getInterpolant(0.3f));
+		constraint->mWeight = LLSmoothInterpolation::lerp(constraint->mWeight, 1.f, 0.3f);
 	}
 
 	F32 weight = constraint->mWeight * ((shared_data->mEaseOutStopTime == 0.f) ? 1.f : 
@@ -1783,14 +1785,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		for(S32 i = 0; i < num_constraints; ++i)
 		{
 			// read in constraint data
-			JointConstraintSharedData* constraintp = new JointConstraintSharedData;
+			auto constraintp = new JointConstraintSharedData;
 			std::unique_ptr<JointConstraintSharedData> watcher(constraintp);
 			U8 byte = 0;
 
 			if (!dp.unpackU8(byte, "chain_length"))
 			{
 				LL_WARNS() << "can't read constraint chain length" << LL_ENDL;
-				delete constraintp;
 				return FALSE;
 			}
 			constraintp->mChainLength = (S32) byte;
@@ -1798,21 +1799,18 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			if((U32)constraintp->mChainLength > mJointMotionList->getNumJointMotions())
 			{
 				LL_WARNS() << "invalid constraint chain length" << LL_ENDL;
-				delete constraintp;
 				return FALSE;
 			}
 
 			if (!dp.unpackU8(byte, "constraint_type"))
 			{
 				LL_WARNS() << "can't read constraint type" << LL_ENDL;
-				delete constraintp;
 				return FALSE;
 			}
 			
 			if( byte >= NUM_CONSTRAINT_TYPES )
 			{
 				LL_WARNS() << "invalid constraint type" << LL_ENDL;
-				delete constraintp;
 				return FALSE;
 			}
 			constraintp->mConstraintType = (EConstraintType)byte;
@@ -1822,7 +1820,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			if (!dp.unpackBinaryDataFixed(bin_data, BIN_DATA_LENGTH, "source_volume"))
 			{
 				LL_WARNS() << "can't read source volume name" << LL_ENDL;
-				delete constraintp;
 				return FALSE;
 			}
 
@@ -1834,7 +1831,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			if(constraintp->mSourceConstraintVolume == -1)
 			{
 				LL_WARNS() << "can't get source constraint volume" << LL_ENDL;
-				delete constraintp;
 				return FALSE;
 			}
 			// </edit>
@@ -1924,12 +1920,12 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				return FALSE;
 			}
 
+			constraintp->mJointStateIndices = new S32[constraintp->mChainLength + 1]; // note: mChainLength is size-limited - comes from a byte
+			
 			if (singu_new_joint_motion_list)
 			{
 				mJointMotionList->mConstraints.push_front(watcher.release());
 			}
-
-			constraintp->mJointStateIndices = new S32[constraintp->mChainLength + 1]; // note: mChainLength is size-limited - comes from a byte
 			
 			LLJoint* joint = mCharacter->findCollisionVolume(constraintp->mSourceConstraintVolume);
 			// get joint to which this collision volume is attached
@@ -2168,7 +2164,7 @@ void LLKeyframeMotion::setEmote(const LLUUID& emote_id)
 	}
 	else
 	{
-		mJointMotionList->mEmoteName = "";
+		mJointMotionList->mEmoteName.clear();
 	}
 }
 

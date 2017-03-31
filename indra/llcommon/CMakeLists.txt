@@ -8,6 +8,7 @@ include(LLCommon)
 include(APR)
 include(Linking)
 include(Boost)
+include(OpenSSL)
 include(LLSharedLibs)
 include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
@@ -16,6 +17,7 @@ include(ZLIB)
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
+    ${OPENSSL_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
     ${BREAKPAD_INCLUDE_DIRECTORIES}
     )
@@ -284,6 +286,7 @@ target_link_libraries(
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${Boost_CONTEXT_LIBRARY}

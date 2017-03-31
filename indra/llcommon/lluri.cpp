@@ -191,10 +191,9 @@ LLURI::LLURI(const std::string& escaped_str)
 {
 	std::string::size_type delim_pos;
 	delim_pos = escaped_str.find(':');
-	std::string temp;
 	if (delim_pos == std::string::npos)
 	{
-		mScheme = "";
+		mScheme.clear();
 		mEscapedOpaque = escaped_str;
 	}
 	else
@@ -244,7 +243,7 @@ void LLURI::parseAuthorityAndPathUsingOpaque()
 			delim_pos2 == std::string::npos)
 		{
 			mEscapedAuthority = mEscapedOpaque.substr(2);
-			mEscapedPath = "";
+			mEscapedPath.clear();
 		}
 		// path exist, no query
 		else if (delim_pos2 == std::string::npos)
@@ -456,7 +455,7 @@ namespace {
 		std::string::size_type start_pos = authority.find('@');
 		if (start_pos == std::string::npos)
 		{
-			user = "";
+			user.clear();
 			start_pos = 0;
 		}
 		else
@@ -469,7 +468,7 @@ namespace {
 		if (end_pos == std::string::npos)
 		{
 			host = authority.substr(start_pos);
-			port = "";
+			port.clear();
 		}
 		else
 		{
@@ -529,7 +528,7 @@ U16 LLURI::hostPort() const
 			return 21;		
 		return 0;
 	}
-	return atoi(port.c_str());
+	return static_cast<U16>(std::stoi(port));
 }	
 
 std::string LLURI::path() const
@@ -582,7 +581,7 @@ LLSD LLURI::queryMap(std::string escaped_query_string)
 		else
 		{
 			tuple = escaped_query_string;
-			escaped_query_string = "";
+			escaped_query_string .clear();
 		}
 		if (tuple.empty()) continue;
 

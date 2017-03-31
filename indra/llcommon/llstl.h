@@ -318,9 +318,9 @@ inline bool vector_replace_with_last(T& invec, typename T::value_type const& val
 
 // Append N elements to the vector and return a pointer to the first new element.
 template <typename T>
-inline T* vector_append(std::vector<T>& invec, S32 N)
+inline T* vector_append(std::vector<T>& invec, size_t N)
 {
-	U32 sz = invec.size();
+	size_t sz = invec.size();
 	invec.resize(sz+N);
 	return &(invec[sz]);
 }
@@ -513,6 +513,17 @@ llbind2nd(const _Operation& __oper, const _Tp& __x)
 }
 
 /**
+ * Compare std::type_info* pointers a la std::less. We break this out as a
+ * separate function for use in two different std::less specializations.
+ */
+inline
+bool before(const std::type_info* lhs, const std::type_info* rhs)
+{
+    // Just use before(), as we normally would
+    return lhs->before(*rhs) ? true : false;
+}
+
+/**
  * Specialize std::less<std::type_info*> to use std::type_info::before().
  * See MAINT-1175. It is NEVER a good idea to directly compare std::type_info*
  * because, on Linux, you might get different std::type_info* pointers for the
@@ -526,7 +537,7 @@ namespace std
 	{
 		bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
 		{
-			return lhs->before(*rhs);
+			return before(lhs, rhs);
 		}
 	};
 
@@ -536,7 +547,7 @@ namespace std
 	{
 		bool operator()(std::type_info* lhs, std::type_info* rhs) const
 		{
-			return lhs->before(*rhs);
+			return before(lhs, rhs);
 		}
 	};
 } // std

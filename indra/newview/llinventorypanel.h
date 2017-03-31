@@ -52,7 +52,7 @@ class LLFolderViewItem;
 class LLInventoryFilter;
 class LLInventoryModel;
 class LLInvFVBridge;
-class LLInventoryFVBridgeBuilder;
+class LLInventoryFolderViewModelBuilder;
 class LLMenuBarGL;
 class LLCheckBoxCtrl;
 class LLSpinCtrl;
@@ -172,13 +172,13 @@ protected:
 
     LLPointer<LLFolderViewGroupedItemBridge> mGroupedItemBridge;
 	/**
-	 * Pointer to LLInventoryFVBridgeBuilder.
+	 * Pointer to LLInventoryFolderViewModelBuilder.
 	 *
 	 * It is set in LLInventoryPanel's constructor and can be overridden in derived classes with 
 	 * another implementation.
 	 * Take into account it will not be deleted by LLInventoryPanel itself.
 	 */
-	const LLInventoryFVBridgeBuilder* mInvFVBridgeBuilder;
+	const LLInventoryFolderViewModelBuilder* mInvFVBridgeBuilder;
 
 
 	//--------------------------------------------------------------------

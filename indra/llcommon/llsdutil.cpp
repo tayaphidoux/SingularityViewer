@@ -45,7 +45,6 @@
 
 #include <map>
 #include <set>
-#include <boost/range.hpp>
 
 // U32
 LLSD ll_sd_from_U32(const U32 val)
@@ -347,7 +346,7 @@ class TypeLookup
 public:
     TypeLookup()
     {
-        for (const Data *di(boost::begin(typedata)), *dend(boost::end(typedata)); di != dend; ++di)
+        for (const Data *di(std::begin(typedata)), *dend(std::end(typedata)); di != dend; ++di)
         {
             mMap[di->type] = di->name;
         }
@@ -527,7 +526,7 @@ std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::str
             LLSD::TypeURI
         };
         return match_types(prototype.type(),
-                           TypeVector(boost::begin(accept), boost::end(accept)),
+						   TypeVector(std::begin(accept), std::end(accept)),
                            data.type(),
                            pfx);
     }
@@ -544,7 +543,7 @@ std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::str
         };
         // Funny business: shuffle the set of acceptable types to include all
         // but the prototype's type. Get the acceptable types in a set.
-        std::set<LLSD::Type> rest(boost::begin(all), boost::end(all));
+        std::set<LLSD::Type> rest(std::begin(all), std::end(all));
         // Remove the prototype's type because we pass that separately.
         rest.erase(prototype.type());
         return match_types(prototype.type(),
@@ -560,7 +559,7 @@ std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::str
             LLSD::TypeString
         };
         return match_types(prototype.type(),
-                           TypeVector(boost::begin(accept), boost::end(accept)),
+                           TypeVector(std::begin(accept), std::end(accept)),
                            data.type(),
                            pfx);
     }

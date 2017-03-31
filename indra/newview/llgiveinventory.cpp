@@ -55,7 +55,7 @@
 // MAX ITEMS is based on (sizeof(uuid)+2) * count must be < MTUBYTES
 // or 18 * count < 1200 => count < 1200/18 => 66. I've cut it down a
 // bit from there to give some pad.
-const size_t MAX_ITEMS = 42;
+const size_t MAX_ITEMS = 50;
 
 class LLGiveable : public LLInventoryCollectFunctor
 {

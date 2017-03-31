@@ -1518,7 +1518,7 @@ BOOL LLAgent::getAFK() const
 //-----------------------------------------------------------------------------
 void LLAgent::setDoNotDisturb(bool pIsDoNotDisturb)
 {
-	sendAnimationRequest(ANIM_AGENT_BUSY, pIsDoNotDisturb ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
+	sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, pIsDoNotDisturb ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
 	mIsDoNotDisturb = pIsDoNotDisturb;
 	if (gBusyMenu)
 	{

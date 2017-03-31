@@ -1384,8 +1384,12 @@ void LLStringUtilBase<T>::stripNonprintable(string_type& string)
 		return;
 	}
 	size_t src_size = string.size();
-	char* c_string = new char[src_size + 1];
-	if(c_string == NULL)
+	char* c_string = nullptr;
+	try
+	{
+		c_string = new char[src_size + 1];
+	}
+	catch (const std::bad_alloc&)
 	{
 		return;
 	}

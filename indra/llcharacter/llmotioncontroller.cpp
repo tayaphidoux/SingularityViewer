@@ -83,7 +83,7 @@ LLMotionRegistry::~LLMotionRegistry()
 BOOL LLMotionRegistry::registerMotion( const LLUUID& id, LLMotionConstructor constructor )
 {
 	//	LL_INFOS() << "Registering motion: " << name << LL_ENDL;
-	return mMotionTable.insert(std::make_pair(id,constructor)).second;
+	return mMotionTable.emplace(id, constructor).second;
 }
 
 //-----------------------------------------------------------------------------
@@ -582,9 +582,7 @@ static LLTrace::BlockTimerStatHandle FTM_MOTION_ON_UPDATE("Motion onUpdate");
 void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_type)
 {
 	BOOL update_result = TRUE;
-	U8 last_joint_signature[LL_CHARACTER_MAX_ANIMATED_JOINTS];
-
-	memset(&last_joint_signature, 0, sizeof(U8) * LL_CHARACTER_MAX_ANIMATED_JOINTS);
+	U8 last_joint_signature[LL_CHARACTER_MAX_ANIMATED_JOINTS] = {0};
 
 	// iterate through active motions in chronological order
 	for (motion_list_t::iterator iter = mActiveMotions.begin();

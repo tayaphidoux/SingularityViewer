@@ -1311,7 +1311,11 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 	LLFILE *dst = NULL;
 	S32 bytes = 0;
 	tmpfile = dstfile + ".t";
+#if LL_WINDOWS
+	src = gzopen_w(utf8str_to_utf16str(srcfile).c_str(), "rb");
+#else
 	src = gzopen(srcfile.c_str(), "rb");
+#endif
 	if (! src) goto err;
 	dst = LLFile::fopen(tmpfile, "wb");		/* Flawfinder: ignore */
 	if (! dst) goto err;
@@ -1345,7 +1349,11 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	LLFILE *src = NULL;
 	S32 bytes = 0;
 	tmpfile = dstfile + ".t";
+#if LL_WINDOWS
+	dst = gzopen_w(utf8str_to_utf16str(tmpfile).c_str(), "wb");
+#else
 	dst = gzopen(tmpfile.c_str(), "wb");		/* Flawfinder: ignore */
+#endif
 	if (! dst) goto err;
 	src = LLFile::fopen(srcfile, "rb");		/* Flawfinder: ignore */
 	if (! src) goto err;

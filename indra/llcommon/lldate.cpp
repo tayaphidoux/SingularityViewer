@@ -88,7 +88,7 @@ std::string LLDate::asRFC1123() const
 
 LLTrace::BlockTimerStatHandle FT_DATE_FORMAT("Date Format");
 
-std::string LLDate::toHTTPDateString(std::string fmt) const
+std::string LLDate::toHTTPDateString(const std::string& fmt) const
 {
 	LL_RECORD_BLOCK_TIME(FT_DATE_FORMAT);
 	
@@ -102,7 +102,7 @@ std::string LLDate::toHTTPDateString(std::string fmt) const
 	return toHTTPDateString(gmt, fmt);
 }
 
-std::string LLDate::toHTTPDateString(tm * gmt, std::string fmt)
+std::string LLDate::toHTTPDateString(tm * gmt, const std::string& fmt)
 {
 	LL_RECORD_BLOCK_TIME(FT_DATE_FORMAT);
 
@@ -115,8 +115,8 @@ std::string LLDate::toHTTPDateString(tm * gmt, std::string fmt)
 	}
 
 	// use strftime() as it appears to be faster than std::time_put
-	char buffer[128];
-	if (std::strftime(buffer, 128, fmt.c_str(), gmt) == 0)
+	char buffer[128] = {};
+	if (std::strftime(buffer, sizeof(buffer), fmt.c_str(), gmt) == 0)
 		return LLStringExplicit(EPOCH_STR);
 	std::string res(buffer);
 

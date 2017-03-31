@@ -58,7 +58,7 @@ const std::string LLInventoryPanel::DEFAULT_SORT_ORDER = std::string("InventoryS
 const std::string LLInventoryPanel::RECENTITEMS_SORT_ORDER = std::string("RecentItemsSortOrder");
 const std::string LLInventoryPanel::WORNITEMS_SORT_ORDER = std::string("WornItemsSortOrder");
 const std::string LLInventoryPanel::INHERIT_SORT_ORDER = std::string("");
-static const LLInventoryFVBridgeBuilder INVENTORY_BRIDGE_BUILDER;
+static const LLInventoryFolderViewModelBuilder INVENTORY_BRIDGE_BUILDER;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
