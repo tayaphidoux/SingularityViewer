@@ -351,7 +351,7 @@ public:
 				if(obj)
 				{
 					S32 te = nodep ? nodep->getLastSelectedTE() : -1;
-					if(te > 0)
+					if(te >= 0)
 					{
 						LLViewerTexture* imagep = obj->getTEImage(te);
 						if(imagep && imagep != (LLViewerTexture*)LLViewerFetchedTexture::sDefaultImagep.get())

@@ -2203,7 +2203,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 		mIsMask = TRUE;
 	}
 
-	mMaskMidPercentile = (F32)mids / (F32)length;
+	mMaskMidPercentile = (F32)mids / (F32)(w * h);
 	mMaskRMSE = ((max-min)%255)==0 ? sqrt(sum)/255.0 : FLT_MAX;
 	
 	/*std::list<std::pair<std::string,std::string> > &data = sTextureMaskMap[getTexName()];
