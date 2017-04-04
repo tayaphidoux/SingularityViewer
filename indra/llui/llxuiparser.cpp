@@ -38,8 +38,6 @@
 
 #include <fstream>
 #include <boost/tokenizer.hpp>
-#include <boost/bind.hpp>
-//#include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 
 #include "lluicolor.h"
@@ -679,7 +677,7 @@ LLXUIParser::LLXUIParser()
 	}
 }
 
-LLTrace::BlockTimerStatHandle FTM_PARSE_XUI("XUI Parsing");
+static LLTrace::BlockTimerStatHandle FTM_PARSE_XUI("XUI Parsing");
 const LLXMLNodePtr DUMMY_NODE = new LLXMLNode();
 
 void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename, bool silent)
@@ -759,7 +757,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
 		// and if not, treat as a child element of the current node
 		// e.g. <button><rect left="10"/></button> will interpret <rect> as "button.rect"
 		// since there is no widget named "rect"
-		if (child_name.find(".") == std::string::npos) 
+		if (child_name.find('.') == std::string::npos) 
 		{
 			mNameStack.push_back(std::make_pair(child_name, true));
 			num_tokens_pushed++;
@@ -1366,7 +1364,9 @@ struct ScopedFile
 };
 LLSimpleXUIParser::LLSimpleXUIParser(LLSimpleXUIParser::element_start_callback_t element_cb)
 :	Parser(sSimpleXUIReadFuncs, sSimpleXUIWriteFuncs, sSimpleXUIInspectFuncs),
+	mParser(nullptr),
 	mCurReadDepth(0),
+	mCurAttributeValueBegin(nullptr),
 	mElementCB(element_cb)
 {
 	if (sSimpleXUIReadFuncs.empty())
@@ -1500,7 +1500,7 @@ void LLSimpleXUIParser::startElement(const char *name, const char **atts)
 	}
 	else
 	{	// compound attribute
-		if (child_name.find(".") == std::string::npos) 
+		if (child_name.find('.') == std::string::npos) 
 		{
 			mNameStack.push_back(std::make_pair(child_name, true));
 			num_tokens_pushed++;
