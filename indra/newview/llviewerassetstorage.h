@@ -41,7 +41,6 @@ public:
 	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 				   LLVFS *vfs, LLVFS *static_vfs);
 
-	using LLAssetStorage::storeAssetData;
 	virtual void storeAssetData(
 		const LLTransactionID& tid,
 		LLAssetType::EType atype,
@@ -65,7 +64,6 @@ public:
 		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT);
 
 protected:
-	using LLAssetStorage::_queueDataRequest;
 
 	// virtual
 	void _queueDataRequest(const LLUUID& uuid,
@@ -74,6 +72,15 @@ protected:
 						   void *user_data,
 						   BOOL duplicate,
 						   BOOL is_priority);
+
+
+    void queueRequestUDP(const LLUUID& uuid,
+                          LLAssetType::EType type,
+                          void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+                          void *user_data,
+                          BOOL duplicate,
+                          BOOL is_priority);
+
 };
 
 #endif
