@@ -85,7 +85,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(LINUX ON BOOl FORCE)
+  set(LINUX ON BOOL FORCE)
 
   # If someone has specified a word size, use that to determine the
   # architecture.  Otherwise, let the architecture specify the word size.
