@@ -108,7 +108,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       set(WORD_SIZE 32)
       set(AUTOBUILD_PLATFORM_NAME "linux")
     else()
-      message(FATAL_ERROR "Unkown Architecture!")
+      message(FATAL_ERROR "Unknown Architecture!")
     endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
   endif (WORD_SIZE EQUAL 32)
 
