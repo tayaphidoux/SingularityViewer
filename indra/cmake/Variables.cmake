@@ -85,7 +85,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(LINUX ON BOOl FORCE)
+  set(LINUX ON BOOL FORCE)
 
   # If someone has specified a word size, use that to determine the
   # architecture.  Otherwise, let the architecture specify the word size.
@@ -108,7 +108,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
       set(WORD_SIZE 32)
       set(AUTOBUILD_PLATFORM_NAME "linux")
     else()
-      message(FATAL_ERROR "Unkown Architecture!")
+      message(FATAL_ERROR "Unknown Architecture!")
     endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
   endif (WORD_SIZE EQUAL 32)
 
