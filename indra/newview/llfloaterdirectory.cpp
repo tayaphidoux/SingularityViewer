@@ -227,6 +227,7 @@ LLFloaterDirectory::LLFloaterDirectory(const std::string& name)
 	factory_map["people_panel"] = LLCallbackMap(createPeople, this);
 	factory_map["groups_panel"] = LLCallbackMap(createGroups, this);
 	factory_map[market_panel] = LLCallbackMap(LLPanelDirMarket::create, this);
+	factory_map["find_all_panel"] = LLCallbackMap(createFindAll, this);
 	factory_map["showcase_panel"] = LLCallbackMap(createShowcase, this);
 	if (secondlife)
 	{
@@ -234,7 +235,6 @@ LLFloaterDirectory::LLFloaterDirectory(const std::string& name)
 	}
 	else
 	{
-		factory_map["find_all_panel"] = LLCallbackMap(createFindAll, this);
 		factory_map["find_all_old_panel"] = LLCallbackMap(createFindAllOld, this);
 	}
 
@@ -260,8 +260,11 @@ LLFloaterDirectory::LLFloaterDirectory(const std::string& name)
 	if (secondlife)
 	{
 		// Remove unused tabs
-		container->removeTabPanel(getChild<LLPanel>("find_all_panel"));
 		container->removeTabPanel(getChild<LLPanel>("find_all_old_panel"));
+		LLPanel* p = getChild<LLPanel>("find_all_panel");
+		container->removeTabPanel(p); // This should be at the end
+		p->setLabel(p->getString("classic_label")); // Give it a special label
+		container->addTabPanel(p, p->getLabel());
 	}
 	else
 	{
@@ -634,7 +637,7 @@ void LLFloaterDirectory::toggleFind(void*)
 			|| (inst.destinationGuideURL().empty() && panel == "showcase_panel"))
 				panel = "find_all_old_panel";
 		}
-		else if (panel == "find_all_panel" || panel == "find_all_old_panel") panel = "web_panel";
+		else if (panel == "find_all_old_panel") panel = "web_panel";
 
 		showPanel(panel);
 

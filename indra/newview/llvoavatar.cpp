@@ -1099,12 +1099,12 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNeedsSkin(FALSE),
 	mLastSkinTime(0.f),
 	mUpdatePeriod(1),
+	mVisualComplexityStale(true),
 	mFirstFullyVisible(TRUE),
 	mFullyLoaded(FALSE),
 	mPreviousFullyLoaded(FALSE),
 	mFullyLoadedInitialized(FALSE),
 	mVisualComplexity(0),
-	mVisualComplexityStale(TRUE),
 	mSupportsAlphaLayers(FALSE),
 	mLoadedCallbacksPaused(FALSE),
 	mLastRezzedStatus(-1),
@@ -7253,7 +7253,7 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 		return 0;
 	}
 
-	mVisualComplexityStale = TRUE;
+	mVisualComplexityStale = true;
 
 	if (viewer_object->isSelected())
 	{
@@ -7416,7 +7416,7 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 		
 		if (attachment->isObjectAttached(viewer_object))
 		{
-			mVisualComplexityStale = TRUE;
+			mVisualComplexityStale = true;
 			vector_replace_with_last(mAttachedObjectsVector,std::make_pair(viewer_object,attachment));
 
 			cleanupAttachedMesh( viewer_object );
@@ -7836,9 +7836,10 @@ void LLVOAvatar::updateRezzedStatusTimers()
 				selfStopPhase("update_appearance_from_cof");
 				selfStopPhase("wear_inventory_category", false);
 				selfStopPhase("process_initial_wearables_update", false);
+
+				mVisualComplexityStale = true;
 			}
 		}
-
 		mLastRezzedStatus = rez_status;
 	}
 }
@@ -8970,7 +8971,10 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
 	S32 num_params = contents.mParamWeights.size();
 	ESex old_sex = getSex();
 
-	applyParsedTEMessage(contents.mTEContents);
+	if (applyParsedTEMessage(contents.mTEContents) > 0 && isChanged(TEXTURE))
+	{
+		mVisualComplexityStale = true;
+	}
 
 	// prevent the overwriting of valid baked textures with invalid baked textures
 	for (U8 baked_index = 0; baked_index < mBakedTextureDatas.size(); baked_index++)
@@ -9872,10 +9876,6 @@ void LLVOAvatar::idleUpdateRenderCost()
 		setDebugText(llformat("%.1f KB, %.2f m^2", mAttachmentGeometryBytes/1024.f, mAttachmentSurfaceArea));
 	}
 
-	if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
-	{
-		return;
-	}
 
 	calculateUpdateRenderCost();				// Update mVisualComplexity if needed
 
@@ -9928,7 +9928,6 @@ void LLVOAvatar::calculateUpdateRenderCost()
 
 	if (mVisualComplexityStale)
 	{
-		mVisualComplexityStale = FALSE;
 		U32 cost = 0;
 		LLVOVolume::texture_cost_t textures;
 
@@ -10036,6 +10035,7 @@ void LLVOAvatar::calculateUpdateRenderCost()
 		}
 
 		mVisualComplexity = cost;
+		mVisualComplexityStale = false;
 	}
 
 }
