@@ -215,8 +215,6 @@ LLFloaterReporter::~LLFloaterReporter()
 // virtual
 void LLFloaterReporter::draw()
 {
-	getChildView("screen_check")->setEnabled(TRUE );
-
 	LLFloater::draw();
 }
 
