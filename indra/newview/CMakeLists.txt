@@ -6,6 +6,7 @@ include(00-Common)
 include(Boost)
 include(BuildPackagesInfo)
 include(BuildVersion)
+include(BuildBranding)
 include(CMakeCopyIfDifferent)
 include(DBusGlib)
 include(FMODSTUDIO)
@@ -1300,9 +1301,6 @@ if (WINDOWS)
     set_source_files_properties(${viewer_RESOURCE_FILES}
                                 PROPERTIES HEADER_FILE_ONLY TRUE)
 
-    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/res/viewerRes.rc
-                    ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
-                    )
     set(viewer_RESOURCE_FILES
         ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
         ${viewer_RESOURCE_FILES}
