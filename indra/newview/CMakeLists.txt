@@ -36,6 +36,7 @@ include(Linking)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
+include(OpenSSL)
 include(StateMachine)
 include(TemplateCheck)
 include(UI)
@@ -1664,6 +1665,9 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${UI_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
     ${HUNSPELL_LIBRARY}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
