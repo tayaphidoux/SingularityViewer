@@ -1688,12 +1688,10 @@ void LLWorldMapView::drawTrackingCircle( const LLRect& rect, S32 x, S32 y, const
 		end_theta -= angle_adjust_y;
 	}
 
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
-	gGL.pushMatrix();
-	gGL.translatef((F32)x, (F32)y, 0.f);
+	gGL.pushUIMatrix();
+	gGL.translateUI(x, y, 0.f);
 	gl_washer_segment_2d(inner_radius, outer_radius, start_theta, end_theta, 40, color, color);
-	gGL.popMatrix();
-
+	gGL.popUIMatrix();
 }
 
 // static
