@@ -7741,7 +7741,7 @@ void LLPipeline::renderDeferredLighting()
 				glClearColor(0,0,0,0);
 
 				F32 ssao_scale = llclamp(RenderSSAOResolutionScale.get(), .01f, 1.f);
-				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_KERN_SCALE, ssao_scale, ssao_scale);
+				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SSAO_SCALE, ssao_scale, ssao_scale);
 
 				//Enable bilinear filtering, as the screen tex resolution may not match current framebuffer resolution. Eg, half-res SSAO
 				// diffuse map should only be found if the sun shader is the SSAO variant.
@@ -8320,7 +8320,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 				bindDeferredShader(gDeferredSunProgram);
 
 				F32 ssao_scale = llclamp(RenderSSAOResolutionScale.get(), .01f, 1.f);
-				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_KERN_SCALE, ssao_scale, ssao_scale);
+				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SSAO_SCALE, ssao_scale, ssao_scale);
 
 				glClearColor(1,1,1,1);
 				mDeferredLight.clear(GL_COLOR_BUFFER_BIT);
