@@ -10,8 +10,8 @@ else (STANDALONE)
   use_prebuilt_binary(curl)
   if (WINDOWS)
     set(CURL_LIBRARIES 
-    debug libcurld
-    optimized libcurl)
+    debug libcurl_a_debug
+    optimized libcurl_a)
   else (WINDOWS)
     use_prebuilt_binary(libidn)
     set(CURL_LIBRARIES curl idn)

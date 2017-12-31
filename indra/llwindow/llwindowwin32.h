@@ -27,10 +27,7 @@
 #ifndef LL_LLWINDOWWIN32_H
 #define LL_LLWINDOWWIN32_H
 
-// Limit Windows API to small and manageable set.
-#define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#include <windows.h>
+#include "llwin32headerslean.h"
 
 #include "llwindow.h"
 #include "llwindowcallbacks.h"

@@ -33,6 +33,8 @@
 #include <sys/param.h>  // Need PATH_MAX in APR headers...
 #endif
 
+#include "llwin32headerslean.h"
+
 #include <boost/noncopyable.hpp>
 
 #include "apr_thread_proc.h"

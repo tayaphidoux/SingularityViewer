@@ -22,10 +22,8 @@ if(WINDOWS)
         SLVoice.exe
         ca-bundle.crt
         libsndfile-1.dll
-        vivoxplatform.dll
         vivoxsdk.dll
         ortp.dll
-        zlib1.dll
         vivoxoal.dll
         )
 
@@ -37,8 +35,6 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
-        ssleay32.dll
-        libeay32.dll
         glod.dll    
         libhunspell.dll
         )
@@ -48,12 +44,30 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
-        ssleay32.dll
-        libeay32.dll
         glod.dll
         libhunspell.dll
         )
 
+    if(WORD_SIZE STREQUAL 64)
+      list(APPEND debug_files
+           libcrypto-1_1-x64.dll
+           libssl-1_1-x64.dll
+           )
+      list(APPEND release_files
+           libcrypto-1_1-x64.dll
+           libssl-1_1-x64.dll
+           )
+    else(WORD_SIZE STREQUAL 64)
+      list(APPEND debug_files
+           libcrypto-1_1.dll
+           libssl-1_1.dll
+           )
+      list(APPEND release_files
+           libcrypto-1_1.dll
+           libssl-1_1.dll
+           )
+    endif(WORD_SIZE STREQUAL 64)
+		
     if(NOT DISABLE_TCMALLOC)
       set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
       set(release_files ${release_files} libtcmalloc_minimal.dll)

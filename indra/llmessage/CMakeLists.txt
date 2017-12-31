@@ -37,7 +37,6 @@ set(llmessage_SOURCE_FILES
     llassetstorage.cpp
     llavatarname.cpp
     llavatarnamecache.cpp
-    llblowfishcipher.cpp
     llbuffer.cpp
     llbufferstream.cpp
     llcachename.cpp
@@ -57,7 +56,6 @@ set(llmessage_SOURCE_FILES
     lliopipe.cpp
     lliosocket.cpp
     llioutil.cpp
-    llmail.cpp
     llmessagebuilder.cpp
     llmessageconfig.cpp
     llmessagelog.cpp
@@ -128,7 +126,6 @@ set(llmessage_HEADER_FILES
     llassetstorage.h
     llavatarname.h
     llavatarnamecache.h
-    llblowfishcipher.h
     llbuffer.h
     llbufferstream.h
     llcachename.h
@@ -156,7 +153,6 @@ set(llmessage_HEADER_FILES
     lliosocket.h
     llioutil.h
     llloginflags.h
-    llmail.h
     llmessagebuilder.h
     llmessageconfig.h
     llmessagelog.h
