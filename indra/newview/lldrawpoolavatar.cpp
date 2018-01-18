@@ -1457,6 +1457,9 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 	}
 }
 
+extern int sMaxCacheHit;
+extern int sCurCacheHit;
+
 void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 {
 	if ((avatar->isSelf() && !gAgent.needsRenderAvatar()) || !gMeshRepo.meshRezEnabled())
@@ -1516,44 +1519,57 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 		if (buff)
 		{
 			if (sShaderLevel > 0)
-			{ //upload matrix palette to shader
-				// upload matrix palette to shader
-				LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
-				U32 count = LLSkinningUtil::getMeshJointCount(skin);
-				LLSkinningUtil::initSkinningMatrixPalette(mat, count, skin, avatar);
-
-				stop_glerror();
-
-				F32 mp[LL_MAX_JOINTS_PER_MESH_OBJECT*12];
-
-				for (U32 i = 0; i < count; ++i)
+			{
+				auto& mesh_cache = avatar->getRiggedMatrixCache();
+				auto& mesh_id = skin->mMeshID;
+				auto rigged_matrix_data_iter = find_if(mesh_cache.begin(), mesh_cache.end(), [&mesh_id](decltype(mesh_cache[0]) & entry) { return entry.first == mesh_id; });
+				if (rigged_matrix_data_iter != avatar->getRiggedMatrixCache().cend())
 				{
-					F32* m = (F32*) mat[i].getF32ptr();
+					LLDrawPoolAvatar::sVertexProgram->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
+						rigged_matrix_data_iter->second.first,
+						FALSE,
+						(GLfloat*)rigged_matrix_data_iter->second.second.data());
+					LLDrawPoolAvatar::sVertexProgram->uniform1f(LLShaderMgr::AVATAR_MAX_WEIGHT, F32(rigged_matrix_data_iter->second.first - 1));
 
-					U32 idx = i*12;
-
-					mp[idx+0] = m[0];
-					mp[idx+1] = m[1];
-					mp[idx+2] = m[2];
-					mp[idx+3] = m[12];
-
-					mp[idx+4] = m[4];
-					mp[idx+5] = m[5];
-					mp[idx+6] = m[6];
-					mp[idx+7] = m[13];
-
-					mp[idx+8] = m[8];
-					mp[idx+9] = m[9];
-					mp[idx+10] = m[10];
-					mp[idx+11] = m[14];
+					stop_glerror();
 				}
+				else
+				{
+					// upload matrix palette to shader
+					LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
+					U32 count = LLSkinningUtil::getMeshJointCount(skin);
+					LLSkinningUtil::initSkinningMatrixPalette(mat, count, skin, avatar);
 
-				LLDrawPoolAvatar::sVertexProgram->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX, 
-					count,
-					FALSE,
-					(GLfloat*) mp);
+					std::array<F32, LL_MAX_JOINTS_PER_MESH_OBJECT * 12> mp;
 
-				LLDrawPoolAvatar::sVertexProgram->uniform1f(LLShaderMgr::AVATAR_MAX_WEIGHT, F32(count-1));
+					for (U32 i = 0; i < count; ++i)
+					{
+						F32* m = (F32*)mat[i].getF32ptr();
+
+						U32 idx = i * 12;
+
+						mp[idx + 0] = m[0];
+						mp[idx + 1] = m[1];
+						mp[idx + 2] = m[2];
+						mp[idx + 3] = m[12];
+
+						mp[idx + 4] = m[4];
+						mp[idx + 5] = m[5];
+						mp[idx + 6] = m[6];
+						mp[idx + 7] = m[13];
+
+						mp[idx + 8] = m[8];
+						mp[idx + 9] = m[9];
+						mp[idx + 10] = m[10];
+						mp[idx + 11] = m[14];
+					}
+					mesh_cache.emplace_back(std::make_pair( skin->mMeshID, std::make_pair(count, mp) ) );
+					LLDrawPoolAvatar::sVertexProgram->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
+						count,
+						FALSE,
+						(GLfloat*)mp.data());
+					LLDrawPoolAvatar::sVertexProgram->uniform1f(LLShaderMgr::AVATAR_MAX_WEIGHT, F32(count - 1));
+				}
 				
 				stop_glerror();
 			}

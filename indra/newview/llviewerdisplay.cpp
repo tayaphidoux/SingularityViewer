@@ -81,6 +81,7 @@
 #include "llviewerregion.h"
 #include "lldrawpoolwater.h"
 #include "lldrawpoolbump.h"
+#include "lldrawpoolavatar.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
@@ -255,10 +256,23 @@ static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_CLASS("Class");
 static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_BUMP("Bump");
 static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_LIST("List");
 static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_DELETE("Delete");
+
+int sMaxCacheHit = 0;
+int sCurCacheHit = 0;
+
 // Paint the display!
 void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot, bool tiling)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER);
+
+	for (auto avatar : LLCharacter::sInstances)
+	{
+		LLVOAvatar* avatarp = dynamic_cast<LLVOAvatar*>(avatar);
+		if (!avatarp) continue;
+		if (avatarp->isDead()) continue;
+		avatarp->clearRiggedMatrixCache();
+	}
+	sCurCacheHit = 0;
 
 	if (gWindowResized)
 	{ //skip render on frames where window has been resized
