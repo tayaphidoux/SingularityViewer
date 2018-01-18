@@ -44,6 +44,9 @@ VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 
+vec3 decode_normal(vec2 enc);
+vec4 getPosition(vec2 pos_screen);
+
 vec2 getKern(int i)
 {
 	vec2 kern[4];
@@ -53,35 +56,6 @@ vec2 getKern(int i)
 	kern[2] = vec2(0.0539909665,0.1209853623);
 	kern[3] = vec2(0.0044318484,0.0647587978);
 	return kern[i];
-}
-
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2D(depthMap, pos_screen.xy).r;
-	vec2 sc = pos_screen.xy*2.0;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
-
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
-
-vec3 decode_normal (vec2 enc)
-{
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
 }
 
 void main() 

@@ -146,6 +146,8 @@ public:
 
 	/* virtual */ void updateShaderUniforms(LLGLSLShader * shader); // Virtual
 
+	/* virtual */ bool attachClassSharedShaders(LLGLSLShader& shader, S32 shader_class); // Virtual
+
 private:
 	
 	std::vector<std::string> mShinyUniforms;

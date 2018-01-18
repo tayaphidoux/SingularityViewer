@@ -45,28 +45,8 @@ uniform float ssao_factor;
 uniform vec2 kern_scale;
 uniform vec2 noise_scale;
 
-vec3 decode_normal (vec2 enc)
-{
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
-}
-
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2D(depthMapDownsampled, pos_screen.xy).r;
-	vec2 sc = pos_screen.xy*2.0;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
+vec3 decode_normal(vec2 enc);
+vec4 getPosition(vec2 pos_screen);
 
 vec2 getKern(int i)
 {

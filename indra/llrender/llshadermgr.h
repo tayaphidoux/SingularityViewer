@@ -240,6 +240,7 @@ DISPLAY_GAMMA,
 
 	// Implemented in the application to actually update out of date uniforms for a particular shader
 	virtual void updateShaderUniforms(LLGLSLShader * shader) = 0; // Pure Virtual
+	virtual bool attachClassSharedShaders(LLGLSLShader& shader, S32 shader_class) = 0; // Pure Virtual
 
 public:
 	struct CachedObjectInfo

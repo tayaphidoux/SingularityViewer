@@ -952,6 +952,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	BOOL success = TRUE;
 
+	success = loadShaderFile("deferred/components/utilityFuncF.glsl", mVertexShaderLevel[SHADER_DEFERRED], GL_FRAGMENT_SHADER_ARB);
+
 	if (success)
 	{
 		gDeferredDiffuseProgram.mName = "Deferred Diffuse Shader";
@@ -2531,6 +2533,17 @@ void LLViewerShaderMgr::updateShaderUniforms(LLGLSLShader * shader)
 {
 	LLWLParamManager::getInstance()->updateShaderUniforms(shader);
 	LLWaterParamManager::getInstance()->updateShaderUniforms(shader);
+}
+
+/* virtual */ bool LLViewerShaderMgr::attachClassSharedShaders(LLGLSLShader& shader, S32 shader_class)
+{
+	switch (shader_class)
+	{
+	case LLViewerShaderMgr::SHADER_DEFERRED:
+		LL_INFOS() << "deferred/components/utilityFuncF.glsl" << LL_ENDL;
+		return shader.attachObject("deferred/components/utilityFuncF.glsl");
+	}
+	return true;
 }
 
 /*static*/ void LLShaderMgr::unloadShaderClass(int shader_class)
