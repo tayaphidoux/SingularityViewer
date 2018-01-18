@@ -65,7 +65,7 @@
 
 // extern
 const S32Megabytes gMinVideoRam(32);
-const S32Megabytes gMaxVideoRam(1024);
+const S32Megabytes gMaxVideoRam(2048);
 
 
 // statics
@@ -88,11 +88,11 @@ S32 LLViewerTexture::sAuxCount = 0;
 LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
-S32Bytes LLViewerTexture::sBoundTextureMemory;
-S32Bytes LLViewerTexture::sTotalTextureMemory;
+S64Bytes LLViewerTexture::sBoundTextureMemory;
+S64Bytes LLViewerTexture::sTotalTextureMemory;
 S32Megabytes LLViewerTexture::sMaxBoundTextureMemory;
 S32Megabytes LLViewerTexture::sMaxTotalTextureMem;
-S32Bytes LLViewerTexture::sMaxDesiredTextureMem;
+S64Bytes LLViewerTexture::sMaxDesiredTextureMem;
 S8  LLViewerTexture::sCameraMovingDiscardBias = 0;
 F32 LLViewerTexture::sCameraMovingBias = 0.0f ;
 S32 LLViewerTexture::sMaxSculptRez = 128 ; //max sculpt image size

@@ -50,9 +50,9 @@ U32 wpo2(U32 i);
 
 U32 LLImageGL::sUniqueCount				= 0;
 U32 LLImageGL::sBindCount				= 0;
-S32Bytes LLImageGL::sGlobalTextureMemory(0);
-S32Bytes LLImageGL::sBoundTextureMemory(0);
-S32Bytes LLImageGL::sCurBoundTextureMemory(0);
+S64Bytes LLImageGL::sGlobalTextureMemory(0);
+S64Bytes LLImageGL::sBoundTextureMemory(0);
+S64Bytes LLImageGL::sCurBoundTextureMemory(0);
 S32 LLImageGL::sCount					= 0;
 
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
@@ -78,9 +78,9 @@ S32 LLImageGL::sCurTexPickSize = -1 ;
 LLPointer<LLImageGL> LLImageGL::sHighlightTexturep = NULL;
 S32 LLImageGL::sMaxCategories = 1 ;
 
-std::vector<S32Bytes> LLImageGL::sTextureMemByCategory;
-std::vector<S32Bytes> LLImageGL::sTextureMemByCategoryBound ;
-std::vector<S32Bytes> LLImageGL::sTextureCurMemByCategoryBound ;
+std::vector<S64Bytes> LLImageGL::sTextureMemByCategory;
+std::vector<S64Bytes> LLImageGL::sTextureMemByCategoryBound ;
+std::vector<S64Bytes> LLImageGL::sTextureCurMemByCategoryBound ;
 //------------------------
 // ****************************************************************************************************
 //End for texture auditing use only
@@ -293,7 +293,7 @@ void LLImageGL::updateStats(F32 current_time)
 	LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_STATS);
 	sLastFrameTime = current_time;
 	sBoundTextureMemory = sCurBoundTextureMemory;
-	sCurBoundTextureMemory = S32Bytes(0);
+	sCurBoundTextureMemory = S64Bytes(0);
 
 	if(gAuditTexture)
 	{
@@ -305,7 +305,7 @@ void LLImageGL::updateStats(F32 current_time)
 		for(U32 i = 0 ; i < sTextureCurMemByCategoryBound.size() ; i++)
 		{
 			sTextureMemByCategoryBound[i] = sTextureCurMemByCategoryBound[i] ;
-			sTextureCurMemByCategoryBound[i] = (S32Bytes)0 ;
+			sTextureCurMemByCategoryBound[i] = (S64Bytes)0 ;
 		}
 	}
 }
