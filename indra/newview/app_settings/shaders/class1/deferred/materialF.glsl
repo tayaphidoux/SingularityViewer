@@ -32,8 +32,7 @@ uniform float emissive_brightness;
 
 vec2 encode_normal(vec3 n);
 vec3 decode_normal(vec2 enc);
-vec3 encode_diffuse(vec3 color);
-vec4 srgb_to_linear(vec4 cs);
+vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
