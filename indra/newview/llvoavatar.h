@@ -1096,6 +1096,21 @@ protected: // Shared with LLVOAvatarSelf
 /**                    Support classes
  **                                                                            **
  *******************************************************************************/
+
+public:
+	typedef std::array<F32, LL_MAX_JOINTS_PER_MESH_OBJECT * 12> rigged_matrix_array_t;
+	typedef std::vector<std::pair<LLUUID, std::pair<U32, rigged_matrix_array_t> > > rigged_transformation_cache_t;
+	auto& getRiggedMatrixCache()
+	{
+		return mRiggedMatrixDataCache;
+	}
+	void clearRiggedMatrixCache()
+	{
+		mRiggedMatrixDataCache.clear();
+	}
+private:
+	rigged_transformation_cache_t mRiggedMatrixDataCache;
+
 // <edit>
 
 //Avatar idle timer

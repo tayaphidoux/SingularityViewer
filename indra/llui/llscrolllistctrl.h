@@ -322,6 +322,7 @@ public:
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
 	BOOL			hasSortOrder() const;
 	void			clearSortOrder();
+	void			setSortEnabled(bool sort);
 
 	template<typename T> S32 selectMultiple(const std::vector<T>& vec)
 	{
@@ -423,6 +424,7 @@ private:
 	bool			mDisplayColumnHeaders;
 	bool			mColumnsDirty;
 	bool			mColumnWidthsDirty;
+	bool			mSortEnabled;
 
 	mutable item_list	mItemList;
 

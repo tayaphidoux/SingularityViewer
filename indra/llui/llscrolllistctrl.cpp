@@ -125,6 +125,7 @@ LLScrollListCtrl::LLScrollListCtrl(const std::string& name, const LLRect& rect, 
 	mNeedsScroll(false),
 	mCanSelect(true),
 	mColumnsDirty(false),
+	mSortEnabled(true),
 	mMaxItemCount(INT_MAX), 
 	mMaxContentWidth(0),
 	mBorderThickness( 2 ),
@@ -2301,6 +2302,16 @@ BOOL LLScrollListCtrl::setSort(S32 column_idx, BOOL ascending)
 	}
 }
 
+void LLScrollListCtrl::setSortEnabled(bool sort)
+{
+	bool update = sort && !mSortEnabled;
+	mSortEnabled = sort;
+	if (update)
+	{
+		updateSort();
+	}
+}
+
 S32	LLScrollListCtrl::getLinesPerPage()
 {
 	//if mPageLines is NOT provided display all item
@@ -2942,7 +2953,7 @@ std::string LLScrollListCtrl::getSortColumnName()
 
 BOOL LLScrollListCtrl::hasSortOrder() const
 {
-	return !mSortColumns.empty();
+	return mSortEnabled && !mSortColumns.empty();
 }
 
 void LLScrollListCtrl::clearSortOrder()

@@ -63,55 +63,29 @@ uniform float size;
 
 VARYING vec4 vary_fragcoord;
 
+vec3 decode_normal(vec2 enc);
 uniform mat4 inv_proj;
 uniform vec2 noise_scale;
 
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
-
-vec3 decode_normal (vec2 enc)
-{
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
-}
-vec3 srgb_to_linear(vec3 cs)
-{
-	vec3 low_range = cs / vec3(12.92);
-	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
-	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
-
-#ifdef OLD_SELECT
-	vec3 result;
-	result.r = lte.r ? low_range.r : high_range.r;
-	result.g = lte.g ? low_range.g : high_range.g;
-	result.b = lte.b ? low_range.b : high_range.b;
-    return result;
-#else
-	return mix(high_range, low_range, lte);
-#endif
-
-}
+vec4 getPosition(vec2 pos_screen);
+vec3 srgb_to_linear(vec3 cs);
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
 	ret.rgb = srgb_to_linear(ret.rgb);
 	
-	vec2 dist = tc-vec2(0.5);
+	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
-	float det = max(1.0-lod/(proj_lod*0.5), 0.0);
+	float det = min(lod/(proj_lod*0.5), 1.0);
 	
-	float d = dot(dist,dist);
-		
-	ret *= min(clamp((0.25-d)/0.25, 0.0, 1.0)+det, 1.0);
+	float d = min(dist.x, dist.y);
+    
+    d *= min(1, d * (proj_lod - lod));
+	
+	float edge = 0.25*det;
+    
+	ret *= clamp(d/edge, 0.0, 1.0);
 	
 	return ret;
 }
@@ -146,19 +120,6 @@ vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 	ret *= min(clamp((0.25-d)/0.25, 0.0, 1.0), 1.0);
 	
 	return ret;
-}
-
-
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2D(depthMap, pos_screen.xy).r;
-	vec2 sc = pos_screen.xy*2.0;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
 }
 
 void main() 

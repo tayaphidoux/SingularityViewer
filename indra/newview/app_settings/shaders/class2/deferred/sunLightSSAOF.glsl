@@ -50,6 +50,7 @@ uniform vec4 shadow_clip;
 
 VARYING vec2 vary_fragcoord;
 
+uniform vec2 ssao_scale;
 uniform vec2 kern_scale;
 
 uniform mat4 inv_proj;
@@ -64,34 +65,25 @@ uniform float shadow_offset;
 uniform float spot_shadow_bias;
 uniform float spot_shadow_offset;
 
+vec3 decode_normal(vec2 enc);
+vec4 getPosition(vec2 pos_screen);
 
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
 
-vec3 decode_normal (vec2 enc)
+float calcShadow( sampler2DShadow shadowMap, vec4 stc, vec2 res, vec2 pos_screen )
 {
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
-}
+	//stc.x += (((texture2D(noiseMap, pos_screen/128.0).x)-.5)/shadow_res.x);	//Random dither.
 
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2D(depthMap, pos_screen.xy).r;
-	vec2 sc = pos_screen.xy*2.0;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
+	vec2 off = vec2(1,1.5)/res;
+	stc.x = floor(stc.x*res.x + fract(pos_screen.y*(1.0/kern_scale.y)*0.5))*off.x;
+
+
+	float shadow = shadow2D(shadowMap, stc.xyz).x; // cs
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(off.x*2.0, off.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(off.x, -off.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x*2.0, off.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x, -off.y, 0.0)).x;
+
+	return shadow;
 }
 
 float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
@@ -99,41 +91,17 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
 	stc.xyz /= stc.w;
 	stc.z += shadow_bias;
 
-	//stc.x += (((texture2D(noiseMap, pos_screen/128.0).x)-.5)/shadow_res.x);	//Random dither.
-	stc.x = floor(stc.x*shadow_res.x + fract(pos_screen.y*0.666666666))/shadow_res.x;
-
-	float cs = shadow2D(shadowMap, stc.xyz).x;
-	
-	float shadow = cs;
-	
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(2.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(1.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(-1.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(-2.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
-	         
-        return shadow*0.2;
+	return calcShadow(shadowMap, stc, shadow_res, pos_screen)*0.2;
 }
 
 float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
 {
 	stc.xyz /= stc.w;
 	stc.z += spot_shadow_bias*scl;
-	//stc.x += (((texture2D(noiseMap, pos_screen/128.0).x)-.5)/proj_shadow_res.x);	//Random dither.
-	stc.x = floor(proj_shadow_res.x * stc.x + fract(pos_screen.y*0.666666666)) / proj_shadow_res.x; // snap
-	
-	float cs = shadow2D(shadowMap, stc.xyz).x;
-	float shadow = cs;
 
-	vec2 off = 1.0/proj_shadow_res;
-	off.y *= 1.5;
-	
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(off.x*2.0, off.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(off.x, -off.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x, off.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x*2.0, -off.y, 0.0)).x;
-
-        return shadow*0.2;
+	return calcShadow(shadowMap, stc, proj_shadow_res, pos_screen)*0.2;
 }
+
 
 void main() 
 {
@@ -244,7 +212,7 @@ void main()
 	}
 	
 	frag_color[0] = shadow;
-	frag_color[1] = texture2D(diffuseRect,vary_fragcoord.xy * kern_scale).r;
+	frag_color[1] = texture2D(diffuseRect,vary_fragcoord.xy * ssao_scale).r;
 	
 	spos = vec4(shadow_pos+norm*spot_shadow_offset, 1.0);
 	

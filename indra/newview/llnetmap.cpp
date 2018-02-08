@@ -132,8 +132,6 @@ LLNetMap::LLNetMap(const std::string& name) :
 	mClosestAgentToCursor(),
 	mPopupMenu(NULL)
 {
-	mPixelsPerMeter = mScale / REGION_WIDTH_METERS;
-	mDotRadius = llmax(DOT_SCALE * mPixelsPerMeter, MIN_DOT_RADIUS);
 	setScale(gSavedSettings.getF32("MiniMapScale"));
 
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_mini_map.xml");
@@ -763,9 +761,6 @@ LLVector3 LLNetMap::globalPosToView(const LLVector3d& global_pos)
 	LLVector3 pos_local;
 	pos_local.setVec(relative_pos_global);  // convert to floats from doubles
 
-// <FS:CR> Aurora Sim
-	mPixelsPerMeter = mScale / REGION_WIDTH_METERS;
-// </FS:CR> Aurora Sim
 	pos_local.mV[VX] *= mPixelsPerMeter;
 	pos_local.mV[VY] *= mPixelsPerMeter;
 	// leave Z component in meters
@@ -786,17 +781,12 @@ LLVector3 LLNetMap::globalPosToView(const LLVector3d& global_pos)
 
 void LLNetMap::drawRing(const F32 radius, const LLVector3 pos_map, const LLColor4& color)
 {
-// <FS:CR> Aurora Sim
-	F32 meters_to_pixels = mScale / LLWorld::getInstance()->getRegionWidthInMeters();
-	//F32 meters_to_pixels = mScale / REGION_WIDTH_METERS;
-// </FS:CR> Aurora Sim
-	F32 radius_pixels = radius * meters_to_pixels;
+	F32 radius_pixels = radius * mPixelsPerMeter;
 
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
-	gGL.pushMatrix();
-	gGL.translatef((F32)pos_map.mV[VX], (F32)pos_map.mV[VY], 0.f);
-	gl_ring(radius_pixels, WIDTH_PIXELS, color, color, CIRCLE_STEPS, FALSE);
-	gGL.popMatrix();
+	gGL.pushUIMatrix();
+	gGL.translateUI(pos_map.mV[VX], pos_map.mV[VY], 0.f);
+	gl_washer_2d(radius_pixels, radius_pixels-WIDTH_PIXELS, CIRCLE_STEPS, color, color);
+	gGL.popUIMatrix();
 }
 
 void LLNetMap::drawTracking(const LLVector3d& pos_global, const LLColor4& color,

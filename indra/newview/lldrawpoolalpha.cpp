@@ -554,20 +554,21 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, // don't touch color
 						      LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
 
-					emissive_shader->bind();
-					
+					//emissive_shader->bind();
+
 					// glow doesn't use vertex colors from the mesh data
 					// Singu Note: Pull attribs from shader, since we always have one here.
-					params.mVertexBuffer->setBuffer(emissive_shader->mAttributeMask);
-					
+					// Singu Note: To avoid ridiculous shader bind cost, simply re-use prior shader, but let llvertexbuffer replace the color attrib ptr with the emissive one.
+					params.mVertexBuffer->setBuffer(current_shader->mAttributeMask | LLVertexBuffer::MAP_EMISSIVE);
+
 					// do the actual drawing, again
 					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 
+					//current_shader->bind();
+
 					// restore our alpha blend mode
 					gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
-
-					current_shader->bind();
 				}
 			
 				if (tex_setup)

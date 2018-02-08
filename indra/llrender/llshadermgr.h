@@ -123,6 +123,7 @@ public:
 		DEFERRED_SSAO_FACTOR,
 		DEFERRED_SSAO_FACTOR_INV,
 		DEFERRED_SSAO_EFFECT,
+		DEFERRED_SSAO_SCALE,
 		DEFERRED_KERN_SCALE,
 		DEFERRED_NOISE_SCALE,
 		DEFERRED_NEAR_CLIP,
@@ -239,6 +240,7 @@ DISPLAY_GAMMA,
 
 	// Implemented in the application to actually update out of date uniforms for a particular shader
 	virtual void updateShaderUniforms(LLGLSLShader * shader) = 0; // Pure Virtual
+	virtual bool attachClassSharedShaders(LLGLSLShader& shader, S32 shader_class) = 0; // Pure Virtual
 
 public:
 	struct CachedObjectInfo

@@ -58,10 +58,13 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 	mSpeakerClearListener = new SpeakerClearListener(*this);
 	//mSpeakerModeratorListener = new SpeakerModeratorUpdateListener(*this);
 	mSpeakerMuteListener = new SpeakerMuteListener(*this);
-
+	mSpeakerBatchBeginListener = new SpeakerBatchBeginListener(*this);
+	mSpeakerBatchEndListener = new SpeakerBatchEndListener(*this);
 	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
 	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
 	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
+	mSpeakerMgr->addListener(mSpeakerBatchBeginListener, "batch_begin");
+	mSpeakerMgr->addListener(mSpeakerBatchEndListener, "batch_end");
 	//mSpeakerMgr->addListener(mSpeakerModeratorListener, "update_moderator");
 }
 
@@ -378,6 +381,16 @@ bool LLParticipantList::onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event
 	return true;
 }
 
+void LLParticipantList::onSpeakerBatchBeginEvent()
+{
+	mAvatarList->setSortEnabled(false);
+}
+
+void LLParticipantList::onSpeakerBatchEndEvent()
+{
+	mAvatarList->setSortEnabled(true);
+}
+
 void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 {
 	//if (mExcludeAgent && gAgent.getID() == avatar_id) return;
@@ -466,6 +479,17 @@ bool LLParticipantList::SpeakerClearListener::handleEvent(LLPointer<LLOldEvents:
 bool LLParticipantList::SpeakerMuteListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	return mParent.onSpeakerMuteEvent(event, userdata);
+}
+
+bool LLParticipantList::SpeakerBatchBeginListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+	mParent.onSpeakerBatchBeginEvent();
+	return true;
+}
+bool LLParticipantList::SpeakerBatchEndListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+	mParent.onSpeakerBatchEndEvent();
+	return true;
 }
 
 // Singu Note: The following functions are actually of the LLParticipantListMenu class, but we haven't married lists with menus yet.

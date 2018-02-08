@@ -233,9 +233,9 @@ public:
 	static F32 sLastFrameTime;
 	
 	// Global memory statistics
-	static S32Bytes sGlobalTextureMemory;	// Tracks main memory texmem
-	static S32Bytes sBoundTextureMemory;	// Tracks bound texmem for last completed frame
-	static S32Bytes sCurBoundTextureMemory;		// Tracks bound texmem for current frame
+	static S64Bytes sGlobalTextureMemory;	// Tracks main memory texmem
+	static S64Bytes sBoundTextureMemory;	// Tracks bound texmem for last completed frame
+	static S64Bytes sCurBoundTextureMemory;		// Tracks bound texmem for current frame
 	static U32 sBindCount;					// Tracks number of texture binds for current frame
 	static U32 sUniqueCount;				// Tracks number of unique texture binds for current frame
 	static BOOL sGlobalUseAnisotropic;
@@ -288,9 +288,9 @@ public:
 	//for debug use: show texture category distribution 
 	//----------------------------------------		
 	
-	static std::vector<S32Bytes> sTextureMemByCategory;
-	static std::vector<S32Bytes> sTextureMemByCategoryBound ;
-	static std::vector<S32Bytes> sTextureCurMemByCategoryBound ;
+	static std::vector<S64Bytes> sTextureMemByCategory;
+	static std::vector<S64Bytes> sTextureMemByCategoryBound ;
+	static std::vector<S64Bytes> sTextureCurMemByCategoryBound ;
 	//----------------------------------------	
 // ****************************************************************************************************
 //End of definitions for texture auditing use only
