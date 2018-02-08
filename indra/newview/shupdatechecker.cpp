@@ -43,14 +43,6 @@ public:
 		}
 		if (option == 1) // Later
 		{}
-		else if (option == 2) // Ignore
-		{
-			LLNotificationPtr notifyptr = LLNotificationsUtil::find(notification["id"]);
-			if (notifyptr)
-			{
-				notifyptr->setIgnored(true);
-			}
-		}
 	}
 	/*virtual*/ void completedRaw(LLChannelDescriptors const& channels, buffer_ptr_t const& buffer)
 	{
