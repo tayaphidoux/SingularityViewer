@@ -594,6 +594,7 @@ set(viewer_SOURCE_FILES
     scriptcounter.cpp
     sgmemstat.cpp
     shcommandhandler.cpp
+    shupdatechecker.cpp
     shfloatermediaticker.cpp
     wlfPanel_AdvSettings.cpp
     )
@@ -1136,6 +1137,7 @@ set(viewer_HEADER_FILES
     sgmemstat.h
     shcommandhandler.h
     shfloatermediaticker.h
+    shupdatechecker.h
     wlfPanel_AdvSettings.h
     )
 

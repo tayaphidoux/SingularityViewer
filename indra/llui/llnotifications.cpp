@@ -891,7 +891,7 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 		assert(!wasFound);
 		if (passesFilter)
 		{
-			LL_INFOS() << "Inserting " << pNotification->getName() << LL_ENDL;
+			//LL_INFOS() << "Inserting " << pNotification->getName() << LL_ENDL;
 			// not in our list, add it and say so
 			mItems.insert(pNotification);
 			abortProcessing = mChanged(payload);

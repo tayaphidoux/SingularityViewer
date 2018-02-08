@@ -225,6 +225,7 @@
 #include "llfloaterblacklist.h"
 #include "scriptcounter.h"
 #include "shfloatermediaticker.h"
+#include "shupdatechecker.h"
 #include "llpacketring.h"
 // </edit>
 
@@ -849,6 +850,7 @@ bool idle_startup()
 
 		// Go to the next startup state
 		LLStartUp::setStartupState( STATE_BROWSER_INIT );
+		check_for_updates();
 		return FALSE;
 	}
 
