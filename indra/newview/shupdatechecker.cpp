@@ -65,7 +65,7 @@ public:
 			return;
 		}
 
-		std::string viewer_version = llformat("%s (%i)", LLVersionInfo::getShortVersion(), LLVersionInfo::getBuild());
+		std::string viewer_version = llformat("%s (%i)", LLVersionInfo::getShortVersion().c_str(), LLVersionInfo::getBuild());
 
 		const Json::Value data = root[mType];
 #if LL_WINDOWS
