@@ -33,8 +33,8 @@ namespace VSTool
         int IOleMessageFilter.RetryRejectedCall(IntPtr
             hTaskCallee, int dwTickCount, int dwRejectType)
         {
-            if (dwRejectType == 2)
-                // flag = SERVERCALL_RETRYLATER.
+            if (dwRejectType == 1  || dwRejectType == 2)
+                // flag = SERVERCALL_RETRYLATER or SERVERCALL_REJECTED.
             {
                 // Retry the thread call immediately if return >=0 & 
                 // <100.

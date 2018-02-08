@@ -144,6 +144,9 @@ class ViewerManifest(LLManifest):
     def grid(self):
         return self.args['grid']
 
+    def viewer_branding_id(self):
+        return self.args['branding_id']
+
     def channel(self):
         return self.args['channel']
 
@@ -297,7 +300,7 @@ class WindowsManifest(ViewerManifest):
 
         if self.is_packaging_viewer():
             # Find singularity-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
-            self.path(src='%s/singularity-bin.exe' % self.args['configuration'], dst=self.final_exe())
+            self.path(src='%s/%s-bin.exe' % (self.args['configuration'],self.viewer_branding_id()), dst=self.final_exe())
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
@@ -572,7 +575,7 @@ class WindowsManifest(ViewerManifest):
             !define VENDORSTR "Singularity Viewer Project"
             """
 
-        tempfile = "singularity_setup_tmp.nsi"
+        tempfile = "%s_setup_tmp.nsi" % self.viewer_branding_id()
         # the following replaces strings in the nsi template
         # it also does python-style % substitution
         self.replace_in("installers/windows/installer_template.nsi", tempfile, {
@@ -981,7 +984,7 @@ class LinuxManifest(ViewerManifest):
             self.path("client-readme.txt","README-linux.txt")
             self.path("client-readme-voice.txt","README-linux-voice.txt")
             self.path("client-readme-joystick.txt","README-linux-joystick.txt")
-            self.path("wrapper.sh","singularity")
+            self.path("wrapper.sh",self.viewer_branding_id())
             if self.prefix(src="", dst="etc"):
                 self.path("handle_secondlifeprotocol.sh")
                 self.path("register_secondlifeprotocol.sh")
@@ -995,7 +998,7 @@ class LinuxManifest(ViewerManifest):
         # self.put_in_file(self.flags_list(), 'gridargs.dat')
 
         if self.prefix(src="", dst="bin"):
-            self.path("singularity-bin","do-not-directly-run-singularity-bin")
+            self.path("%s-bin"%self.viewer_branding_id(),"do-not-directly-run-%s-bin"%self.viewer_branding_id())
             self.path2basename("../llplugin/slplugin", "SLPlugin")
             self.end_prefix("bin")
 

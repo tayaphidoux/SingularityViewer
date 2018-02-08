@@ -2434,7 +2434,7 @@ bool LLAppViewer::initConfiguration()
 	}
 
 	// XUI:translate
-	gSecondLife = "Singularity Viewer";
+	gSecondLife = LLTrans::getString("APP_NAME");
 
 	// Read skin/branding settings if specified.
 	//if (! gDirUtilp->getSkinDir().empty() )

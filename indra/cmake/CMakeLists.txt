@@ -13,6 +13,7 @@ set(cmake_SOURCE_FILES
     Audio.cmake
     BasicPluginBase.cmake
     Boost.cmake
+    BuildBranding.cmake
     BuildVersion.cmake
     CARes.cmake
     CEFPlugin.cmake

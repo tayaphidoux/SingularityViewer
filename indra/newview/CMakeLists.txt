@@ -6,6 +6,7 @@ include(00-Common)
 include(Boost)
 include(BuildPackagesInfo)
 include(BuildVersion)
+include(BuildBranding)
 include(CMakeCopyIfDifferent)
 include(DBusGlib)
 include(FMODSTUDIO)
@@ -35,6 +36,7 @@ include(Linking)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
+include(OpenSSL)
 include(StateMachine)
 include(TemplateCheck)
 include(UI)
@@ -1302,9 +1304,6 @@ if (WINDOWS)
     set_source_files_properties(${viewer_RESOURCE_FILES}
                                 PROPERTIES HEADER_FILE_ONLY TRUE)
 
-    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/res/viewerRes.rc
-                    ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
-                    )
     set(viewer_RESOURCE_FILES
         ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
         ${viewer_RESOURCE_FILES}
@@ -1540,6 +1539,7 @@ if (WINDOWS)
         --actions=copy
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
+        --branding_id=${VIEWER_BRANDING_ID}
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         --configuration=${CMAKE_CFG_INTDIR}
@@ -1594,6 +1594,7 @@ if (WINDOWS)
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
+          --branding_id=${VIEWER_BRANDING_ID}
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
           --channel=${VIEWER_CHANNEL}
@@ -1666,6 +1667,9 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${UI_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
     ${HUNSPELL_LIBRARY}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
@@ -1691,6 +1695,7 @@ if (LINUX)
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
+        --branding_id=${VIEWER_BRANDING_ID}
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         --channel=${VIEWER_CHANNEL}
@@ -1714,6 +1719,7 @@ if (LINUX)
         --arch=${ARCH}
         --actions=copy
         --artwork=${ARTWORK_DIR}
+        --branding_id=${VIEWER_BRANDING_ID}
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         --configuration=${CMAKE_CFG_INTDIR}
