@@ -230,10 +230,32 @@ public:
 	void update(BOOL resort_ok);
 	void setSpeakerTyping(const LLUUID& speaker_id, BOOL typing);
 	void speakerChatted(const LLUUID& speaker_id);
+
+	struct speaker_entry_t
+	{
+		speaker_entry_t(const LLUUID& id,
+			LLSpeaker::ESpeakerStatus status = LLSpeaker::STATUS_TEXT_ONLY,
+			const std::string& name = LLStringUtil::null,
+			LLSpeaker::ESpeakerType type = LLSpeaker::SPEAKER_AGENT,
+			const bool moderator = false,
+			const bool moderator_muted_text = false) : 
+			id(id), name(name), status(status), type(type), moderator(moderator), moderator_muted_text(moderator_muted_text)
+		{}
+		const LLUUID id;
+		const std::string name;
+		const LLSpeaker::ESpeakerStatus status;
+		const LLSpeaker::ESpeakerType type;
+		const bool moderator;
+		const bool moderator_muted_text;
+	};
+
+	void setSpeakers(const std::vector<speaker_entry_t>& speakers);
 	LLPointer<LLSpeaker> setSpeaker(const LLUUID& id,
 					const std::string& name = LLStringUtil::null,
 					LLSpeaker::ESpeakerStatus status = LLSpeaker::STATUS_TEXT_ONLY,
-					LLSpeaker::ESpeakerType = LLSpeaker::SPEAKER_AGENT);
+					LLSpeaker::ESpeakerType = LLSpeaker::SPEAKER_AGENT,
+					bool moderator = false,
+					bool moderator_muted_text = false);
 
 	BOOL isVoiceActive();
 

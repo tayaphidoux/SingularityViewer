@@ -338,7 +338,20 @@ LLSpeakerMgr::~LLSpeakerMgr()
 	delete mSpeakerDelayRemover;
 }
 
-LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::string& name, LLSpeaker::ESpeakerStatus status, LLSpeaker::ESpeakerType type)
+void LLSpeakerMgr::setSpeakers(const std::vector<LLSpeakerMgr::speaker_entry_t>& speakers)
+{
+	if (!speakers.empty())
+	{
+		fireEvent(new LLOldEvents::LLEvent(this), "batch_begin");
+		for (auto entry : speakers)
+		{
+			setSpeaker(entry.id, entry.name, entry.status, entry.type, entry.moderator, entry.moderator_muted_text);
+		}
+		fireEvent(new LLOldEvents::LLEvent(this), "batch_end");
+	}
+}
+
+LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::string& name, LLSpeaker::ESpeakerStatus status, LLSpeaker::ESpeakerType type, bool moderator, bool moderator_muted_text)
 {
 	LLUUID session_id = getSessionID();
 	if (id.isNull() || (id == session_id))
@@ -347,34 +360,37 @@ LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::strin
 	}
 
 	LLPointer<LLSpeaker> speakerp;
-	if (mSpeakers.find(id) == mSpeakers.end())
+	auto it = mSpeakers.find(id);
+	if (it == mSpeakers.end() || it->second.isNull())
 	{
 		speakerp = new LLSpeaker(id, name, type);
 		speakerp->mStatus = status;
+		speakerp->mIsModerator = moderator;
+		speakerp->mModeratorMutedText = moderator_muted_text;
 		mSpeakers.insert(std::make_pair(speakerp->mID, speakerp));
 		mSpeakersSorted.push_back(speakerp);
-		LL_DEBUGS("Speakers") << "Added speaker " << id << LL_ENDL;
 		fireEvent(new LLSpeakerListChangeEvent(this, speakerp->mID), "add");
 	}
 	else
 	{
-		speakerp = findSpeaker(id);
-		if (speakerp.notNull())
+		speakerp = it->second;
+		bool update_moderator = (bool)speakerp->mIsModerator != moderator;
+
+		// keep highest priority status (lowest value) instead of overriding current value
+		speakerp->mStatus = llmin(speakerp->mStatus, status);
+		speakerp->mIsModerator = moderator;
+		speakerp->mModeratorMutedText = moderator_muted_text;
+		// RN: due to a weird behavior where IMs from attached objects come from the wearer's agent_id
+		// we need to override speakers that we think are objects when we find out they are really
+		// residents
+		if (type == LLSpeaker::SPEAKER_AGENT)
 		{
-			// keep highest priority status (lowest value) instead of overriding current value
-			speakerp->mStatus = llmin(speakerp->mStatus, status);
-			// RN: due to a weird behavior where IMs from attached objects come from the wearer's agent_id
-			// we need to override speakers that we think are objects when we find out they are really
-			// residents
-			if (type == LLSpeaker::SPEAKER_AGENT)
-			{
-				speakerp->mType = LLSpeaker::SPEAKER_AGENT;
-				speakerp->lookupName();
-			}
+			speakerp->mType = LLSpeaker::SPEAKER_AGENT;
+			speakerp->lookupName();
 		}
-		else
+		if (update_moderator)
 		{
-			LL_WARNS("Speakers") << "Speaker " << id << " not found" << LL_ENDL;
+			fireEvent(new LLSpeakerUpdateModeratorEvent(speakerp), "update_moderator");
 		}
 	}
 
@@ -534,13 +550,17 @@ void LLSpeakerMgr::updateSpeakerList()
 		std::set<LLUUID> participants;
 		LLVoiceClient::getInstance()->getParticipantList(participants);
 		// If we are, add all voice client participants to our list of known speakers
+		std::vector<speaker_entry_t> speakers;
+		speakers.reserve(participants.size());
 		for (std::set<LLUUID>::iterator participant_it = participants.begin(); participant_it != participants.end(); ++participant_it)
 		{
-				setSpeaker(*participant_it,
-						   LLVoiceClient::getInstance()->getDisplayName(*participant_it),
-						   LLSpeaker::STATUS_VOICE_ACTIVE,
-						   (LLVoiceClient::getInstance()->isParticipantAvatar(*participant_it)?LLSpeaker::SPEAKER_AGENT:LLSpeaker::SPEAKER_EXTERNAL));
+			speakers.emplace_back(speaker_entry_t(
+				*participant_it,
+				LLSpeaker::STATUS_VOICE_ACTIVE,
+				LLVoiceClient::getInstance()->getDisplayName(*participant_it),
+				(LLVoiceClient::getInstance()->isParticipantAvatar(*participant_it)?LLSpeaker::SPEAKER_AGENT:LLSpeaker::SPEAKER_EXTERNAL)));
 		}
+		setSpeakers(speakers);
 	}
 	else
 	{
@@ -569,10 +589,11 @@ void LLSpeakerMgr::updateSpeakerList()
 				}
 				else if (gdatap && gdatap->isMemberDataComplete() && !gdatap->mMembers.empty())
 				{
+					std::vector<speaker_entry_t> speakers;
+					speakers.reserve(gdatap->mMembers.size());				
+
 					// Add group members when we get the complete list (note: can take a while before we get that list)
 					LLGroupMgrGroupData::member_list_t::iterator member_it = gdatap->mMembers.begin();
-					const S32 load_group_max_members = gSavedSettings.getS32("ChatLoadGroupMaxMembers");
-					S32 updated = 0;
 					while (member_it != gdatap->mMembers.end())
 					{
 						LLGroupMemberData* member = member_it->second;
@@ -581,16 +602,16 @@ void LLSpeakerMgr::updateSpeakerList()
 						const std::string& localized_online();
 						if ((member->getOnlineStatus() == localized_online()) && (mSpeakers.find(id) == mSpeakers.end()))
 						{
-							LLPointer<LLSpeaker> speakerp = setSpeaker(id, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
-							speakerp->mIsModerator = ((member->getAgentPowers() & GP_SESSION_MODERATOR) == GP_SESSION_MODERATOR);
-							updated++;
+							speakers.emplace_back(speaker_entry_t(
+								id,
+								LLSpeaker::STATUS_VOICE_ACTIVE,
+								"",
+								LLSpeaker::SPEAKER_AGENT,
+								(member->getAgentPowers() & GP_SESSION_MODERATOR) == GP_SESSION_MODERATOR));
 						}
 						++member_it;
-						// Limit the number of "manually updated" participants to a reasonable number to avoid severe fps drop
-						// *TODO : solve the perf issue of having several hundreds of widgets in the conversation list
-						if (updated >= load_group_max_members)
-							break;
 					}
+					setSpeakers(speakers);
 					mSpeakerListUpdated = true;
 				}
 			}
@@ -617,7 +638,7 @@ void LLSpeakerMgr::updateSpeakerList()
 		}
 	}
 	// Always add the current agent (it has to be there...). Will do nothing if already there.
-	setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+	setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE);
 }
 
 void LLSpeakerMgr::setSpeakerNotInChannel(LLSpeaker* speakerp)
@@ -737,6 +758,7 @@ void LLIMSpeakerMgr::setSpeakers(const LLSD& speakers)
 {
 	if ( !speakers.isMap() ) return;
 
+	std::vector<speaker_entry_t> speakerentries;
 	if ( speakers.has("agent_info") && speakers["agent_info"].isMap() )
 	{
 		LLSD::map_const_iterator speaker_it;
@@ -744,26 +766,21 @@ void LLIMSpeakerMgr::setSpeakers(const LLSD& speakers)
 			speaker_it != speakers["agent_info"].endMap();
 			++speaker_it)
 		{
-			LLUUID agent_id(speaker_it->first);
-
-			LLPointer<LLSpeaker> speakerp = setSpeaker(
-				agent_id,
-				LLStringUtil::null,
-				LLSpeaker::STATUS_TEXT_ONLY);
-
-			if ( speaker_it->second.isMap() )
+			bool moderator = false;
+			bool moderator_muted = false;
+			if (speaker_it->second.isMap())
 			{
-				BOOL is_moderator = speakerp->mIsModerator;
-				speakerp->mIsModerator = speaker_it->second["is_moderator"];
-				speakerp->mModeratorMutedText =
-					speaker_it->second["mutes"]["text"];
-				// Fire event only if moderator changed
-				if ( is_moderator != speakerp->mIsModerator )
-				{
-					LL_DEBUGS("Speakers") << "Speaker " << agent_id << (is_moderator ? "is now" : "no longer is") << " a moderator" << LL_ENDL;
-					fireEvent(new LLSpeakerUpdateModeratorEvent(speakerp), "update_moderator");
-				}
+				moderator = speaker_it->second["is_moderator"];
+				moderator_muted = speaker_it->second["mutes"]["text"];
 			}
+			speakerentries.emplace_back(
+				LLUUID(speaker_it->first),
+				LLSpeaker::STATUS_TEXT_ONLY,
+				"",
+				LLSpeaker::SPEAKER_AGENT,
+				moderator,
+				moderator_muted
+				);
 		}
 	}
 	else if ( speakers.has("agents" ) && speakers["agents"].isArray() )
@@ -775,22 +792,20 @@ void LLIMSpeakerMgr::setSpeakers(const LLSD& speakers)
 			speaker_it != speakers["agents"].endArray();
 			++speaker_it)
 		{
-			const LLUUID agent_id = (*speaker_it).asUUID();
-
-			LLPointer<LLSpeaker> speakerp = setSpeaker(
-				agent_id,
-				LLStringUtil::null,
-				LLSpeaker::STATUS_TEXT_ONLY);
+			speakerentries.emplace_back((*speaker_it).asUUID());
 		}
 	}
+	LLSpeakerMgr::setSpeakers(speakerentries);
 }
 
 void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 {
 	if ( !update.isMap() ) return;
 
+	std::vector<speaker_entry_t> speakerentries;
 	if ( update.has("agent_updates") && update["agent_updates"].isMap() )
 	{
+		
 		LLSD::map_const_iterator update_it;
 		for(
 			update_it = update["agent_updates"].beginMap();
@@ -800,8 +815,11 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 			LLUUID agent_id(update_it->first);
 			LLPointer<LLSpeaker> speakerp = findSpeaker(agent_id);
 
-			LLSD agent_data = update_it->second;
+			bool new_speaker = false;
+			bool moderator = false;
+			bool moderator_muted = false;
 
+			LLSD agent_data = update_it->second;
 			if (agent_data.isMap() && agent_data.has("transition"))
 			{
 				if (agent_data["transition"].asString() == "LEAVE" && speakerp.notNull())
@@ -811,15 +829,17 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 				else if (agent_data["transition"].asString() == "ENTER")
 				{
 					// add or update speaker
-					speakerp = setSpeaker(agent_id);
+					new_speaker = true;
 				}
 				else
 				{
 					LL_WARNS() << "bad membership list update from 'agent_updates' for agent " << agent_id << ", transition " << ll_print_sd(agent_data["transition"]) << LL_ENDL;
 				}
 			}
-
-			if (speakerp.isNull()) continue;
+			if (speakerp.isNull() && !new_speaker)
+			{
+				continue;
+			}
 
 			// should have a valid speaker from this point on
 			if (agent_data.isMap() && agent_data.has("info"))
@@ -828,21 +848,21 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 
 				if (agent_info.has("is_moderator"))
 				{
-					BOOL is_moderator = speakerp->mIsModerator;
-					speakerp->mIsModerator = agent_info["is_moderator"];
-					// Fire event only if moderator changed
-					if ( is_moderator != speakerp->mIsModerator )
-					{
-						LL_DEBUGS("Speakers") << "Speaker " << agent_id << (is_moderator ? "is now" : "no longer is") << " a moderator" << LL_ENDL;
-						fireEvent(new LLSpeakerUpdateModeratorEvent(speakerp), "update_moderator");
-					}
+					moderator = agent_info["is_moderator"];
 				}
-
 				if (agent_info.has("mutes"))
 				{
-					speakerp->mModeratorMutedText = agent_info["mutes"]["text"];
+					moderator_muted = agent_info["mutes"]["text"];
 				}
 			}
+			speakerentries.emplace_back(
+				agent_id,
+				LLSpeaker::STATUS_TEXT_ONLY,
+				"",
+				LLSpeaker::SPEAKER_AGENT,
+				moderator,
+				moderator_muted
+			);
 		}
 	}
 	else if ( update.has("updates") && update["updates"].isMap() )
@@ -864,7 +884,9 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 			else if ( agent_transition == "ENTER")
 			{
 				// add or update speaker
-				speakerp = setSpeaker(agent_id);
+				speakerentries.emplace_back(
+					agent_id
+				);
 			}
 			else
 			{
@@ -872,6 +894,7 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 			}
 		}
 	}
+	LLSpeakerMgr::setSpeakers(speakerentries);
 }
 
 void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
@@ -1039,10 +1062,13 @@ void LLLocalSpeakerMgr::updateSpeakerList()
 	// pick up non-voice speakers in chat range
 	uuid_vec_t avatar_ids;
 	LLWorld::getInstance()->getAvatars(&avatar_ids, nullptr, gAgent.getPositionGlobal(), CHAT_NORMAL_RADIUS);
+	std::vector<speaker_entry_t> speakers;
+	speakers.reserve(avatar_ids.size());
 	for (const auto& id : avatar_ids)
 	{
-		setSpeaker(id);
+		speakers.emplace_back(id);
 	}
+	setSpeakers(speakers);
 
 	// check if text only speakers have moved out of chat range
 	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); ++speaker_it)
