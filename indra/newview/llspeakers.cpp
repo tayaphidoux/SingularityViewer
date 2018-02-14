@@ -45,31 +45,54 @@
 const LLColor4 INACTIVE_COLOR(0.3f, 0.3f, 0.3f, 0.5f);
 const LLColor4 ACTIVE_COLOR(0.5f, 0.5f, 0.5f, 1.f);
 
-LLSpeaker::LLSpeaker(const LLUUID& id, const std::string& name, const ESpeakerType type) :
-	mStatus(LLSpeaker::STATUS_TEXT_ONLY),
+LLSpeaker::LLSpeaker(const speaker_entry_t& entry) :
+	mID(entry.id),
+	mStatus(entry.status),
+	mType(entry.type),
+	mIsModerator(entry.moderator != boost::none && *entry.moderator),
+	mModeratorMutedText(entry.moderator_muted_text != boost::none && *entry.moderator_muted_text),
+	mModeratorMutedVoice(FALSE),
 	mLastSpokeTime(0.f),
 	mSpeechVolume(0.f),
 	mHasSpoken(FALSE),
 	mHasLeftCurrentCall(FALSE),
 	mDotColor(LLColor4::white),
-	mID(id),
 	mTyping(FALSE),
 	mSortIndex(0),
-	mType(type),
-	mIsModerator(FALSE),
-	mModeratorMutedVoice(FALSE),
-	mModeratorMutedText(FALSE)
+	mDisplayName(entry.name),
+	mNeedsResort(true)
 {
-	if (name.empty() && type == SPEAKER_AGENT)
+	if (mType == SPEAKER_AGENT)
 	{
 		lookupName();
 	}
-	else
-	{
-		mDisplayName = name;
-	}
 }
 
+void LLSpeaker::update(const speaker_entry_t& entry)
+{
+	// keep highest priority status (lowest value) instead of overriding current value
+	setStatus(llmin(mStatus, entry.status));
+	if (entry.moderator != boost::none)
+	{
+		mIsModerator = *entry.moderator;
+	}
+	if (entry.moderator_muted_text != boost::none)
+	{
+		mModeratorMutedText = *entry.moderator_muted_text;
+	};
+
+	// RN: due to a weird behavior where IMs from attached objects come from the wearer's agent_id
+	// we need to override speakers that we think are objects when we find out they are really
+	// residents
+	if (entry.type == LLSpeaker::SPEAKER_AGENT)
+	{
+		mType = LLSpeaker::SPEAKER_AGENT;
+		lookupName();
+	}
+
+	if (mDisplayName.empty())
+		setName(entry.name);
+}
 
 void LLSpeaker::lookupName()
 {
@@ -77,7 +100,7 @@ void LLSpeaker::lookupName()
 	{
 // [RLVa:KB] - Checked: 2009-07-10 (RLVa-1.0.0g) | Added: RLVa-1.0.0g
 		if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) && gAgentID != mID)
-			mDisplayName = RlvStrings::getAnonym(mDisplayName);
+			setName(RlvStrings::getAnonym(mDisplayName));
 		else
 // [/RLVa:KB]
 			LLAvatarNameCache::get(mID, boost::bind(&LLSpeaker::onNameCache, this, _2));
@@ -88,9 +111,9 @@ void LLSpeaker::onNameCache(const LLAvatarName& full_name)
 {
 	static const LLCachedControl<S32> name_system("SpeakerNameSystem");
 	if (!name_system)
-		mDisplayName = gCacheName->cleanFullName(full_name.getLegacyName());
+		setName(gCacheName->cleanFullName(full_name.getLegacyName()));
 	else
-		mDisplayName = full_name.getNSName(name_system);
+		setName(full_name.getNSName(name_system));
 }
 
 bool LLSpeaker::isInVoiceChannel()
@@ -200,7 +223,7 @@ BOOL LLSpeakerActionTimer::tick()
 
 void LLSpeakerActionTimer::unset()
 {
-	mActionCallback = NULL;
+	mActionCallback = nullptr;
 }
 
 LLSpeakersDelayActionsStorage::LLSpeakersDelayActionsStorage(LLSpeakerActionTimer::action_callback_t action_cb, F32 action_delay)
@@ -338,22 +361,23 @@ LLSpeakerMgr::~LLSpeakerMgr()
 	delete mSpeakerDelayRemover;
 }
 
-void LLSpeakerMgr::setSpeakers(const std::vector<LLSpeakerMgr::speaker_entry_t>& speakers)
+void LLSpeakerMgr::setSpeakers(const std::vector<speaker_entry_t>& speakers)
 {
 	if (!speakers.empty())
 	{
 		fireEvent(new LLOldEvents::LLEvent(this), "batch_begin");
 		for (auto entry : speakers)
 		{
-			setSpeaker(entry.id, entry.name, entry.status, entry.type, entry.moderator, entry.moderator_muted_text);
+			setSpeaker(entry);
 		}
 		fireEvent(new LLOldEvents::LLEvent(this), "batch_end");
 	}
 }
 
-LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::string& name, LLSpeaker::ESpeakerStatus status, LLSpeaker::ESpeakerType type, bool moderator, bool moderator_muted_text)
+LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const speaker_entry_t& entry)
 {
 	LLUUID session_id = getSessionID();
+	const LLUUID& id = entry.id;
 	if (id.isNull() || (id == session_id))
 	{
 		return NULL;
@@ -363,38 +387,16 @@ LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::strin
 	auto it = mSpeakers.find(id);
 	if (it == mSpeakers.end() || it->second.isNull())
 	{
-		speakerp = new LLSpeaker(id, name, type);
-		speakerp->mStatus = status;
-		speakerp->mIsModerator = moderator;
-		speakerp->mModeratorMutedText = moderator_muted_text;
-		mSpeakers.insert(std::make_pair(speakerp->mID, speakerp));
-		mSpeakersSorted.push_back(speakerp);
-		fireEvent(new LLSpeakerListChangeEvent(this, speakerp->mID), "add");
+		mSpeakersSorted.emplace_back(new LLSpeaker(entry));
+		mSpeakers.emplace(id, mSpeakersSorted.back());
+		fireEvent(new LLSpeakerListChangeEvent(this, id), "add");
 	}
 	else
 	{
-		speakerp = it->second;
-		bool update_moderator = (bool)speakerp->mIsModerator != moderator;
-
-		// keep highest priority status (lowest value) instead of overriding current value
-		speakerp->mStatus = llmin(speakerp->mStatus, status);
-		speakerp->mIsModerator = moderator;
-		speakerp->mModeratorMutedText = moderator_muted_text;
-		// RN: due to a weird behavior where IMs from attached objects come from the wearer's agent_id
-		// we need to override speakers that we think are objects when we find out they are really
-		// residents
-		if (type == LLSpeaker::SPEAKER_AGENT)
-		{
-			speakerp->mType = LLSpeaker::SPEAKER_AGENT;
-			speakerp->lookupName();
-		}
-		if (update_moderator)
-		{
-			fireEvent(new LLSpeakerUpdateModeratorEvent(speakerp), "update_moderator");
-		}
+		it->second->update(entry);
 	}
 
-	mSpeakerDelayRemover->unsetActionTimer(speakerp->mID);
+	mSpeakerDelayRemover->unsetActionTimer(entry.id);
 	return speakerp;
 }
 
@@ -442,7 +444,8 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 
 	// update status of all current speakers
 	BOOL voice_channel_active = (!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive());
-	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); speaker_it++)
+	bool re_sort = false;
+	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); ++speaker_it)
 	{
 		LLUUID speaker_id = speaker_it->first;
 		LLSpeaker* speakerp = speaker_it->second;
@@ -450,7 +453,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 		if (voice_channel_active && LLVoiceClient::getInstance()->getVoiceEnabled(speaker_id))
 		{
 			speakerp->mSpeechVolume = LLVoiceClient::getInstance()->getCurrentPower(speaker_id);
-			BOOL moderator_muted_voice = LLVoiceClient::getInstance()->getIsModeratorMuted(speaker_id);
+			bool moderator_muted_voice = LLVoiceClient::getInstance()->getIsModeratorMuted(speaker_id);
 			if (moderator_muted_voice != speakerp->mModeratorMutedVoice)
 			{
 				speakerp->mModeratorMutedVoice = moderator_muted_voice;
@@ -460,18 +463,18 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 
 			if (LLVoiceClient::getInstance()->getOnMuteList(speaker_id) || speakerp->mModeratorMutedVoice)
 			{
-				speakerp->mStatus = LLSpeaker::STATUS_MUTED;
+				speakerp->setStatus(LLSpeaker::STATUS_MUTED);
 			}
 			else if (LLVoiceClient::getInstance()->getIsSpeaking(speaker_id))
 			{
 				// reset inactivity expiration
 				if (speakerp->mStatus != LLSpeaker::STATUS_SPEAKING)
 				{
-					speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
+					speakerp->setSpokenTime(mSpeechTimer.getElapsedTimeF32());
 					speakerp->mHasSpoken = TRUE;
 					fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
 				}
-				speakerp->mStatus = LLSpeaker::STATUS_SPEAKING;
+				speakerp->setStatus(LLSpeaker::STATUS_SPEAKING);
 				// interpolate between active color and full speaking color based on power of speech output
 				speakerp->mDotColor = speaking_color;
 				if (speakerp->mSpeechVolume > LLVoiceClient::OVERDRIVEN_POWER_LEVEL)
@@ -487,12 +490,12 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 				if (speakerp->mHasSpoken)
 				{
 					// have spoken once, not currently speaking
-					speakerp->mStatus = LLSpeaker::STATUS_HAS_SPOKEN;
+					speakerp->setStatus(LLSpeaker::STATUS_HAS_SPOKEN);
 				}
 				else
 				{
 					// default state for being in voice channel
-					speakerp->mStatus = LLSpeaker::STATUS_VOICE_ACTIVE;
+					speakerp->setStatus(LLSpeaker::STATUS_VOICE_ACTIVE);
 				}
 			}
 		}
@@ -506,39 +509,53 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 			}
 			else
 			{
-				speakerp->mStatus = LLSpeaker::STATUS_TEXT_ONLY;
+				speakerp->setStatus(LLSpeaker::STATUS_TEXT_ONLY);
 				speakerp->mSpeechVolume = 0.f;
 				speakerp->mDotColor = ACTIVE_COLOR;
 			}
 		}
+		if (speakerp->mNeedsResort)
+		{
+			re_sort = true;
+			speakerp->mNeedsResort = false;
+		}
 	}
 
-	if(resort_ok)  // only allow list changes when user is not interacting with it
+	if (resort_ok && re_sort)  // only allow list changes when user is not interacting with it
 	{
 		// sort by status then time last spoken
 		std::sort(mSpeakersSorted.begin(), mSpeakersSorted.end(), LLSortRecentSpeakers());
-	}
 
-	// for recent speakers who are not currently speaking, show "recent" color dot for most recent
-	// fading to "active" color
+		// for recent speakers who are not currently speaking, show "recent" color dot for most recent
+		// fading to "active" color
 
-	S32 recent_speaker_count = 0;
-	S32 sort_index = 0;
-	speaker_list_t::iterator sorted_speaker_it;
-	for(sorted_speaker_it = mSpeakersSorted.begin();
-		sorted_speaker_it != mSpeakersSorted.end(); ++sorted_speaker_it)
-	{
-		LLPointer<LLSpeaker> speakerp = *sorted_speaker_it;
-
-		// color code recent speakers who are not currently speaking
-		if (speakerp->mStatus == LLSpeaker::STATUS_HAS_SPOKEN)
+		bool index_changed = false;
+		S32 recent_speaker_count = 0;
+		S32 sort_index = 0;
+		for (speaker_list_t::iterator sorted_speaker_it = mSpeakersSorted.begin();
+			sorted_speaker_it != mSpeakersSorted.end();
+			++sorted_speaker_it)
 		{
-			speakerp->mDotColor = lerp(speaking_color, ACTIVE_COLOR, clamp_rescale((F32)recent_speaker_count, -2.f, 3.f, 0.f, 1.f));
-			recent_speaker_count++;
-		}
+			LLPointer<LLSpeaker> speakerp = *sorted_speaker_it;
 
-		// stuff sort ordinal into speaker so the ui can sort by this value
-		speakerp->mSortIndex = sort_index++;
+			// color code recent speakers who are not currently speaking
+			if (speakerp->mStatus == LLSpeaker::STATUS_HAS_SPOKEN)
+			{
+				speakerp->mDotColor = lerp(speaking_color, ACTIVE_COLOR, clamp_rescale((F32)recent_speaker_count, -2.f, 3.f, 0.f, 1.f));
+				recent_speaker_count++;
+			}
+
+			// stuff sort ordinal into speaker so the ui can sort by this value
+			if (speakerp->mSortIndex != sort_index++)
+			{
+				speakerp->mSortIndex = sort_index-1;
+				index_changed = true;
+			}
+		}
+		if (index_changed)
+		{
+			fireEvent(new LLOldEvents::LLEvent(this), "update_sorting");
+		}
 	}
 }
 
@@ -554,11 +571,13 @@ void LLSpeakerMgr::updateSpeakerList()
 		speakers.reserve(participants.size());
 		for (std::set<LLUUID>::iterator participant_it = participants.begin(); participant_it != participants.end(); ++participant_it)
 		{
-			speakers.emplace_back(speaker_entry_t(
+			speakers.emplace_back(
 				*participant_it,
+				(LLVoiceClient::getInstance()->isParticipantAvatar(*participant_it) ? LLSpeaker::SPEAKER_AGENT : LLSpeaker::SPEAKER_EXTERNAL),
 				LLSpeaker::STATUS_VOICE_ACTIVE,
-				LLVoiceClient::getInstance()->getDisplayName(*participant_it),
-				(LLVoiceClient::getInstance()->isParticipantAvatar(*participant_it)?LLSpeaker::SPEAKER_AGENT:LLSpeaker::SPEAKER_EXTERNAL)));
+				boost::none,
+				boost::none,
+				LLVoiceClient::getInstance()->getDisplayName(*participant_it));
 		}
 		setSpeakers(speakers);
 	}
@@ -602,12 +621,11 @@ void LLSpeakerMgr::updateSpeakerList()
 						const std::string& localized_online();
 						if ((member->getOnlineStatus() == localized_online()) && (mSpeakers.find(id) == mSpeakers.end()))
 						{
-							speakers.emplace_back(speaker_entry_t(
+							speakers.emplace_back(
 								id,
-								LLSpeaker::STATUS_VOICE_ACTIVE,
-								"",
 								LLSpeaker::SPEAKER_AGENT,
-								(member->getAgentPowers() & GP_SESSION_MODERATOR) == GP_SESSION_MODERATOR));
+								LLSpeaker::STATUS_VOICE_ACTIVE,
+								(member->getAgentPowers() & GP_SESSION_MODERATOR) == GP_SESSION_MODERATOR);
 						}
 						++member_it;
 					}
@@ -638,12 +656,12 @@ void LLSpeakerMgr::updateSpeakerList()
 		}
 	}
 	// Always add the current agent (it has to be there...). Will do nothing if already there.
-	setSpeaker(gAgentID, "", LLSpeaker::STATUS_VOICE_ACTIVE);
+	setSpeaker({ gAgentID, LLSpeaker::SPEAKER_AGENT, LLSpeaker::STATUS_VOICE_ACTIVE });
 }
 
 void LLSpeakerMgr::setSpeakerNotInChannel(LLSpeaker* speakerp)
 {
-	speakerp->mStatus = LLSpeaker::STATUS_NOT_IN_CHANNEL;
+	speakerp->setStatus(LLSpeaker::STATUS_NOT_IN_CHANNEL);
 	speakerp->mDotColor = INACTIVE_COLOR;
 	mSpeakerDelayRemover->setActionTimer(speakerp->mID);
 }
@@ -723,7 +741,7 @@ void LLSpeakerMgr::speakerChatted(const LLUUID& speaker_id)
 	LLPointer<LLSpeaker> speakerp = findSpeaker(speaker_id);
 	if (speakerp.notNull())
 	{
-		speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
+		speakerp->setSpokenTime(mSpeechTimer.getElapsedTimeF32());
 		speakerp->mHasSpoken = TRUE;
 		fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
 	}
@@ -766,8 +784,8 @@ void LLIMSpeakerMgr::setSpeakers(const LLSD& speakers)
 			speaker_it != speakers["agent_info"].endMap();
 			++speaker_it)
 		{
-			bool moderator = false;
-			bool moderator_muted = false;
+			boost::optional<bool> moderator;
+			boost::optional<bool> moderator_muted;
 			if (speaker_it->second.isMap())
 			{
 				moderator = speaker_it->second["is_moderator"];
@@ -775,9 +793,8 @@ void LLIMSpeakerMgr::setSpeakers(const LLSD& speakers)
 			}
 			speakerentries.emplace_back(
 				LLUUID(speaker_it->first),
-				LLSpeaker::STATUS_TEXT_ONLY,
-				"",
 				LLSpeaker::SPEAKER_AGENT,
+				LLSpeaker::STATUS_TEXT_ONLY,
 				moderator,
 				moderator_muted
 				);
@@ -816,8 +833,8 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 			LLPointer<LLSpeaker> speakerp = findSpeaker(agent_id);
 
 			bool new_speaker = false;
-			bool moderator = false;
-			bool moderator_muted = false;
+			boost::optional<bool> moderator;
+			boost::optional<bool> moderator_muted_text;
 
 			LLSD agent_data = update_it->second;
 			if (agent_data.isMap() && agent_data.has("transition"))
@@ -852,16 +869,15 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 				}
 				if (agent_info.has("mutes"))
 				{
-					moderator_muted = agent_info["mutes"]["text"];
+					moderator_muted_text = agent_info["mutes"]["text"];
 				}
 			}
 			speakerentries.emplace_back(
 				agent_id,
-				LLSpeaker::STATUS_TEXT_ONLY,
-				"",
 				LLSpeaker::SPEAKER_AGENT,
+				LLSpeaker::STATUS_TEXT_ONLY,
 				moderator,
-				moderator_muted
+				moderator_muted_text
 			);
 		}
 	}
@@ -884,9 +900,7 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 			else if ( agent_transition == "ENTER")
 			{
 				// add or update speaker
-				speakerentries.emplace_back(
-					agent_id
-				);
+				speakerentries.emplace_back(agent_id);
 			}
 			else
 			{
@@ -1074,8 +1088,8 @@ void LLLocalSpeakerMgr::updateSpeakerList()
 	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); ++speaker_it)
 	{
 		LLUUID speaker_id = speaker_it->first;
-		LLSpeaker* speakerp = speaker_it->second;
-		if (speakerp && speakerp->mStatus == LLSpeaker::STATUS_TEXT_ONLY)
+		LLPointer<LLSpeaker> speakerp = speaker_it->second;
+		if (speakerp.notNull() && speakerp->mStatus == LLSpeaker::STATUS_TEXT_ONLY)
 		{
 			LLVOAvatar* avatarp = gObjectList.findAvatar(speaker_id);
 			if (!avatarp || dist_vec_squared(avatarp->getPositionAgent(), gAgent.getPositionAgent()) > CHAT_NORMAL_RADIUS * CHAT_NORMAL_RADIUS)

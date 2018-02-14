@@ -78,6 +78,7 @@ protected:
 	bool onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	void onSpeakerBatchBeginEvent();
 	void onSpeakerBatchEndEvent();
+	void onSpeakerSortingUpdateEvent();
 
 	/**
 	 * List of listeners implementing LLOldEvents::LLSimpleListener.
@@ -139,6 +140,13 @@ protected:
 	{
 	public:
 		SpeakerBatchEndListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
+		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+	};
+
+	class SpeakerSortingUpdateListener : public BaseSpeakerListener
+	{
+	public:
+		SpeakerSortingUpdateListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
 		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	};
 
@@ -212,6 +220,7 @@ private:
 	LLSpeakerMgr*		mSpeakerMgr;
 	LLScrollListCtrl*	mAvatarList;
 	bool				mShowTextChatters;
+	LLFrameTimer		mUpdateTimer;
 
 	LLPointer<SpeakerAddListener>				mSpeakerAddListener;
 	LLPointer<SpeakerRemoveListener>			mSpeakerRemoveListener;
@@ -220,6 +229,7 @@ private:
 	LLPointer<SpeakerMuteListener>				mSpeakerMuteListener;
 	LLPointer<SpeakerBatchBeginListener>		mSpeakerBatchBeginListener;
 	LLPointer<SpeakerBatchEndListener>			mSpeakerBatchEndListener;
+	LLPointer<SpeakerSortingUpdateListener>		mSpeakerSortingUpdateListener;
 
 	validate_speaker_callback_t mValidateSpeakerCallback;
 };
