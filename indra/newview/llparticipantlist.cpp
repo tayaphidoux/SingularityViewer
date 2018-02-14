@@ -60,11 +60,13 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 	mSpeakerMuteListener = new SpeakerMuteListener(*this);
 	mSpeakerBatchBeginListener = new SpeakerBatchBeginListener(*this);
 	mSpeakerBatchEndListener = new SpeakerBatchEndListener(*this);
+	mSpeakerSortingUpdateListener = new SpeakerSortingUpdateListener(*this);
 	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
 	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
 	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
 	mSpeakerMgr->addListener(mSpeakerBatchBeginListener, "batch_begin");
 	mSpeakerMgr->addListener(mSpeakerBatchEndListener, "batch_end");
+	mSpeakerMgr->addListener(mSpeakerSortingUpdateListener, "update_sorting");
 	//mSpeakerMgr->addListener(mSpeakerModeratorListener, "update_moderator");
 }
 
@@ -229,6 +231,11 @@ void LLParticipantList::handleSpeakerSelect()
 
 void LLParticipantList::refreshSpeakers()
 {
+	if (mUpdateTimer.getElapsedTimeF32() < .5f)
+	{
+		return;
+	}
+	mUpdateTimer.reset();
 	// store off current selection and scroll state to preserve across list rebuilds
 	const S32 scroll_pos = mAvatarList->getScrollInterface()->getScrollPos();
 
@@ -239,27 +246,42 @@ void LLParticipantList::refreshSpeakers()
 	// panel and hasn't been motionless for more than a few seconds. see DEV-6655 -MG
 	LLRect screen_rect;
 	localRectToScreen(getLocalRect(), &screen_rect);
-	mSpeakerMgr->update(!(screen_rect.pointInRect(gViewerWindow->getCurrentMouseX(), gViewerWindow->getCurrentMouseY()) && gMouseIdleTimer.getElapsedTimeF32() < 5.f));
+	bool resort_ok = !(screen_rect.pointInRect(gViewerWindow->getCurrentMouseX(), gViewerWindow->getCurrentMouseY()) && gMouseIdleTimer.getElapsedTimeF32() < 5.f);
+	mSpeakerMgr->update(resort_ok);
 
+	bool re_sort = false;
+	int start_pos = llmax(0, scroll_pos - 20);
+	int end_pos = scroll_pos + mAvatarList->getLinesPerPage() + 20;
 	std::vector<LLScrollListItem*> items = mAvatarList->getAllData();
+	if (start_pos >= items.size())
+	{
+		return;
+	}
+	int count = 0;
 	for (std::vector<LLScrollListItem*>::iterator item_it = items.begin(); item_it != items.end(); ++item_it)
 	{
+		
 		LLScrollListItem* itemp = (*item_it);
 		LLPointer<LLSpeaker> speakerp = mSpeakerMgr->findSpeaker(itemp->getUUID());
 		if (speakerp.isNull()) continue;
 
-		if (LLScrollListCell* icon_cell = itemp->getColumn(0))
+		++count;
+
+		// Color changes. Only perform for rows that are near or in the viewable area.
+		if (count > start_pos && count <= end_pos)
 		{
-			if (speakerp->mStatus == LLSpeaker::STATUS_MUTED)
+			if (LLScrollListCell* icon_cell = itemp->getColumn(0))
 			{
-				icon_cell->setValue("mute_icon.tga");
-				static const LLCachedControl<LLColor4> sAscentMutedColor("AscentMutedColor");
-				icon_cell->setColor(speakerp->mModeratorMutedVoice ? /*LLColor4::grey*/sAscentMutedColor : LLColor4(1.f, 71.f / 255.f, 71.f / 255.f, 1.f));
-			}
-			else
-			{
-				switch(llmin(2, llfloor((speakerp->mSpeechVolume / LLVoiceClient::OVERDRIVEN_POWER_LEVEL) * 3.f)))
+				if (speakerp->mStatus == LLSpeaker::STATUS_MUTED)
 				{
+					icon_cell->setValue("mute_icon.tga");
+					static const LLCachedControl<LLColor4> sAscentMutedColor("AscentMutedColor");
+					icon_cell->setColor(speakerp->mModeratorMutedVoice ? /*LLColor4::grey*/sAscentMutedColor : LLColor4(1.f, 71.f / 255.f, 71.f / 255.f, 1.f));
+				}
+				else
+				{
+					switch (llmin(2, llfloor((speakerp->mSpeechVolume / LLVoiceClient::OVERDRIVEN_POWER_LEVEL) * 3.f)))
+					{
 					case 0:
 						icon_cell->setValue("icn_active-speakers-dot-lvl0.tga");
 						break;
@@ -269,62 +291,66 @@ void LLParticipantList::refreshSpeakers()
 					case 2:
 						icon_cell->setValue("icn_active-speakers-dot-lvl2.tga");
 						break;
+					}
+					// non voice speakers have hidden icons, render as transparent
+					icon_cell->setColor(speakerp->mStatus > LLSpeaker::STATUS_VOICE_ACTIVE ? LLColor4::transparent : speakerp->mDotColor);
 				}
-				// non voice speakers have hidden icons, render as transparent
-				icon_cell->setColor(speakerp->mStatus > LLSpeaker::STATUS_VOICE_ACTIVE ? LLColor4::transparent : speakerp->mDotColor);
 			}
-		}
-		// update name column
-		if (LLScrollListCell* name_cell = itemp->getColumn(1))
-		{
-			if (speakerp->mStatus == LLSpeaker::STATUS_NOT_IN_CHANNEL)
+			// update name column
+			if (LLScrollListCell* name_cell = itemp->getColumn(1))
 			{
-				// draw inactive speakers in different color
-				static const LLCachedControl<LLColor4> sSpeakersInactive(gColors, "SpeakersInactive");
-				name_cell->setColor(sSpeakersInactive);
-			}
-			else
-			{
-				// <edit>
-				bool found = mShowTextChatters || speakerp->mID == gAgentID;
-				const LLWorld::region_list_t& regions = LLWorld::getInstance()->getRegionList();
-				for (LLWorld::region_list_t::const_iterator iter = regions.begin(); !found && iter != regions.end(); ++iter)
+				if (speakerp->mStatus == LLSpeaker::STATUS_NOT_IN_CHANNEL)
 				{
-					// Are they in this sim?
-					if (const LLViewerRegion* regionp = *iter)
-						if (std::find(regionp->mMapAvatarIDs.begin(), regionp->mMapAvatarIDs.end(), speakerp->mID) != regionp->mMapAvatarIDs.end())
-							found = true;
-				}
-				if (!found)
-				{
-					static const LLCachedControl<LLColor4> sSpeakersGhost(gColors, "SpeakersGhost");
-					name_cell->setColor(sSpeakersGhost);
+					// draw inactive speakers in different color
+					static const LLCachedControl<LLColor4> sSpeakersInactive(gColors, "SpeakersInactive");
+					name_cell->setColor(sSpeakersInactive);
 				}
 				else
-				// </edit>
 				{
-					static const LLCachedControl<LLColor4> sDefaultListText(gColors, "DefaultListText");
-					name_cell->setColor(sDefaultListText);
+					// <edit>
+					bool found = mShowTextChatters || speakerp->mID == gAgentID;
+					const LLWorld::region_list_t& regions = LLWorld::getInstance()->getRegionList();
+					for (LLWorld::region_list_t::const_iterator iter = regions.begin(); !found && iter != regions.end(); ++iter)
+					{
+						// Are they in this sim?
+						if (const LLViewerRegion* regionp = *iter)
+							if (std::find(regionp->mMapAvatarIDs.begin(), regionp->mMapAvatarIDs.end(), speakerp->mID) != regionp->mMapAvatarIDs.end())
+								found = true;
+					}
+					if (!found)
+					{
+						static const LLCachedControl<LLColor4> sSpeakersGhost(gColors, "SpeakersGhost");
+						name_cell->setColor(sSpeakersGhost);
+					}
+					else
+						// </edit>
+					{
+						static const LLCachedControl<LLColor4> sDefaultListText(gColors, "DefaultListText");
+						name_cell->setColor(sDefaultListText);
+					}
 				}
 			}
-
+		}
+		// update name column. Need to update all rows to make name sorting behave correctly.
+		if (LLScrollListCell* name_cell = itemp->getColumn(1))
+		{
 			std::string speaker_name = speakerp->mDisplayName.empty() ? LLCacheName::getDefaultName() : speakerp->mDisplayName;
 			if (speakerp->mIsModerator)
 				speaker_name += " " + getString("moderator_label");
-			name_cell->setValue(speaker_name);
+			if (name_cell->getValue().asString() != speaker_name)
+			{
+				re_sort = true;
+				name_cell->setValue(speaker_name);
+			}
 			static_cast<LLScrollListText*>(name_cell)->setFontStyle(speakerp->mIsModerator ? LLFontGL::BOLD : LLFontGL::NORMAL);
-		}
-		// update speaking order column
-		if (LLScrollListCell* speaking_status_cell = itemp->getColumn(2))
-		{
-			// since we are forced to sort by text, encode sort order as string
-			// print speaking ordinal in a text-sorting friendly manner
-			speaking_status_cell->setValue(llformat("%010d", speakerp->mSortIndex));
 		}
 	}
 
 	// we potentially modified the sort order by touching the list items
-	mAvatarList->setNeedsSort();
+	if (re_sort)
+	{
+		mAvatarList->setNeedsSortColumn(1);
+	}
 
 	// keep scroll value stable
 	mAvatarList->getScrollInterface()->setScrollPos(scroll_pos);
@@ -389,6 +415,34 @@ void LLParticipantList::onSpeakerBatchBeginEvent()
 void LLParticipantList::onSpeakerBatchEndEvent()
 {
 	mAvatarList->setSortEnabled(true);
+}
+
+void LLParticipantList::onSpeakerSortingUpdateEvent()
+{
+	bool re_sort = false;
+	for (auto&& item : mAvatarList->getAllData())
+	{
+		// update speaking order column
+		if (LLScrollListCell* speaking_status_cell = item->getColumn(2))
+		{
+			LLPointer<LLSpeaker> speakerp = mSpeakerMgr->findSpeaker(item->getUUID());
+			if (speakerp)
+			{
+				re_sort = true;
+				std::string sort_index = llformat("%010d", speakerp->mSortIndex);
+				// since we are forced to sort by text, encode sort order as string
+				// print speaking ordinal in a text-sorting friendly manner
+				if (speaking_status_cell->getValue().asString() != sort_index)
+				{
+					speaking_status_cell->setValue(sort_index);
+				}
+			}
+		}
+	}
+	if (re_sort)
+	{
+		mAvatarList->setNeedsSortColumn(2);
+	}
 }
 
 void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
@@ -489,6 +543,12 @@ bool LLParticipantList::SpeakerBatchBeginListener::handleEvent(LLPointer<LLOldEv
 bool LLParticipantList::SpeakerBatchEndListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	mParent.onSpeakerBatchEndEvent();
+	return true;
+}
+
+bool LLParticipantList::SpeakerSortingUpdateListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+	mParent.onSpeakerSortingUpdateEvent();
 	return true;
 }
 

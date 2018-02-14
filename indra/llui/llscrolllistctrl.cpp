@@ -502,12 +502,14 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 	
 		case ADD_SORTED:
 			{
-				// sort by column 0, in ascending order
-				std::vector<sort_column_t> single_sort_column;
-				single_sort_column.push_back(std::make_pair(0, TRUE));
-
 				mItemList.push_back(item);
-				std::stable_sort(mItemList.begin(), mItemList.end(), SortScrollListItem(single_sort_column,mSortCallback));
+				// std::stable_sort is expensive. Only do this if the user sort criteria is not column 0, otherwise 
+				// setNeedsSort does what we want.
+				if (mSortColumns.empty() || mSortColumns[0].first != 0)
+				{
+					// sort by column 0, in ascending order
+					std::stable_sort(mItemList.begin(), mItemList.end(), SortScrollListItem({ {0,true} }, mSortCallback));
+				}
 
 				// ADD_SORTED just sorts by first column...
 				// this might not match user sort criteria, so flag list as being in unsorted state
