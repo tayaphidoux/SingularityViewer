@@ -65,6 +65,7 @@ public:
 		// currently unused
 	};
 public:
+	virtual void postInitialized() {}
 	virtual void show() = 0;
 	virtual void hide() = 0;
 	virtual void close() = 0;

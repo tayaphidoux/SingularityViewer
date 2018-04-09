@@ -53,6 +53,7 @@
 #include <shellapi.h>
 #include <fstream>
 #include <Imm.h>
+#include <ShellScalingAPI.h>
 
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
@@ -395,6 +396,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	mKeyVirtualKey = 0;
 	mhDC = NULL;
 	mhRC = NULL;
+	mUser32Lib = nullptr;
+	mSHCoreLib = nullptr;
 
 	LL_INFOS() << "Desired FSAA Samples = " << mFSAASamples << LL_ENDL;
 
@@ -659,6 +662,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (or user's) default settings.
 	allowLanguageTextInput(NULL, FALSE);
+
+	initDPIAwareness();
 }
 
 
@@ -674,6 +679,16 @@ LLWindowWin32::~LLWindowWin32()
 
 	delete [] mWindowClassName;
 	mWindowClassName = NULL;
+
+	FreeLibrary(mUser32Lib);
+	FreeLibrary(mSHCoreLib);
+}
+
+void LLWindowWin32::postInitialized()
+{
+	float xDPIScale, yDPIScale;
+	getDPIScales(xDPIScale, yDPIScale);
+	mCallbacks->handleDPIScaleChange(this, xDPIScale, yDPIScale);
 }
 
 void LLWindowWin32::show()
@@ -1774,7 +1789,50 @@ void LLWindowWin32::initCursors()
 	}
 }
 
+void LLWindowWin32::initDPIAwareness()
+{
+	mUser32Lib = LoadLibrary(L"user32.dll");
+	mSHCoreLib = LoadLibrary(L"Shcore.dll");
+	
+	if (mUser32Lib && mSHCoreLib)
+	{
+		MonitorFromWindowFn = reinterpret_cast<decltype(MonitorFromWindowFn)>(GetProcAddress(mUser32Lib, "MonitorFromWindow"));
+		GetDpiForMonitorFn = reinterpret_cast<decltype(GetDpiForMonitorFn)>(GetProcAddress(mSHCoreLib, "GetDpiForMonitor"));
 
+		if (MonitorFromWindowFn && GetDpiForMonitorFn)
+		{
+			HRESULT(WINAPI* SetProcessDpiAwareness)(PROCESS_DPI_AWARENESS);
+			SetProcessDpiAwareness = reinterpret_cast<decltype(SetProcessDpiAwareness)>(GetProcAddress(mSHCoreLib, "SetProcessDpiAwareness"));
+			if (SetProcessDpiAwareness && SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE) == S_OK)
+				return;
+
+			BOOL(WINAPI* SetProcessDPIAware)(void);
+			SetProcessDPIAware = reinterpret_cast<decltype(SetProcessDPIAware)>(GetProcAddress(mUser32Lib, "SetProcessDPIAware"));
+			if (SetProcessDPIAware && SetProcessDPIAware())
+				return;
+		}
+	}
+
+	FreeLibrary(mUser32Lib);
+	FreeLibrary(mSHCoreLib);
+	mUser32Lib = nullptr;
+	mSHCoreLib = nullptr;
+}
+
+void LLWindowWin32::getDPIScales(float &xDPIScale, float& yDPIScale)
+{
+	xDPIScale = yDPIScale = 1.f;
+	if (mUser32Lib)
+	{
+		uint32_t xDPI, yDPI;
+		auto window = MonitorFromWindowFn(mWindowHandle, MONITOR_DEFAULTTONEAREST);
+		if (GetDpiForMonitorFn(window, MDT_EFFECTIVE_DPI, &xDPI, &yDPI) == S_OK)
+		{
+			xDPIScale = (float)xDPI / (float)USER_DEFAULT_SCREEN_DPI;
+			yDPIScale = (float)yDPI / (float)USER_DEFAULT_SCREEN_DPI;
+		}
+	}
+}
 
 void LLWindowWin32::updateCursor()
 {
@@ -2656,6 +2714,26 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				window_imp->mCallbacks->handleDataCopy(window_imp, myCDS->dwData, myCDS->lpData);
 			};
 			return 0;			
+
+		case WM_DPICHANGED:
+			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_DPICHANGED");
+				if (gDebugWindowProc)
+				{
+					LL_INFOS("Window") << "WM_DPICHANGED  " << LOWORD(w_param) << " " << HIWORD(w_param) << LL_ENDL;
+				}
+				LPRECT rect = (LPRECT)l_param;
+				S32 width = ((LPRECT)l_param)->right - ((LPRECT)l_param)->left;
+				S32 height = ((LPRECT)l_param)->bottom - ((LPRECT)l_param)->top;
+				LL_INFOS() << "rect: " << width << "x" << height << LL_ENDL;
+				if(window_imp->mCallbacks->handleDPIScaleChange(window_imp, 
+					(F32)LOWORD(w_param) / (F32)USER_DEFAULT_SCREEN_DPI,
+					(F32)HIWORD(w_param) / (F32)USER_DEFAULT_SCREEN_DPI,
+					width,
+					height))
+					SetWindowPos(h_wnd, HWND_TOP, rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
+			}
+			return 0;
 
 			break;
 		}
