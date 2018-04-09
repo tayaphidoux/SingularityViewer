@@ -43,6 +43,7 @@ typedef void (*LLW32MsgCallback)(const MSG &msg);
 class LLWindowWin32 : public LLWindow
 {
 public:
+	/*virtual*/ void postInitialized();
 	/*virtual*/ void show();
 	/*virtual*/ void hide();
 	/*virtual*/ void close();
@@ -129,6 +130,8 @@ protected:
 
 	void	initCursors();
 	void	initInputDevices();
+	void    initDPIAwareness();
+	void    getDPIScales(float& xDPIScale, float& yDPIScale);
 	HCURSOR loadColorCursor(LPCTSTR name);
 	BOOL	isValid();
 	void	moveWindow(const LLCoordScreen& position,const LLCoordScreen& size);
@@ -218,6 +221,11 @@ protected:
 	U32				mRawMsg;
 	U32				mRawWParam;
 	U32				mRawLParam;
+
+	HMODULE         mUser32Lib;
+	HMODULE			mSHCoreLib;
+	HMONITOR(WINAPI *MonitorFromWindowFn)(HWND, DWORD);
+	HRESULT(WINAPI *GetDpiForMonitorFn)(HMONITOR, INT, UINT *, UINT *);
 
 	friend class LLWindowManager;
 };
