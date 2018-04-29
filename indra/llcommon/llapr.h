@@ -92,8 +92,8 @@ public:
 	apr_status_t eof() { return apr_file_eof(mFile);}
 
 	// Returns bytes read/written, 0 if read/write fails:
-	S32 read(void* buf, S32 nbytes);
-	S32 write(const void* buf, S32 nbytes);
+	S32 read(void* buf, U64 nbytes);
+	S32 write(const void* buf, U64 nbytes);
 	
 	apr_file_t* getFileHandle() {return mFile;}	
 
