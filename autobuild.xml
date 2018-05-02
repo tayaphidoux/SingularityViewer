@@ -3027,14 +3027,6 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Singularity.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>singularity-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -3074,14 +3066,6 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Singularity.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>singularity-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -3129,14 +3113,6 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Singularity.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>singularity-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -3177,14 +3153,6 @@
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Singularity.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>singularity-bin</string>
                 </array>
                 <key>options</key>
                 <array>
