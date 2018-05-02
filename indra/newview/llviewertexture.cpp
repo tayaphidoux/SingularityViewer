@@ -1378,70 +1378,107 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 // 						mRawImage->getWidth(), mRawImage->getHeight(),mRawImage->getDataSize())
 // 			<< mID.getString() << LL_ENDL;
 	BOOL res = TRUE;
-	if (!gNoRender)
+
+	// store original size only for locally-sourced images
+	if (mUrl.compare(0, 7, "file://") == 0)
 	{
-		// store original size only for locally-sourced images
-		if (mUrl.compare(0, 7, "file://") == 0)
-		{
-			mOrigWidth = mRawImage->getWidth();
-			mOrigHeight = mRawImage->getHeight();
+		mOrigWidth = mRawImage->getWidth();
+		mOrigHeight = mRawImage->getHeight();
 
 			
-			if (mBoostLevel == BOOST_PREVIEW)
-			{ 
-				mRawImage->biasedScaleToPowerOfTwo(1024);
-			}
-			else
-			{ // leave black border, do not scale image content
-				mRawImage->expandToPowerOfTwo(MAX_IMAGE_SIZE, FALSE);
-			}
-		
-			mFullWidth = mRawImage->getWidth();
-			mFullHeight = mRawImage->getHeight();
-			setTexelsPerImage();
+		if (mBoostLevel == BOOST_PREVIEW)
+		{ 
+			mRawImage->biasedScaleToPowerOfTwo(1024);
 		}
 		else
-		{
-			mOrigWidth = mFullWidth;
-			mOrigHeight = mFullHeight;
-		}
-
-		bool size_okay = true;
-		
-		U32 raw_width = mRawImage->getWidth() << mRawDiscardLevel;
-		U32 raw_height = mRawImage->getHeight() << mRawDiscardLevel;
-		if( raw_width > MAX_IMAGE_SIZE || raw_height > MAX_IMAGE_SIZE )
-		{
-			LL_INFOS() << "Width or height is greater than " << MAX_IMAGE_SIZE << ": (" << raw_width << "," << raw_height << ")" << LL_ENDL;
-			size_okay = false;
+		{ // leave black border, do not scale image content
+			mRawImage->expandToPowerOfTwo(MAX_IMAGE_SIZE, FALSE);
 		}
 		
-		if (!LLImageGL::checkSize(mRawImage->getWidth(), mRawImage->getHeight()))
-		{
-			// A non power-of-two image was uploaded (through a non standard client)
-			LL_INFOS() << "Non power of two width or height: (" << mRawImage->getWidth() << "," << mRawImage->getHeight() << ")" << LL_ENDL;
-			size_okay = false;
-		}
-		
-		if( !size_okay )
-		{
-			// An inappropriately-sized image was uploaded (through a non standard client)
-			// We treat these images as missing assets which causes them to
-			// be renderd as 'missing image' and to stop requesting data
-			LL_WARNS() << "!size_ok, setting as missing" << LL_ENDL;
-			setIsMissingAsset();
-			destroyRawImage();
-			return FALSE;
-		}
-		
-		//if(!(res = insertToAtlas()))
-		//{
-			res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, TRUE, mBoostLevel);
-			//resetFaceAtlas() ;
-		notifyAboutCreatingTexture();
-		//}
-		setActive() ;
+		mFullWidth = mRawImage->getWidth();
+		mFullHeight = mRawImage->getHeight();
+		setTexelsPerImage();
 	}
+	else
+	{
+		mOrigWidth = mFullWidth;
+		mOrigHeight = mFullHeight;
+	}
+	
+	if (!mRawImage->mComment.empty())
+	{
+		// a is for uploader
+		// z is for time
+		// K is the whole thing (just coz)
+		std::string comment = mRawImage->getComment();
+		mComment['K'] = comment;
+		size_t position = 0;
+		size_t length = comment.length();
+		while (position < length)
+		{
+			std::size_t equals_position = comment.find('=', position);
+			if (equals_position != std::string::npos)
+			{
+				S8 type = comment.at(equals_position - 1);
+				position = comment.find('&', position);
+				if (position != std::string::npos)
+				{
+					mComment[type] = comment.substr(equals_position + 1, position - (equals_position + 1));
+					position++;
+				}
+				else
+				{
+					mComment[type] = comment.substr(equals_position + 1, length - (equals_position + 1));
+				}
+			}
+			else
+			{
+				position = equals_position;
+			}
+		}
+	}
+
+	bool size_okay = true;
+
+	S32 discard_level = mRawDiscardLevel;
+	if (mRawDiscardLevel < 0)
+	{
+		LL_DEBUGS() << "Negative raw discard level when creating image: " << mRawDiscardLevel << LL_ENDL;
+		discard_level = 0;
+	}
+
+	U32 raw_width = mRawImage->getWidth() << discard_level;
+	U32 raw_height = mRawImage->getHeight() << discard_level;
+
+	if( raw_width > MAX_IMAGE_SIZE || raw_height > MAX_IMAGE_SIZE )
+	{
+		LL_INFOS() << "Width or height is greater than " << MAX_IMAGE_SIZE << ": (" << raw_width << "," << raw_height << ")" << LL_ENDL;
+		size_okay = false;
+	}
+	
+	if (!LLImageGL::checkSize(mRawImage->getWidth(), mRawImage->getHeight()))
+	{
+		// A non power-of-two image was uploaded (through a non standard client)
+		LL_INFOS() << "Non power of two width or height: (" << mRawImage->getWidth() << "," << mRawImage->getHeight() << ")" << LL_ENDL;
+		size_okay = false;
+	}
+	
+	if( !size_okay )
+	{
+		// An inappropriately-sized image was uploaded (through a non standard client)
+		// We treat these images as missing assets which causes them to
+		// be renderd as 'missing image' and to stop requesting data
+		LL_WARNS() << "!size_ok, setting as missing" << LL_ENDL;
+		setIsMissingAsset();
+		destroyRawImage();
+		return FALSE;
+	}
+
+	res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, TRUE, mBoostLevel);
+
+	notifyAboutCreatingTexture();
+
+	setActive();
 
 	if (!needsToSaveRawImage())
 	{
@@ -2956,190 +2993,29 @@ F32 LLViewerFetchedTexture::getElapsedLastReferencedSavedRawImageTime() const
 { 
 	return sCurrentTime - mLastReferencedSavedRawImageTime ;
 }
-//----------------------------------------------------------------------------------------------
-//atlasing
-//----------------------------------------------------------------------------------------------
-/*void LLViewerFetchedTexture::resetFaceAtlas()
+
+LLUUID LLViewerFetchedTexture::getUploader()
 {
-	//Nothing should be done here.
+	return (mComment.find('a') != mComment.end()) ? LLUUID(mComment['a']) : LLUUID::null;
 }
 
-//invalidate all atlas slots for this image.
-void LLViewerFetchedTexture::invalidateAtlas(BOOL rebuild_geom)
+LLDate LLViewerFetchedTexture::getUploadTime()
 {
-	for(U32 i = 0 ; i < mNumFaces ; i++)
+	if (mComment.find('z') != mComment.end())
 	{
-		LLFace* facep = mFaceList[i] ;
-		facep->removeAtlas() ;
-		if(rebuild_geom && facep->getDrawable() && facep->getDrawable()->getSpatialGroup())
-		{
-			facep->getDrawable()->getSpatialGroup()->setState(LLSpatialGroup::GEOM_DIRTY);
-		}
+		struct tm t = {0};
+		sscanf(mComment['z'].c_str(), "%4d%2d%2d%2d%2d%2d",
+			   &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min, &t.tm_sec);
+		std::string iso_date = llformat("%d-%d-%dT%d:%d:%dZ", t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+		return LLDate(iso_date);
 	}
+	return LLDate();
 }
 
-BOOL LLViewerFetchedTexture::insertToAtlas()
+std::string LLViewerFetchedTexture::getComment()
 {
-	if(!LLViewerTexture::sUseTextureAtlas)
-	{
-		return FALSE ;
-	}
-	if(getNumFaces() < 1)
-	{
-		return FALSE ;
-	}						
-	if(mGLTexturep->getDiscardLevelInAtlas() > 0 && mRawDiscardLevel >= mGLTexturep->getDiscardLevelInAtlas())
-	{
-		return FALSE ;
-	}
-	if(!LLTextureAtlasManager::getInstance()->canAddToAtlas(mRawImage->getWidth(), mRawImage->getHeight(), mRawImage->getComponents(), mGLTexturep->getTexTarget()))
-	{
-		return FALSE ;
-	}
-
-	BOOL ret = TRUE ;//if ret is set to false, will generate a gl texture for this image.
-	S32 raw_w = mRawImage->getWidth() ;
-	S32 raw_h = mRawImage->getHeight() ;
-	F32 xscale = 1.0f, yscale = 1.0f ;
-	LLPointer<LLTextureAtlasSlot> slot_infop;
-	LLTextureAtlasSlot* cur_slotp ;//no need to be smart pointer.
-	LLSpatialGroup* groupp ;
-	LLFace* facep;
-
-	//if the atlas slot pointers for some faces are null, process them later.
-	ll_face_list_t waiting_list ;
-	for(U32 i = 0 ; i < mNumFaces ; i++)
-	{
-		{
-			facep = mFaceList[i] ;			
-			
-			//face can not use atlas.
-			if(!facep->canUseAtlas())
-			{
-				if(facep->getAtlasInfo())
-				{
-					facep->removeAtlas() ;	
-				}
-				ret = FALSE ;
-				continue ;
-			}
-
-			//the atlas slot is updated
-			slot_infop = facep->getAtlasInfo() ;
-			groupp = facep->getDrawable()->getSpatialGroup() ;	
-
-			if(slot_infop) 
-			{
-				if(slot_infop->getSpatialGroup() != groupp)
-				{
-					if((cur_slotp = groupp->getCurUpdatingSlot(this))) //switch slot
-					{
-						facep->setAtlasInfo(cur_slotp) ;
-						facep->setAtlasInUse(TRUE) ;
-						continue ;
-					}
-					else //do not forget to update slot_infop->getSpatialGroup().
-					{
-						LLSpatialGroup* gp = slot_infop->getSpatialGroup() ;
-						gp->setCurUpdatingTime(gFrameCount) ;
-						gp->setCurUpdatingTexture(this) ;
-						gp->setCurUpdatingSlot(slot_infop) ;
-					}
-				}
-				else //same group
-				{
-					if(gFrameCount && slot_infop->getUpdatedTime() == gFrameCount)//slot is just updated
-					{
-						facep->setAtlasInUse(TRUE) ;
-						continue ;
-					}
-				}
-			}				
-			else
-			{
-				//if the slot is null, wait to process them later.
-				waiting_list.push_back(facep) ;
-				continue ;
-			}
-						
-			//----------
-			//insert to atlas
-			if(!slot_infop->getAtlas()->insertSubTexture(mGLTexturep, mRawDiscardLevel, mRawImage, slot_infop->getSlotCol(), slot_infop->getSlotRow()))			
-			{
-				
-				//the texture does not qualify to add to atlas, do not bother to try for other faces.
-				//invalidateAtlas();
-				return FALSE ;
-			}
-			
-			//update texture scale		
-			slot_infop->getAtlas()->getTexCoordScale(raw_w, raw_h, xscale, yscale) ;
-			slot_infop->setTexCoordScale(xscale, yscale) ;
-			slot_infop->setValid() ;
-			slot_infop->setUpdatedTime(gFrameCount) ;
-			
-			//update spatial group atlas info
-			groupp->setCurUpdatingTime(gFrameCount) ;
-			groupp->setCurUpdatingTexture(this) ;
-			groupp->setCurUpdatingSlot(slot_infop) ;
-
-			//make the face to switch to the atlas.
-			facep->setAtlasInUse(TRUE) ;
-		}
-	}
-
-	//process the waiting_list
-	for(ll_face_list_t::iterator iter = waiting_list.begin(); iter != waiting_list.end(); ++iter)
-	{
-		facep = (LLFace*)*iter ;	
-		groupp = facep->getDrawable()->getSpatialGroup() ;
-
-		//check if this texture already inserted to atlas for this group
-		if((cur_slotp = groupp->getCurUpdatingSlot(this)))
-		{
-			facep->setAtlasInfo(cur_slotp) ;
-			facep->setAtlasInUse(TRUE) ;		
-			continue ;
-		}
-
-		//need to reserve a slot from atlas
-		slot_infop = LLTextureAtlasManager::getInstance()->reserveAtlasSlot(llmax(mFullWidth, mFullHeight), getComponents(), groupp, this) ;	
-
-		facep->setAtlasInfo(slot_infop) ;
-		
-		groupp->setCurUpdatingTime(gFrameCount) ;
-		groupp->setCurUpdatingTexture(this) ;
-		groupp->setCurUpdatingSlot(slot_infop) ;
-
-		//slot allocation failed.
-		if(!slot_infop || !slot_infop->getAtlas())
-		{			
-			ret = FALSE ;
-			facep->setAtlasInUse(FALSE) ;
-			continue ;
-		}
-				
-		//insert to atlas
-		if(!slot_infop->getAtlas()->insertSubTexture(mGLTexturep, mRawDiscardLevel, mRawImage, slot_infop->getSlotCol(), slot_infop->getSlotRow()))
-		{
-			//the texture does not qualify to add to atlas, do not bother to try for other faces.
-			ret = FALSE ;
-			//invalidateAtlas();
-			break ; 
-		}
-		
-		//update texture scale		
-		slot_infop->getAtlas()->getTexCoordScale(raw_w, raw_h, xscale, yscale) ;
-		slot_infop->setTexCoordScale(xscale, yscale) ;
-		slot_infop->setValid() ;
-		slot_infop->setUpdatedTime(gFrameCount) ;
-
-		//make the face to switch to the atlas.
-		facep->setAtlasInUse(TRUE) ;
-	}
-	
-	return ret ;
-}*/
+	return (mComment.find('K') != mComment.end()) ? mComment['K'] : LLStringUtil::null;
+}
 
 //----------------------------------------------------------------------------------------------
 //end of LLViewerFetchedTexture
