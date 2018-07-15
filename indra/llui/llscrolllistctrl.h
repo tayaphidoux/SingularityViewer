@@ -250,6 +250,8 @@ public:
 
 	// support right-click context menus for avatar/group lists
 	void setContextMenu(LLMenuGL* menu) { mPopupMenu = menu; }
+	void setContextMenu(S32 index) { mPopupMenu = sMenus[index]; }
+	static void addCommonMenu(LLMenuGL* menu) { sMenus.push_back(menu); }
 
 	// Overridden from LLView
 	/*virtual*/ void    draw();
@@ -456,6 +458,8 @@ private:
 	S32				mHighlightedItem;
 	class LLViewBorder*	mBorder;
 	LLMenuGL	*mPopupMenu;
+
+	static std::vector<LLMenuGL*> sMenus; // List menus that recur, such as general avatars or groups menus
 	
 	LLView			*mCommentTextView;
 
