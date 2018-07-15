@@ -408,6 +408,7 @@ public:
 
 	static bool isRenderDeferredCapable();
 	static bool isRenderDeferredDesired();
+	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 
 	static void throttleNewMemoryAllocation(BOOL disable);
