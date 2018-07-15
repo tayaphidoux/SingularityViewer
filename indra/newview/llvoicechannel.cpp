@@ -35,21 +35,6 @@
 
 extern AIHTTPTimeoutPolicy voiceCallCapResponder_timeout;
 
-
-LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
-LLVoiceChannel::voice_channel_map_uri_t LLVoiceChannel::sVoiceChannelURIMap;
-LLVoiceChannel* LLVoiceChannel::sCurrentVoiceChannel = NULL;
-LLVoiceChannel* LLVoiceChannel::sSuspendedVoiceChannel = NULL;
-LLVoiceChannel::channel_changed_signal_t LLVoiceChannel::sCurrentVoiceChannelChangedSignal;
-
-BOOL LLVoiceChannel::sSuspended = FALSE;
-
-//
-// Constants
-//
-const U32 DEFAULT_RETRIES_COUNT = 3;
-
-
 class LLVoiceCallCapResponder : public LLHTTPClient::ResponderWithResult
 {
 public:
@@ -66,59 +51,29 @@ private:
 };
 
 
-void LLVoiceCallCapResponder::httpFailure(void)
-{
-	LL_WARNS("Voice") << "LLVoiceCallCapResponder error [status:"
-		<< mStatus << "]: " << mReason << LL_ENDL;
-	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
-	if ( channelp )
-	{
-		if ( 403 == mStatus )
-		{
-			//403 == no ability
-			LLNotificationsUtil::add(
-				"VoiceNotAllowed",
-				channelp->getNotifyArgs());
-		}
-		else
-		{
-			LLNotificationsUtil::add(
-				"VoiceCallGenericError",
-				channelp->getNotifyArgs());
-		}
-		channelp->deactivate();
-	}
-}
+LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
+LLVoiceChannel::voice_channel_map_uri_t LLVoiceChannel::sVoiceChannelURIMap;
+LLVoiceChannel* LLVoiceChannel::sCurrentVoiceChannel = nullptr;
+LLVoiceChannel* LLVoiceChannel::sSuspendedVoiceChannel = nullptr;
+LLVoiceChannel::channel_changed_signal_t LLVoiceChannel::sCurrentVoiceChannelChangedSignal;
 
-void LLVoiceCallCapResponder::httpSuccess(void)
-{
-	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
-	if (channelp)
-	{
-		// *TODO: DEBUG SPAM
-		LLSD::map_const_iterator iter;
-		for(iter = mContent.beginMap(); iter != mContent.endMap(); ++iter)
-		{
-			LL_DEBUGS("Voice") << "LLVoiceCallCapResponder::result got "
-				<< iter->first << LL_ENDL;
-		}
+BOOL LLVoiceChannel::sSuspended = FALSE;
 
-		channelp->setChannelInfo(
-			mContent["voice_credentials"]["channel_uri"].asString(),
-			mContent["voice_credentials"]["channel_credentials"].asString());
-	}
-}
+//
+// Constants
+//
+const U32 DEFAULT_RETRIES_COUNT = 3;
 
 //
 // LLVoiceChannel
 //
 LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& session_name) :
+	mCallDirection(OUTGOING_CALL), 
 	mSessionID(session_id),
 	mState(STATE_NO_CHANNEL_INFO),
 	mSessionName(session_name),
-	mCallDirection(OUTGOING_CALL),
-	mIgnoreNextSessionLeave(FALSE),
-	mCallEndedByAgent(false)
+	mCallEndedByAgent(false),
+	mIgnoreNextSessionLeave(FALSE)
 {
 	mNotifyArgs["VOICE_CHANNEL_NAME"] = mSessionName;
 
@@ -203,19 +158,9 @@ void LLVoiceChannel::handleStatusChange(EStatusType type)
 	switch(type)
 	{
 	case STATUS_LOGIN_RETRY:
-		//mLoginNotificationHandle = LLNotifyBox::showXml("VoiceLoginRetry")->getHandle();
-		LLNotificationsUtil::add("VoiceLoginRetry");
+        // no user notice
 		break;
 	case STATUS_LOGGED_IN:
-		//if (!mLoginNotificationHandle.isDead())
-		//{
-		//	LLNotifyBox* notifyp = (LLNotifyBox*)mLoginNotificationHandle.get();
-		//	if (notifyp)
-		//	{
-		//		notifyp->close();
-		//	}
-		//	mLoginNotificationHandle.markDead();
-		//}
 		break;
 	case STATUS_LEFT_CHANNEL:
 		if (callStarted() && !mIgnoreNextSessionLeave && !sSuspended)
@@ -346,7 +291,7 @@ LLVoiceChannel* LLVoiceChannel::getChannelByID(const LLUUID& session_id)
 	voice_channel_map_t::iterator found_it = sVoiceChannelMap.find(session_id);
 	if (found_it == sVoiceChannelMap.end())
 	{
-		return NULL;
+		return nullptr;
 	}
 	else
 	{
@@ -360,7 +305,7 @@ LLVoiceChannel* LLVoiceChannel::getChannelByURI(std::string uri)
 	voice_channel_map_uri_t::iterator found_it = sVoiceChannelURIMap.find(uri);
 	if (found_it == sVoiceChannelURIMap.end())
 	{
-		return NULL;
+		return nullptr;
 	}
 	else
 	{
@@ -661,6 +606,49 @@ void LLVoiceChannelGroup::setState(EState state)
 		break;
 	default:
 		LLVoiceChannel::setState(state);
+	}
+}
+
+void LLVoiceCallCapResponder::httpFailure(void)
+{
+	LL_WARNS("Voice") << "LLVoiceCallCapResponder error [status:"
+		<< mStatus << "]: " << mReason << LL_ENDL;
+	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
+	if ( channelp )
+	{
+		if ( 403 == mStatus )
+		{
+			//403 == no ability
+			LLNotificationsUtil::add(
+				"VoiceNotAllowed",
+				channelp->getNotifyArgs());
+		}
+		else
+		{
+			LLNotificationsUtil::add(
+				"VoiceCallGenericError",
+				channelp->getNotifyArgs());
+		}
+		channelp->deactivate();
+	}
+}
+
+void LLVoiceCallCapResponder::httpSuccess(void)
+{
+	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
+	if (channelp)
+	{
+		// *TODO: DEBUG SPAM
+		LLSD::map_const_iterator iter;
+		for(iter = mContent.beginMap(); iter != mContent.endMap(); ++iter)
+		{
+			LL_DEBUGS("Voice") << "LLVoiceCallCapResponder::result got "
+				<< iter->first << LL_ENDL;
+		}
+
+		channelp->setChannelInfo(
+			mContent["voice_credentials"]["channel_uri"].asString(),
+			mContent["voice_credentials"]["channel_credentials"].asString());
 	}
 }
 
