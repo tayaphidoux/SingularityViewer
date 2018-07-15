@@ -203,6 +203,7 @@ protected:
 
 private:
 	void onAvatarListDoubleClicked();
+	void setupContextMenu();
 
 	/**
 	 * Adjusts passed participant to work properly.
