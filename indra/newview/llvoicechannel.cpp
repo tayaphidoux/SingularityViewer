@@ -221,11 +221,11 @@ void LLVoiceChannel::deactivate()
 
 		//Default mic is OFF when leaving voice calls
 		if (gSavedSettings.getBOOL("AutoDisengageMic") &&
-			sCurrentVoiceChannel == this &&
-			LLVoiceClient::getInstance()->getUserPTTState())
+			sCurrentVoiceChannel == this /*&&
+			LLVoiceClient::getInstance()->getUserPTTState()*/) // Singu Note: This could be false, but we still need to do this.
 		{
 			gSavedSettings.setBOOL("PTTCurrentlyEnabled", true);
-			LLVoiceClient::getInstance()->inputUserControlState(true);
+			LLVoiceClient::getInstance()->setUserPTTState(false);
 		}
 	}
 	LLVoiceClient::getInstance()->removeObserver(this);
@@ -652,6 +652,7 @@ void LLVoiceCallCapResponder::httpSuccess(void)
 	}
 }
 
+
 //
 // LLVoiceChannelProximal
 //
@@ -711,6 +712,7 @@ void LLVoiceChannelProximal::handleStatusChange(EStatusType status)
 		// do not notify user when leaving proximal channel
 		return;
 	case STATUS_VOICE_DISABLED:
+		LLVoiceClient::getInstance()->setUserPTTState(false);
 		//skip showing "Voice not available at your current location" when agent voice is disabled (EXT-4749)
 		if(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking())
 		{
@@ -928,7 +930,7 @@ void LLVoiceChannelP2P::setState(EState state)
 	{
 		// you only "answer" voice invites in p2p mode
 		// so provide a special purpose message here
-		if (mReceivedCall && state == STATE_RINGING)
+		if (state == STATE_RINGING)
 		{
 			gIMMgr->addSystemMessage(mSessionID, "answering", mNotifyArgs);
 			doSetState(state);
