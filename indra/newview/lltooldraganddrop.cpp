@@ -2450,11 +2450,13 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryObject(
 		return ACCEPT_NO;
 	}
 	LLVOAvatarSelf* avatar = gAgentAvatarp;
+	/* <edit>
 	if(avatar && avatar->isWearingAttachment( item->getUUID() ) )
 	{
 		// You can't give objects that are attached to you
 		return ACCEPT_NO;
 	}
+	</edit> */
 	if( obj && avatar )
 	{
 		if(drop)
