@@ -688,7 +688,7 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(const LLInventoryIte
 		case LLAssetType::AT_OBJECT:
 		case LLAssetType::AT_BODYPART:
 		case LLAssetType::AT_CLOTHING:
-			if (!get_is_item_worn(item->getUUID()))
+			//if (!get_is_item_worn(item->getUUID())) // </edit>
 				return true;
 			break;
 		default:
