@@ -1355,16 +1355,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if(mShinyInAlpha)
 		{
-			GLfloat alpha[4] =
-				{
-					0.00f,
-					0.25f,
-					0.5f,
-					0.75f
-				};
-			
+			// Singu Note: Avoid casing. Store as LLColor4U.
+			static const LLColor4U shine_steps(LLColor4(0.f, .25f, .5f, 7.5f));
 			llassert(tep->getShiny() <= 3);
-			color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
+			color.mV[3] = shine_steps.mV[tep->getShiny()];
 		}
 	}
 

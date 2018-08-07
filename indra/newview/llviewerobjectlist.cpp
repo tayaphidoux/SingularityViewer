@@ -565,7 +565,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			if(std::find(LLFloaterBlacklist::blacklist_objects.begin(),
 				LLFloaterBlacklist::blacklist_objects.end(),fullid) != LLFloaterBlacklist::blacklist_objects.end())
 			{
-				LL_INFOS() << "Blacklisted object asset " << fullid.asString() << " blocked." << LL_ENDL; 
+				//LL_INFOS() << "Blacklisted object asset " << fullid.asString() << " blocked." << LL_ENDL; 
 				continue;
 			}
 

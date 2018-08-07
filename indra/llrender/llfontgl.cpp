@@ -54,7 +54,7 @@ F32 LLFontGL::sScaleY = 1.f;
 BOOL LLFontGL::sDisplayFont = TRUE ;
 std::string LLFontGL::sAppDir;
 
-LLColor4 LLFontGL::sShadowColor(0.f, 0.f, 0.f, 1.f);
+LLColor4U LLFontGL::sShadowColor(0, 0, 0, 255);
 LLFontRegistry* LLFontGL::sFontRegistry = NULL;
 
 LLCoordGL LLFontGL::sCurOrigin;
@@ -218,10 +218,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	case LEFT:
 		break;
 	case RIGHT:
-	  	cur_x -= llmin(scaled_max_pixels, ll_round(getWidthF32(wstr.c_str(), begin_offset, length) * sScaleX));
+	  	cur_x -= llmin(scaled_max_pixels, ll_pos_round(getWidthF32(wstr.c_str(), begin_offset, length) * sScaleX));
 		break;
 	case HCENTER:
-	    cur_x -= llmin(scaled_max_pixels, ll_round(getWidthF32(wstr.c_str(), begin_offset, length) * sScaleX)) / 2;
+	    cur_x -= llmin(scaled_max_pixels, ll_pos_round(getWidthF32(wstr.c_str(), begin_offset, length) * sScaleX)) / 2;
 		break;
 	default:
 		break;
@@ -244,12 +244,12 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	if (use_ellipses && halign == LEFT)
 	{
 		// check for too long of a string
-		S32 string_width = ll_round(getWidthF32(wstr, begin_offset, max_chars) * sScaleX);
+		S32 string_width = ll_pos_round(getWidthF32(wstr, begin_offset, max_chars) * sScaleX);
 		if (string_width > scaled_max_pixels)
 		{
 			// use four dots for ellipsis width to generate padding
 			const LLWString dots(utf8str_to_wstring(std::string("....")));
-			scaled_max_pixels = llmax(0, scaled_max_pixels - ll_round(getWidthF32(dots.c_str())));
+			scaled_max_pixels = llmax(0, scaled_max_pixels - ll_pos_round(getWidthF32(dots.c_str())));
 			draw_ellipses = TRUE;
 		}
 	}
@@ -497,7 +497,7 @@ F32 LLFontGL::getDescenderHeight() const
 
 F32 LLFontGL::getLineHeight() const
 { 
-	return (F32)ll_round(mFontFreetype->getLineHeight() / sScaleY);
+	return (F32)ll_pos_round(mFontFreetype->getLineHeight() / sScaleY);
 }
 
 S32 LLFontGL::getWidth(const std::string& utf8text, const S32 begin_offset, const S32 max_chars, BOOL use_embedded) const
@@ -508,7 +508,7 @@ S32 LLFontGL::getWidth(const std::string& utf8text, const S32 begin_offset, cons
 S32 LLFontGL::getWidth(const LLWString& utf32text, const S32 begin_offset, const S32 max_chars, BOOL use_embedded) const
 {
 	F32 width = getWidthF32(utf32text, begin_offset, max_chars, use_embedded);
-	return ll_round(width);
+	return ll_pos_round(width);
 }
 
 F32 LLFontGL::getWidthF32(const std::string& utf8text, const S32 begin_offset, const S32 max_chars, BOOL use_embedded) const
@@ -573,7 +573,7 @@ F32 LLFontGL::getWidthF32(const LLWString& utf32text, const S32 begin_offset, co
 				}
 			}
 			// Round after kerning.
-			cur_x = (F32)ll_round(cur_x);
+			cur_x = (F32)ll_pos_round(cur_x);
 		}
 	}
 
@@ -689,7 +689,7 @@ S32 LLFontGL::maxDrawableChars(const LLWString& utf32text, F32 max_pixels, S32 m
 			}
 		}
 		// Round after kerning.
-		cur_x = (F32)ll_round(cur_x);
+		cur_x = (F32)ll_pos_round(cur_x);
 		drawn_x = cur_x;
 	}
 
@@ -776,7 +776,7 @@ S32	LLFontGL::firstDrawableChar(const LLWString& utf32text, F32 max_pixels, S32 
 		}
 
 		// Round after kerning.
-		total_width = (F32)ll_round(total_width);
+		total_width = (F32)ll_pos_round(total_width);
 	}
 
 	if (drawable_chars == 0)
@@ -863,7 +863,7 @@ S32 LLFontGL::charFromPixelOffset(const LLWString& utf32text, const S32 begin_of
 
 
 		// Round after kerning.
-		cur_x = (F32)ll_round(cur_x);
+		cur_x = (F32)ll_pos_round(cur_x);
 		
 	}
 
@@ -1324,7 +1324,7 @@ void LLFontGL::drawGlyph(S32& glyph_count, LLVector4a* vertex_out, LLVector2* uv
 	}
 	else if (shadow == DROP_SHADOW_SOFT)
 	{
-		LLColor4U shadow_color = LLFontGL::sShadowColor;
+		LLColor4U& shadow_color = LLFontGL::sShadowColor;
 		shadow_color.mV[VALPHA] = U8(color.mV[VALPHA] * drop_shadow_strength * DROP_SHADOW_SOFT_STRENGTH);
 		for (S32 pass = 0; pass < 5; pass++)
 		{
@@ -1359,7 +1359,7 @@ void LLFontGL::drawGlyph(S32& glyph_count, LLVector4a* vertex_out, LLVector2* uv
 	}
 	else if (shadow == DROP_SHADOW)
 	{
-		LLColor4U shadow_color = LLFontGL::sShadowColor;
+		LLColor4U& shadow_color = LLFontGL::sShadowColor;
 		shadow_color.mV[VALPHA] = U8(color.mV[VALPHA] * drop_shadow_strength);
 		LLRectf screen_rect_shadow = screen_rect;
 		screen_rect_shadow.translate(1.f, -1.f);

@@ -5786,7 +5786,6 @@ void LLViewerWindow::calcDisplayScale()
 
 LLVector2 LLViewerWindow::getUIScale() const
 {
-	LL_INFOS() << "getUIScale" << LL_ENDL;
 	static LLCachedControl<F32> ui_scale_factor("UIScaleFactor");
 	if (mWindow->getFullscreen())
 	{

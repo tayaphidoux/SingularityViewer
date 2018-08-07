@@ -86,23 +86,6 @@ float calcShadow( sampler2DShadow shadowMap, vec4 stc, vec2 res, vec2 pos_screen
 	return shadow;
 }
 
-float calcShadow( sampler2DShadow shadowMap, vec4 stc, vec2 res, vec2 pos_screen )
-{
-	//stc.x += (((texture2D(noiseMap, pos_screen/128.0).x)-.5)/shadow_res.x);	//Random dither.
-
-	vec2 off = vec2(1,1.5)/res;
-	stc.x = floor(stc.x*res.x + fract(pos_screen.y*(1.0/kern_scale.y)*0.5))*off.x;
-
-
-	float shadow = shadow2D(shadowMap, stc.xyz).x; // cs
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(off.x*2.0, off.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(off.x, -off.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x*2.0, off.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x, -off.y, 0.0)).x;
-
-	return shadow;
-}
-
 float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
 {
 	stc.xyz /= stc.w;

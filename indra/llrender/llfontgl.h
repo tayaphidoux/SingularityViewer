@@ -206,7 +206,8 @@ public:
 	static F32			sCurDepth;
 	static std::vector<std::pair<LLCoordGL, F32> > sOriginStack;
 
-	static LLColor4 sShadowColor;
+	// Singu Note: LLColor4U to avoid converting from LLColor4 to LLColor4U for every glyph(batch).
+	static LLColor4U sShadowColor;
 
 	static F32 sVertDPI;
 	static F32 sHorizDPI;

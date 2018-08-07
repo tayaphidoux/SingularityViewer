@@ -2422,14 +2422,11 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, LLCo
 		mTexcoordsp[mCount] = mTexcoordsp[mCount - 1];
 	}
 
-	for (S32 i = 0; i < vert_count; i++)
-	{
-		mVerticesp[mCount] = verts[i];
-		mTexcoordsp[mCount] = uvs[i];
-		mColorsp[mCount] = colors[i];
-		
-		mCount++;
-	}
+	// Singu Note: Batch copies instead of iterating.
+	mVerticesp.copyArray(mCount, verts, vert_count);
+	mTexcoordsp.copyArray(mCount, uvs, vert_count);
+	mColorsp.copyArray(mCount, colors, vert_count);
+	mCount += vert_count;
 
 	mVerticesp[mCount] = mVerticesp[mCount-1];
 	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];

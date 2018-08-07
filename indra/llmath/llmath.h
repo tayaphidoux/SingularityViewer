@@ -179,6 +179,12 @@ inline S32 ll_round(const F32 val)
 	return (S32)round(val);
 }
 
+// Singu Note: Quick round for values that are known to be >= 0.
+inline S32 ll_pos_round(const F32 val)
+{
+	return val + .5f;
+}
+
 inline F32 ll_round(F32 val, F32 nearest)
 {
 	return F32(round(val * (1.0f / nearest))) * nearest;

@@ -440,8 +440,8 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 		F32 image_width = image->getWidth(0);
 		F32 image_height = image->getHeight(0);
 
-		S32 image_natural_width = ll_round(image_width * uv_width);
-		S32 image_natural_height = ll_round(image_height * uv_height);
+		S32 image_natural_width = ll_pos_round(image_width * uv_width);
+		S32 image_natural_height = ll_pos_round(image_height * uv_height);
 
 		LLRectf draw_center_rect(	uv_center_rect.mLeft * image_width,
 									uv_center_rect.mTop * image_height,
@@ -680,8 +680,8 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 			ui_translation.mV[VY] += y;
 			ui_translation.scaleVec(ui_scale);
 			S32 index = 0;
-			S32 scaled_width = ll_round(width * ui_scale.mV[VX]);
-			S32 scaled_height = ll_round(height * ui_scale.mV[VY]);
+			S32 scaled_width = ll_pos_round(width * ui_scale.mV[VX]);
+			S32 scaled_height = ll_pos_round(height * ui_scale.mV[VY]);
 
 			uv[index] = LLVector2(uv_rect.mLeft, uv_rect.mTop);
 			pos[index].set(ui_translation.mV[VX], ui_translation.mV[VY] + scaled_height, 0.f);

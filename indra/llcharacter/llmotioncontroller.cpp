@@ -879,7 +879,7 @@ void LLMotionController::updateMotions(bool force_update)
             // Moreover, just rounding off to the nearest integer with ll_round(update_time / mTimeStep) makes a lot more sense:
             // it is the best we can do to get as close to what we should draw as possible.
             // However, mAnimTime may only be incremented; therefore make sure of that with the llmax.
-			S32 quantum_count = llmax(ll_round(update_time / mTimeStep), llceil(mAnimTime / mTimeStep));
+			S32 quantum_count = llmax(ll_pos_round(update_time / mTimeStep), llceil(mAnimTime / mTimeStep));
             //</singu>
 			if (quantum_count == mTimeStepCount)
 			{
