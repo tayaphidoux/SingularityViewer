@@ -2318,7 +2318,10 @@ void LLMeshHeaderResponder::completedRaw(LLChannelDescriptors const& channels,
 	}
 
 	if (data.size() > BUFF_MAX_STATIC_SIZE)
+	{
+		std::vector<U8>().swap(data);
 		data.resize(BUFF_MAX_STATIC_SIZE);
+	}
 }
 
 
