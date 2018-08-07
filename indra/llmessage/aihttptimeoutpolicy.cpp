@@ -962,3 +962,4 @@ P(wholeModelFeeResponder);
 P(wholeModelUploadResponder);
 P2(XMLRPCResponder,								connect_40s);
 P2(crashLoggerResponder,						transfer_300s);
+P(getUpdateInfoResponder);

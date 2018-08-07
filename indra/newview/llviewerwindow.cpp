@@ -1569,6 +1569,22 @@ BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
 	return FALSE;
 }
 
+bool LLViewerWindow::handleDPIScaleChange(LLWindow *window, float xDPIScale, float yDPIScale, U32 width, U32 height)
+{
+	LL_INFOS() << "handleDPIScaleChange" << LL_ENDL;
+	if (mDPIScaleX != xDPIScale || mDPIScaleY != yDPIScale)
+	{
+		LL_INFOS() << "handleDPIScaleChange APPLY" << LL_ENDL;
+		mDPIScaleX = xDPIScale;
+		mDPIScaleY = yDPIScale;
+		if (!mWindow->getFullscreen()) {
+			reshape(width ? width : getWindowWidthRaw(), height ? height : getWindowHeightRaw());
+			return true;
+		}
+	}
+	return false;
+}
+
 void LLViewerWindow::handlePingWatchdog(LLWindow *window, const char * msg)
 {
 	LLAppViewer::instance()->pingMainloopTimeout(msg);
@@ -1637,7 +1653,9 @@ LLViewerWindow::LLViewerWindow(
 	//mStatesDirty(false),	//Singu Note: No longer needed. State update is now in restoreGL.
 	mIsFullscreenChecked(false),
 	mCurrResolutionIndex(0),
-	mProgressView(NULL)
+	mProgressView(NULL),
+	mDPIScaleX(1.f),
+	mDPIScaleY(1.f)
 {
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
 	LLNotificationChannel::buildChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
@@ -1706,10 +1724,9 @@ LLViewerWindow::LLViewerWindow(
 
 	// Get the real window rect the window was created with (since there are various OS-dependent reasons why
 	// the size of a window or fullscreen context may have been adjusted slightly...)
-	F32 ui_scale_factor = gSavedSettings.getF32("UIScaleFactor");
-	
 	mDisplayScale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
-	mDisplayScale *= ui_scale_factor;
+	mDisplayScale.scaleVec(getUIScale());
+
 	LLUI::setScaleFactor(mDisplayScale);
 
 	{
@@ -1798,6 +1815,8 @@ LLViewerWindow::LLViewerWindow(
 	gSavedSettings.getControl("NumpadControl")->firePropertyChanged();
 
 	mDebugText = new LLDebugText(this);
+
+	mWindow->postInitialized();
 
 }
 
@@ -5730,17 +5749,17 @@ F32 LLViewerWindow::getDisplayAspectRatio() const
 
 void LLViewerWindow::calcDisplayScale()
 {
-	F32 ui_scale_factor = gSavedSettings.getF32("UIScaleFactor");
+	LLVector2 ui_scale_factor = getUIScale();
 	LLVector2 display_scale;
 	display_scale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
 	if(mWindow->getFullscreen())
 	{
 		F32 height_normalization = gSavedSettings.getBOOL("UIAutoScale") ? ((F32)mWindowRectRaw.getHeight() / display_scale.mV[VY]) / 768.f : 1.f;
-		display_scale *= (ui_scale_factor * height_normalization);
+		display_scale.scaleVec(ui_scale_factor * height_normalization);
 	}
 	else
 	{
-		display_scale *= ui_scale_factor;
+		display_scale.scaleVec(ui_scale_factor);
 	}
 
 	// limit minimum display scale
@@ -5762,6 +5781,20 @@ void LLViewerWindow::calcDisplayScale()
 		mDisplayScale = display_scale;
 		// Init default fonts
 		initFonts();
+	}
+}
+
+LLVector2 LLViewerWindow::getUIScale() const
+{
+	LL_INFOS() << "getUIScale" << LL_ENDL;
+	static LLCachedControl<F32> ui_scale_factor("UIScaleFactor");
+	if (mWindow->getFullscreen())
+	{
+		return LLVector2(ui_scale_factor, ui_scale_factor);
+	}
+	else
+	{
+		return LLVector2(mDPIScaleX * ui_scale_factor, mDPIScaleY * ui_scale_factor);
 	}
 }
 

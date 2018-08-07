@@ -611,95 +611,90 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		if (minor_version <= 19)
 		{
 			text[count++] = strdup("#version 110\n");
-			text[count++] = strdup("#define ATTRIBUTE attribute\n");
-			text[count++] = strdup("#define VARYING varying\n");
-			text[count++] = strdup("#define VARYING_FLAT varying\n");
-			// Need to enable extensions here instead of in the shader files,
-			// before any non-preprocessor directives (per spec)
-			text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
-			text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
 		}
 		else if (minor_version <= 29)
 		{
 			//set version to 1.20
 			text[count++] = strdup("#version 120\n");
-			text[count++] = strdup("#define FXAA_GLSL_120 1\n");
-			text[count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
-			text[count++] = strdup("#define ATTRIBUTE attribute\n");
-			text[count++] = strdup("#define VARYING varying\n");
-			text[count++] = strdup("#define VARYING_FLAT varying\n");
-			// Need to enable extensions here instead of in the shader files,
-			// before any non-preprocessor directives (per spec)
-			text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
-			text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
+			if (type == GL_FRAGMENT_SHADER_ARB)
+			{
+				// Need to enable extensions here instead of in the shader files,
+				// before any non-preprocessor directives (per spec)
+				text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
+				text[count++] = strdup("#define FXAA_GLSL_120 1\n");
+				text[count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
+			}
 		}
+
+		text[count++] = strdup("#define ATTRIBUTE attribute\n");
+		text[count++] = strdup("#define VARYING varying\n");
+		text[count++] = strdup("#define VARYING_FLAT varying\n");
 	}
 	else
 	{  
 		if (major_version < 4)
 		{
-			//set version to 1.30
-			text[count++] = strdup("#version 130\n");
-			// Need to enable extensions here instead of in the shader files,
-			// before any non-preprocessor directives (per spec)
-			text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
-			text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
+			if (major_version > 1 || minor_version >= 40)
+			{
+				//set version to 1.40
+				text[count++] = strdup("#version 140\n");
+			}
+			else
+			{
+				//set version to 1.30
+				text[count++] = strdup("#version 130\n");
+			}
 			if (minor_version == 50 && gGLManager.mHasGpuShader5)
 			{
+				// Need to enable extensions here instead of in the shader files,
+				// before any non-preprocessor directives (per spec)
 				text[count++] = strdup("#extension GL_ARB_gpu_shader5 : enable\n");
 			}
 			//some implementations of GLSL 1.30 require integer precision be explicitly declared
 			text[count++] = strdup("precision mediump int;\n");
 			text[count++] = strdup("precision highp float;\n");
-			text[count++] = strdup("#define FXAA_GLSL_130 1\n");
+			if (type == GL_FRAGMENT_SHADER_ARB)
+			{
+				text[count++] = strdup("#define FXAA_GLSL_130 1\n");
+			}
 		}
 		else
 		{ //set version to 400
 			text[count++] = strdup("#version 400\n");
-			// Need to enable extensions here instead of in the shader files,
-			// before any non-preprocessor directives (per spec)
-			text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
-			text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
-			text[count++] = strdup("#define FXAA_GLSL_400 1\n");
+			if (type == GL_FRAGMENT_SHADER_ARB)
+			{
+				text[count++] = strdup("#define FXAA_GLSL_400 1\n");
+			}
 		}
-		
-
-		text[count++] = strdup("#define DEFINE_GL_FRAGCOLOR 1\n");
-
-		text[count++] = strdup("#define ATTRIBUTE in\n");
 
 		if (type == GL_VERTEX_SHADER_ARB)
 		{ //"varying" state is "out" in a vertex program, "in" in a fragment program 
 			// ("varying" is deprecated after version 1.20)
+			text[count++] = strdup("#define ATTRIBUTE in\n");
 			text[count++] = strdup("#define VARYING out\n");
 			text[count++] = strdup("#define VARYING_FLAT flat out\n");
 		}
 		else
 		{
+			text[count++] = strdup("#define DEFINE_GL_FRAGCOLOR 1\n");
 			text[count++] = strdup("#define VARYING in\n");
 			text[count++] = strdup("#define VARYING_FLAT flat in\n");
-		}
 
-		//backwards compatibility with legacy texture lookup syntax
-		text[count++] = strdup("#define texture2D texture\n");
-		text[count++] = strdup("#define textureCube texture\n");
-		text[count++] = strdup("#define texture2DLod textureLod\n");
-		text[count++] = strdup("#define	shadow2D(a,b) vec2(texture(a,b))\n");
-
-		if (major_version > 1 || minor_version >= 40)
-		{ //GLSL 1.40 replaces texture2DRect et al with texture
-			text[count++] = strdup("#define texture2DRect texture\n");
-			text[count++] = strdup("#define shadow2DRect(a,b) vec2(texture(a,b))\n");
+			//backwards compatibility with legacy texture lookup syntax
+			text[count++] = strdup("#define texture2D texture\n");
+			text[count++] = strdup("#define textureCube texture\n");
+			text[count++] = strdup("#define texture2DLod textureLod\n");
+			text[count++] = strdup("#define	shadow2D(a,b) vec2(texture(a,b))\n");
 		}
 	}
 
 	if(defines)
 	{
 		for (std::map<std::string,std::string>::iterator iter = defines->begin(); iter != defines->end(); ++iter)
-	{
-		std::string define = "#define " + iter->first + " " + iter->second + "\n";
-		text[count++] = (GLcharARB *) strdup(define.c_str());
-	}
+		{
+			std::string define = "#define " + iter->first + " " + iter->second + "\n";
+			text[count++] = (GLcharARB *) strdup(define.c_str());
+		}
 	}
 
 	if (texture_index_channels > 0 && type == GL_FRAGMENT_SHADER_ARB)
@@ -796,7 +791,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			LL_ERRS() << "Indexed texture rendering requires GLSL 1.30 or later." << LL_ENDL;
 		}
 	}
-	else
+	else if( type == GL_FRAGMENT_SHADER_ARB )
 	{
 		text[count++] = strdup("#define HAS_DIFFUSE_LOOKUP 0\n");
 	}

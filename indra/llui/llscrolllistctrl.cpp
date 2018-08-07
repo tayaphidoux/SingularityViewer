@@ -125,6 +125,7 @@ LLScrollListCtrl::LLScrollListCtrl(const std::string& name, const LLRect& rect, 
 	mNeedsScroll(false),
 	mCanSelect(true),
 	mColumnsDirty(false),
+	mSortEnabled(true),
 	mMaxItemCount(INT_MAX), 
 	mMaxContentWidth(0),
 	mBorderThickness( 2 ),
@@ -501,12 +502,14 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 	
 		case ADD_SORTED:
 			{
-				// sort by column 0, in ascending order
-				std::vector<sort_column_t> single_sort_column;
-				single_sort_column.push_back(std::make_pair(0, TRUE));
-
 				mItemList.push_back(item);
-				std::stable_sort(mItemList.begin(), mItemList.end(), SortScrollListItem(single_sort_column,mSortCallback));
+				// std::stable_sort is expensive. Only do this if the user sort criteria is not column 0, otherwise 
+				// setNeedsSort does what we want.
+				if (mSortColumns.empty() || mSortColumns[0].first != 0)
+				{
+					// sort by column 0, in ascending order
+					std::stable_sort(mItemList.begin(), mItemList.end(), SortScrollListItem({ {0,true} }, mSortCallback));
+				}
 
 				// ADD_SORTED just sorts by first column...
 				// this might not match user sort criteria, so flag list as being in unsorted state
@@ -2301,6 +2304,16 @@ BOOL LLScrollListCtrl::setSort(S32 column_idx, BOOL ascending)
 	}
 }
 
+void LLScrollListCtrl::setSortEnabled(bool sort)
+{
+	bool update = sort && !mSortEnabled;
+	mSortEnabled = sort;
+	if (update)
+	{
+		updateSort();
+	}
+}
+
 S32	LLScrollListCtrl::getLinesPerPage()
 {
 	//if mPageLines is NOT provided display all item
@@ -2942,7 +2955,7 @@ std::string LLScrollListCtrl::getSortColumnName()
 
 BOOL LLScrollListCtrl::hasSortOrder() const
 {
-	return !mSortColumns.empty();
+	return mSortEnabled && !mSortColumns.empty();
 }
 
 void LLScrollListCtrl::clearSortOrder()

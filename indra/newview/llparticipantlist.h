@@ -76,6 +76,9 @@ protected:
 	bool onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	//bool onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	bool onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+	void onSpeakerBatchBeginEvent();
+	void onSpeakerBatchEndEvent();
+	void onSpeakerSortingUpdateEvent();
 
 	/**
 	 * List of listeners implementing LLOldEvents::LLSimpleListener.
@@ -123,6 +126,27 @@ protected:
 	public:
 		SpeakerMuteListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
 
+		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+	};
+
+	class SpeakerBatchBeginListener : public BaseSpeakerListener
+	{
+	public:
+		SpeakerBatchBeginListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
+		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+	};
+
+	class SpeakerBatchEndListener : public BaseSpeakerListener
+	{
+	public:
+		SpeakerBatchEndListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
+		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+	};
+
+	class SpeakerSortingUpdateListener : public BaseSpeakerListener
+	{
+	public:
+		SpeakerSortingUpdateListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
 		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 	};
 
@@ -196,12 +220,16 @@ private:
 	LLSpeakerMgr*		mSpeakerMgr;
 	LLScrollListCtrl*	mAvatarList;
 	bool				mShowTextChatters;
+	LLFrameTimer		mUpdateTimer;
 
 	LLPointer<SpeakerAddListener>				mSpeakerAddListener;
 	LLPointer<SpeakerRemoveListener>			mSpeakerRemoveListener;
 	LLPointer<SpeakerClearListener>				mSpeakerClearListener;
 	//LLPointer<SpeakerModeratorUpdateListener>	mSpeakerModeratorListener;
 	LLPointer<SpeakerMuteListener>				mSpeakerMuteListener;
+	LLPointer<SpeakerBatchBeginListener>		mSpeakerBatchBeginListener;
+	LLPointer<SpeakerBatchEndListener>			mSpeakerBatchEndListener;
+	LLPointer<SpeakerSortingUpdateListener>		mSpeakerSortingUpdateListener;
 
 	validate_speaker_callback_t mValidateSpeakerCallback;
 };

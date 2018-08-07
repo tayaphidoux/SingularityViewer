@@ -57,20 +57,6 @@
     </form>
   </template>
 
-  <template name="okcancelbuttonscanceldefault">
-    <form>
-      <button
-       index="0"
-       name="OK"
-       text="$yestext"/>
-      <button
-       default="true"
-       index="1"
-       name="Cancel"
-       text="$notext"/>
-    </form>
-  </template>
-
   <template name="okcancelignore">
     <form>
       <button
@@ -86,6 +72,20 @@
     </form>
   </template>
 
+  <template name="okcancelignorecanceldefault">
+    <form>
+      <button
+       index="0"
+       name="OK"
+       text="$yestext"/>
+      <button
+       default="true"
+       index="1"
+       name="Cancel"
+       text="$notext"/>
+      <ignore text="$ignoretext"/>
+    </form>
+  </template>
   <template name="okhelpbuttons">
     <form>
       <button
@@ -10595,4 +10595,62 @@ Do you wish to export anyway?
 Object successfully exported to: [FILENAME]
   </notification>
 
+  <notification
+    icon="notifytip.tga"
+    label="Update Available"
+    name="RecommendedUpdate"
+    type="notify">
+A newer version, [RECOMMENDED_VER], is available for Singularity[TYPE].
+
+Click [Visit Page] to open
+[URL]
+for information and download links for this new version.
+   <tag>confirm</tag>
+   <usetemplate
+    name="okcancelignorecanceldefault"
+    notext="Later"
+    yestext="Visit Page"
+    ignoretext="Ignore recommended update notification"/>
+  </notification>
+  <notification
+   icon="alert.tga"
+   label="Critical Update!"
+   name="UrgentUpdate"
+   priority="high"
+   type="notify">
+Your version of Singularity[TYPE] is critically out of date!
+
+It is STRONGLY recommended to download a newer version of this viewer due to grid compatability and/or security concerns.
+
+Click [Visit Page] to open
+[URL]
+for information and download links for newer versions.
+
+   <tag>confirm</tag>
+   <usetemplate
+    name="okcancelignorecanceldefault"
+    notext="Later"
+    yestext="Visit Page"
+    ignoretext="Ignore critical update notification"/>
+  </notification>
+  <notification
+   icon="alert.tga"
+   label="Critical Update"
+   name="UrgentUpdateModal"
+   priority="high"
+   type="alertmodal">
+Your version of Singularity[TYPE] is critically out of date!
+
+It is STRONGLY recommended to download a newer version of this viewer due to grid compatability and/or security concerns.
+
+Click [Visit Page] to open
+[URL]
+for information and download links for newer versions.
+   <tag>confirm</tag>
+   <usetemplate
+    name="okcancelignorecanceldefault"
+    notext="Later"
+    yestext="Visit Page"
+    ignoretext="Ignore critical update alert"/>
+  </notification>
 </notifications>

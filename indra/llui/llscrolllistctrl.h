@@ -322,6 +322,7 @@ public:
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
 	BOOL			hasSortOrder() const;
 	void			clearSortOrder();
+	void			setSortEnabled(bool sort);
 
 	template<typename T> S32 selectMultiple(const std::vector<T>& vec)
 	{
@@ -368,6 +369,7 @@ public:
 		return mSortCallback->connect(cb);
 	}
 
+	S32				getLinesPerPage();
 
 protected:
 	// "Full" interface: use this when you're creating a list that has one or more of the following:
@@ -404,7 +406,6 @@ private:
 	void			deselectItem(LLScrollListItem* itemp);
 	void			commitIfChanged();
 	BOOL			setSort(S32 column, BOOL ascending);
-	S32				getLinesPerPage();
 
 	S32				mLineHeight;	// the max height of a single line
 	S32				mScrollLines;	// how many lines we've scrolled down
@@ -423,6 +424,7 @@ private:
 	bool			mDisplayColumnHeaders;
 	bool			mColumnsDirty;
 	bool			mColumnWidthsDirty;
+	bool			mSortEnabled;
 
 	mutable item_list	mItemList;
 

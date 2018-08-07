@@ -56,29 +56,78 @@ public:
 		STATUS_MUTED
 	} ESpeakerStatus;
 
+	struct speaker_entry_t
+	{
+		speaker_entry_t(const LLUUID& id,
+			LLSpeaker::ESpeakerType type = ESpeakerType::SPEAKER_AGENT,
+			LLSpeaker::ESpeakerStatus status = ESpeakerStatus::STATUS_TEXT_ONLY,
+			const boost::optional<bool> moderator = boost::none,
+			const boost::optional<bool> moderator_muted_text = boost::none,
+			std::string name = std::string()) :
+				id(id),
+				type(type),
+				status(status),
+				moderator(moderator),
+				moderator_muted_text(moderator_muted_text),
+				name(name)
+		{}
+		const LLUUID id;
+		const LLSpeaker::ESpeakerType type;
+		const LLSpeaker::ESpeakerStatus status;
+		const boost::optional<bool> moderator;
+		const boost::optional<bool> moderator_muted_text;
+		const std::string name;
+	};
 
-	LLSpeaker(const LLUUID& id, const std::string& name = LLStringUtil::null, const ESpeakerType type = SPEAKER_AGENT);
+	LLSpeaker(const speaker_entry_t& entry);
 	~LLSpeaker() {};
+	void update(const speaker_entry_t& entry);
 	void lookupName();
 
 	void onNameCache(const LLAvatarName& full_name);
 
 	bool isInVoiceChannel();
 
+	void setStatus(ESpeakerStatus status)
+	{
+		if (status != mStatus)
+		{
+			mStatus = status;
+			mNeedsResort = true;
+		}
+	}
+	void setName(const std::string& name)
+	{
+		if (name != mDisplayName)
+		{
+			mDisplayName = name;
+			mNeedsResort = true;
+		}
+	}
+	void setSpokenTime(F32 time)
+	{
+		if (mLastSpokeTime != time)
+		{
+			mLastSpokeTime = time;
+			mNeedsResort = true;
+		}
+	}
+
+	LLUUID			mID; 
 	ESpeakerStatus	mStatus;			// current activity status in speech group
+	ESpeakerType	mType : 2;
+	bool			mIsModerator : 1;
+	bool			mModeratorMutedVoice : 1;
+	bool			mModeratorMutedText : 1;
+	bool			mHasSpoken : 1;			// has this speaker said anything this session?
+	bool			mHasLeftCurrentCall : 1;	// has this speaker left the current voice call?
+	bool			mTyping : 1;
 	F32				mLastSpokeTime;		// timestamp when this speaker last spoke
 	F32				mSpeechVolume;		// current speech amplitude (timea average rms amplitude?)
 	std::string		mDisplayName;		// cache user name for this speaker
-	BOOL			mHasSpoken;			// has this speaker said anything this session?
-	BOOL			mHasLeftCurrentCall;	// has this speaker left the current voice call?
 	LLColor4		mDotColor;
-	LLUUID			mID;
-	BOOL			mTyping;
+	bool			mNeedsResort;
 	S32				mSortIndex;
-	ESpeakerType	mType;
-	BOOL			mIsModerator;
-	BOOL			mModeratorMutedVoice;
-	BOOL			mModeratorMutedText;
 };
 
 class LLSpeakerUpdateSpeakerEvent : public LLOldEvents::LLEvent
@@ -137,7 +186,7 @@ private:
 class LLSpeakerActionTimer : public LLEventTimer
 {
 public:
-	typedef boost::function<bool(const LLUUID&)>	action_callback_t;
+	typedef std::function<bool(const LLUUID&)>	action_callback_t;
 	typedef std::map<LLUUID, LLSpeakerActionTimer*> action_timers_map_t;
 	typedef action_timers_map_t::value_type			action_value_t;
 	typedef action_timers_map_t::const_iterator		action_timer_const_iter_t;
@@ -223,6 +272,8 @@ class LLSpeakerMgr : public LLOldEvents::LLObservable
 	LOG_CLASS(LLSpeakerMgr);
 
 public:
+	typedef LLSpeaker::speaker_entry_t speaker_entry_t;
+
 	LLSpeakerMgr(LLVoiceChannel* channelp);
 	virtual ~LLSpeakerMgr();
 
@@ -230,10 +281,9 @@ public:
 	void update(BOOL resort_ok);
 	void setSpeakerTyping(const LLUUID& speaker_id, BOOL typing);
 	void speakerChatted(const LLUUID& speaker_id);
-	LLPointer<LLSpeaker> setSpeaker(const LLUUID& id,
-					const std::string& name = LLStringUtil::null,
-					LLSpeaker::ESpeakerStatus status = LLSpeaker::STATUS_TEXT_ONLY,
-					LLSpeaker::ESpeakerType = LLSpeaker::SPEAKER_AGENT);
+
+	void setSpeakers(const std::vector<speaker_entry_t>& speakers);
+	LLPointer<LLSpeaker> setSpeaker(const speaker_entry_t& speakers);
 
 	BOOL isVoiceActive();
 
