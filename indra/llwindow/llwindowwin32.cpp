@@ -671,6 +671,9 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	LLCoordScreen windowPos(x,y);
 	LLCoordScreen windowSize(window_rect.right - window_rect.left,
 							 window_rect.bottom - window_rect.top);
+
+	initDPIAwareness();
+
 	if (!switchContext(mFullscreen, windowSize, vsync_mode, &windowPos))
 	{
 		return;
@@ -683,8 +686,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (or user's) default settings.
 	allowLanguageTextInput(NULL, FALSE);
-
-	initDPIAwareness();
 }
 
 
