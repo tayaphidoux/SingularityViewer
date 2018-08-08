@@ -935,6 +935,23 @@ bool LLPipeline::isRenderDeferredDesired()
 }
 
 //static
+void LLPipeline::updateRenderDeferred()
+{
+	bool deferred = (bool(LLRenderTarget::sUseFBO &&
+					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&	 
+					 LLPipeline::sRenderBump &&
+					 isRenderDeferredDesired())) &&
+					!gUseWireframe;
+
+	sRenderDeferred = deferred;	
+	if (deferred)
+	{ //must render glow when rendering deferred since post effect pass is needed to present any lighting at all
+		sRenderGlow = true;
+	}
+}
+
+
+//static
 void LLPipeline::refreshCachedSettings()
 {
 	LLRenderTarget::sUseFBO = gSavedSettings.getBOOL("RenderUseFBO") || LLPipeline::sRenderDeferred;

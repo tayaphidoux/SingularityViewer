@@ -27,10 +27,7 @@
 #ifndef LL_LLWINDOWWIN32_H
 #define LL_LLWINDOWWIN32_H
 
-// Limit Windows API to small and manageable set.
-#define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#include <windows.h>
+#include "llwin32headerslean.h"
 
 #include "llwindow.h"
 #include "llwindowcallbacks.h"
@@ -192,8 +189,9 @@ protected:
 	F32			mCurrentGamma;
 	U32			mFSAASamples;
 	S32			mVsyncMode;
-	WORD		mPrevGammaRamp[256*3];
-	WORD		mCurrentGammaRamp[256*3];
+	WORD		mPrevGammaRamp[3][256];
+	WORD		mCurrentGammaRamp[3][256];
+	BOOL		mCustomGammaSet;
 
 	LPWSTR		mIconResource;
 	BOOL		mMousePositionModified;

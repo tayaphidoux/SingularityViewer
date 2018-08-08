@@ -15,7 +15,7 @@
 
 #ifndef NACLANTISPAM_H
 #define NACLANTISPAM_H
-#include <boost/tr1/unordered_map.hpp>
+#include <boost/unordered/unordered_map.hpp>
 #include "stdtypes.h"
 #include "lluuid.h"
 class NACLAntiSpamQueueEntry
@@ -51,8 +51,8 @@ protected:
 	void blockEntry(LLUUID& source);
 	int checkEntry(LLUUID& source, U32 multiplier);
 private:
-	std::tr1::unordered_map<std::string,NACLAntiSpamQueueEntry*> entries;
-	std::tr1::unordered_map<std::string,NACLAntiSpamQueueEntry*>::iterator it;
+	boost::unordered_map<std::string,NACLAntiSpamQueueEntry*> entries;
+	boost::unordered_map<std::string,NACLAntiSpamQueueEntry*>::iterator it;
 	U32 queueAmount;
 	U32 queueTime;
 };
@@ -92,8 +92,8 @@ public:
 private:
 	static const char* getQueueName(U32 queue_id);
 	static NACLAntiSpamQueue* queues[QUEUE_MAX];
-	static std::tr1::unordered_map<std::string,NACLAntiSpamQueueEntry*> globalEntries;
-	static std::tr1::unordered_map<std::string,NACLAntiSpamQueueEntry*>::iterator it2;
+	static boost::unordered_map<std::string,NACLAntiSpamQueueEntry*> globalEntries;
+	static boost::unordered_map<std::string,NACLAntiSpamQueueEntry*>::iterator it2;
 	static U32 globalTime;
 	static U32 globalAmount;
 	static bool bGlobalQueue;
