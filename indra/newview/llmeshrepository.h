@@ -187,33 +187,42 @@ public:
 	
 	std::map<LLUUID, U32> mMeshHeaderSize;
 
-	class HeaderRequest
+	struct MeshRequest
+	{
+		LLTimer mTimer;
+		LLVolumeParams mMeshParams;
+		MeshRequest(const LLVolumeParams&  mesh_params) : mMeshParams(mesh_params)
+		{
+			mTimer.start();
+		}
+		virtual ~MeshRequest() {}
+		virtual void preFetch() {}
+		virtual bool fetch(U32& count) = 0;
+	};
+	class HeaderRequest : public MeshRequest
 	{ 
 	public:
-		const LLVolumeParams mMeshParams;
-
 		HeaderRequest(const LLVolumeParams&  mesh_params)
-			: mMeshParams(mesh_params)
-		{
-		}
-
+			: MeshRequest(mesh_params)
+		{}
+		bool fetch(U32& count);
 		bool operator<(const HeaderRequest& rhs) const
 		{
 			return mMeshParams < rhs.mMeshParams;
 		}
 	};
 
-	class LODRequest
+	class LODRequest : public MeshRequest
 	{
 	public:
-		LLVolumeParams  mMeshParams;
 		S32 mLOD;
 		F32 mScore;
 
 		LODRequest(const LLVolumeParams&  mesh_params, S32 lod)
-			: mMeshParams(mesh_params), mLOD(lod), mScore(0.f)
-		{
-		}
+			: MeshRequest(mesh_params), mLOD(lod), mScore(0.f)
+		{}
+		void preFetch();
+		bool fetch(U32& count);
 	};
 
 	struct CompareScoreGreater
@@ -265,10 +274,10 @@ public:
 	std::queue<LLModel::Decomposition*> mDecompositionQ;
 
 	//queue of requested headers
-	std::queue<HeaderRequest> mHeaderReqQ;
+	std::queue<std::pair<std::shared_ptr<MeshRequest>, F32> > mHeaderReqQ;
 
 	//queue of requested LODs
-	std::queue<LODRequest> mLODReqQ;
+	std::queue<std::pair<std::shared_ptr<MeshRequest>, F32> > mLODReqQ;
 
 	//queue of unavailable LODs (either asset doesn't exist or asset doesn't have desired LOD)
 	std::queue<LODRequest> mUnavailableQ;
@@ -285,6 +294,20 @@ public:
 	LLMeshRepoThread();
 	~LLMeshRepoThread();
 
+	void runQuery(std::queue<std::pair<std::shared_ptr<MeshRequest>, F32> >& query, U32& count, S32& active_requests);
+	void runSet(std::set<LLUUID>& set, std::function<bool (const LLUUID& mesh_id)> fn);
+	void pushHeaderRequest(const LLVolumeParams& mesh_params, F32 delay = 0)
+	{
+		std::shared_ptr<LLMeshRepoThread::MeshRequest> req;
+		req.reset(new LLMeshRepoThread::HeaderRequest(mesh_params));
+		mHeaderReqQ.push(std::make_pair(req, delay));
+	}
+	void pushLODRequest(const LLVolumeParams& mesh_params, S32 lod, F32 delay = 0)
+	{
+		std::shared_ptr<LLMeshRepoThread::MeshRequest> req;
+		req.reset(new LLMeshRepoThread::LODRequest(mesh_params, lod));
+		mLODReqQ.push(std::make_pair(req, delay));
+	}
 	virtual void run();
 
 	void lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
