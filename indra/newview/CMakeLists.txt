@@ -1335,6 +1335,7 @@ if (WINDOWS)
         Vfw32
         Wbemuuid
         winspool
+        Normaliz
         )
 endif (WINDOWS)
 
