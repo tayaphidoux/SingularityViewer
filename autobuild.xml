@@ -462,11 +462,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7b56b59c56389a8943a04b24bb22ada4</string>
+              <string>c797cd1538ab1750adbc28b334a50005</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc142/curl-7.57.0-windows64-201712260745.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc1414/curl-7.61.0-windows64-201808061947.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
