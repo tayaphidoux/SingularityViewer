@@ -695,7 +695,7 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(const LLInventoryIte
 			return true;
 			break;
 	}
-	return false;
+//	return false;
 }
 
 bool LLIsType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)

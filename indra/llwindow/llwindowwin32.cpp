@@ -3057,7 +3057,7 @@ BOOL LLWindowWin32::setGamma(const F32 gamma)
 
 		mCurrentGammaRamp[0][i] =
 			mCurrentGammaRamp[1][i] =
-			mCurrentGammaRamp[2][i] = (WORD) value;
+				mCurrentGammaRamp[2][i] = (WORD) value;
 	};
 
 	return SetDeviceGammaRamp ( mhDC, mCurrentGammaRamp );

@@ -146,7 +146,7 @@ void LLSkinningUtil::checkSkinWeights(const LLVector4a* weights, U32 num_vertice
 	const S32 max_joints = skin->mJointNames.size();
     for (U32 j=0; j<num_vertices; j++)
     {
-        F32 *w = weights[j].getF32ptr();
+        const F32 *w = weights[j].getF32ptr();
             
         F32 wsum = 0.0;
         for (U32 k=0; k<4; ++k)
