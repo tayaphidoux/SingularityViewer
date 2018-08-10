@@ -1985,7 +1985,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		// Qt/WebKit loads from your system location.
 		// Note: This needs the new CA.pem file with the Equifax Secure Certificate Authority 
 		// cert at the bottom: (MIIDIDCCAomgAwIBAgIENd70zzANBg)
-		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "CA.pem" );
+		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "ca-bundle.crt" );
 		media_source->addCertificateFilePath( ca_path );
 
 		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
