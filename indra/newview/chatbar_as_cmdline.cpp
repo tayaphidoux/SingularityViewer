@@ -200,16 +200,15 @@ void invrepair()
 
 void resync_anims()
 {
-	for (S32 i = 0; i < gObjectList.getNumObjects(); ++i)
+	for (auto* character : LLCharacter::sInstances)
 	{
-		LLViewerObject* object = gObjectList.getObject(i);
-		if (object && object->isAvatar())
+		LLVOAvatar& avatar = *static_cast<LLVOAvatar*>(character);
+                if (!avatar.isDead())
 		{
-			LLVOAvatar& avatarp = *(LLVOAvatar*)object;
-			for (const auto& playpair : avatarp.mPlayingAnimations)
+			for (const auto& playpair : avatar.mPlayingAnimations)
 			{
-				avatarp.stopMotion(playpair.first, TRUE);
-				avatarp.startMotion(playpair.first);
+				avatar.stopMotion(playpair.first, TRUE);
+				avatar.startMotion(playpair.first);
 			}
 		}
 	}
@@ -587,18 +586,19 @@ LLUUID cmdline_partial_name2key(std::string partial_name)
 	std::string av_name;
 	LLStringUtil::toLower(partial_name);
 	LLWorld::getInstance()->getAvatars(&avatars);
-	for(std::vector<LLUUID>::const_iterator i = avatars.begin(); i != avatars.end(); ++i)
+	auto* instance(LLFloaterAvatarList::instanceExists() ? LLFloaterAvatarList::instance().getAvatarEntry(*i) : nullptr);
+	for(const auto& id : avatars)
 	{
-		if (LLAvatarListEntry* entry = LLFloaterAvatarList::instanceExists() ? LLFloaterAvatarList::instance().getAvatarEntry(*i) : NULL)
+		if (LLAvatarListEntry* entry = radar ? radar->getAvatarEntry(id) : nullptr)
 			av_name = entry->getName();
-		else if (gCacheName->getFullName(*i, av_name));
-		else if (LLVOAvatar* avatarp = gObjectList.findAvatar(*i))
+		else if (gCacheName->getFullName(id, av_name));
+		else if (LLVOAvatar* avatarp = gObjectList.findAvatar(id))
 			av_name = avatarp->getFullname();
 		else
 			continue;
 		LLStringUtil::toLower(av_name);
 		if (av_name.find(partial_name) != std::string::npos)
-			return *i;
+			return id;
 	}
 	return LLUUID::null;
 }
