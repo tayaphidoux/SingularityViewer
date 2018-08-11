@@ -651,7 +651,7 @@ void LLMeshRepoThread::runSet(std::set<LLUUID>& set, std::function<bool(const LL
 			incomplete.insert(mesh_id);
 		}
 	}
-	mDecompositionRequests = incomplete;
+	set = incomplete;
 }
 
 void LLMeshRepoThread::run()
