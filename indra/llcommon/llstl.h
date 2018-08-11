@@ -265,6 +265,24 @@ inline typename T::mapped_type get_ptr_in_map(const T& inmap, typename T::key_ty
 	return get_if_there(inmap,key,NULL);
 };
 
+template <typename T, typename P>
+inline typename T::iterator& get_in_vec(T& invec, P pred)
+{
+	return std::find_if(invec.begin(), invec.end(), pred);
+}
+
+template <typename T, typename K>
+inline typename T::value_type::second_type& get_val_in_pair_vec(T& invec, K key)
+{
+	auto it = get_in_vec(invec, [&key](T::value_type& e) { return e.first == key; });
+	if (it == invec.end())
+	{
+		invec.emplace_back(key, T::value_type::second_type());
+		return invec.back().second;
+	}
+	return it->second;
+}
+
 // Useful for replacing the removeObj() functionality of LLDynamicArray
 // Example:
 //  for (std::vector<T>::iterator iter = mList.begin(); iter != mList.end(); )

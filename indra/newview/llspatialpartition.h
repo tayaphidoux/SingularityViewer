@@ -241,8 +241,8 @@ public:
 	typedef std::vector<LLPointer<LLDrawInfo> > drawmap_elem_t; 
 	typedef std::map<U32, drawmap_elem_t > draw_map_t;	
 	typedef std::vector<LLPointer<LLVertexBuffer> > buffer_list_t;
-	typedef std::map<LLFace*, buffer_list_t> buffer_texture_map_t;
-	typedef std::map<U32, buffer_texture_map_t> buffer_map_t;
+	typedef std::vector<std::pair<LLFace*, buffer_list_t> > buffer_texture_vec_t;
+	typedef std::vector<std::pair<U32, buffer_texture_vec_t> > buffer_vec_t;
 
 
 
@@ -337,7 +337,7 @@ protected:
 
 public:
 	bridge_list_t mBridgeList;
-	buffer_map_t mBufferMap; //used by volume buffers to store unique buffers per texture
+	buffer_vec_t mBufferVec; //used by volume buffers to store unique buffers per texture
 
 	U32 mGeometryBytes; //used by volumes to track how many bytes of geometry data are in this node
 	F32 mSurfaceArea; //used by volumes to track estimated surface area of geometry in this node

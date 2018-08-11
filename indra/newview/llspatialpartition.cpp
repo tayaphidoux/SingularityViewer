@@ -352,7 +352,7 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 	else
 	{
 		group->mVertexBuffer = NULL;
-		group->mBufferMap.clear();
+		group->mBufferVec.clear();
 	}
 
 	group->mLastUpdateTime = gFrameTimeSeconds;
@@ -752,7 +752,7 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 
 	clearDrawMap();
 	mVertexBuffer = NULL;
-	mBufferMap.clear();
+	mBufferVec.clear();
 	sZombieGroups++;
 	mOctreeNode = NULL;
 }
@@ -784,7 +784,7 @@ void LLSpatialGroup::destroyGL(bool keep_occlusion)
 
 	mLastUpdateTime = gFrameTimeSeconds;
 	mVertexBuffer = NULL;
-	mBufferMap.clear();
+	mBufferVec.clear();
 
 	clearDrawMap();
 
@@ -1483,9 +1483,9 @@ void pushBufferVerts(LLSpatialGroup* group, U32 mask, bool push_alpha = true)
 				pushBufferVerts(group->mVertexBuffer, mask);
 			}
 
-			for (LLSpatialGroup::buffer_map_t::iterator i = group->mBufferMap.begin(); i != group->mBufferMap.end(); ++i)
+			for (LLSpatialGroup::buffer_vec_t::iterator i = group->mBufferVec.begin(); i != group->mBufferVec.end(); ++i)
 			{
-				for (LLSpatialGroup::buffer_texture_map_t::iterator j = i->second.begin(); j != i->second.end(); ++j)
+				for (LLSpatialGroup::buffer_texture_vec_t::iterator j = i->second.begin(); j != i->second.end(); ++j)
 				{
 					for (LLSpatialGroup::buffer_list_t::iterator k = j->second.begin(); k != j->second.end(); ++k)
 					{

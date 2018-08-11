@@ -5722,7 +5722,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 	LLFace** face_iter = faces;
 	LLFace** end_faces = faces+face_count;
 	
-	LLSpatialGroup::buffer_map_t buffer_map;
+	LLSpatialGroup::buffer_vec_t buffer_vec;
 
 	S32 texture_index_channels = llmax(LLGLSLShader::sIndexedTextureChannels-1,1); //always reserve one for shiny for now just for simplicity
 
@@ -6016,8 +6016,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 
 		group->mGeometryBytes += buffer->getSize() + buffer->getIndicesSize();
 
-
-		buffer_map[mask][*face_iter].push_back(buffer);
+		get_val_in_pair_vec(get_val_in_pair_vec(buffer_vec, mask),*face_iter).push_back(buffer);
 
 		//add face geometry
 
@@ -6511,10 +6510,12 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 		buffer->flush();
 	}
 
-	group->mBufferMap[mask].clear();
-	for (LLSpatialGroup::buffer_texture_map_t::iterator i = buffer_map[mask].begin(); i != buffer_map[mask].end(); ++i)
+	auto buffVec = get_val_in_pair_vec(group->mBufferVec, mask);
+	buffVec.clear();
+	auto map = get_val_in_pair_vec(buffer_vec, mask);
+	for (LLSpatialGroup::buffer_texture_vec_t::iterator i = map.begin(); i != map.end(); ++i)
 	{
-		group->mBufferMap[mask][i->first] = i->second;
+		get_val_in_pair_vec(buffVec, i->first) = i->second;
 	}
 }
 

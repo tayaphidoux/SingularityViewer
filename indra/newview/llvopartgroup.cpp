@@ -792,7 +792,7 @@ void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
 	else
 	{
 		group->mVertexBuffer = NULL;
-		group->mBufferMap.clear();
+		group->mBufferVec.clear();
 	}
 
 	group->mLastUpdateTime = gFrameTimeSeconds;
