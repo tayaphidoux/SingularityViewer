@@ -586,10 +586,10 @@ LLUUID cmdline_partial_name2key(std::string partial_name)
 	std::string av_name;
 	LLStringUtil::toLower(partial_name);
 	LLWorld::getInstance()->getAvatars(&avatars);
-	auto* instance(LLFloaterAvatarList::instanceExists() ? LLFloaterAvatarList::instance().getAvatarEntry(*i) : nullptr);
+	auto instance = (LLFloaterAvatarList::instanceExists() ? &LLFloaterAvatarList::instance() : nullptr);
 	for(const auto& id : avatars)
 	{
-		if (LLAvatarListEntry* entry = radar ? radar->getAvatarEntry(id) : nullptr)
+		if (LLAvatarListEntry* entry = instance ? instance->getAvatarEntry(id) : nullptr)
 			av_name = entry->getName();
 		else if (gCacheName->getFullName(id, av_name));
 		else if (LLVOAvatar* avatarp = gObjectList.findAvatar(id))
