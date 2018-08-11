@@ -266,7 +266,7 @@ inline typename T::mapped_type get_ptr_in_map(const T& inmap, typename T::key_ty
 };
 
 template <typename T, typename P>
-inline typename T::iterator& get_in_vec(T& invec, P pred)
+inline typename T::iterator get_in_vec(T& invec, P pred)
 {
 	return std::find_if(invec.begin(), invec.end(), pred);
 }

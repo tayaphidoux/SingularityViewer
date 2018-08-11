@@ -2413,6 +2413,17 @@ void LLMeshRepository::shutdown()
 	LLConvexDecomposition::quitSystem();
 }
 
+void LLMeshRepository::unregisterMesh(LLVOVolume* vobj)
+{
+	for (auto& lod : mLoadingMeshes)
+	{
+		for (auto& param : lod)
+		{
+			vector_replace_with_last(param.second, vobj);
+		}
+	}
+}
+
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail, S32 last_lod)
 {
 	if (detail < 0 || detail > 4)
@@ -2426,12 +2437,15 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 		mesh_load_map::iterator iter = mLoadingMeshes[detail].find(mesh_params);
 		if (iter != mLoadingMeshes[detail].end())
 		{	//request pending for this mesh, append volume id to list
-			iter->second.insert(vobj->getID());
+			auto it = std::find(iter->second.begin(), iter->second.end(), vobj);
+			if (it == iter->second.end()) {
+				iter->second.push_back(vobj);
+			}
 		}
 		else
 		{
 			//first request for this mesh
-			mLoadingMeshes[detail][mesh_params].insert(vobj->getID());
+			mLoadingMeshes[detail][mesh_params].push_back(vobj);
 			mPendingRequests.push_back(LLMeshRepoThread::LODRequest(mesh_params, detail));
 			LLMeshRepository::sLODPending++;
 		}
@@ -2598,29 +2612,23 @@ void LLMeshRepository::notifyLoadedMeshes()
 			//calculate "score" for pending requests
 
 			//create score map
-			std::map<LLUUID, F32> score_map;
+			boost::unordered_map<LLUUID, F32> score_map;
 
-			for (U32 i = 0; i < 4; ++i)
+			for (auto& lod : mLoadingMeshes)
 			{
-				for (mesh_load_map::iterator iter = mLoadingMeshes[i].begin();  iter != mLoadingMeshes[i].end(); ++iter)
+				for (auto& param : lod)
 				{
 					F32 max_score = 0.f;
-					for (std::set<LLUUID>::iterator obj_iter = iter->second.begin(); obj_iter != iter->second.end(); ++obj_iter)
+					for (auto& vobj : param.second)
 					{
-						LLViewerObject* object = gObjectList.findObject(*obj_iter);
-
-						if (object)
+						if (LLDrawable* drawable = vobj->mDrawable)
 						{
-							LLDrawable* drawable = object->mDrawable;
-							if (drawable)
-							{
-								F32 cur_score = drawable->getRadius()/llmax(drawable->mDistanceWRTCamera, 1.f);
-								max_score = llmax(max_score, cur_score);
-							}
+							F32 cur_score = drawable->getRadius() / llmax(drawable->mDistanceWRTCamera, 1.f);
+							max_score = llmax(max_score, cur_score);
 						}
 					}
 				
-					score_map[iter->first.getSculptID()] = max_score;
+					score_map[param.first.getSculptID()] = max_score;
 				}
 			}
 
@@ -2738,13 +2746,9 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 		}
 
 		//notify waiting LLVOVolume instances that their requested mesh is available
-		for (std::set<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
+		for (auto& vobj : obj_iter->second)
 		{
-			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*vobj_iter);
-			if (vobj)
-			{
-				vobj->notifyMeshLoaded();
-			}
+			vobj->notifyMeshLoaded();
 		}
 		
 		mLoadingMeshes[detail].erase(mesh_params);
@@ -2760,19 +2764,14 @@ void LLMeshRepository::notifyMeshUnavailable(const LLVolumeParams& mesh_params, 
 
 	if (obj_iter != mLoadingMeshes[lod].end())
 	{
-		for (std::set<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
+		for (auto& vobj : obj_iter->second)
 		{
-			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*vobj_iter);
-			if (vobj)
-			{
-				LLVolume* obj_volume = vobj->getVolume();
-
-				if (obj_volume && 
-					obj_volume->getDetail() == detail &&
-					obj_volume->getParams() == mesh_params)
-				{	//should force volume to find most appropriate LOD
+			LLVolume* obj_volume = vobj->getVolume();
+			if (obj_volume && 
+				obj_volume->getDetail() == detail &&
+				obj_volume->getParams() == mesh_params)
+			{	//should force volume to find most appropriate LOD
 					vobj->setVolume(obj_volume->getParams(), lod);
-				}
 			}
 		}
 		

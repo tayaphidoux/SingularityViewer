@@ -473,6 +473,7 @@ public:
 	void init();
 	void shutdown();
 
+	void unregisterMesh(LLVOVolume* volume);
 	//mesh management functions
 	S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 detail = 0, S32 last_lod = -1);
 	
@@ -504,7 +505,7 @@ public:
 
 	S32 getMeshSize(const LLUUID& mesh_id, S32 lod);
 
-	typedef std::map<LLVolumeParams, std::set<LLUUID> > mesh_load_map;
+	typedef std::map<LLVolumeParams, std::vector<LLVOVolume*> > mesh_load_map;
 	mesh_load_map mLoadingMeshes[4];
 
 	typedef boost::unordered_map<LLUUID, LLMeshSkinInfo> skin_map;
@@ -564,7 +565,6 @@ public:
 	void updateInventory(inventory_data data);
 
 	std::string mGetMeshCapability;
-
 };
 
 extern LLMeshRepository gMeshRepo;
