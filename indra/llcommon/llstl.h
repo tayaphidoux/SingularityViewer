@@ -274,10 +274,10 @@ inline typename T::iterator get_in_vec(T& invec, P pred)
 template <typename T, typename K>
 inline typename T::value_type::second_type& get_val_in_pair_vec(T& invec, K key)
 {
-	auto it = get_in_vec(invec, [&key](T::value_type& e) { return e.first == key; });
+	auto it = get_in_vec(invec, [&key](typename T::value_type& e) { return e.first == key; });
 	if (it == invec.end())
 	{
-		invec.emplace_back(key, T::value_type::second_type());
+		invec.emplace_back(key, typename T::value_type::second_type());
 		return invec.back().second;
 	}
 	return it->second;

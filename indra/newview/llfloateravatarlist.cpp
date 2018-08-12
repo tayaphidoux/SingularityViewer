@@ -315,7 +315,6 @@ namespace
 	{
 		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 		{
-			const LLUUID get_focused_list_id_selected();
 			LLFloaterAvatarList::instance().setFocusAvatar(get_focused_list_id_selected());
 			return true;
 		}
