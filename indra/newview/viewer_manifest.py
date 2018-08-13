@@ -83,7 +83,7 @@ class ViewerManifest(LLManifest):
             if self.prefix(src="app_settings"):
                 self.exclude("logcontrol.xml")
                 self.exclude("logcontrol-dev.xml")
-                self.path("*.pem")
+                self.path("*.crt")
                 self.path("*.ini")
                 self.path("*.xml")
                 self.path("*.db2")
