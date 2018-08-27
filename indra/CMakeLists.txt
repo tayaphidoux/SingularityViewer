@@ -58,5 +58,8 @@ add_subdirectory(${LIBS_OPEN_PREFIX}plugins)
 
 add_subdirectory(${VIEWER_PREFIX}newview/statemachine)
 add_subdirectory(${VIEWER_PREFIX}newview)
-add_dependencies(viewer singularity-bin)
+add_dependencies(viewer ${VIEWER_BRANDING_ID}-bin)
 
+if (WINDOWS)
+  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${VIEWER_BRANDING_ID}-bin)
+endif (WINDOWS)
