@@ -873,6 +873,18 @@
 			<key>Value</key>
 			<boolean>1</boolean>
 		</map>
+		<key>SinguMotionResetsCameraReset</key>
+		<map>
+			<key>Comment</key>
+			<string>Disable for the behavior Liru intended SinguMotionResetsCamera to have, wherein it doesn't reset every time you press escape, teleport, or whatever else! So you can walk around and your camera won't reset at all like it was  meant to be.
+RIP Latif Khalifa.</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>Boolean</string>
+			<key>Value</key>
+			<boolean>1</boolean>
+		</map>
 		<key>SinguLastKnownReleaseBuild</key>
 		<map>
 			<key>Comment</key>
