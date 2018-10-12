@@ -457,8 +457,6 @@ public:
 	BOOL isSendFull(const char* blockname = NULL);
 	BOOL isSendFullFast(const char* blockname = NULL);
 
-	BOOL removeLastBlock();
-
 	//void	buildMessage();
 
 	S32     zeroCode(U8 **data, S32 *data_size);

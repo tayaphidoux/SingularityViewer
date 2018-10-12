@@ -90,7 +90,7 @@ LLFloaterMessageLogItem::LLFloaterMessageLogItem(LLMessageLogEntry entry)
 					for (LLMessageTemplate::message_block_map_t::iterator blocks_iter = temp->mMemberBlocks.begin();
 						 blocks_iter != blocks_end; ++blocks_iter)
 					{
-						LLMessageBlock* block = (*blocks_iter);
+						LLMessageBlock* block = blocks_iter->second;
 						const char* block_name = block->mName;
 						S32 num_blocks = sTemplateMessageReader->getNumberOfBlocks(block_name);
 						if(!num_blocks)
@@ -104,7 +104,7 @@ LLFloaterMessageLogItem::LLFloaterMessageLogItem(LLMessageLogEntry entry)
 							for (LLMessageBlock::message_variable_map_t::iterator var_iter = block->mMemberVariables.begin();
 								 var_iter != var_end; ++var_iter)
 							{
-								LLMessageVariable* variable = (*var_iter);
+								LLMessageVariable* variable = var_iter->second;
 								const char* var_name = variable->getName();
 								BOOL returned_hex;
 								std::string value = getString(sTemplateMessageReader, block_name, i, var_name, variable->getType(), returned_hex, TRUE);
@@ -183,7 +183,7 @@ std::string LLFloaterMessageLogItem::getFull(BOOL show_header)
 					for (LLMessageTemplate::message_block_map_t::iterator blocks_iter = temp->mMemberBlocks.begin();
 						 blocks_iter != blocks_end; ++blocks_iter)
 					{
-						LLMessageBlock* block = (*blocks_iter);
+						LLMessageBlock* block = blocks_iter->second;
 						const char* block_name = block->mName;
 						S32 num_blocks = sTemplateMessageReader->getNumberOfBlocks(block_name);
 						for(S32 i = 0; i < num_blocks; i++)
@@ -193,7 +193,7 @@ std::string LLFloaterMessageLogItem::getFull(BOOL show_header)
 							for (LLMessageBlock::message_variable_map_t::iterator var_iter = block->mMemberVariables.begin();
 								 var_iter != var_end; ++var_iter)
 							{
-								LLMessageVariable* variable = (*var_iter);
+								LLMessageVariable* variable = var_iter->second;
 								const char* var_name = variable->getName();
 								BOOL returned_hex;
 								std::string value = getString(sTemplateMessageReader, block_name, i, var_name, variable->getType(), returned_hex);

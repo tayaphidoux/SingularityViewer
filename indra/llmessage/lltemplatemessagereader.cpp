@@ -554,7 +554,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender,
 		iter != mCurrentRMessageTemplate->mMemberBlocks.end();
 		++iter)
 	{
-		LLMessageBlock* mbci = *iter;
+		LLMessageBlock* mbci = iter->second;
 		U8	repeat_number;
 		S32	i;
 
@@ -621,7 +621,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender,
 					 mbci->mMemberVariables.begin();
 				 iter != mbci->mMemberVariables.end(); iter++)
 			{
-				const LLMessageVariable& mvci = **iter;
+				const LLMessageVariable& mvci = *iter->second;
 
 				// ok, build out the variables
 				// add variable block
