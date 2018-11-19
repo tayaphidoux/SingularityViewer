@@ -693,7 +693,11 @@ void LLMeshRepoThread::run()
 
 		}
 
-		mSignal->wait();
+		mSignal->unlock();
+		ms_sleep(1000 / 60);
+		mSignal->lock();
+
+		//mSignal->wait();
 	}
 
 	if (mSignal->isLocked())
