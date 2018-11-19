@@ -552,13 +552,12 @@ void LLSnapshotLivePreview::drawPreviewRect(S32 offset_x, S32 offset_y)
 				   alpha_color, TRUE);
 	}
 	// Draw border around captured part.
-	F32 line_width; 
-	glGetFloatv(GL_LINE_WIDTH, &line_width);
-	glLineWidth(2.0f * line_width);
+	F32 line_width = gGL.getLineWidth();
+	gGL.setLineWidth(2.0f * line_width);
 	gl_rect_2d( mThumbnailPreviewRect.mLeft  + offset_x, mThumbnailPreviewRect.mTop    + offset_y,
 				mThumbnailPreviewRect.mRight + offset_x, mThumbnailPreviewRect.mBottom + offset_y,
 				LLColor4::black, FALSE);
-	glLineWidth(line_width);
+	gGL.setLineWidth(line_width);
 }
 
 //called when the frame is frozen.

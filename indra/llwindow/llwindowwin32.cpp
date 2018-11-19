@@ -1617,6 +1617,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, co
 	{
 		show();
 		glClearColor(0.0f, 0.0f, 0.0f, 0.f);
+		gGL.syncContextState();
 		glClear(GL_COLOR_BUFFER_BIT);
 		swapBuffers();
 	}

@@ -1352,11 +1352,7 @@ void LLVOAvatar::deleteLayerSetCaches(bool clearAll)
 				mBakedTextureDatas[i].mTexLayerSet->deleteCaches();
 			}
 		}
-		if (mBakedTextureDatas[i].mMaskTexName)
-		{
-			LLImageGL::deleteTextures(1, (GLuint*)&(mBakedTextureDatas[i].mMaskTexName));
-			mBakedTextureDatas[i].mMaskTexName = 0 ;
-		}
+		mBakedTextureDatas[i].mMaskTexName.reset();
 	}
 }
 
@@ -1914,7 +1910,7 @@ void LLVOAvatar::renderCollisionVolumes()
 
 void LLVOAvatar::renderBones()
 {
-    LLGLEnable blend(GL_BLEND);
+    LLGLEnable<GL_BLEND> blend;
 
 	avatar_joint_list_t::iterator iter = mSkeleton.begin();
 	avatar_joint_list_t::iterator end  = mSkeleton.end();
@@ -5090,7 +5086,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	{
 		bool is_muted = LLPipeline::sImpostorRender && isVisuallyMuted();	//Disable masking and also disable alpha in LLViewerJoint::render
 		const bool should_alpha_mask = !is_muted && shouldAlphaMask();
-		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
+		LLGLState<GL_ALPHA_TEST> test(should_alpha_mask);
 		
 		if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
 		{
@@ -5140,8 +5136,8 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 
 		if (!LLDrawPoolAvatar::sSkipTransparent || LLPipeline::sImpostorRender)
 		{
-			LLGLState blend(GL_BLEND, !mIsDummy);
-			LLGLState test(GL_ALPHA_TEST, !mIsDummy);
+			LLGLState<GL_BLEND> blend(!mIsDummy);
+			LLGLState<GL_ALPHA_TEST> test(!mIsDummy);
 			num_indices += renderTransparent(first_pass);
 		}
 	}
@@ -5226,7 +5222,7 @@ U32 LLVOAvatar::renderRigid()
 	}
 
 	const bool should_alpha_mask = shouldAlphaMask();
-	LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
+	LLGLState<GL_ALPHA_TEST> test(should_alpha_mask);
 
 	if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
 	{
@@ -5293,7 +5289,7 @@ U32 LLVOAvatar::renderRigid()
 
 	LLGLDepthTest test(GL_TRUE, GL_FALSE);
 	//render foot shadows
-	LLGLEnable blend(GL_BLEND);
+	LLGLEnable<GL_BLEND> blend;
 	gGL.getTexUnit(0)->bind(mShadowImagep.get(), TRUE);
 	gGL.diffuseColor4fv(mShadow0Facep->getRenderColor().mV);
 	mShadow0Facep->renderIndexed(foot_mask);
@@ -5319,7 +5315,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 	left *= mImpostorDim.mV[0];
 	up *= mImpostorDim.mV[1];
 
-	LLGLEnable test(GL_ALPHA_TEST);
+	LLGLEnable<GL_ALPHA_TEST> test;
 	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
 
 	gGL.color4ubv(color.mV);
@@ -9174,11 +9170,10 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 				return;
 			}
 
-			U32 gl_name;
-			LLImageGL::generateTextures(1, &gl_name );
+			auto gl_name = LLImageGL::createTextureName();
 			stop_glerror();
 
-			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name);
+			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name->getTexName());
 			stop_glerror();
 
 			LLImageGL::setManualImage(
@@ -9210,10 +9205,6 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 						const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
 						self->applyMorphMask(aux_src->getData(), aux_src->getWidth(), aux_src->getHeight(), 1, baked_index);
 						maskData->mLastDiscardLevel = discard_level;
-						if (self->mBakedTextureDatas[baked_index].mMaskTexName)
-						{
-							LLImageGL::deleteTextures(1, &(self->mBakedTextureDatas[baked_index].mMaskTexName));
-						}
 						self->mBakedTextureDatas[baked_index].mMaskTexName = gl_name;
 						found_texture_id = true;
 						break;

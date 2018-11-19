@@ -268,9 +268,7 @@ void LLWLParamManager::addAllSkies(const LLWLParamKey::EScope scope, const LLSD&
 {
 	for(LLSD::map_const_iterator iter = sky_presets.beginMap(); iter != sky_presets.endMap(); ++iter)
 	{
-		LLWLParamSet set;
-		set.setAll(iter->second);
-		mParamList[LLWLParamKey(iter->first, scope)] = set;
+		setParamSet(LLWLParamKey(iter->first, scope), iter->second);
 	}
 }
 
@@ -606,9 +604,9 @@ bool LLWLParamManager::hasParamSet(const LLWLParamKey& key)
 	return getParamSet(key, dummy);
 }
 
-bool LLWLParamManager::setParamSet(const std::string& name, LLWLParamSet& param)
+bool LLWLParamManager::setParamSet(const std::string& name, LLWLParamSet& param, LLEnvKey::EScope scope)
 {
-	const LLWLParamKey key(name, LLEnvKey::SCOPE_LOCAL);
+	const LLWLParamKey key(name, scope);
 	return setParamSet(key, param);
 }
 
@@ -621,9 +619,9 @@ bool LLWLParamManager::setParamSet(const LLWLParamKey& key, LLWLParamSet& param)
 	return true;
 }
 
-bool LLWLParamManager::setParamSet(const std::string& name, const LLSD & param)
+bool LLWLParamManager::setParamSet(const std::string& name, const LLSD & param, LLEnvKey::EScope scope)
 {
-	const LLWLParamKey key(name, LLEnvKey::SCOPE_LOCAL);
+	const LLWLParamKey key(name, scope);
 	return setParamSet(key, param);
 }
 

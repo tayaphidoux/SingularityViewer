@@ -189,30 +189,33 @@ void LLDrawPoolTerrain::render(S32 pass)
 	}
 
 	LLGLSPipeline gls;
-	
-	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0)
 	{
-		gPipeline.enableLightsDynamic();
+		LLGLState<GL_LIGHTING> light_state;
 
-		renderFullShader();
-	}
-	else
-	{
-		gPipeline.enableLightsStatic();
+		if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0)
+		{
+			gPipeline.enableLightsDynamic(light_state);
 
-		if (sDetailMode == 0)
+			renderFullShader();
+		}
+		else
 		{
-			renderSimple();
-		} 
-		else if (gGLManager.mNumTextureUnits < 4)
-		{
-			renderFull2TU();
-			gGL.setSceneBlendType(LLRender::BT_ALPHA);
-		} 
-		else 
-		{
-			renderFull4TU();
-			gGL.setSceneBlendType(LLRender::BT_ALPHA);
+			gPipeline.enableLightsStatic(light_state);
+
+			if (sDetailMode == 0)
+			{
+				renderSimple();
+			}
+			else if (gGLManager.mNumTextureUnits < 4)
+			{
+				renderFull2TU();
+				gGL.setSceneBlendType(LLRender::BT_ALPHA);
+			}
+			else
+			{
+				renderFull4TU();
+				gGL.setSceneBlendType(LLRender::BT_ALPHA);
+			}
 		}
 	}
 
@@ -227,15 +230,14 @@ void LLDrawPoolTerrain::render(S32 pass)
 			sShader = &gHighlightProgram;
 			sShader->bind();
 			gGL.diffuseColor4f(1,1,1,1);
-			LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-1.0f, -1.0f);
+			LLGLEnable<GL_POLYGON_OFFSET_FILL> polyOffset;
+			gGL.setPolygonOffset(-1.0f, -1.0f);
 			renderOwnership();
 			sShader = old_shader;
 			sShader->bind();
 		}
 		else
 		{
-			gPipeline.disableLights();
 			renderOwnership();
 		}
 	}
@@ -491,7 +493,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glEnable(GL_TEXTURE_GEN_T);
 	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
@@ -609,7 +610,7 @@ void LLDrawPoolTerrain::renderFull4TU()
 
 	gGL.getTexUnit(0)->activate();
 	{
-		LLGLEnable blend(GL_BLEND);
+		LLGLEnable<GL_BLEND> blend;
 		drawLoop();
 	}
 
@@ -735,7 +736,7 @@ void LLDrawPoolTerrain::renderFull2TU()
 
 	gGL.getTexUnit(0)->activate();
 	{
-		LLGLEnable blend(GL_BLEND);
+		LLGLEnable<GL_BLEND> blend;
 		drawLoop();
 	}
 	//----------------------------------------------------------------------------
@@ -774,7 +775,7 @@ void LLDrawPoolTerrain::renderFull2TU()
 	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
 	{
-		LLGLEnable blend(GL_BLEND);
+		LLGLEnable<GL_BLEND> blend;
 		drawLoop();
 	}
 	
@@ -813,7 +814,7 @@ void LLDrawPoolTerrain::renderFull2TU()
 
 	gGL.getTexUnit(0)->activate();
 	{
-		LLGLEnable blend(GL_BLEND);
+		LLGLEnable<GL_BLEND> blend;
 		drawLoop();
 	}
 	

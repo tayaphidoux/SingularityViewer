@@ -115,8 +115,8 @@ void LLManipRotate::render()
 	LLGLSUIDefault gls_ui;
 	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
 	LLGLDepthTest gls_depth(GL_TRUE);
-	LLGLEnable gl_blend(GL_BLEND);
-	LLGLEnable gls_alpha_test(GL_ALPHA_TEST);
+	LLGLEnable<GL_BLEND> gl_blend;
+	LLGLEnable<GL_ALPHA_TEST> gls_alpha_test;
 	
 	// You can rotate if you can move
 	LLViewerObject* first_object = mObjectSelection->getFirstMoveableObject(TRUE);
@@ -160,7 +160,7 @@ void LLManipRotate::render()
 				gDebugProgram.bind();
 			}
 
-			LLGLEnable cull_face(GL_CULL_FACE);
+			LLGLEnable<GL_CULL_FACE> cull_face;
 			LLGLDepthTest gls_depth(GL_FALSE);
 			gGL.pushMatrix();
 			{
@@ -286,8 +286,8 @@ void LLManipRotate::render()
 				mManipulatorScales = lerp(mManipulatorScales, LLVector4(1.f, 1.f, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
 			}
 
-			LLGLEnable cull_face(GL_CULL_FACE);
-			LLGLEnable clip_plane0(GL_CLIP_PLANE0);
+			LLGLEnable<GL_CULL_FACE> cull_face;
+			LLGLEnable<GL_CLIP_PLANE0> clip_plane0;
 			LLGLDepthTest gls_depth(GL_FALSE);
 
 			// First pass: centers. Second pass: sides.
@@ -736,7 +736,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 
 void LLManipRotate::renderActiveRing( F32 radius, F32 width, const LLColor4& front_color, const LLColor4& back_color)
 {
-	LLGLEnable cull_face(GL_CULL_FACE);
+	LLGLEnable<GL_CULL_FACE> cull_face;
 	{
 		gl_ring(radius, width, back_color, back_color * 0.5f, CIRCLE_STEPS, FALSE);
 		gl_ring(radius, width, back_color, back_color * 0.5f, CIRCLE_STEPS, TRUE);

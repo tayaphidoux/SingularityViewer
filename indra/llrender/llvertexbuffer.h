@@ -56,14 +56,18 @@ class LLVBOPool
 public:
 	static U32 sBytesPooled;
 	static U32 sIndexBytesPooled;
-	
+	static std::vector<U32> sPendingDeletions;
+
+	// Periodically call from render loop. Batches VBO deletions together in a single call.
+	static void deleteReleasedBuffers();
+
 	LLVBOPool(U32 vboUsage, U32 vboType);
 		
 	const U32 mUsage;
 	const U32 mType;
 
 	//size MUST be a power of 2
-	volatile U8* allocate(U32& name, U32 size, bool for_seed = false);
+	volatile U8* allocate(U32& name, U32 size, U32 seed = 0);
 	
 	//size MUST be the size provided to allocate that returned the given name
 	void release(U32 name, volatile U8* buffer, U32 size);
@@ -100,10 +104,10 @@ public:
 	{
 	public:
 		S32 mType;
-		S32 mIndex;
-		S32 mCount;
+		U32 mOffset;
+		U32 mLength;
 		
-		MappedRegion(S32 type, S32 index, S32 count);
+		MappedRegion(S32 type, U32 offset, U32 length);
 	};
 
 	LLVertexBuffer(const LLVertexBuffer& rhs)
@@ -291,7 +295,9 @@ protected:
 	ptrdiff_t mAlignedOffset;
 	ptrdiff_t mAlignedIndexOffset;
 	S32		mSize;
+	S32		mResidentSize;
 	S32		mIndicesSize;
+	S32		mResidentIndicesSize;
 	U32		mTypeMask;
 
 	const S32		mUsage;			// GL usage

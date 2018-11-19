@@ -80,9 +80,7 @@ void LLCubeMap::initGL()
 		// Not initialized, do stuff.
 		if (mImages[0].isNull())
 		{
-			U32 texname = 0;
-			
-			LLImageGL::generateTextures(1, &texname);
+			auto texname = LLImageGL::createTextureName();
 
 			for (int i = 0; i < 6; i++)
 			{
@@ -91,7 +89,7 @@ void LLCubeMap::initGL()
 				mRawImages[i] = new LLImageRaw(64, 64, 4);
 				mImages[i]->createGLTexture(0, mRawImages[i], texname);
 				
-				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, texname); 
+				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, texname->getTexName());
 				mImages[i]->setAddressMode(LLTexUnit::TAM_CLAMP);
 				stop_glerror();
 			}
@@ -169,7 +167,7 @@ void LLCubeMap::init(const std::vector<LLPointer<LLImageRaw> >& rawimages)
 	}
 }
 
-GLuint LLCubeMap::getGLName()
+GLuint LLCubeMap::getTexName()
 {
 	return mImages[0]->getTexName();
 }
@@ -301,7 +299,7 @@ void LLCubeMap::restoreMatrix()
 
 void LLCubeMap::setReflection (void)
 {
-	gGL.getTexUnit(mTextureStage)->bindManual(LLTexUnit::TT_CUBE_MAP, getGLName());
+	gGL.getTexUnit(mTextureStage)->bindManual(LLTexUnit::TT_CUBE_MAP, getTexName());
 	mImages[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
 	mImages[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
 }

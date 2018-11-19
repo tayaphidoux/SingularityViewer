@@ -1922,13 +1922,13 @@ bool idle_startup()
 		{
 			LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;
 			// Initialize all of the viewer object classes for the first time (doing things like texture fetches.
-			LLGLState::checkStates();
-			LLGLState::checkTextureChannels();
+			LLGLStateValidator::checkStates();
+			LLGLStateValidator::checkTextureChannels();
 
 			gSky.init(initial_sun_direction);
 
-			LLGLState::checkStates();
-			LLGLState::checkTextureChannels();
+			LLGLStateValidator::checkStates();
+			LLGLStateValidator::checkTextureChannels();
 		}
 
 		display_startup();

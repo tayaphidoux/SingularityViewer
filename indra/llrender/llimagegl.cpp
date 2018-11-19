@@ -86,6 +86,9 @@ std::vector<S64Bytes> LLImageGL::sTextureCurMemByCategoryBound ;
 //End for texture auditing use only
 // ****************************************************************************************************
 
+//static std::vector<U32> sActiveTextureNames;
+//static std::vector<U32> sDeletedTextureNames;
+
 // **************************************************************************************
 //below are functions for debug use
 //do not delete them even though they are not currently being used.
@@ -118,9 +121,9 @@ void LLImageGL::checkTexSize(bool forced) const
 		GLint texname;
 		glGetIntegerv(GL_TEXTURE_BINDING_2D, &texname);
 		BOOL error = FALSE;
-		if (texname != mTexName)
+		if (texname != getTexName())
 		{
-			LL_INFOS() << "Bound: " << texname << " Should bind: " << mTexName << " Default: " << LLImageGL::sDefaultGLTexture->getTexName() << LL_ENDL;
+			LL_INFOS() << "Bound: " << texname << " Should bind: " << getTexName() << " Default: " << (LLImageGL::sDefaultGLTexture ? LLImageGL::sDefaultGLTexture->getTexName() : 0) << LL_ENDL;
 
 			error = TRUE;
 			if (gDebugSession)
@@ -219,7 +222,7 @@ void LLImageGL::setHighlightTexture(S32 category)
 			}
 		}
 	}
-	sHighlightTexturep->createGLTexture(0, image_raw, 0, TRUE, category);
+	sHighlightTexturep->createGLTexture(0, image_raw, LLImageGL::GLTextureName(), TRUE, category);
 	image_raw = NULL;
 }
 
@@ -328,47 +331,48 @@ S32 LLImageGL::updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 
 //static 
 void LLImageGL::destroyGL(BOOL save_state)
 {
+	LLTexUnit::sWhiteTexture = 0;
+	if (save_state)
+	{
+		U32 count = 0;
+		sAllowReadBackRaw = true;
+		for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
+			iter != sImageList.end(); iter++)
+		{
+			LLImageGL* glimage = *iter;
+			GLuint tex = glimage->getTexName();
+			if (tex)
+			{
+				if (glimage->isGLTextureCreated())
+				{
+					glimage->mSaveData = new LLImageRaw;
+					if (glimage->mComponents && glimage->readBackRaw(-1, glimage->mSaveData, false))//necessary, keep it.
+					{
+						++count;
+						glimage->mSaveDiscardLevel = glimage->mCurrentDiscardLevel;
+						glimage->destroyGLTexture();
+						continue;
+					}
+				}
+			}
+			glimage->mSaveData = nullptr;
+			glimage->forceToInvalidateGLTexture();
+			stop_glerror();
+		}
+		LL_INFOS() << "Storing " << count << " images..." << LL_ENDL;
+		sAllowReadBackRaw = false;
+	}
 	for (S32 stage = 0; stage < gGLManager.mNumTextureUnits; stage++)
 	{
 		gGL.getTexUnit(stage)->unbind(LLTexUnit::TT_TEXTURE);
 	}
-	
-	sAllowReadBackRaw = true ;
-	std::set<LLImageGL*> stored_images;
-	for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
-		 iter != sImageList.end(); iter++)
-	{
-		LLImageGL* glimage = *iter;
-		if (glimage->mTexName)
-		{
-			if (save_state && glimage->isGLTextureCreated() && glimage->mComponents)
-			{
-				glimage->mSaveData = new LLImageRaw;
-				if(!glimage->readBackRaw(glimage->mCurrentDiscardLevel, glimage->mSaveData, false)) //necessary, keep it.
-				{
-					delete glimage;
-				}
-				else
-				{
-					glimage->mSaveDiscardLevel = glimage->mCurrentDiscardLevel;
-					stored_images.insert(glimage);
-					glimage->destroyGLTexture();
-				}
-			}
-			
-			stop_glerror();
-		}
-	}
-	sImageList = stored_images;
-	LL_INFOS() << "Storing " << stored_images.size() << " images..." << LL_ENDL;
-	sAllowReadBackRaw = false ;
+	//clean_validate_buffers();
 }
 
 //static 
 void LLImageGL::restoreGL()
 {
-	
-	std::set<LLImageGL*> restored_images;
+	U32 count = 0;
 	for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
 		 iter != sImageList.end(); iter++)
 	{
@@ -377,22 +381,32 @@ void LLImageGL::restoreGL()
 		{
 			LL_ERRS() << "tex name is not 0." << LL_ENDL ;
 		}
-		if (glimage->mSaveData.notNull() && glimage->getComponents() &&
-			glimage->mSaveData->getComponents() &&
+		LLPointer<LLImageRaw> data = glimage->mSaveData;
+		glimage->mSaveData = nullptr;
+		if (data.notNull() && glimage->getComponents() &&
+			data->getComponents() &&
 			glimage->mSaveDiscardLevel >= 0 &&
-			glimage->createGLTexture(glimage->mSaveDiscardLevel, glimage->mSaveData, 0, TRUE, glimage->getCategory()))
+			glimage->createGLTexture(glimage->mSaveDiscardLevel, data, LLImageGL::GLTextureName(), TRUE, glimage->getCategory()))
 		{
 				stop_glerror();
-				restored_images.insert(glimage);
+				/*if (glimage->getHasGLTexture())
+				{
+					LL_INFOS() << "Restored " << glimage << " texid:" << glimage->getTexName() << LL_ENDL;
+				}
+				else
+				{
+					LL_INFOS() << "Restored " << glimage << " texid: (null)"  << LL_ENDL;
+				}*/
+				++count;
 		}
 		else
 		{
-			delete glimage;
+			//LL_INFOS() << "Skipped " << glimage << LL_ENDL;
+			glimage->forceToInvalidateGLTexture();
 		}
 	}
 
-	restored_images = restored_images;
-	LL_INFOS() << "Restored " << restored_images.size() << " images" << LL_ENDL;
+	LL_INFOS() << "Restored " << count << " images" << LL_ENDL;
 }
 
 //static 
@@ -499,7 +513,7 @@ void LLImageGL::init(BOOL usemipmaps)
 	mAlphaOffset = INVALID_OFFSET ;
 
 	mGLTextureCreated = FALSE ;
-	mTexName = 0;
+	mTexName.reset();
 	mWidth = 0;
 	mHeight	= 0;
 	mCurrentDiscardLevel = -1;	
@@ -577,7 +591,7 @@ void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents, S32 discard_leve
 		
 		if (mTexName)
 		{
-// 			LL_WARNS() << "Setting Size of LLImageGL with existing mTexName = " << mTexName << LL_ENDL;
+// 			LL_WARNS() << "Setting Size of LLImageGL with existing mTexName = " << getTexName() << LL_ENDL;
 			destroyGLTexture();
 		}
 
@@ -634,7 +648,7 @@ void LLImageGL::dump()
 			<< LL_ENDL;
 
 	LL_INFOS() << " mTextureMemory " << mTextureMemory
-			<< " mTexNames " << mTexName
+			<< " mTexNames " << getTexName()
 			<< " mIsResident " << S32(mIsResident)
 			<< LL_ENDL;
 }
@@ -647,7 +661,7 @@ void LLImageGL::forceUpdateBindStats(void) const
 
 BOOL LLImageGL::updateBindStats(S32Bytes tex_mem) const
 {	
-	if (mTexName != 0)
+	if (getTexName())
 	{
 #ifdef DEBUG_MISS
 		mMissed = ! getIsResident(TRUE);
@@ -959,7 +973,7 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 	{
 		return TRUE;
 	}
-	if (mTexName == 0)
+	if (!getTexName())
 	{
 		// *TODO: Re-enable warning?  Ran into thread locking issues? DK 2011-02-18
 		//LL_WARNS() << "Setting subimage on image without GL texture" << LL_ENDL;
@@ -1027,7 +1041,7 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 
 		datap += (y_pos * data_width + x_pos) * getComponents();
 		// Update the GL texture
-		BOOL res = gGL.getTexUnit(0)->bindManual(mBindTarget, mTexName);
+		BOOL res = gGL.getTexUnit(0)->bindManual(mBindTarget, getTexName());
 		if (!res) LL_ERRS() << "LLImageGL::setSubImage(): bindTexture failed" << LL_ENDL;
 		stop_glerror();
 
@@ -1071,22 +1085,117 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 	}
 }
 
+/*void validate_add_texture(U32 name)
+{
+	auto found = std::find(sActiveTextureNames.begin(), sActiveTextureNames.end(), name);
+	if (found != sActiveTextureNames.end())
+	{
+		LL_ERRS() << "Allocating allocated texture name " << name << LL_ENDL;
+	}
+	else
+	{
+		//LL_INFOS() << "Allocated buffer name " << name << LL_ENDL;
+		sActiveTextureNames.push_back(name);
+	}
+}
+
+void validate_del_texture(U32 name)
+{
+	auto found = std::find(sActiveTextureNames.begin(), sActiveTextureNames.end(), name);
+	if (found == sActiveTextureNames.end())
+	{
+		if (std::find(sDeletedTextureNames.begin(), sDeletedTextureNames.end(), name) == sDeletedTextureNames.end())
+		{
+			LL_ERRS() << "Deleting unknown texture name " << name << LL_ENDL;
+		}
+		else
+		{
+			LL_ERRS() << "Deleting deleted texture name " << name << LL_ENDL;
+		}
+	}
+	else
+	{
+		//LL_INFOS() << "Deleted buffer name " << name << LL_ENDL;
+		sActiveTextureNames.erase(found);
+		sDeletedTextureNames.push_back(name);
+	}
+
+}
+
+void validate_bind_texture(U32 name)
+{
+	auto found = std::find(sActiveTextureNames.begin(), sActiveTextureNames.end(), name);
+	if (found == sActiveTextureNames.end())
+	{
+		if (std::find(sDeletedTextureNames.begin(), sDeletedTextureNames.end(), name) == sDeletedTextureNames.end())
+		{
+			LL_ERRS() << "Binding unknown texture name " << name << LL_ENDL;
+		}
+		else
+		{
+			LL_ERRS() << "Binding deleted texture name " << name << LL_ENDL;
+		}
+	}
+}
+
+void clean_validate_buffers()
+{
+	LL_INFOS() << "Clearing active buffer names. Count " << sActiveBufferNames.size() << LL_ENDL;
+	sActiveTextureNames.clear();
+	LL_INFOS() << "Clearing deleted buffer names. Count " << sDeletedBufferNames.size() << LL_ENDL;
+	sDeletedTextureNames.clear();
+}*/
+
 // static
 static LLTrace::BlockTimerStatHandle FTM_GENERATE_TEXTURES("generate textures");
 void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
 {
 	LL_RECORD_BLOCK_TIME(FTM_GENERATE_TEXTURES);
 	glGenTextures(numTextures, textures);
+	/*for (S32 i = 0; i < numTextures; ++i)
+	{
+		validate_add_texture(textures[i]);
+	}*/
 }
 
 // static
-void LLImageGL::deleteTextures(S32 numTextures, U32 *textures)
+void LLImageGL::deleteTextures(S32 numTextures, U32 *textures, const std::vector<AllocationInfo>& allocationData)
 {
 	if (gGLManager.mInited)
 	{
+		for (auto& entry : allocationData)
+		{
+			texMemoryDeallocated(entry);
+		}
+
 		glDeleteTextures(numTextures, textures);
+		/*for (S32 i = 0; i < numTextures; ++i)
+		{
+			validate_del_texture(textures[i]);
+		}*/
 	}
 }
+
+// static
+void LLImageGL::texMemoryAllocated(const AllocationInfo& entry)
+{
+	sGlobalTextureMemory += (S64Bytes)entry.size;
+	if (gAuditTexture)
+	{
+		incTextureCounter((S64Bytes)entry.size, entry.components, entry.category);
+	}
+}
+
+// static
+void LLImageGL::texMemoryDeallocated(const AllocationInfo& entry)
+{
+	sGlobalTextureMemory -= (S64Bytes)entry.size;
+	if (gAuditTexture)
+	{
+		decTextureCounter((S64Bytes)entry.size, entry.components, entry.category);
+	}
+}
+
 
 //#include "crnlib.h"
 struct DDS_PIXELFORMAT {
@@ -1512,15 +1621,10 @@ BOOL LLImageGL::createGLTexture()
 	llassert(gGLManager.mInited);
 	stop_glerror();
 
-	if(mTexName)
-	{
-		LLImageGL::deleteTextures(1, (reinterpret_cast<GLuint*>(&mTexName))) ;
-	}
-	
+	mTexName = createTextureName();
 
-	LLImageGL::generateTextures(1, &mTexName);
 	stop_glerror();
-	if (!mTexName)
+	if (!getTexName())
 	{
 		LL_ERRS() << "LLImageGL::createGLTexture failed to make an empty texture" << LL_ENDL;
 	}
@@ -1529,7 +1633,7 @@ BOOL LLImageGL::createGLTexture()
 }
 
 static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE2("createGLTexture(raw)");
-BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename/*=0*/, BOOL to_create, S32 category)
+BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, GLTextureName& usename, BOOL to_create, S32 category)
 {
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE2);
 	if (gGLManager.mIsDisabled)
@@ -1606,7 +1710,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 }
 
 static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE3("createGLTexture3(data)");
-BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename)
+BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, GLTextureName& usename)
 {
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE3);
 	llassert(data_in);
@@ -1619,23 +1723,23 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	}
 	discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
 
-	if (mTexName != 0 && discard_level == mCurrentDiscardLevel)
+	if (getTexName() != 0 && discard_level == mCurrentDiscardLevel)
 	{
 		// This will only be true if the size has not changed
 		setImage(data_in, data_hasmips);
+		//checkTexSize();
 		return TRUE;
 	}
 	
-	U32 old_name = mTexName;
 // 	S32 old_discard = mCurrentDiscardLevel;
 	
-	if (usename != 0)
+	if (usename)
 	{
 		mTexName = usename;
 	}
 	else
 	{
-		LLImageGL::generateTextures(1, &mTexName);
+		mTexName = createTextureName();
 		stop_glerror();
 		{
 			llverify(gGL.getTexUnit(0)->bind(this));
@@ -1646,7 +1750,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 			stop_glerror();
 		}
 	}
-	if (!mTexName)
+	if (!getTexName())
 	{
 		LL_ERRS() << "LLImageGL::createGLTexture failed to make texture" << LL_ENDL;
 	}
@@ -1666,37 +1770,25 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	mCurrentDiscardLevel = discard_level;	
 
 	setImage(data_in, data_hasmips);
+	glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_MAX_LEVEL, mMaxDiscardLevel - discard_level);
 
 	// Set texture options to our defaults.
 	gGL.getTexUnit(0)->setHasMipMaps(mHasMipMaps);
 	gGL.getTexUnit(0)->setTextureAddressMode(mAddressMode);
 	gGL.getTexUnit(0)->setTextureFilteringOption(mFilterOption);
 
+	//gGL.getTexUnit(0)->unbind(mBindTarget);
+	//llverify(gGL.getTexUnit(0)->bindManual(mBindTarget, getTexName()));
+	//checkTexSize();
+
 	// things will break if we don't unbind after creation
 	gGL.getTexUnit(0)->unbind(mBindTarget);
 	stop_glerror();
 
-	if (old_name != 0)
-	{
-		sGlobalTextureMemory -= mTextureMemory;
-
-		if(gAuditTexture)
-		{
-			decTextureCounter(mTextureMemory, mComponents, mCategory) ;
-		}
-
-		LLImageGL::deleteTextures(1, &old_name);
-
-		stop_glerror();
-	}
-
 	mTextureMemory = (S32Bytes)getMipBytes(discard_level);
-	sGlobalTextureMemory += mTextureMemory;
 
-	if(gAuditTexture)
-	{
-		incTextureCounter(mTextureMemory, mComponents, mCategory) ;
-	}
+	mTexName->addAllocatedMemory(mTextureMemory, mComponents, mCategory);
+
 	// mark this as bound at this point, so we don't throw it out immediately
 	mLastBindTime = sLastFrameTime;
 	return TRUE;
@@ -1715,7 +1807,7 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 			return FALSE;
 	}
 	
-	if (mTexName == 0 || discard_level < mCurrentDiscardLevel || discard_level > mMaxDiscardLevel )
+	if (getTexName() == 0 || discard_level < mCurrentDiscardLevel || discard_level > mMaxDiscardLevel )
 	{
 		return FALSE;
 	}
@@ -1724,7 +1816,7 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 
 	//explicitly unbind texture 
 	gGL.getTexUnit(0)->unbind(mBindTarget);
-	llverify(gGL.getTexUnit(0)->bindManual(mBindTarget, mTexName));	
+	llverify(gGL.getTexUnit(0)->bindManual(mBindTarget, getTexName()));
 
 	//debug code, leave it there commented.
 	checkTexSize() ;
@@ -1828,21 +1920,10 @@ void LLImageGL::deleteDeadTextures()
 		
 void LLImageGL::destroyGLTexture()
 {
-	if (mTexName != 0)
+	if (getTexName())
 	{
-		if(mTextureMemory != S32Bytes(0))
-		{
-			if(gAuditTexture)
-			{
-				decTextureCounter(mTextureMemory, mComponents, mCategory) ;
-			}
-			sGlobalTextureMemory -= mTextureMemory;
-			mTextureMemory = (S32Bytes)0;
-		}
-		
-		LLImageGL::deleteTextures(1, &mTexName);			
-		mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
-		mTexName = 0;		
+		mTexName.reset();
+		mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.	
 		mGLTextureCreated = FALSE ;
 	}
 }
@@ -1850,7 +1931,7 @@ void LLImageGL::destroyGLTexture()
 //force to invalidate the gl texture, most likely a sculpty texture
 void LLImageGL::forceToInvalidateGLTexture()
 {
-	if (mTexName != 0)
+	if (getTexName() != 0)
 	{
 		destroyGLTexture();
 	}
@@ -1870,7 +1951,8 @@ void LLImageGL::setAddressMode(LLTexUnit::eTextureAddressMode mode)
 		mAddressMode = mode;
 	}
 
-	if (gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->getCurrTexture() == mTexName)
+	GLuint tex = getTexName();
+	if (tex && gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->getCurrTexture() == tex)
 	{
 		gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->setTextureAddressMode(mode);
 		mTexOptionsDirty = false;
@@ -1885,7 +1967,8 @@ void LLImageGL::setFilteringOption(LLTexUnit::eTextureFilterOptions option)
 		mFilterOption = option;
 	}
 
-	if (mTexName != 0 && gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->getCurrTexture() == mTexName)
+	GLuint tex = getTexName();
+	if (tex && gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->getCurrTexture() == tex)
 	{
 		gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->setTextureFilteringOption(option);
 		mTexOptionsDirty = false;
@@ -1897,9 +1980,10 @@ BOOL LLImageGL::getIsResident(BOOL test_now)
 {
 	if (test_now)
 	{
-		if (mTexName != 0)
+		GLuint tex = getTexName();
+		if (tex)
 		{
-			glAreTexturesResident(1, (GLuint*)&mTexName, &mIsResident);
+			glAreTexturesResident(1, (GLuint*)&tex, &mIsResident);
 		}
 		else
 		{

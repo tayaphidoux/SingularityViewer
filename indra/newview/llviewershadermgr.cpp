@@ -309,7 +309,7 @@ void LLViewerShaderMgr::setShaders()
 	}
 
 	// Lighting
-	gPipeline.setLightingDetail(-1);
+	gPipeline.updateLocalLightingEnabled();
 
 	// Shaders
 	LL_INFOS("ShaderLoading") << "\n~~~~~~~~~~~~~~~~~~\n Loading Shaders:\n~~~~~~~~~~~~~~~~~~" << LL_ENDL;
@@ -523,11 +523,14 @@ void LLViewerShaderMgr::unloadShaders()
 		mVertexShaderLevel[i] = 0;
 
 	//Unset all shader-dependent static variables.
-	LLGLSLShader::sNoFixedFunction = false;
+	LLGLSLShader::sNoFixedFunction = LLRender::sGLCoreProfile;
 	LLGLSLShader::sIndexedTextureChannels = 1;
 	LLPipeline::sRenderDeferred = false;
 	LLPipeline::sWaterReflections = FALSE;
 	LLPipeline::sRenderGlow = FALSE;
+
+	// Clear sync hashes. If shaders were just turned off then glLight state needs to be resynced.
+	gGL.resetSyncHashes();
 }
 
 BOOL LLViewerShaderMgr::loadBasicShaders()
@@ -547,7 +550,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	}
 
 	// If we have sun and moon only checked, then only sum those lights.
-	if (gPipeline.getLightingDetail() == 0)
+	if (!gPipeline.isLocalLightingEnabled())
 	{
 		sum_lights_class = 1;
 	}

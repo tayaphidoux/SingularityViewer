@@ -965,7 +965,7 @@ void LLFastTimerView::draw()
 				if (mHoverID == idp)
 				{
 					gGL.flush();
-					glLineWidth(3);
+					gGL.setLineWidth(3);
 				}
 			
 				const F32 * col = sTimerColors[idp].mV;// ft_display_table[idx].color->mV;
@@ -1015,7 +1015,7 @@ void LLFastTimerView::draw()
 				if (mHoverID == idp)
 				{
 					gGL.flush();
-					glLineWidth(1);
+					gGL.setLineWidth(1);
 				}
 
 				if (idp->getCollapsed())
@@ -1306,7 +1306,7 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 
 		last_p.clear();
 
-		LLGLDisable cull(GL_CULL_FACE);
+		LLGLDisable<GL_CULL_FACE> cull;
 
 		LLVector3 base_col(0, 0.7f, 0.f);
 		LLVector3 cur_col(1.f, 0.f, 0.f);
@@ -1330,7 +1330,7 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 		
 		last_p.clear();
 		{
-			LLGLEnable blend(GL_BLEND);
+			LLGLEnable<GL_BLEND> blend;
 						
 			gGL.color3fv(cur_col.mV);
 			for (U32 i = 0; i < cur_times.size(); ++i)
@@ -1371,7 +1371,7 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 		gGL.flush();
 
 		{
-			LLGLEnable blend(GL_BLEND);
+			LLGLEnable<GL_BLEND> blend;
 			gGL.color3fv(cur_col.mV);
 			last_p.clear();
 
@@ -1419,7 +1419,7 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 		last_p.clear();
 				
 		{
-			LLGLEnable blend(GL_BLEND);
+			LLGLEnable<GL_BLEND> blend;
 			gGL.color3fv(cur_col.mV);
 			count = 0;
 			total_count = cur_execution.size();

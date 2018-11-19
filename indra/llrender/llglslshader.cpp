@@ -348,7 +348,7 @@ void LLGLSLShader::unload()
 			glDeleteObjectARB(obj[i]);
 		}*/
 		if(mProgramObject)
-			glDeleteObjectARB(mProgramObject);
+			glDeleteProgram(mProgramObject);
 		mProgramObject = 0;
 	}
     
@@ -388,7 +388,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
 	BOOL success = TRUE;
 
 	if(mProgramObject)	//purge the old program
-		glDeleteObjectARB(mProgramObject);
+		glDeleteProgram(mProgramObject);
 	// Create program
 	mProgramObject = glCreateProgramObjectARB();
 	
@@ -417,7 +417,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
 	if (!LLShaderMgr::instance()->attachClassSharedShaders(*this, mShaderClass) || !LLShaderMgr::instance()->attachShaderFeatures(this))
 	{
 		if(mProgramObject)
-			glDeleteObjectARB(mProgramObject);
+			glDeleteProgram(mProgramObject);
 		mProgramObject = 0;
 		return FALSE;
 	}
@@ -447,7 +447,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
 	if( !success )
 	{
 		if(mProgramObject)
-			glDeleteObjectARB(mProgramObject);
+			glDeleteProgram(mProgramObject);
 		mProgramObject = 0;
 
 		LL_WARNS("ShaderLoading") << "Failed to link shader: " << mName << LL_ENDL;
@@ -723,6 +723,7 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 	if (type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB /*||
 		type == GL_SAMPLER_2D_MULTISAMPLE*/)
 	{	//this here is a texture
+		gGL.syncShaders();
 		glUniform1iARB(location, mActiveTextureChannels);
 		LL_DEBUGS("ShaderLoading") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
 		return mActiveTextureChannels++;
@@ -752,7 +753,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 
 	//get the number of active uniforms
 	GLint activeCount;
-	glGetObjectParameterivARB(mProgramObject, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &activeCount);
+	glGetProgramiv(mProgramObject, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &activeCount);
 
 	for (S32 i = 0; i < activeCount; i++)
 	{
@@ -776,7 +777,7 @@ void LLGLSLShader::bind()
 	if (gGLManager.mHasShaderObjects)
 	{
 		LLVertexBuffer::unbind();
-		glUseProgramObjectARB(mProgramObject);
+		gGL.setShader(mProgramObject);
 		sCurBoundShader = mProgramObject;
 		sCurBoundShaderPtr = this;
 		if (mUniformsDirty)
@@ -802,7 +803,7 @@ void LLGLSLShader::unbind()
 			}
 		}
 		LLVertexBuffer::unbind();
-		glUseProgramObjectARB(0);
+		gGL.setShader(0);
 		sCurBoundShader = 0;
 		sCurBoundShaderPtr = NULL;
 		stop_glerror();
@@ -814,7 +815,7 @@ void LLGLSLShader::bindNoShader(void)
 	LLVertexBuffer::unbind();
 	if (gGLManager.mHasShaderObjects)
 	{
-		glUseProgramObjectARB(0);
+		gGL.setShader(0);
 		sCurBoundShader = 0;
 		sCurBoundShaderPtr = NULL;
 	}
