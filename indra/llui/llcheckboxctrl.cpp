@@ -93,11 +93,13 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const std::string& name, const LLRect& rect,
 
 	// *HACK Get rid of this with SL-55508... 
 	// this allows blank check boxes and radio boxes for now
-	std::string local_label = label;
+	// Singu Note: Don't do this. Slows rendering down dramatically, and also seems to not fix anything?
+	/*std::string local_label = label;
 	if(local_label.empty())
 	{
-		local_label = " ";
-	}
+		
+		//local_label = " ";
+	}*/
 
 	mLabel = new LLTextBox( std::string("CheckboxCtrl Label"), label_rect, local_label, mFont );
 	mLabel->setFollowsLeft();
