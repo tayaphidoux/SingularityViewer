@@ -914,7 +914,8 @@ void LLAgentCamera::cameraZoomIn(const F32 fraction)
 
 
 	LLVector3d	camera_offset_unit(mCameraFocusOffsetTarget);
-	F32 min_zoom = 0.f;//LAND_MIN_ZOOM;
+	// Still limit min zoom to something sane, otherwise the camera normal starts flaking out.
+	F32 min_zoom = 0.02f;//LAND_MIN_ZOOM;
 	F32 current_distance = (F32)camera_offset_unit.normalize();
 	F32 new_distance = current_distance * fraction;
 
@@ -935,9 +936,8 @@ void LLAgentCamera::cameraZoomIn(const F32 fraction)
 				min_zoom = OBJECT_MIN_ZOOM;
 			}
 		}
-
-		new_distance = llmax(new_distance, min_zoom); 
 	}
+	new_distance = llmax(new_distance, min_zoom);
 
 	// Don't zoom too far back
 	const F32 DIST_FUDGE = 16.f; // meters
