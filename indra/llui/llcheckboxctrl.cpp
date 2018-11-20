@@ -97,11 +97,10 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const std::string& name, const LLRect& rect,
 	/*std::string local_label = label;
 	if(local_label.empty())
 	{
-		
-		//local_label = " ";
+		local_label = " ";
 	}*/
 
-	mLabel = new LLTextBox( std::string("CheckboxCtrl Label"), label_rect, local_label, mFont );
+	mLabel = new LLTextBox( std::string("CheckboxCtrl Label"), label_rect, label, mFont );
 	mLabel->setFollowsLeft();
 	mLabel->setFollowsBottom();
 	addChild(mLabel);

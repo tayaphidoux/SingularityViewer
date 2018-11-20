@@ -349,6 +349,7 @@ private:
 	}
 };
 #define initLLGLState(state, value, disabler_ptr) \
+	template <> \
     LLGLStateStaticData LLGLState<state>::staticData = {#state, state, value, 0, nullptr, disabler_ptr}; \
 	bool registered_##state = LLGLStateValidator::registerStateData(LLGLState<state>::staticData);
 

@@ -73,9 +73,9 @@ void* gl_get_proc_address(const char *pStr)
 #undef GLH_EXT_GET_PROC_ADDRESS
 #define GLH_EXT_GET_PROC_ADDRESS(p)   gl_get_proc_address(p) 
 #undef GLH_EXT_GET_PROC_ADDRESS_CORE
-#define GLH_EXT_GET_PROC_ADDRESS_CORE(ver, p)   gl_get_proc_address((mGLVersion >= ver) ? p : p##"ARB")
+#define GLH_EXT_GET_PROC_ADDRESS_CORE(ver, p)   gl_get_proc_address((mGLVersion >= ver) ? p : p"ARB")
 #undef GLH_EXT_GET_PROC_ADDRESS_CORE_EXT
-#define GLH_EXT_GET_PROC_ADDRESS_CORE_EXT(ver, p)   gl_get_proc_address((mGLVersion >= ver) ? p : p##"EXT")
+#define GLH_EXT_GET_PROC_ADDRESS_CORE_EXT(ver, p)   gl_get_proc_address((mGLVersion >= ver) ? p : p"EXT")
 #undef GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB
 #define GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(ver, p, arb)   gl_get_proc_address((mGLVersion >= ver) ? p : arb)
 #endif //!LL_DARWIN

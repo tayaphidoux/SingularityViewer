@@ -222,7 +222,7 @@ void LLImageGL::setHighlightTexture(S32 category)
 			}
 		}
 	}
-	sHighlightTexturep->createGLTexture(0, image_raw, LLImageGL::GLTextureName(), TRUE, category);
+	sHighlightTexturep->createGLTexture(0, image_raw, nullptr, TRUE, category);
 	image_raw = NULL;
 }
 
@@ -386,7 +386,7 @@ void LLImageGL::restoreGL()
 		if (data.notNull() && glimage->getComponents() &&
 			data->getComponents() &&
 			glimage->mSaveDiscardLevel >= 0 &&
-			glimage->createGLTexture(glimage->mSaveDiscardLevel, data, LLImageGL::GLTextureName(), TRUE, glimage->getCategory()))
+			glimage->createGLTexture(glimage->mSaveDiscardLevel, data, nullptr, TRUE, glimage->getCategory()))
 		{
 				stop_glerror();
 				/*if (glimage->getHasGLTexture())
@@ -1633,7 +1633,7 @@ BOOL LLImageGL::createGLTexture()
 }
 
 static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE2("createGLTexture(raw)");
-BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, GLTextureName& usename, BOOL to_create, S32 category)
+BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, GLTextureName* usename, BOOL to_create, S32 category)
 {
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE2);
 	if (gGLManager.mIsDisabled)
@@ -1710,7 +1710,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, G
 }
 
 static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE3("createGLTexture3(data)");
-BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, GLTextureName& usename)
+BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, GLTextureName* usename)
 {
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE3);
 	llassert(data_in);
@@ -1733,9 +1733,9 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	
 // 	S32 old_discard = mCurrentDiscardLevel;
 	
-	if (usename)
+	if (usename && *usename)
 	{
-		mTexName = usename;
+		mTexName = *usename;
 	}
 	else
 	{

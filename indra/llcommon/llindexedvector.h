@@ -62,7 +62,7 @@ public:
 	reverse_iterator rend() { return mVector.rend(); }
 	const_reverse_iterator rend() const { return mVector.rend(); }
 
-	void reset() { mVector.resize(0); mIndexMap.resize(0); }
+	void reset() { mVector.resize(0); }
 	bool empty() const { return mVector.empty(); }
 	size_type size() const { return mVector.size(); }
 	

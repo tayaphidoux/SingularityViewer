@@ -1297,7 +1297,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
 	if(isForSculptOnly())
 	{
 		//just update some variables, not to create a real GL texture.
-		createGLTexture(mRawDiscardLevel, mRawImage, LLImageGL::GLTextureName(), FALSE);
+		createGLTexture(mRawDiscardLevel, mRawImage, nullptr, FALSE);
 		mNeedsCreateTexture = FALSE;
 		destroyRawImage();
 	}
@@ -1360,7 +1360,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
 }
 
 // ONLY called from LLViewerTextureList
-BOOL LLViewerFetchedTexture::createTexture(LLImageGL::GLTextureName& usename)
+BOOL LLViewerFetchedTexture::createTexture(LLImageGL::GLTextureName* usename)
 {
 	if (!mNeedsCreateTexture)
 	{

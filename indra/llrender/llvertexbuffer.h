@@ -295,9 +295,9 @@ protected:
 	ptrdiff_t mAlignedOffset;
 	ptrdiff_t mAlignedIndexOffset;
 	S32		mSize;
-	S32		mResidentSize;
+	U32		mResidentSize;
 	S32		mIndicesSize;
-	S32		mResidentIndicesSize;
+	U32		mResidentIndicesSize;
 	U32		mTypeMask;
 
 	const S32		mUsage;			// GL usage

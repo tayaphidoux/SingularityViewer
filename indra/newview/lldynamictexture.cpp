@@ -109,7 +109,7 @@ void LLViewerDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum
 	}
 	if(fill_color)
 		raw_image->fill(*fill_color);
-	createGLTexture(0, raw_image, LLImageGL::GLTextureName(), TRUE, LLViewerTexture::DYNAMIC_TEX);
+	createGLTexture(0, raw_image, nullptr, TRUE, LLViewerTexture::DYNAMIC_TEX);
 	setAddressMode((mClamp) ? LLTexUnit::TAM_CLAMP : LLTexUnit::TAM_WRAP);
 	mGLTexturep->setGLTextureCreated(false);
 }

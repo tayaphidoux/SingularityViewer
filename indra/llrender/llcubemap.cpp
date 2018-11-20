@@ -80,14 +80,14 @@ void LLCubeMap::initGL()
 		// Not initialized, do stuff.
 		if (mImages[0].isNull())
 		{
-			auto texname = LLImageGL::createTextureName();
+			LLImageGL::GLTextureName texname = LLImageGL::createTextureName();
 
 			for (int i = 0; i < 6; i++)
 			{
 				mImages[i] = new LLImageGL(64, 64, 4, (use_cube_mipmaps? TRUE : FALSE));
 				mImages[i]->setTarget(mTargets[i], LLTexUnit::TT_CUBE_MAP);
 				mRawImages[i] = new LLImageRaw(64, 64, 4);
-				mImages[i]->createGLTexture(0, mRawImages[i], texname);
+				mImages[i]->createGLTexture(0, mRawImages[i], &texname);
 				
 				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, texname->getTexName());
 				mImages[i]->setAddressMode(LLTexUnit::TAM_CLAMP);

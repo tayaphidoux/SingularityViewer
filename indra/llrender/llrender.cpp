@@ -2139,7 +2139,7 @@ void LLRender::setAmbientLightColor(const LLColor4& color)
 
 void LLRender::setLineWidth(F32 line_width)
 {
-	//if (LLRender::sGLCoreProfile)
+	if (LLRender::sGLCoreProfile)
 	{
 		mNewContext.lineWidth = 1.f;
 		return;

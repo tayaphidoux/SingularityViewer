@@ -318,7 +318,7 @@ public:
 	void addToCreateTexture();
 
 	 // ONLY call from LLViewerTextureList
-	BOOL createTexture(LLImageGL::GLTextureName& usename = LLImageGL::GLTextureName());
+	BOOL createTexture(LLImageGL::GLTextureName* usename = nullptr);
 	void destroyTexture() ;	
 	
 	virtual void processTextureStats() ;
