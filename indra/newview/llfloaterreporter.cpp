@@ -111,17 +111,6 @@ LLFloaterReporter::LLFloaterReporter()
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_report_abuse.xml");
 }
 
-// static
-void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
-{
-	U32 region_flags;
-	msg->getU32("RegionInfo", "RegionFlags", region_flags);
-
-	if (LLFloaterReporter::instanceExists() && LLFloaterReporter::getInstance()->getVisible())
-	{
-		LLNotificationsUtil::add("HelpReportAbuseEmailLL");
-	}
-}
 // virtual
 BOOL LLFloaterReporter::postBuild()
 {
@@ -155,6 +144,7 @@ BOOL LLFloaterReporter::postBuild()
 
 	mDefaultSummary = getChild<LLUICtrl>("details_edit")->getValue().asString();
 
+	/* Singu Note: We only used this to trigger the notification that's now below, there's no point to this anymore.
 	// send a message and ask for information about this region -
 	// result comes back in processRegionInfo(..)
 	LLMessageSystem* msg = gMessageSystem;
@@ -163,6 +153,8 @@ BOOL LLFloaterReporter::postBuild()
 	msg->addUUID("AgentID", gAgent.getID());
 	msg->addUUID("SessionID", gAgent.getSessionID());
 	gAgent.sendReliableMessage();
+	*/
+	LLNotificationsUtil::add("HelpReportAbuseEmailLL");
 
 
 	// abuser name is selected from a list
