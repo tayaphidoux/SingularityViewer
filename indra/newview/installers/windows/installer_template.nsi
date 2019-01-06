@@ -25,6 +25,10 @@
 ;; Author: James Cook, Don Kjer, Callum Prentice, Drake Arconis
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;--------------------------------
+;Unicode
+  Unicode true
+
+;--------------------------------
 ;Include Modern UI
 
   !include "LogicLib.nsh"
@@ -72,7 +76,7 @@
   InstallDirRegKey HKLM "SOFTWARE\${VENDORSTR}\${APPNAMEONEWORD}" ""
 !endif
 
-  ;Request application privileges for Windows Vista
+  ;Request application privileges for Windows UAC
   RequestExecutionLevel admin
   
   ;Compression
@@ -139,7 +143,11 @@
   !define MUI_STARTMENUPAGE_REGISTRY_KEY "SOFTWARE\${VENDORSTR}\${APPNAMEONEWORD}" 
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
   !define MUI_PAGE_CUSTOMFUNCTION_PRE check_skip
+!ifdef WIN64_BIN_BUILD
   !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${APPNAME} (64 bit) Viewer"
+!else
+  !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${APPNAME} Viewer"
+!endif
   !insertmacro MUI_PAGE_STARTMENU Application $STARTMENUFOLDER
 
   ;Install Progress Page
@@ -150,6 +158,10 @@
   !define MUI_PAGE_CUSTOMFUNCTION_PRE check_skip_finish
   !define MUI_FINISHPAGE_RUN
   !define MUI_FINISHPAGE_RUN_FUNCTION launch_viewer
+  !define MUI_FINISHPAGE_SHOWREADME
+  !define MUI_FINISHPAGE_SHOWREADME_TEXT "Create Desktop Shortcut"
+  !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+  !define MUI_FINISHPAGE_SHOWREADME_FUNCTION create_desktop_shortcut
   !define MUI_FINISHPAGE_NOREBOOTSUPPORT
   !insertmacro MUI_PAGE_FINISH
 
@@ -185,12 +197,12 @@
   ;because this will make your installer start faster.
   
   !insertmacro MUI_RESERVEFILE_LANGDLL
-  ReserveFile "${NSISDIR}\Plugins\NSISdl.dll"
-  ReserveFile "${NSISDIR}\Plugins\nsDialogs.dll"
-  ReserveFile "${NSISDIR}\Plugins\StartMenu.dll"
-  ReserveFile "${NSISDIR}\Plugins\StdUtils.dll"
-  ReserveFile "${NSISDIR}\Plugins\System.dll"
-  ReserveFile "${NSISDIR}\Plugins\UserInfo.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\NSISdl.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\nsDialogs.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\StartMenu.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\StdUtils.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\System.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\UserInfo.dll"
 
 ;--------------------------------
 ; Local Functions
@@ -212,6 +224,14 @@ Function launch_viewer
   ${StdUtils.ExecShellAsUser} $0 "$INSTDIR\$INSTEXE" "open" "$SHORTCUT_LANG_PARAM"
 FunctionEnd
 
+Function create_desktop_shortcut
+!ifdef WIN64_BIN_BUILD
+  CreateShortCut "$DESKTOP\$INSTSHORTCUT x64.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$INSTEXE"
+!else
+  CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM" "$INSTDIR\$INSTEXE"
+!endif
+FunctionEnd
+
 ;Check version compatibility
 Function CheckWindowsVersion
 !ifdef WIN64_BIN_BUILD
@@ -221,7 +241,7 @@ Function CheckWindowsVersion
   ${EndIf}
 !endif
 
-  ${If} ${AtMostWinXP}
+  ${If} ${AtMostWinVista}
     MessageBox MB_OK $(CheckWindowsVersionMB)
     Quit
   ${EndIf}
@@ -229,20 +249,6 @@ FunctionEnd
 
 ;Check service pack compatibility and suggest upgrade
 Function CheckWindowsServPack
-  ${If} ${IsWinVista}
-  ${AndIfNot} ${IsServicePack} 2
-    MessageBox MB_OK $(CheckWindowsServPackMB)
-    DetailPrint $(UseLatestServPackDP)
-    Return
-  ${EndIf}
-
-  ${If} ${IsWin2008}
-  ${AndIfNot} ${IsServicePack} 2
-    MessageBox MB_OK $(CheckWindowsServPackMB)
-    DetailPrint $(UseLatestServPackDP)
-    Return
-  ${EndIf}
-
   ${If} ${IsWin7}
   ${AndIfNot} ${IsServicePack} 1
     MessageBox MB_OK $(CheckWindowsServPackMB)
@@ -320,7 +326,9 @@ Function CloseSecondLife
   IntCmp $0 0 DONE
   
   StrCmp $SKIP_DIALOGS "true" CLOSE
-    MessageBox MB_YESNOCANCEL $(CloseSecondLifeInstMB) IDYES CLOSE IDNO DONE
+    MessageBox MB_OKCANCEL $(CloseSecondLifeInstMB) IDOK CLOSE IDCANCEL CANCEL_INSTALL
+
+  CANCEL_INSTALL:
   Quit
 
   CLOSE:
@@ -346,7 +354,9 @@ Function un.CloseSecondLife
   Push $0
   FindWindow $0 "Second Life" ""
   IntCmp $0 0 DONE
-  MessageBox MB_YESNOCANCEL $(CloseSecondLifeUnInstMB) IDYES CLOSE IDNO DONE
+  MessageBox MB_OKCANCEL $(CloseSecondLifeUnInstMB) IDOK CLOSE IDCANCEL CANCEL_UNINSTALL
+
+  CANCEL_UNINSTALL:
   Quit
 
   CLOSE:
@@ -491,14 +501,16 @@ Section "Viewer"
 
 
   ;Write URL registry info
-  WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(Default)" "URL:Second Life"
+  DeleteRegKey HKEY_CLASSES_ROOT "${URLNAME}"
+  WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "" "URL:Second Life"
   WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
   WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" "$INSTDIR\$INSTEXE"
   ;; URL param must be last item passed to viewer, it ignores subsequent params
   ;; to avoid parameter injection attacks.
   WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" "$\"$INSTDIR\$INSTEXE$\" -url $\"%1$\""
 
-  WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "(Default)" "URL:Second Life"
+  DeleteRegKey HKEY_CLASSES_ROOT "x-grid-location-info"
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "" "URL:Hypergrid legacy"
   WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "URL Protocol" ""
   WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" "$\"$INSTDIR\$INSTEXE$\""
   ;; URL param must be last item passed to viewer, it ignores subsequent params
