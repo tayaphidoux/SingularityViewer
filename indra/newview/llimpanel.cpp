@@ -1016,26 +1016,29 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 		return;
 	}
 
-	int option = value.asInteger();
-	if (option == 1) onClickHistory();
-	else if (option == 2) LLAvatarActions::offerTeleport(mOtherParticipantUUID);
-	else if (option == 3) LLAvatarActions::teleportRequest(mOtherParticipantUUID);
-	else if (option == 4) LLAvatarActions::pay(mOtherParticipantUUID);
-	else if (option == 5) LLAvatarActions::inviteToGroup(mOtherParticipantUUID);
-	else if (option == -1) copy_profile_uri(mOtherParticipantUUID);
-	else if (option == -2) LLAvatarActions::showOnMap(mOtherParticipantUUID);
-	else if (option == -3) gAgentCamera.lookAtObject(mOtherParticipantUUID);
-	else if (option >= 6) // Options that use dynamic items
+	switch (int option = value.asInteger())
 	{
-
+	case 1:	onClickHistory(); break;
+	case 2: LLAvatarActions::offerTeleport(mOtherParticipantUUID); break;
+	case 3: LLAvatarActions::teleportRequest(mOtherParticipantUUID); break;
+	case 4: LLAvatarActions::pay(mOtherParticipantUUID); break;
+	case 5: LLAvatarActions::inviteToGroup(mOtherParticipantUUID); break;
+	case -1: copy_profile_uri(mOtherParticipantUUID); break;
+	case -2: LLAvatarActions::showOnMap(mOtherParticipantUUID); break;
+	case -3: gAgentCamera.lookAtObject(mOtherParticipantUUID); break;
+	default: // Options >= 6 use dynamic items
+	{
 		// First remove them all
 		removeDynamics(flyout);
 
 		// Toggle as requested, adjust the strings
-		if (option == 6) mDing = !mDing;
-		else if (option == 7) mRPMode = !mRPMode;
-		else if (option == 8) LLAvatarActions::isFriend(mOtherParticipantUUID) ? LLAvatarActions::removeFriendDialog(mOtherParticipantUUID) : LLAvatarActions::requestFriendshipDialog(mOtherParticipantUUID);
-		else if (option == 9) LLAvatarActions::toggleBlock(mOtherParticipantUUID);
+		switch (option)
+		{
+			case 6: mDing = !mDing; break;
+			case 7: mRPMode = !mRPMode; break;
+			case 8: LLAvatarActions::isFriend(mOtherParticipantUUID) ? LLAvatarActions::removeFriendDialog(mOtherParticipantUUID) : LLAvatarActions::requestFriendshipDialog(mOtherParticipantUUID); break;
+			case 9: LLAvatarActions::toggleBlock(mOtherParticipantUUID); break;
+		}
 
 		// Last add them back
 		addDynamics(flyout);
@@ -1043,6 +1046,7 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 		const std::string focus(getString("focus"));
 		if (flyout->remove(focus)) // If present, reorder to bottom.
 			flyout->add(focus, -3);
+	}
 	}
 }
 
