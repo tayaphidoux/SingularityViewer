@@ -5362,6 +5362,20 @@ Visit the [SECOND_LIFE] Support Web site?
    type="alertmodal">
 This grid has no link for support.
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmAddingChatParticipants"
+   type="alertmodal">
+    <unique/>
+When you add a person to an existing conversation, a new conversation will be created.  All participants will receive new conversation notifications.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm adding chat paticipants"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Ok"/>
+  </notification>
   
   <notification
    icon="alertmodal.tga"

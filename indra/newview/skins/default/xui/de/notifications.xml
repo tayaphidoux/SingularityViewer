@@ -1580,6 +1580,10 @@ Inventarobjekt(e) verschieben?<usetemplate name="okcancelignore" yestext="OK"/><
   
   <notification name="NoSupportUrl">Das Grid hat keinen Supportlink.</notification>
   
+  <notification name="ConfirmAddingChatParticipants">
+	  Wenn Sie eine Person zu einer vorhandenen Unterhaltung hinzufügen, wird eine neue Unterhaltung erstellt.  Alle Teilnehmer erhalten neue Unterhaltungsbenachrichtigungen.
+	  <usetemplate ignoretext="Hinzufügen von Chat-Teilnehmern bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+  </notification>
   <notification name="ConfirmQuit">Wirklich beenden?<usetemplate name="okcancelignore" yestext="Beenden"/></notification>
 
   <notification name="HelpReportAbuseEmailLL">Verwenden Sie dieses Tool, um Verletzungen der Servicebedingungen und Community-Standards zu melden. Siehe:

@@ -2597,6 +2597,10 @@ Mover para o inventário o(s) item(s)?
 		<usetemplate ignoretext="Quando visitando o website de Suporte do Second Life" name="okcancelignore" notext="Cancelar" yestext="Ir"/>
 	</notification>
 
+	<notification name="ConfirmAddingChatParticipants">
+		Quando você adiciona uma pessoa a uma conversa existente, uma nova conversa é criada.  Todos os participantes recebem notificações sobre a nova conversa.
+		<usetemplate ignoretext="Confirme a inclusão de participantes no bate-papo" name="okcancelignore" notext="Cancelar" yestext="Ok"/>
+	</notification>
 	<notification name="ConfirmQuit">
 		Tem certeza que deseja sair?
 		<usetemplate ignoretext="Quando Saindo do [APP_NAME]." name="okcancelignore" notext="Continuar" yestext="Sair"/>

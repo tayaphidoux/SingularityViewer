@@ -2010,6 +2010,10 @@ Trasferisci gli elementi nell&apos;inventario?
 		Visita il sito di supporto di Second Life?
 		<usetemplate ignoretext="Quando visiti il sito del supporto di Second Life." name="okcancelignore" notext="Annulla" yestext="Vai"/>
 	</notification>
+	<notification name="ConfirmAddingChatParticipants">
+		Quando aggiungi una persona a una conversazione esistente, viene creata una nuova conversazione.  Tutti i partecipanti riceveranno notifiche per la nuova conversazione.
+		<usetemplate ignoretext="Conferma l&apos;aggiunta dei partecipanti alla chat" name="okcancelignore" notext="Annulla" yestext="Ok"/>
+	</notification>
 	<notification name="ConfirmQuit">
 		Confermi di voler uscire?
 		<usetemplate ignoretext="Quando esci da Second Life." name="okcancelignore" notext="Continua" yestext="Esci"/>

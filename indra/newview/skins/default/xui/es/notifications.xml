@@ -2867,7 +2867,10 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 	<notification name="NoSupportUrl">
 		Este grid no tiene enlace para consultar por Soporte.
 	</notification>	
-	
+	<notification name="ConfirmAddingChatParticipants">
+		Si agregas una persona a una conversación en curso, se creará una conversación nueva. Todos los participantes recibirán notificaciones de la nueva conversación.
+		<usetemplate ignoretext="Confirmar agregar participantes al chat" name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
+	</notification>
 	<notification name="ConfirmQuit">
 		¿Estás seguro de que quieres salir?
 		<usetemplate ignoretext="Cuando esté saliendo de [APP_NAME]." name="okcancelignore" notext="Continuar" yestext="Salir"/>

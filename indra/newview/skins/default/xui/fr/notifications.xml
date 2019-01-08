@@ -2349,6 +2349,11 @@ Visiter les pages d'aide de Second Life.
 		<usetemplate ignoretext="Lors de la visite des pages d'aide de Second Life" name="okcancelignore" notext="Annuler" yestext="Aller"/>
 	</notification>
 
+	<notification name="ConfirmAddingChatParticipants">
+		Quand vous ajoutez une personne à une conversation existante, une nouvelle conversation est créée.  Tous les participants recevront les notifications de nouvelle conversation.
+		<usetemplate ignoretext="Confirmer l&apos;ajout de participants au chat" name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
+
 	<notification name="ConfirmQuit">
 Etes-vous certain(e) de vouloir quitter ?
 		<usetemplate ignoretext="Lorsque vous quittez [APP_NAME]" name="okcancelignore" notext="Continuer" yestext="Quitter"/>
