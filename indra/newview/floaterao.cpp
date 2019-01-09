@@ -124,17 +124,18 @@ AOInvTimer::~AOInvTimer()
 }
 BOOL AOInvTimer::tick()
 {
-	if (!(gSavedSettings.getBOOL("AOEnabled"))) return TRUE;
 	if(LLStartUp::getStartupState() >= STATE_INVENTORY_SEND)
 	{
 		if(LLInventoryModelBackgroundFetch::instance().isEverythingFetched())
 		{
 //			cmdline_printchat("Inventory fetched, loading AO.");
 			LLFloaterAO::init();
+			gSavedSettings.getControl("AOEnabled")->getSignal()->connect(boost::bind(&LLFloaterAO::run));
+			gSavedSettings.getControl("AOSitsEnabled")->getSignal()->connect(boost::bind(&LLFloaterAO::run));
 			return TRUE;
 		}
 	}
-	return FALSE;
+	return !gSavedSettings.getBOOL("AOEnabled");
 }
 
 // STUFF -------------------------------------------------------
@@ -254,8 +255,6 @@ BOOL LLFloaterAO::postBuild()
 	childSetAction("newcard",onClickNewCard,this);
 	childSetAction("prevstand",onClickPrevStand,this);
 	childSetAction("nextstand",onClickNextStand,this);
-	getChild<LLUICtrl>("AOEnabled")->setCommitCallback(boost::bind(&LLFloaterAO::onClickToggleAO));
-	getChild<LLUICtrl>("AOSitsEnabled")->setCommitCallback(boost::bind(&LLFloaterAO::onClickToggleSits));
 	getChild<LLUICtrl>("standtime")->setCommitCallback(boost::bind(&LLFloaterAO::onSpinnerCommit,_1));
 	mcomboBox_stands = getChild<LLComboBox>("stands");
 	mcomboBox_walks = getChild<LLComboBox>("walks");
@@ -622,16 +621,6 @@ void LLFloaterAO::onClickLess(void* data)
 {
 	gSavedSettings.setBOOL( "AOAdvanced", FALSE );
 	updateLayout(sInstance);
-}
-
-void LLFloaterAO::onClickToggleAO()
-{
-	run();
-}
-
-void LLFloaterAO::onClickToggleSits()
-{
-	run();
 }
 
 

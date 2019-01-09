@@ -66,8 +66,6 @@ public:
 	static void show(void*);
 	static void init();
 
-	static void onClickToggleAO();
-	static void onClickToggleSits();
 	static void run();
 	static void updateLayout(LLFloaterAO* floater);
 
