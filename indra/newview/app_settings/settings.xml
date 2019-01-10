@@ -477,6 +477,17 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+  <key>AOSwimEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Overrides fly animations with swims when underwater.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>AONoStandsInMouselook</key>
   <map>
     <key>Comment</key>

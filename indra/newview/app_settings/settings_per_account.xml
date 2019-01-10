@@ -186,6 +186,50 @@
         <key>Value</key>
         <string></string>
       </map>
+      <key>AODefaultFloat</key>
+      <map>
+        <key>Comment</key>
+        <string>Default float anim</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+      </map>
+      <key>AODefaultSwim</key>
+      <map>
+        <key>Comment</key>
+        <string>Default swim anim</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+      </map>
+      <key>AODefaultSwimUp</key>
+      <map>
+        <key>Comment</key>
+        <string>Default swimup anim</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+      </map>
+      <key>AODefaultSwimDown</key>
+      <map>
+        <key>Comment</key>
+        <string>Default swimdown anim</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+      </map>
       <key>AODefaultStandUp</key>
       <map>
         <key>Comment</key>

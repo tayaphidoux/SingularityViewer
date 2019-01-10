@@ -4077,7 +4077,10 @@ void LLVOAvatar::idleUpdateBelowWater()
 	F32 water_height;
 	water_height = getRegion()->getWaterHeight();
 
+	BOOL old_below = mBelowWater;
 	mBelowWater =  avatar_height < water_height;
+	if (old_below != mBelowWater)
+		LLFloaterAO::toggleSwim(mBelowWater);
 }
 
 void LLVOAvatar::slamPosition()

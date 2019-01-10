@@ -34,6 +34,10 @@ const int STATE_AGENT_LAND = 17;
 const int STATE_AGENT_FLY = 18;
 const int STATE_AGENT_FLYSLOW = 19;
 
+const int STATE_AGENT_SWIM_DOWN = 21;
+const int STATE_AGENT_SWIM_UP = 22;
+const int STATE_AGENT_SWIM = 23;
+const int STATE_AGENT_FLOAT = 24;
 
 
 
@@ -71,6 +75,8 @@ public:
 
 	static BOOL loadAnims();
 
+	static int flyToSwimState(const int state);
+	static int swimToFlyState(const int state);
 	static int getAnimationState();
 	static void setAnimationState(int state);
 	static void setStates(const LLUUID& id, BOOL start);
@@ -79,10 +85,12 @@ public:
 	static void setCurrentStandId(const LLUUID& id);
 	static int stand_iterator;
 	static BOOL ChangeStand();
+	static void toggleSwim(bool underwater);
 
 	static BOOL startMotion(const LLUUID& id, F32 time_offset = 0.f, BOOL stand = FALSE);
 	static BOOL stopMotion(const LLUUID& id, BOOL stop_immediate, BOOL stand = FALSE);
 
+	static bool swimCheck(const int state);
 	static LLUUID GetAnimID(const LLUUID& id);
 
 	static int GetStateFromAnimID(const LLUUID& id);
