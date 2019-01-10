@@ -75,14 +75,14 @@ public:
 	static void run();
 	static void updateLayout(LLFloaterAO* floater);
 
-	static BOOL loadAnims();
+	//static BOOL loadAnims();
 
 	static void typing(bool start);
 	static int flyToSwimState(const int state);
 	static int swimToFlyState(const int state);
 	static int getAnimationState();
 	static void setAnimationState(int state);
-	static void setStates(const LLUUID& id, BOOL start);
+	//static void setStates(const LLUUID& id, BOOL start);
 
 	static LLUUID getCurrentStandId();
 	static void setCurrentStandId(const LLUUID& id);

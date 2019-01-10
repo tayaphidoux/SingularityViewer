@@ -303,13 +303,13 @@ BOOL LLFloaterAO::postBuild()
 	getChild<LLComboBox>("gsits")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit,_1));
 	getChild<LLComboBox>("crouchs")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit,_1));
 	getChild<LLComboBox>("cwalks")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit,_1));
-	getChild<LLComboBox>("falls")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit,_1));
-	getChild<LLComboBox>("hovers")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit,_1));
-	getChild<LLComboBox>("flys")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit,_1));
-	getChild<LLComboBox>("flyslows")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit,_1));
-	getChild<LLComboBox>("flyups")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit,_1));
-	getChild<LLComboBox>("flydowns")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit,_1));
-	getChild<LLComboBox>("lands")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit,_1));
+	getChild<LLComboBox>("falls")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit, _1));
+	getChild<LLComboBox>("hovers")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit, _1));
+	getChild<LLComboBox>("flys")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit, _1));
+	getChild<LLComboBox>("flyslows")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit, _1));
+	getChild<LLComboBox>("flyups")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit, _1));
+	getChild<LLComboBox>("flydowns")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit, _1));
+	getChild<LLComboBox>("lands")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit, _1));
 	getChild<LLComboBox>("typings")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit, _1));
 	getChild<LLComboBox>("floats")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit, _1));
 	getChild<LLComboBox>("swims")->setCommitCallback(boost::bind(&LLFloaterAO::onComboBoxCommit, _1));
@@ -717,8 +717,7 @@ void LLFloaterAO::run()
 	}
 	else
 	{
-		if (state == STATE_AGENT_SIT) gAgent.sendAnimationRequest(GetAnimIDFromState(state), (gSavedSettings.getBOOL("AOEnabled") && gSavedSettings.getBOOL("AOSitsEnabled")) ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
-		else gAgent.sendAnimationRequest(GetAnimIDFromState(state), gSavedSettings.getBOOL("AOEnabled") ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
+		gAgent.sendAnimationRequest(GetAnimIDFromState(state), (gSavedSettings.getBOOL("AOEnabled") &&  (state != STATE_AGENT_SIT || gSavedSettings.getBOOL("AOSitsEnabled"))) ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
 	}
 }
 
@@ -938,12 +937,8 @@ BOOL LLFloaterAO::startMotion(const LLUUID& id, F32 time_offset, BOOL stand)
 	{
 		if (id.notNull())
 		{
-			BOOL sitting = FALSE;
-			if (gAgentAvatarp)
-			{
-				sitting = gAgentAvatarp->isSitting();
-			}
-			if (sitting) return FALSE;
+			if (gAgentAvatarp && gAgentAvatarp->isSitting())
+				return FALSE;
 			gAgent.sendAnimationRequest(id, ANIM_REQUEST_START);
 			return TRUE;
 		}
@@ -1502,23 +1497,11 @@ BOOL LLFloaterAO::SetDefault(void* userdata, LLUUID ao_id, std::string defaultan
 class ObjectNameMatches : public LLInventoryCollectFunctor
 {
 public:
-	ObjectNameMatches(std::string name)
-	{
-		sName = name;
-	}
+	ObjectNameMatches(std::string name) : sName(name) {}
 	virtual ~ObjectNameMatches() {}
-	virtual bool operator()(LLInventoryCategory* cat,
-							LLInventoryItem* item)
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	{
-		if(item)
-		{
-			if (item->getParentUUID() == LLFloaterAO::invfolderid)
-			{
-				return (item->getName() == sName);
-			}
-			return false;
-		}
-		return false;
+		return item && item->getParentUUID() == LLFloaterAO::invfolderid && item->getName() == sName;
 	}
 private:
 	std::string sName;
@@ -1526,16 +1509,11 @@ private:
 
 const LLUUID& LLFloaterAO::getAssetIDByName(const std::string& name)
 {
-	if (name.empty() || !(LLInventoryModelBackgroundFetch::instance().isEverythingFetched())) return LLUUID::null;
+	if (name.empty() || !LLInventoryModelBackgroundFetch::instance().isEverythingFetched()) return LLUUID::null;
 
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
-	ObjectNameMatches objectnamematches(name);
-	gInventory.collectDescendentsIf(LLUUID::null,cats,items,FALSE,objectnamematches);
+	gInventory.collectDescendentsIf(LLUUID::null,cats,items,FALSE, ObjectNameMatches(name));
 
-	if (items.size())
-	{
-		return items[0]->getAssetUUID();
-	}
-	return LLUUID::null;
+	return items.size() ? items[0]->getAssetUUID() : LLUUID::null;
 };
