@@ -252,6 +252,13 @@
         Default Downward Swim:
       </text>
       <combo_box name="swimdowns" label="" follows="left|top" height="20" left_delta="0" width="180" bottom_delta="0" control_name="AODefaultSwimDown" />
+      <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	         bottom_delta="-40" drop_shadow_visible="true" follows="left|bottom"
+	         font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="0"
+	         mouse_opaque="true" name="textdefaulttyping" v_pad="0" width="180">
+        Default Typing:
+      </text>
+      <combo_box name="typings" label="" follows="left|top" height="20" left_delta="0" width="180" bottom_delta="0" control_name="AODefaultTyping" />
   </panel>
 </tab_container>
 </floater>

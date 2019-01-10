@@ -34,6 +34,8 @@ const int STATE_AGENT_LAND = 17;
 const int STATE_AGENT_FLY = 18;
 const int STATE_AGENT_FLYSLOW = 19;
 
+const int STATE_AGENT_TYPING = 20;
+
 const int STATE_AGENT_SWIM_DOWN = 21;
 const int STATE_AGENT_SWIM_UP = 22;
 const int STATE_AGENT_SWIM = 23;
@@ -75,6 +77,7 @@ public:
 
 	static BOOL loadAnims();
 
+	static void typing(bool start);
 	static int flyToSwimState(const int state);
 	static int swimToFlyState(const int state);
 	static int getAnimationState();

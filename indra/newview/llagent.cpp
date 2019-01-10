@@ -103,6 +103,7 @@
 
 #include "lluictrlfactory.h" //For LLUICtrlFactory::getLayeredXMLNode
 
+#include "floaterao.h" // for Typing override
 #include "hippolimits.h" // for getMaxAgentGroups
 // [RLVa:KB] - Checked: 2011-11-04 (RLVa-1.4.4a)
 #include "rlvactions.h"
@@ -2004,10 +2005,7 @@ void LLAgent::startTyping()
 		}
 	}
 
-	if (gSavedSettings.getBOOL("PlayTypingAnim"))
-	{
-		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
-	}
+	LLFloaterAO::typing(true); // Singu Note: Typing anims handled by AO/settings.
 	gChatBar->
 			sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
@@ -2020,7 +2018,7 @@ void LLAgent::stopTyping()
 	if (mRenderState & AGENT_STATE_TYPING)
 	{
 		clearRenderState(AGENT_STATE_TYPING);
-		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
+		LLFloaterAO::typing(false); // Singu Note: Typing anims handled by AO/settings.
 		gChatBar->
 				sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
