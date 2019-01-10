@@ -524,11 +524,14 @@ BOOL LLFloaterIMPanel::postBuild()
 		if (LLComboBox* flyout = findChild<LLComboBox>("instant_message_flyout"))
 		{
 			flyout->setCommitCallback(boost::bind(&LLFloaterIMPanel::onFlyoutCommit, this, flyout, _2));
-			if (is_agent_mappable(mOtherParticipantUUID))
-				flyout->add(getString("find on map"), -2);
-			addDynamics(flyout);
-			if (gObjectList.findAvatar(mOtherParticipantUUID))
-				flyout->add(getString("focus"), -3);
+			if (mSessionType == P2P_SESSION)
+			{
+				if (is_agent_mappable(mOtherParticipantUUID))
+					flyout->add(getString("find on map"), -2);
+				addDynamics(flyout);
+				if (gObjectList.findAvatar(mOtherParticipantUUID))
+					flyout->add(getString("focus"), -3);
+			}
 		}
 		if (LLUICtrl* ctrl = findChild<LLUICtrl>("tp_btn"))
 			ctrl->setCommitCallback(boost::bind(static_cast<void(*)(const LLUUID&)>(LLAvatarActions::offerTeleport), mOtherParticipantUUID));
