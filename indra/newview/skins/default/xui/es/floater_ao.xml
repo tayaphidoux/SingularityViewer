@@ -16,8 +16,7 @@
 	<check_box label="Mostrar AO en Barra de Herram." name="ao_remote_checkbox"/>
 	<spinner name="standtime" label="Tiempo de Ejecución:" label_width="120" tool_tip="Tiempo de ejecución de la animación, en segundos" />
 	<button name="newcard" label="Nueva Plantilla de Nota" />
-	<button label="Más &gt;&gt;" name="more_btn" tool_tip="Opciones Avanzadas" />
-	<button label="&lt;&lt; Menos" name="less_btn" tool_tip="Opciones Avanzadas" />
+	<button label="Más &gt;&gt;" label_selected="&lt;&lt; Menos" name="more_btn" tool_tip="Opciones Avanzadas" />
 	<tab_container label="Por Defecto" name="tabcontainer" >
 		<panel label="Animaciones por Defecto" name="tabdefaultanims">
 			<text name="textdefaultwalk">

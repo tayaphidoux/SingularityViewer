@@ -5930,7 +5930,7 @@ void LLVOAvatar::processAnimationStateChanges()
 			{
 				if (AOEnabled && isSelf()) // AO is only for ME
 				{
-					LLFloaterAO::startMotion(anim_it->first, 0,FALSE); // AO overrides the anim if needed
+					LLFloaterAO::startMotion(anim_it->first, false); // AO overrides the anim if needed
 				}
 
 				mPlayingAnimations[anim_it->first] = anim_it->second;

@@ -100,13 +100,9 @@
 		/>
 
   <button bottom="4" follows="left|bottom" font="SansSerifSmall" halign="center"
-     height="20" label="More &gt;&gt;" left="118"
-     mouse_opaque="true" name="more_btn" scale_image="TRUE"
+     height="20" label="More &gt;&gt;" label_selected="&lt;&lt; Less" left="118" toggle="true"
+     mouse_opaque="true" name="more_btn" scale_image="TRUE" control_name="AOAdvanced" image_selected="button_enabled_32x128.tga"
      tool_tip="Advanced Options" width="76" />
-  <button bottom_delta="0" follows="left|bottom" font="SansSerifSmall" halign="center"
-	     height="20" label="&lt;&lt; Less" left_delta="0"
-	     mouse_opaque="true" name="less_btn" scale_image="TRUE"
-	     tool_tip="Advanced Options" width="76" />
 
   <tab_container label="Default" bottom="6" left="210" mouse_opaque="false" name="tabcontainer" tab_min_width="50" tab_position="top" width="580" height="350" bg_opaque_color="0,0,0,0.0">
     <panel border="true" left="0" bottom="0" follows="left|top|right|bottom" height="350" label="Default Anims" mouse_opaque="true" name="tabdefaultanims" width="580">
