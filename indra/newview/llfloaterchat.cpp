@@ -61,6 +61,7 @@
 #include "llspeakers.h"
 #include "llstylemap.h"
 #include "lluictrlfactory.h"
+#include "llurlregistry.h"
 #include "llviewermessage.h"
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"
@@ -176,6 +177,31 @@ void LLFloaterChat::updateConsoleVisibility()
 							|| (getHost() && getHost()->isMinimized() ));	// are we hosted in a minimized floater?
 }
 
+void handle_registered_urls(std::string ui_msg, bool prepend_newline, LLStyleSP style, LLViewerTextEditor* edit, const LLColor4& color)
+{
+	LLUrlMatch match;
+	auto& registry = LLUrlRegistry::instance();
+	while (!ui_msg.empty() && registry.findUrl(ui_msg, match))
+	{
+		if (match.getStart() > 0)
+		{
+			style->setColor(color);
+			edit->appendStyledText(ui_msg.substr(0, match.getStart()), false, prepend_newline, style);
+			prepend_newline = false;
+		}
+		style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
+		style->setLinkHREF(match.getUrl());
+		edit->appendStyledText(match.getLabel(), false, prepend_newline, style);
+		style->setLinkHREF(LLStringUtil::null);
+		prepend_newline = false;
+
+		ui_msg = (ui_msg.size() <= match.getEnd() + 1) ? LLStringUtil::null : ui_msg.substr(match.getEnd() + 1);
+	}
+
+	style->setColor(color);
+	if (!ui_msg.empty()) edit->appendStyledText(ui_msg, false, prepend_newline, style);
+}
+
 void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4& color)
 {
 	std::string line = chat.mText;
@@ -222,9 +248,8 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 		prepend_newline = false;
 	}
 	LLStyleSP style(new LLStyle);
-	style->setColor(color);
 	style->mItalic = is_irc;
-	edit->appendStyledText(line, false, prepend_newline, style);
+	handle_registered_urls(line, prepend_newline, style, edit, color);
 }
 
 void log_chat_text(const LLChat& chat)

@@ -812,10 +812,11 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, LLColor4 incol
 	// Append the chat message in style
 	{
 		LLStyleSP style(new LLStyle);
-		style->setColor(incolor);
 		style->mItalic = is_irc;
 		style->mBold = from_user && gSavedSettings.getBOOL("SingularityBoldGroupModerator") && isModerator(source);
-		mHistoryEditor->appendStyledText(utf8msg, false, prepend_newline, style);
+
+		void handle_registered_urls(std::string ui_msg, bool prepend_newline, LLStyleSP style, LLViewerTextEditor* edit, const LLColor4& color);
+		handle_registered_urls(utf8msg, prepend_newline, style, mHistoryEditor, incolor);
 	}
 
 	if (log_to_file
