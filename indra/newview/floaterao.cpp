@@ -51,28 +51,32 @@ public:
 	{
 		if (!mFileName.empty())
 		{ 
-			LLPreviewNotecard* nc;
-			nc = (LLPreviewNotecard*)LLPreview::find(inv_item);
-			if(nc)
+			LLPreviewNotecard* nc = (LLPreviewNotecard*)LLPreview::show(inv_item);
+			if (!nc)
 			{
-				nc->open();
-				LLTextEditor *text = nc->getEditor();
-				if (text)
+				auto item = gInventory.getItem(inv_item);
+				open_notecard(item, "Note: " + item->getName(), LLUUID::null, false);
+				nc = (LLPreviewNotecard*)LLPreview::find(inv_item);
+			}
+
+			if (nc)
+			{
+				if (LLTextEditor *text = nc->getEditor())
 				{
 					text->clear();
 					text->makePristine();
 
 					std::ifstream file(mFileName.c_str());
-				
+
 					std::string line;
 					while (!file.eof())
-					{ 
+					{
 						getline(file, line);
-						line = line + "\n";
+						line += '\n';
 						text->insertText(line);
 					}
 					file.close();
-			
+
 					nc->saveIfNeeded();
 				}
 			}
