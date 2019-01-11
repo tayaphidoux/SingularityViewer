@@ -294,6 +294,7 @@ void LLFloaterAO::onComboBoxCommit(LLUICtrl* ctrl)
 			case STATE_AGENT_GROUNDSIT:
 				start_cond &= gAgentAvatarp && gAgentAvatarp->isSitting() && gSavedSettings.getBOOL("AOSitsEnabled");
 				break;
+			default: break;
 			}
 			LLUUID anim = getAssetIDByName(stranim);
 			if (start_cond) gAgent.sendAnimationRequest(anim, ANIM_REQUEST_START);
@@ -440,6 +441,7 @@ void LLFloaterAO::run()
 			sit = true;
 			stopMotion(getCurrentStandId(), true); // Stop the current stand
 			break;
+		default: break;
 		}
 		gAgent.sendAnimationRequest(GetAnimIDFromState(state), (gSavedSettings.getBOOL("AOEnabled") &&  (!sit || gSavedSettings.getBOOL("AOSitsEnabled"))) ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
 	}
@@ -798,8 +800,8 @@ LLComboBox* LLFloaterAO::getComboFromState(const AOState& state)
 	case STATE_AGENT_SWIM_DOWN: return mcomboBox_swimdowns;
 	case STATE_AGENT_STANDUP: return mcomboBox_standups;
 	case STATE_AGENT_PRE_JUMP: return mcomboBox_prejumps;
+	default: return nullptr;
 	}
-	return nullptr;
 }
 
 void LLFloaterAO::onNotecardLoadComplete(LLVFS *vfs,const LLUUID& asset_uuid,LLAssetType::EType type,void* user_data, S32 status, LLExtStat ext_status)
@@ -882,6 +884,7 @@ void LLFloaterAO::onNotecardLoadComplete(LLVFS *vfs,const LLUUID& asset_uuid,LLA
 								{
 								case STATE_AGENT_STAND:
 									mAOStands.push_back({ animid, stranim });
+								default: break;
 								}
 
 								if (LLComboBox* combo = getComboFromState(state))
@@ -948,7 +951,8 @@ const LLUUID& LLFloaterAO::getAssetIDByName(const std::string& name)
 
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
-	gInventory.collectDescendentsIf(LLUUID::null,cats,items,false, ObjectNameMatches(name));
+	ObjectNameMatches matches(name);
+	gInventory.collectDescendentsIf(LLUUID::null,cats,items,false, matches);
 
 	return items.empty() ? LLUUID::null : items[0]->getAssetUUID();
 };
