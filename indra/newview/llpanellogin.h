@@ -79,6 +79,7 @@ public:
 	static void getFields(std::string& firstname, std::string& lastname, std::string& password);
 
 	static void setLocation(const LLSLURL& slurl);
+	static void autologinToLocation(const LLSLURL& slurl);
 	
 	/// Call when preferences that control visibility may have changed
 	static void updateLocationSelectorsVisibility();
