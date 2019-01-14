@@ -79,7 +79,7 @@ class ViewerManifest(LLManifest):
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
         self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
 
-        if self.is_packaging_viewer():
+        if True: #self.is_packaging_viewer():
             if self.prefix(src="app_settings"):
                 self.exclude("logcontrol.xml")
                 self.exclude("logcontrol-dev.xml")
@@ -298,7 +298,7 @@ class WindowsManifest(ViewerManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
-        if self.is_packaging_viewer():
+        if True: #self.is_packaging_viewer():
             # Find singularity-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/%s-bin.exe' % (self.args['configuration'],self.viewer_branding_id()), dst=self.final_exe())
 
