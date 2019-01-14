@@ -294,7 +294,8 @@ LLGroupNotifyBox::~LLGroupNotifyBox()
 // virtual
 BOOL LLGroupNotifyBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	moveToBack();
+	if (!LLPanel::handleRightMouseDown(x, y, mask))
+		moveToBack();
 	return TRUE;
 }
 

@@ -486,13 +486,9 @@ BOOL LLNotifyBox::handleMouseUp(S32 x, S32 y, MASK mask)
 // virtual
 BOOL LLNotifyBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!mIsTip)
-	{
-		moveToBack(true);
-		return TRUE;
-	}
-
-	return LLPanel::handleRightMouseDown(x, y, mask);
+	bool done = LLPanel::handleRightMouseDown(x, y, mask);
+	if (!done && !mIsTip) moveToBack(true);
+	return done || !mIsTip;
 }
 
 
