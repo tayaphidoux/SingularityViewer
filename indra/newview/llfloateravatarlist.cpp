@@ -315,7 +315,7 @@ namespace
 	{
 		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 		{
-			LLFloaterAvatarList::instance().setFocusAvatar(get_focused_list_id_selected());
+			LLFloaterAvatarList::setFocusAvatar(get_focused_list_id_selected());
 			return true;
 		}
 	};
@@ -1149,9 +1149,16 @@ void LLFloaterAvatarList::removeFocusFromAll()
 	}
 }
 
+// static
 void LLFloaterAvatarList::setFocusAvatar(const LLUUID& id)
 {
 	if (!gAgentCamera.lookAtObject(id, false) && !lookAtAvatar(id)) return;
+	if (auto inst = getIfExists())
+		inst->setFocusAvatarInternal(id);
+}
+
+void LLFloaterAvatarList::setFocusAvatarInternal(const LLUUID& id)
+{
 	av_list_t::iterator iter = std::find_if(mAvatars.begin(),mAvatars.end(),LLAvatarListEntry::uuidMatch(id));
 	if (iter == mAvatars.end()) return;
 	removeFocusFromAll();

@@ -264,7 +264,7 @@ public:
 	/**
 	 * @brief Focus camera on specified avatar
 	 */
-	void setFocusAvatar(const LLUUID& id);
+	static void setFocusAvatar(const LLUUID& id);
 
 	/**
 	 * @brief Focus camera on previous avatar
@@ -332,6 +332,8 @@ public:
 	void updateAvatarSorting();
 
 private:
+	void setFocusAvatarInternal(const LLUUID& id);
+
 	/**
 	 * @brief Pointer to the avatar scroll list
 	 */
