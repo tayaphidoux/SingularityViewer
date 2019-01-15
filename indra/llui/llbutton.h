@@ -243,6 +243,7 @@ protected:
 	S32							mHeldDownFrameDelay;	// frames, after which held-down callbacks get called
 
 	LLPointer<LLUIImage>	mImageOverlay;
+	LLPointer<LLUIImage>	mImageOverlaySelected;
 	LLFontGL::HAlign			mImageOverlayAlignment;
 	LLUIColor					mImageOverlayColor;
 	LLUIColor					mImageOverlaySelectedColor;

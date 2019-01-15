@@ -15,6 +15,6 @@
 	     name="voice_volume" width="16" />
 	<button bottom="-22" control_name="ShowVoiceChannelPopup" height="22" label=""
 	     left_delta="16" name="show_channel" scale_image="true" toggle="true"
-	     image_selected="arrow_down.tga" image_unselected="arrow_up.tga"
+	     image_overlay_selected="arrow_down.tga" image_overlay="arrow_up.tga"
 	     tool_tip="Click to show current voice channel" width="22" />
 </panel>

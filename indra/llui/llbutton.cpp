@@ -92,6 +92,7 @@ LLButton::LLButton(	const std::string& name, const LLRect& rect, const std::stri
 	mFlashBgColor(LLUI::sColorsGroup->getColor("ButtonFlashBgColor")),
 	mDisabledImageColor(LLUI::sColorsGroup->getColor("ButtonImageColor")),
 	mImageOverlay(NULL),
+	mImageOverlaySelected(NULL),
 	mImageOverlayColor(LLColor4::white),
 	mImageOverlayDisabledColor(LLColor4(1.f,1.f,1.f,.5f)),
 	mImageOverlaySelectedColor(LLColor4::white),
@@ -161,6 +162,7 @@ LLButton::LLButton(const std::string& name, const LLRect& rect,
 	mFlashBgColor(LLUI::sColorsGroup->getColor("ButtonFlashBgColor")),
 	mDisabledImageColor(LLUI::sColorsGroup->getColor("ButtonImageColor")),
 	mImageOverlay(NULL),
+	mImageOverlaySelected(NULL),
 	mImageOverlayColor(LLColor4::white),
 	mImageOverlayDisabledColor(LLColor4(1.f,1.f,1.f,.5f)),
 	mImageOverlaySelectedColor(LLColor4::white),
@@ -783,12 +785,13 @@ void LLButton::draw()
 		}
 		overlay_color.mV[VALPHA] *= alpha;
 
+		auto& overlay = (mIsToggle && mImageOverlaySelected && getToggleState()) ? mImageOverlaySelected : mImageOverlay;
 		switch(mImageOverlayAlignment)
 		{
 		case LLFontGL::LEFT:
 			text_left += overlay_width + mImgOverlayLabelSpace;
 			text_width -= overlay_width + mImgOverlayLabelSpace;
-			mImageOverlay->draw(
+			overlay->draw(
 				mLeftHPad,
 				center_y - (overlay_height / 2), 
 				overlay_width, 
@@ -796,7 +799,7 @@ void LLButton::draw()
 				overlay_color);
 			break;
 		case LLFontGL::HCENTER:
-			mImageOverlay->draw(
+			overlay->draw(
 				center_x - (overlay_width / 2), 
 				center_y - (overlay_height / 2), 
 				overlay_width, 
@@ -806,7 +809,7 @@ void LLButton::draw()
 		case LLFontGL::RIGHT:
 			text_right -= overlay_width + mImgOverlayLabelSpace;
 			text_width -= overlay_width + mImgOverlayLabelSpace;
-			mImageOverlay->draw(
+			overlay->draw(
 				getRect().getWidth() - mRightHPad - overlay_width,
 				center_y - (overlay_height / 2), 
 				overlay_width, 
@@ -1199,6 +1202,9 @@ LLView* LLButton::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fa
 	std::string	image_overlay;
 	node->getAttributeString("image_overlay", image_overlay);
 
+	std::string image_overlay_selected;
+	node->getAttributeString("image_overlay_selected", image_overlay_selected);
+
 	LLFontGL::HAlign image_overlay_alignment = LLFontGL::HCENTER;
 	std::string image_overlay_alignment_string;
 	if (node->hasAttribute("image_overlay_alignment"))
@@ -1234,6 +1240,7 @@ LLView* LLButton::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fa
 	if(image_disabled != LLStringUtil::null) button->setImageDisabled(LLUI::getUIImage(image_disabled));
 	
 	if(image_overlay != LLStringUtil::null) button->setImageOverlay(image_overlay, image_overlay_alignment);
+	if (!image_overlay_selected.empty()) button->mImageOverlaySelected = LLUI::getUIImage(image_overlay_selected);
 
 	if (node->hasAttribute("halign"))
 	{
