@@ -172,7 +172,7 @@ BOOL LLSlider::handleMouseUp(S32 x, S32 y, MASK mask)
 
 	if( hasMouseCapture() )
 	{
-		gFocusMgr.setMouseCapture( NULL );
+		gFocusMgr.setMouseCapture(nullptr );
 
 		if (mMouseUpSignal)
 			(*mMouseUpSignal)( this, getValueF32() );
@@ -229,15 +229,12 @@ BOOL LLSlider::handleKeyHere(KEY key, MASK mask)
 	BOOL handled = FALSE;
 	switch(key)
 	{
-	case KEY_UP:
 	case KEY_DOWN:
-		// eat up and down keys to be consistent
-		handled = TRUE;
-		break;
 	case KEY_LEFT:
 		setValueAndCommit(getValueF32() - getIncrement());
 		handled = TRUE;
 		break;
+	case KEY_UP:
 	case KEY_RIGHT:
 		setValueAndCommit(getValueF32() + getIncrement());
 		handled = TRUE;
@@ -246,6 +243,13 @@ BOOL LLSlider::handleKeyHere(KEY key, MASK mask)
 		break;
 	}
 	return handled;
+}
+
+BOOL LLSlider::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+	F32 new_val = getValueF32() - clicks * getIncrement();
+	setValueAndCommit(new_val);
+	return TRUE;
 }
 
 void LLSlider::draw()
@@ -276,7 +280,7 @@ void LLSlider::draw()
 		mThumbImage->drawBorder(mThumbRect, gFocusMgr.getFocusColor() % alpha, gFocusMgr.getFocusFlashWidth());
 	}
 
-	if( hasMouseCapture() )
+	if( hasMouseCapture() ) // currently clicking on slider
 	{
 		// Show ghost where thumb was before dragging began.
 		if (mThumbImage.notNull())
