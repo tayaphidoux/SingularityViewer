@@ -339,8 +339,6 @@ void LLFloaterChat::setHistoryCursorAndScrollToEnd()
 //static
 void LLFloaterChat::onClickToggleShowMute(bool show_mute, LLTextEditor* history_editor, LLTextEditor* history_editor_with_mute)
 {
-	history_editor->setVisible(!show_mute);
-	history_editor_with_mute->setVisible(show_mute);
 	(show_mute ? history_editor_with_mute : history_editor)->setCursorAndScrollToEnd();
 }
 
