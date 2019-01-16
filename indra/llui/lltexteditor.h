@@ -65,9 +65,10 @@ public:
 	LLTextEditor(const std::string& name,
 				 const LLRect& rect,
 				 S32 max_length,
-				 const std::string &default_text, 
+				 const std::string &default_text,
 				 const LLFontGL* glfont = NULL,
-				 BOOL allow_embedded_items = FALSE);
+				 BOOL allow_embedded_items = FALSE,
+				 bool parse_html = false);
 
 	virtual ~LLTextEditor();
 
@@ -131,7 +132,9 @@ public:
 	virtual BOOL	canRedo() const;
 	virtual void	cut();
 	virtual BOOL	canCut() const;
-	virtual void	copy();
+	void			copy(bool raw);
+	void			copyRaw() { copy(true); }
+	virtual void	copy() { copy(false); }
 	virtual BOOL	canCopy() const;
 	virtual void	paste();
 	virtual BOOL	canPaste() const;
@@ -177,19 +180,23 @@ public:
 	// appends text at end
 	void 			appendText(const std::string &wtext, bool allow_undo, bool prepend_newline,
 							   const LLStyleSP stylep = NULL);
+	void			appendTextImpl(const std::string& new_text, const LLStyleSP style);
+
+	void			setLastSegmentToolTip(const std::string& tooltip);
+
+	void			appendLineBreakSegment();
+
+	void			appendAndHighlightText(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep);
+
+	void			replaceUrl(const std::string& url, const std::string& label, const std::string& icon);
 
 	void 			appendColoredText(const std::string &wtext, bool allow_undo, 
 									  bool prepend_newline,
 									  const LLColor4 &color,
 									  const std::string& font_name = LLStringUtil::null);
-	// if styled text starts a line, you need to prepend a newline.
-	void 			appendStyledText(const std::string &new_text, bool allow_undo, 
-									 bool prepend_newline,
-									 LLStyleSP stylep = NULL);
-	void			appendHighlightedText(const std::string &new_text,  bool allow_undo, 
-										  bool prepend_newline,	 S32  highlight_part,
-										  LLStyleSP stylep);
 	
+	void			appendAndHighlightTextImpl(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep);
+
 	// Removes text from the end of document
 	// Does not change highlight or cursor position.
 	void 			removeTextFromEnd(S32 num_chars);
@@ -308,7 +315,6 @@ protected:
 	void			updateTextRect();
 	const LLRect&	getTextRect() const { return mTextRect; }
 
-	void 			assignEmbedded(const std::string &s);
 	BOOL 			truncate();				// Returns true if truncation occurs
 	
 	void			removeCharOrTab();
@@ -364,9 +370,6 @@ protected:
 	virtual llwchar	pasteEmbeddedItem(llwchar ext_char) { return ext_char; }
 	virtual void	bindEmbeddedChars(const LLFontGL* font) const {}
 	virtual void	unbindEmbeddedChars(const LLFontGL* font) const {}
-	
-	S32				findHTMLToken(const std::string &line, S32 pos, BOOL reverse) const;
-	BOOL			findHTML(const std::string &line, S32 *begin, S32 *end) const;
 
 	// Abstract inner base class representing an undoable editor command.
 	// Concrete sub-classes can be defined for operations such as insert, remove, etc.
@@ -408,7 +411,6 @@ protected:
 	void			removeWord(bool prev);
 	S32				insert(const S32 pos, const LLWString &wstr, const BOOL group_with_next_op);
 	S32				remove(const S32 pos, const S32 length, const BOOL group_with_next_op);
-	S32				append(const LLWString &wstr, const BOOL group_with_next_op);
 	
 	// Direct operations
 	S32				insertStringNoUndo(S32 pos, const LLWString &wstr); // returns num of chars actually inserted
@@ -480,6 +482,8 @@ private:
 	void	                pasteHelper(bool is_primary);
 	void			onKeyStroke();
 
+	void			createDefaultSegment();
+	void			clearSegments();
 	void			updateSegments();
 	void			pruneSegments();
 
@@ -615,6 +619,7 @@ public:
 	LLTextSegment( const LLColor3& color, S32 start, S32 end );
 
 	S32					getStart() const					{ return mStart; }
+	void				setStart(S32 start)					{ mStart = start; }
 	S32					getEnd() const						{ return mEnd; }
 	void				setEnd( S32 end )					{ mEnd = end; }
 	const LLColor4&		getColor() const					{ return mStyle->getColor(); }
@@ -626,6 +631,7 @@ public:
 	void				setToken( LLKeywordToken* token )	{ mToken = token; }
 	LLKeywordToken*		getToken() const					{ return mToken; }
 	BOOL				getToolTip( std::string& msg ) const;
+	void				setToolTip(const std::string& tooltip);
 
 	void				dump() const;
 
@@ -643,6 +649,7 @@ private:
 	S32			mEnd;
 	LLKeywordToken* mToken;
 	BOOL		mIsDefault;
+	std::string mTooltip;
 };
 
 

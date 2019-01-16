@@ -578,8 +578,9 @@ LLViewerTextEditor::LLViewerTextEditor(const std::string& name,
 									   S32 max_length, 
 									   const std::string& default_text, 
 									   const LLFontGL* font,
-									   BOOL allow_embedded_items)
-	: LLTextEditor(name, rect, max_length, default_text, font, allow_embedded_items),
+									   BOOL allow_embedded_items,
+									   bool parse_html)
+	: LLTextEditor(name, rect, max_length, default_text, font, allow_embedded_items, parse_html),
 	  mDragItemChar(0),
 	  mDragItemSaved(FALSE),
 	  mInventoryCallback(new LLEmbeddedNotecardOpener)
@@ -1679,7 +1680,7 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 	text_editor->initFromXML(node, parent);
 
 	// add text after all parameters have been set
-	text_editor->appendStyledText(text, FALSE, FALSE);
+	text_editor->appendText(text, FALSE, FALSE);
 
 	return text_editor;
 }

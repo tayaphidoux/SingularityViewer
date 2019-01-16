@@ -170,19 +170,16 @@ LLGroupNotifyBox::LLGroupNotifyBox(const std::string& subject,
 		DB_GROUP_NOTICE_MSG_STR_LEN,
 		LLStringUtil::null,
 		LLFontGL::getFontSansSerif(),
-		FALSE);
+		FALSE,
+		true);
 
 	static const LLStyleSP headerstyle(new LLStyle(true,LLColor4::black,"SansSerifBig"));
 	static const LLStyleSP datestyle(new LLStyle(true,LLColor4::black,"serif"));
 
-	text->appendStyledText(subject + "\n",false,false,headerstyle);
+	text->appendText(subject + '\n',false,false,headerstyle);
 
-	text->appendStyledText(time_buf,false,false,datestyle);
-	// Sadly, our LLTextEditor can't handle both styled and unstyled text
-	// at the same time.  Hence this space must be styled. JC
-	text->appendColoredText(std::string(" "),false,false,LLColor4::grey4);
-	text->setParseHTML(TRUE);
-	text->appendColoredText(std::string("\n\n") + message,false,false,LLColor4::grey4);
+	text->appendText(time_buf,false,false,datestyle);
+	text->appendColoredText(std::string(" \n\n") + message,false,false,LLColor4::grey4);
 
 	LLColor4 semi_transparent(1.0f,1.0f,1.0f,0.8f);
 	text->setCursor(0,0);

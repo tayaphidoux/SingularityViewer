@@ -286,6 +286,8 @@ void LLPreviewNotecard::loadAsset()
 	// request the asset.
 	if (const LLInventoryItem* item = getItem())
 	{
+		bool modify = gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE);
+		if (modify) editor->setParseHTML(false); // Don't do the url parsing or we'll lose text!
 		if (gAgent.allowOperation(PERM_COPY, item->getPermissions(),
 									GP_OBJECT_MANIPULATE)
 			|| gAgent.isGodlike())
@@ -344,8 +346,7 @@ void LLPreviewNotecard::loadAsset()
 			editor->setEnabled(FALSE);
 			mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
-		if(!gAgent.allowOperation(PERM_MODIFY, item->getPermissions(),
-								GP_OBJECT_MANIPULATE))
+		if(!modify)
 		{
 			editor->setEnabled(FALSE);
 			// <edit> You can always save in task inventory

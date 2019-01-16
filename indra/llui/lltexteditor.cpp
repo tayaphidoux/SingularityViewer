@@ -43,6 +43,7 @@
 #include "lluictrlfactory.h"
 #include "lluiimage.h"
 #include "llurlaction.h"
+#include "llurlregistry.h"
 #include "llrect.h"
 #include "llfocusmgr.h"
 #include "lltimer.h"
@@ -246,46 +247,47 @@ private:
 
 ///////////////////////////////////////////////////////////////////
 
-LLTextEditor::LLTextEditor(	
-	const std::string& name, 
-	const LLRect& rect, 
+LLTextEditor::LLTextEditor(
+	const std::string& name,
+	const LLRect& rect,
 	S32 max_length,						// In bytes
-	const std::string &default_text, 
+	const std::string &default_text,
 	const LLFontGL* font,
-	BOOL allow_embedded_items)
-	:	
-	LLUICtrl( name, rect, TRUE, NULL, FOLLOWS_TOP | FOLLOWS_LEFT ),
+	BOOL allow_embedded_items,
+	bool parse_html)
+	:
+	LLUICtrl(name, rect, TRUE, NULL, FOLLOWS_TOP | FOLLOWS_LEFT),
 	mTextIsUpToDate(TRUE),
-	mMaxTextByteLength( max_length ),
+	mMaxTextByteLength(max_length),
 	mPopupMenuHandle(),
 	mBaseDocIsPristine(TRUE),
-	mPristineCmd( NULL ),
-	mLastCmd( NULL ),
-	mCursorPos( 0 ),
-	mIsSelecting( FALSE ),
-	mSelectionStart( 0 ),
-	mSelectionEnd( 0 ),
-	mScrolledToBottom( TRUE ),
-	mOnScrollEndCallback( NULL ),
-	mOnScrollEndData( NULL ),
-	mCursorColor(		LLUI::sColorsGroup->getColor( "TextCursorColor" ) ),
-	mFgColor(			LLUI::sColorsGroup->getColor( "TextFgColor" ) ),
-	mDefaultColor(		LLUI::sColorsGroup->getColor( "TextDefaultColor" ) ),
-	mReadOnlyFgColor(	LLUI::sColorsGroup->getColor( "TextFgReadOnlyColor" ) ),
-	mWriteableBgColor(	LLUI::sColorsGroup->getColor( "TextBgWriteableColor" ) ),
-	mReadOnlyBgColor(	LLUI::sColorsGroup->getColor( "TextBgReadOnlyColor" ) ),
-	mFocusBgColor(		LLUI::sColorsGroup->getColor( "TextBgFocusColor" ) ),
-	mReadOnly(FALSE),
-	mWordWrap( FALSE ),
-	mShowLineNumbers ( FALSE ),
-	mTabsToNextField( TRUE ),
-	mCommitOnFocusLost( FALSE ),
-	mHideScrollbarForShortDocs( FALSE ),
-	mTakesNonScrollClicks( TRUE ),
-	mTrackBottom( FALSE ),
-	mAllowEmbeddedItems( allow_embedded_items ),
+	mPristineCmd(NULL),
+	mLastCmd(NULL),
+	mCursorPos(0),
+	mIsSelecting(FALSE),
+	mSelectionStart(0),
+	mSelectionEnd(0),
+	mScrolledToBottom(TRUE),
+	mOnScrollEndCallback(NULL),
+	mOnScrollEndData(NULL),
+	mCursorColor(LLUI::sColorsGroup->getColor("TextCursorColor")),
+	mFgColor(LLUI::sColorsGroup->getColor("TextFgColor")),
+	mDefaultColor(LLUI::sColorsGroup->getColor("TextDefaultColor")),
+	mReadOnlyFgColor(LLUI::sColorsGroup->getColor("TextFgReadOnlyColor")),
+	mWriteableBgColor(LLUI::sColorsGroup->getColor("TextBgWriteableColor")),
+	mReadOnlyBgColor(LLUI::sColorsGroup->getColor("TextBgReadOnlyColor")),
+	mFocusBgColor(LLUI::sColorsGroup->getColor("TextBgFocusColor")),
+	mReadOnly(parse_html),
+	mWordWrap(FALSE),
+	mShowLineNumbers(FALSE),
+	mTabsToNextField(TRUE),
+	mCommitOnFocusLost(FALSE),
+	mHideScrollbarForShortDocs(FALSE),
+	mTakesNonScrollClicks(TRUE),
+	mTrackBottom(FALSE),
+	mAllowEmbeddedItems(allow_embedded_items),
 	mAcceptCallingCardNames(FALSE),
-	mHandleEditKeysDirectly( FALSE ),
+	mHandleEditKeysDirectly(FALSE),
 	mMouseDownX(0),
 	mMouseDownY(0),
 	mLastSelectionX(-1),
@@ -312,39 +314,39 @@ LLTextEditor::LLTextEditor(
 
 	updateTextRect();
 
-	S32 line_height = ll_round( mGLFont->getLineHeight() );
+	S32 line_height = ll_round(mGLFont->getLineHeight());
 	S32 page_size = mTextRect.getHeight() / line_height;
 
 	// Init the scrollbar
 	LLRect scroll_rect;
-	scroll_rect.setOriginAndSize( 
+	scroll_rect.setOriginAndSize(
 		getRect().getWidth() - SCROLLBAR_SIZE,
 		1,
 		SCROLLBAR_SIZE,
 		getRect().getHeight() - 1);
 	S32 lines_in_doc = getLineCount();
-	mScrollbar = new LLScrollbar( std::string("Scrollbar"), scroll_rect,
+	mScrollbar = new LLScrollbar(std::string("Scrollbar"), scroll_rect,
 		LLScrollbar::VERTICAL,
-		lines_in_doc,						
-		0,						
+		lines_in_doc,
+		0,
 		page_size,
 		NULL);
 	mScrollbar->setFollowsRight();
 	mScrollbar->setFollowsTop();
 	mScrollbar->setFollowsBottom();
-	mScrollbar->setEnabled( TRUE );
-	mScrollbar->setVisible( TRUE );
+	mScrollbar->setEnabled(TRUE);
+	mScrollbar->setVisible(TRUE);
 	mScrollbar->setOnScrollEndCallback(mOnScrollEndCallback, mOnScrollEndData);
 	addChild(mScrollbar);
 
-	mBorder = new LLViewBorder( std::string("text ed border"), LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, UI_TEXTEDITOR_BORDER );
-	addChild( mBorder );
+	mBorder = new LLViewBorder(std::string("text ed border"), LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, UI_TEXTEDITOR_BORDER);
+	addChild(mBorder);
 
+	mParseHTML = parse_html;
 	appendText(default_text, FALSE, FALSE);
-	
+
 	resetDirty();		// Update saved text state
 
-	mParseHTML=FALSE;
 	mHTML.clear();
 	// make the popup menu available
 	//LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_texteditor.xml", parent_view);
@@ -355,6 +357,9 @@ LLTextEditor::LLTextEditor(
 	}*/
 	menu->addChild(new LLMenuItemCallGL("Cut", context_cut, NULL, this));
 	menu->addChild(new LLMenuItemCallGL("Copy", context_copy, NULL, this));
+	menu->addChild(new LLMenuItemCallGL("Copy Raw", [](void* data) {
+		if (LLTextEditor* line = static_cast<LLTextEditor*>(data)) line->copyRaw();
+	}, NULL, this));
 	menu->addChild(new LLMenuItemCallGL("Paste", context_paste, NULL, this));
 	menu->addChild(new LLMenuItemCallGL("Delete", context_delete, NULL, this));
 	menu->addChild(new LLMenuItemCallGL("Select All", context_selectall, NULL, this));
@@ -639,38 +644,30 @@ BOOL LLTextEditor::truncate()
 
 void LLTextEditor::setText(const LLStringExplicit &utf8str)
 {
-	// LLStringUtil::removeCRLF(utf8str);
-	mUTF8Text = utf8str_removeCRLF(utf8str);
-	// mUTF8Text = utf8str;
-	mWText = utf8str_to_wstring(mUTF8Text);
-	mTextIsUpToDate = TRUE;
+	// clear out the existing text and segments
+	mWText.clear();
 
-	truncate();
-	blockUndo();
+	clearSegments();
+//	createDefaultSegment();
 
-	setCursorPos(0);
 	deselect();
 
-	needsReflow();
+	// append the new text (supports Url linking)
+	std::string text(utf8str);
+	//LLStringUtil::removeCRLF(text);
+
+	// appendText modifies mCursorPos...
+	LLStyleSP style(new LLStyle(TRUE, mReadOnly ? mReadOnlyFgColor : mFgColor, LLFontGL::nameFromFont(mGLFont)));
+	appendText(utf8str, false, false, style);
+	// ...so move cursor to top after appending text
+	setCursorPos(0);
 
 	resetDirty();
 }
 
-void LLTextEditor::setWText(const LLWString &wtext)
+void LLTextEditor::setWText(const LLWString& text)
 {
-	mWText = wtext;
-	mUTF8Text.clear();
-	mTextIsUpToDate = FALSE;
-
-	truncate();
-	blockUndo();
-
-	setCursorPos(0);
-	deselect();
-
-	needsReflow();
-
-	resetDirty();
+	setText(wstring_to_utf8str(text));
 }
 
 // virtual
@@ -766,7 +763,7 @@ void LLTextEditor::selectNext(const std::string& search_text_in, BOOL case_insen
 	}
 	
 	// If still -1, then search_text just isn't found.
-    if (-1 == loc)
+	if (-1 == loc)
 	{
 		mIsSelecting = FALSE;
 		mSelectionEnd = 0;
@@ -889,9 +886,9 @@ S32 LLTextEditor::getLineStart( S32 line ) const
 {
 	S32 num_lines = getLineCount();
 	if (num_lines == 0)
-    {
+	{
 		return 0;
-    }
+	}
 
 	line = llclamp(line, 0, num_lines-1);
 	S32 segidx = mLineStartList[line].mSegment;
@@ -1446,11 +1443,11 @@ BOOL LLTextEditor::handleRightMouseDown( S32 x, S32 y, MASK mask )
 			if (glggHunSpell->getSpellCheckHighlight())
 			{
 				tempStruct->word = "Hide Misspellings";
-            }
+			}
 			else
-            {
+			{
 				tempStruct->word = "Show Misspellings";
-            }
+			}
 
 			LLMenuItemCallGL * suggMenuItem = new LLMenuItemCallGL(
 				tempStruct->word, spell_show, NULL, tempStruct);
@@ -1731,11 +1728,6 @@ S32 LLTextEditor::insert(const S32 pos, const LLWString &wstr, const BOOL group_
 S32 LLTextEditor::remove(const S32 pos, const S32 length, const BOOL group_with_next_op)
 {
 	return execute( new LLTextCmdRemove( pos, group_with_next_op, length ) );
-}
-
-S32 LLTextEditor::append(const LLWString &wstr, const BOOL group_with_next_op)
-{
-	return insert(mWText.length(), wstr, group_with_next_op);
 }
 
 S32 LLTextEditor::overwriteChar(S32 pos, llwchar wc)
@@ -2170,7 +2162,7 @@ BOOL LLTextEditor::canCopy() const
 }
 
 // copy selection to clipboard
-void LLTextEditor::copy()
+void LLTextEditor::copy(bool raw)
 {
 	if( !canCopy() )
 	{
@@ -2178,7 +2170,55 @@ void LLTextEditor::copy()
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
-	gClipboard.copyFromSubstring(mWText, left_pos, length, mSourceID);
+	// Does our selection include any Segments with links?
+	if (mParseHTML && raw)
+	{
+		auto begin = std::find_if(mSegments.begin(), mSegments.end(), [left_pos](const LLTextSegmentPtr& ptr) {
+			return ptr->getEnd() > left_pos;
+		});
+		auto last = mSegments.end();
+		if (begin == last || begin->isNull())
+		{
+			gClipboard.copyFromSubstring(mWText, left_pos, length, mSourceID);
+			return;
+		}
+		S32 right_pos = left_pos + length, offset = 0;
+		{
+			// If our selection starts in the middle of a link, set our left_pos to the beginning of its segment.
+			auto segment = **begin;
+			if (auto style = segment.getStyle())
+				if (!style->getLinkHREF().empty())
+					left_pos = llmin(segment.getStart(), left_pos);
+		}
+		auto text = mWText.substr(left_pos, length);
+		for (; begin->notNull() && begin != last && (*begin)->getStart() <= right_pos; ++begin)
+		{
+			auto segment = **begin;
+			//llassert(segment->getStyle()); // If someone is stores the result of the S32 constructor, they're in so much trouble!!
+			const auto& link = segment.getStyle()->getLinkHREF();
+			if (!link.empty())
+			{
+				const S32 label_length = (segment.getEnd() - segment.getStart());
+				const S32 start = (segment.getStart()+offset)-left_pos;
+				const auto label = text.substr(start, label_length);
+				LL_INFOS() << "Our label is " << wstring_to_utf8str(label) << LL_ENDL;
+				const auto wlink = utf8str_to_wstring(link);
+				const auto pos = wlink.find(label);
+				// Do not replace if normal link, or contains normal link (but may omit protocol) but ends the same way
+				// (i.e. [http://foo.bar/baz foo.bar] should still be restored here but not foo.bar/baz or foo.bar
+				if (pos == std::string::npos // Label is not (part of) the url
+					|| (pos != 0 && wlink[pos-1] != '/') || pos+label.size() != wlink.size()) // Label is part of the url but there's more on either side of the url after the protocol
+				{
+					constexpr llwchar startchar = '[', space = ' ', endchar = ']';
+					const auto raw_html = startchar + wlink + space + label + endchar;
+					text.replace(start, label_length, raw_html);
+					offset += raw_html.size() - label_length; // Track how much we've offset the string by replacing labels with their raw html and thus adding characters
+				}
+			}
+		}
+		gClipboard.copyFromSubstring(text, 0, text.length(), mSourceID);
+	}
+	else gClipboard.copyFromSubstring(mWText, left_pos, length, mSourceID);
 }
 
 BOOL LLTextEditor::canPaste() const
@@ -4077,31 +4117,61 @@ void LLTextEditor::appendColoredText(const std::string &new_text,
 	style->setVisible(true);
 	style->setColor(lcolor);
 	style->setFontName(font_name);
-	appendStyledText(new_text, allow_undo, prepend_newline, style);
+	appendText(new_text, allow_undo, prepend_newline, style);
 }
 
-void LLTextEditor::appendStyledText(const std::string &new_text, 
-									 bool allow_undo, 
-									 bool prepend_newline,
-									 LLStyleSP stylep)
+static LLTrace::BlockTimerStatHandle FTM_APPEND_TEXT("Append Text");
+
+void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool prepend_newline,
+							  const LLStyleSP style)
 {
-	S32 part = (S32)LLTextParser::WHOLE;
-	if(mParseHTML)
+	LL_RECORD_BLOCK_TIME(FTM_APPEND_TEXT);
+	if (new_text.empty())
+		return;
+
+	std::string text = prepend_newline && !mWText.empty() ? ('\n' + new_text) : new_text;
+	appendTextImpl(text, style);
+
+	if (!allow_undo)
 	{
+		blockUndo();
+	}
+}
 
+static LLTrace::BlockTimerStatHandle FTM_PARSE_HTML("Parse HTML");
+
+// Appends new text to end of document
+void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP style)
+{
+	std::string text = new_text;
+	static LLUICachedControl<bool> replace_links("SinguReplaceLinks");
+	bool is_link = style && !style->getLinkHREF().empty(); // Don't search for URLs inside a link segment (STORM-358).
+
+	S32 part = (S32)LLTextParser::WHOLE;
+	if (mReadOnly && mParseHTML && !is_link) // Singu Note: Do not replace html if the user is going to edit it. (Like in profiles)
+	{
+		LL_RECORD_BLOCK_TIME(FTM_PARSE_HTML);
 		S32 start=0,end=0;
-		std::string text = new_text;
-		while ( findHTML(text, &start, &end) )
+		LLUrlMatch match;
+		LLStyleSP link_style(new LLStyle);
+		if (style) *link_style = *style;
+		link_style->setColor(LLUI::sConfigGroup->getColor4("HTMLLinkColor"));
+		auto append_substr = [&](const size_t& pos, const size_t& count)
 		{
-			LLStyleSP html(new LLStyle);
-			html->setVisible(true);
-			html->setColor(mLinkColor);
-			if (stylep)
-			{
-				html->setFontName(stylep->getFontString());
-			}
-			html->mUnderline = TRUE;
+			appendAndHighlightText(text.substr(pos, count), part, style);
+		};
+		auto append_link = [&](const std::string& link)
+		{
+			link_style->setLinkHREF(match.getUrl());
+			appendAndHighlightText(link, part, link_style);
+		};
+		while (!text.empty() && LLUrlRegistry::instance().findUrl(text, match,
+				boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3)))
+		{
+			start = match.getStart();
+			end = match.getEnd()+1;
 
+			// output the text before the Url
 			if (start > 0)
 			{
 				if (part == (S32)LLTextParser::WHOLE ||
@@ -4113,15 +4183,51 @@ void LLTextEditor::appendStyledText(const std::string &new_text,
 				{
 					part = (S32)LLTextParser::MIDDLE;
 				}
-				std::string subtext=text.substr(0,start);
-				appendHighlightedText(subtext,allow_undo, prepend_newline, part, stylep); 
+				append_substr(0, start);
 			}
-			
-			html->setLinkHREF(text.substr(start,end-start));
-			appendText(text.substr(start, end-start),allow_undo, prepend_newline, html);
-			if (end < (S32)text.length()) 
+
+			auto url = match.getUrl();
+			const auto& label = match.getLabel();
+			if (replace_links || url == label)
 			{
-				text = text.substr(end,text.length() - end);
+				// add icon before url if need
+				/* Singu TODO: Icons next to links?
+				LLTextUtil::processUrlMatch(&match, this, isContentTrusted() || match.isTrusted());
+				if ((isContentTrusted() || match.isTrusted()) && !match.getIcon().empty() )
+				{
+					link_style->setImage(match.getIcon());
+					setLastSegmentToolTip(LLTrans::getString("TooltipSLIcon"));
+				}*/
+
+				// output the styled url
+				append_link(label);
+				bool tooltip_required = !match.getTooltip().empty();
+
+				// set the tooltip for the Url label
+				if (tooltip_required)
+				{
+					setLastSegmentToolTip(match.getTooltip());
+				}
+			}
+			else if (!replace_links) // Still link the link itself
+			{
+				const auto pos = text.find(url);
+				bool fallback(pos == std::string::npos); // In special cases like no protocol and brackets
+				bool brackets(fallback && text.find('[') == start); // Brackets
+				if (fallback == brackets && start < pos) // Leading text, only in special case if brackets present
+					append_substr(start, brackets ? 1 : pos-start);
+				// In the special cases, only link exactly the url, this might not have a protocol so calculate the exact string
+				if (fallback) url = brackets ? text.substr(start+1, text.find(' ', start+2)-start) : text.substr(start, end-start);
+				append_link(url); // Append the link
+				const auto url_end = pos + url.size();
+				if (fallback == brackets && end > url_end) // Ending text, only in special case if brackets present
+					append_substr(url_end, end-url_end);
+			}
+
+			// move on to the rest of the text after the Url
+			if (end < (S32)text.length())
+			{
+				text = text.substr(end, text.length() - end);
 				end=0;
 				part=(S32)LLTextParser::END;
 			}
@@ -4130,51 +4236,126 @@ void LLTextEditor::appendStyledText(const std::string &new_text,
 				break;
 			}
 		}
-		if (part != (S32)LLTextParser::WHOLE) part=(S32)LLTextParser::END;
-		if (end < (S32)text.length()) appendHighlightedText(text,allow_undo, prepend_newline, part, stylep);		
+		if (part != (S32)LLTextParser::WHOLE)
+			part=(S32)LLTextParser::END;
+		if (end < (S32)text.length())
+			appendAndHighlightText(text, part, style);
 	}
 	else
 	{
-		appendHighlightedText(new_text, allow_undo, prepend_newline, part, stylep);
+		appendAndHighlightText(text, part, style);
 	}
 }
 
-void LLTextEditor::appendHighlightedText(const std::string &new_text, 
-										 bool allow_undo, 
-										 bool prepend_newline,
-										 S32  highlight_part,
-										 LLStyleSP stylep)
+void LLTextEditor::setLastSegmentToolTip(const std::string &tooltip)
 {
-	// If LindenUserDir is empty then we didn't login yet.
-	// In that case we can't instantiate LLTextParser, which
-	// is initialized per user.
-	if (mParseHighlights && !gDirUtilp->getLindenUserDir(true).empty())
-	{
-		LLTextParser* highlight = LLTextParser::getInstance();
-		
-		if (highlight && stylep)
-		{
-			LLSD pieces = highlight->parsePartialLineHighlights(new_text, stylep->getColor(), (LLTextParser::EHighlightPosition)highlight_part);
-			bool lprepend=prepend_newline;
-			for (S32 i=0;i<pieces.size();i++)
-			{
-				LLSD color_llsd = pieces[i]["color"];
-				LLColor4 lcolor;
-				lcolor.setValue(color_llsd);
-				LLStyleSP lstylep(new LLStyle(*stylep));
-				lstylep->setColor(lcolor);
-				if (i != 0 && (pieces.size() > 1) ) lprepend=FALSE;
-				appendText((std::string)pieces[i]["text"], allow_undo, lprepend, lstylep);
-			}
-			return;
-		}
-	}
-	appendText(new_text, allow_undo, prepend_newline, stylep);
+	LLTextSegmentPtr segment = mSegments.back();
+	segment->setToolTip(tooltip);
 }
 
-// Appends new text to end of document
-void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool prepend_newline,
-							  const LLStyleSP stylep)
+void LLTextEditor::appendLineBreakSegment(/*const LLStyle::Params& style_params*/)
+{
+	/*
+	segment_vec_t segments;
+	LLStyleSP sp(new LLStyle(style_params));
+	const auto& length = getLength();
+	segments.push_back(new LLTextSegment(sp, length, length + 1));*/
+
+	insertStringNoUndo(getLength(), LLWString(1, '\n'));
+}
+
+void LLTextEditor::appendAndHighlightText(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep)
+{
+	if (new_text.empty()) return;
+
+	std::string::size_type start = 0;
+	/*std::string::size_type pos = new_text.find('\n',start);
+
+	while(pos!=-1)
+	{
+		if(pos!=start)
+		{
+			std::string str = std::string(new_text,start,pos-start);
+			appendAndHighlightTextImpl(str,highlight_part, stylep);
+		}
+		appendLineBreakSegment();
+		start = pos+1;
+		pos = new_text.find('\n',start);
+	}*/
+
+	std::string str = std::string(new_text,start,new_text.length()-start);
+	appendAndHighlightTextImpl(str,highlight_part, stylep);
+}
+
+
+void LLTextEditor::replaceUrl(const std::string &url,
+							const std::string &label,
+							const std::string &icon)
+{
+	static LLUICachedControl<bool> replace_links("SinguReplaceLinks");
+	if (!replace_links) return;
+
+	// get the full (wide) text for the editor so we can change it
+	LLWString text = getWText();
+	LLWString wlabel = utf8str_to_wstring(label);
+	bool modified = false;
+	S32 seg_start = 0;
+
+	// iterate through each segment looking for ones styled as links
+	for (auto it = mSegments.begin(); it != mSegments.end(); ++it)
+	{
+		LLTextSegment *seg = *it;
+		LLStyleSP style = seg->getStyle();
+
+		// update segment start/end length in case we replaced text earlier
+		S32 seg_length = seg->getEnd() - seg->getStart();
+		seg->setStart(seg_start);
+		seg->setEnd(seg_start + seg_length);
+
+		// if we find a link with our Url, then replace the label
+		if (style->getLinkHREF() == url)
+		{
+			S32 start = seg->getStart();
+			S32 end = seg->getEnd();
+			text = text.substr(0, start) + wlabel + text.substr(end, text.size() - end + 1);
+			seg->setEnd(start + wlabel.size());
+			modified = true;
+		}
+
+		/* Singu TODO: Icons with Urls?
+		// Icon might be updated when more avatar or group info
+		// becomes available
+		if (style->isImage() && style->getLinkHREF() == url)
+		{
+			LLUIImagePtr image = image_from_icon_name( icon );
+			if (image)
+			{
+				LLStyle::Params icon_params;
+				icon_params.image = image;
+				LLStyleConstSP new_style(new LLStyle(icon_params));
+				seg->setStyle(new_style);
+				modified = true;
+			}
+		}
+		*/
+
+		// work out the character offset for the next segment
+		seg_start = seg->getEnd();
+	}
+
+	// update the editor with the new (wide) text string
+	if (modified)
+	{
+		mWText = text;
+		mTextIsUpToDate = FALSE;
+		deselect();
+		setCursorPos(mCursorPos);
+		needsReflow();
+	}
+}
+
+
+void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep)
 {
 	// Save old state
 	BOOL was_scrolled_to_bottom = (mScrollbar->getDocPos() == mScrollbar->getDocPosMax());
@@ -4189,29 +4370,53 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 
 	setCursorPos(old_length);
 
-	// Add carriage return if not first line
-	if (getLength() != 0
-		&& prepend_newline)
+	// This is where we appendHighlightedText
+	// If LindenUserDir is empty then we didn't login yet.
+	// In that case we can't instantiate LLTextParser, which is initialized per user.
+	if (mParseHighlights && !gDirUtilp->getLindenUserDir(true).empty())
 	{
-		std::string final_text = "\n";
-		final_text += new_text;
-		append(utf8str_to_wstring(final_text), TRUE);
+		LLTextParser* highlight = LLTextParser::getInstance();
+
+		if (highlight && stylep)
+		{
+			LLStyleSP highlight_params(new LLStyle(*stylep));
+			LLSD pieces = highlight->parsePartialLineHighlights(new_text, highlight_params->getColor(), (LLTextParser::EHighlightPosition)highlight_part);
+			for (S32 i=0;i<pieces.size();i++)
+			{
+				LLSD color_llsd = pieces[i]["color"];
+				LLColor4 lcolor;
+				lcolor.setValue(color_llsd);
+				highlight_params->setColor(lcolor);
+
+				LLWString wide_text;
+				wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
+
+				S32 cur_length = getLength();
+				insertStringNoUndo(cur_length, wide_text);
+				LLStyleSP sp(new LLStyle(*highlight_params));
+				LLTextSegmentPtr segmentp;
+				segmentp = new LLTextSegment(sp, cur_length, cur_length + wide_text.size());
+				mSegments.push_back(segmentp);
+			}
+			return;
+		}
 	}
-	else
+	//else
 	{
-		append(utf8str_to_wstring(new_text), TRUE );
+		LLWString wide_text;
+		wide_text = utf8str_to_wstring(new_text);
+
+		insertStringNoUndo(getLength(), utf8str_to_wstring(new_text));
+
+		if (stylep)
+		{
+			S32 segment_start = old_length;
+			S32 segment_end = old_length + wide_text.size();
+			LLTextSegmentPtr segment = new LLTextSegment(stylep, segment_start, segment_end);
+			mSegments.push_back(segment);
+		}
 	}
 
-	if (stylep)
-	{
-		S32 segment_start = old_length;
-		S32 segment_end = getLength();
-		LLTextSegmentPtr segment = new LLTextSegment(stylep, segment_start, segment_end );
-		mSegments.push_back(segment);
-	}
-	
-	needsReflow();
-	
 	// Set the cursor and scroll position
 	// Maintain the scroll position unless the scroll was at the end of the doc (in which 
 	// case, move it to the new end of the doc) or unless the user was doing actively selecting
@@ -4230,9 +4435,6 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 		mSelectionStart = selection_start;
 		mSelectionEnd = selection_end;
 
-
-
-
 		mIsSelecting = was_selecting;
 		setCursorPos(cursor_pos);
 	}
@@ -4243,11 +4445,6 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 	else
 	{
 		setCursorPos(cursor_pos);
-	}
-
-	if( !allow_undo )
-	{
-		blockUndo();
 	}
 }
 
@@ -4281,12 +4478,15 @@ S32 LLTextEditor::insertStringNoUndo(const S32 pos, const LLWString &wstr)
 	mWText.insert(pos, wstr);
 	mTextIsUpToDate = FALSE;
 
-	if ( truncate() )
+	//HACK: If we are readonly we shouldn't need to truncate
+	if (!mReadOnly && truncate())
 	{
 		// The user's not getting everything he's hoping for
 		make_ui_sound("UISndBadKeystroke");
 		insert_len = mWText.length() - old_len;
 	}
+
+	needsReflow(/*pos*/);
 
 	return insert_len;
 }
@@ -4409,6 +4609,24 @@ void LLTextEditor::loadKeywords(const std::string& filename,
 static LLTrace::BlockTimerStatHandle FTM_SYNTAX_HIGHLIGHTING("Syntax Highlighting");
 static LLTrace::BlockTimerStatHandle FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
 
+
+void LLTextEditor::createDefaultSegment()
+{
+	if (mSegments.empty())
+	{
+		LLColor4& text_color = (mReadOnly ? mReadOnlyFgColor : mFgColor);
+		LLTextSegmentPtr default_segment = new LLTextSegment(text_color, 0, mWText.length());
+		default_segment->setIsDefault(TRUE);
+		mSegments.push_back(default_segment);
+	}
+}
+
+void LLTextEditor::clearSegments()
+{
+	mSegments.clear();
+	createDefaultSegment();
+}
+
 void LLTextEditor::updateSegments()
 {
 	{
@@ -4428,15 +4646,9 @@ void LLTextEditor::updateSegments()
 	// Make sure we have at least one segment
 	if (mSegments.size() == 1 && mSegments[0]->getIsDefault())
 	{
-		mSegments.clear(); // create default segment
+		clearSegments(); // create default segment
 	}
-	if (mSegments.empty())
-	{
-		LLColor4& text_color = ( mReadOnly ? mReadOnlyFgColor : mFgColor );
-		LLTextSegmentPtr default_segment = new LLTextSegment( text_color, 0, mWText.length() );
-		default_segment->setIsDefault(TRUE);
-		mSegments.push_back(default_segment);
-	}
+	else createDefaultSegment();
 }
 
 // Only effective if text was removed from the end of the editor
@@ -4740,13 +4952,32 @@ LLTextSegment::LLTextSegment( const LLColor3& color, S32 start, S32 end ) :
 
 BOOL LLTextSegment::getToolTip(std::string& msg) const
 {
+	// do we have a tooltip for a loaded keyword (for script editor)?
 	if (mToken && !mToken->getToolTip().empty())
 	{
 		const LLWString& wmsg = mToken->getToolTip();
 		msg = wstring_to_utf8str(wmsg);
 		return TRUE;
 	}
+	// or do we have an explicitly set tooltip (e.g., for Urls)
+	if (!mTooltip.empty())
+	{
+		msg = mTooltip;
+		return TRUE;
+	}
+
 	return FALSE;
+}
+
+void LLTextSegment::setToolTip(const std::string& tooltip)
+{
+	// we cannot replace a keyword tooltip that's loaded from a file
+	if (mToken)
+	{
+		LL_WARNS() << "LLTextSegment::setToolTip: cannot replace keyword tooltip." << LL_ENDL;
+		return;
+	}
+	mTooltip = tooltip;
 }
 
 
@@ -4825,173 +5056,6 @@ void LLTextEditor::setTextEditorParameters(LLXMLNodePtr node)
 	{
 		setWriteableBgColor(color);
 	}
-}
-
-///////////////////////////////////////////////////////////////////
-// Refactoring note: We may eventually want to replace this with boost::regex or 
-// boost::tokenizer capabilities since we've already fixed at least two JIRAs
-// concerning logic issues associated with this function.
-S32 LLTextEditor::findHTMLToken(const std::string &line, S32 pos, BOOL reverse) const
-{
-	std::string openers=" \t\n('\"[{<>";
-	std::string closers=" \t\n)'\"]}><;";
-
-	if (reverse)
-	{
-		for (int index=pos; index >= 0; index--)
-		{
-			char c = line[index];
-			S32 m2 = openers.find(c);
-			if (m2 >= 0)
-			{
-				return index+1;
-			}
-		}
-		return 0; // index is -1, don't want to return that. 
-	} 
-	else
-	{
-		// adjust the search slightly, to allow matching parenthesis inside the URL
-		S32 paren_count = 0;
-		for (int index=pos; index<(S32)line.length(); index++)
-		{
-			char c = line[index];
-
-			if (c == '(')
-			{
-				paren_count++;
-			}
-			else if (c == ')')
-			{
-				if (paren_count <= 0)
-				{
-					return index;
-				}
-				else
-				{
-					paren_count--;
-				}
-			}
-			else
-			{
-				S32 m2 = closers.find(c);
-				if (m2 >= 0)
-				{
-					return index;
-				}
-			}
-		} 
-		return line.length();
-	}		
-}
-
-BOOL LLTextEditor::findHTML(const std::string &line, S32 *begin, S32 *end) const
-{
-	  
-	S32 m1,m2,m3;
-	BOOL matched = FALSE;
-	
-	m1=line.find("://",*end);
-	
-	if (m1 >= 0) //Easy match.
-	{
-		*begin = findHTMLToken(line, m1, TRUE);
-		*end   = findHTMLToken(line, m1, FALSE);
-		
-		//Load_url only handles http and https so don't hilite ftp, smb, etc.
-		m2 = line.substr(*begin,(m1 - *begin)).find("http");
-		m3 = line.substr(*begin,(m1 - *begin)).find("secondlife");
-	
-		std::string badneighbors=".,<>?';\"][}{=-+_)(*&^%$#@!~`\t\r\n\\";
-	
-		if (m2 >= 0 || m3>=0)
-		{
-			S32 bn = badneighbors.find(line.substr(m1+3,1));
-			
-			if (bn < 0)
-			{
-				matched = TRUE;
-			}
-		}
-	}
-/*	matches things like secondlife.com (no http://) needs a whitelist to really be effective.
-	else	//Harder match.
-	{
-		m1 = line.find(".",*end);
-		
-		if (m1 >= 0)
-		{
-			*end   = findHTMLToken(line, m1, FALSE);
-			*begin = findHTMLToken(line, m1, TRUE);
-			
-			m1 = line.rfind(".",*end);
-
-			if ( ( *end - m1 ) > 2 && m1 > *begin)
-			{
-				std::string badneighbors=".,<>/?';\"][}{=-+_)(*&^%$#@!~`";
-				m2 = badneighbors.find(line.substr(m1+1,1));
-				m3 = badneighbors.find(line.substr(m1-1,1));
-				if (m3<0 && m2<0)
-				{
-					matched = TRUE;
-				}
-			}
-		}
-	}
-	*/
-	
-	if (matched)
-	{
-		S32 strpos, strpos2;
-
-		std::string url     = line.substr(*begin,*end - *begin);
-		std::string slurlID = "slurl.com/secondlife/";
-		strpos = url.find(slurlID);
-		
-		if (strpos < 0)
-		{
-			slurlID="maps.secondlife.com/secondlife/";
-			strpos = url.find(slurlID);
-		}
-	
-		if (strpos < 0)
-		{
-			slurlID="secondlife://";
-			strpos = url.find(slurlID);
-		}
-	
-		if (strpos < 0)
-		{
-			slurlID="sl://";
-			strpos = url.find(slurlID);
-		}
-	
-		if (strpos >= 0) 
-		{
-			strpos+=slurlID.length();
-			
-			while ( ( strpos2=url.find("/",strpos) ) == -1 ) 
-			{
-				if ((*end+2) >= (S32)line.length() || line.substr(*end,1) != " " )
-				{
-					matched=FALSE;
-					break;
-				}
-				
-				strpos = (*end + 1) - *begin;
-								
-				*end = findHTMLToken(line,(*begin + strpos),FALSE);
-				url = line.substr(*begin,*end - *begin);
-			}
-		}
-
-	}
-	
-	if (!matched)
-	{
-		*begin=*end=0;
-	}
-	return matched;
 }
 
 

@@ -458,7 +458,7 @@ void LLFloaterOutbox::updateView()
 		LLStyleSP subs_link_style(new LLStyle);
 		subs_link_style->setLinkHREF(subs_link);
 		subs_link_style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
-		mInventoryText->appendStyledText(subs_text, false, false, subs_link_style);
+		mInventoryText->appendText(subs_text, false, false, subs_link_style);
 		mInventoryText->appendColoredText(outbox_text2, false, false, color);
 		mInventoryTitle->setValue(outbox_title);
 		mInventoryPlaceholder->getParent()->setToolTip(outbox_tooltip);
