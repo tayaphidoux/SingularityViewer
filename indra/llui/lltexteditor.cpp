@@ -2475,6 +2475,17 @@ BOOL LLTextEditor::handleEditKey(const KEY key, const MASK mask)
 		}
 		handled = TRUE;
 	}
+	else if ((mask & (MASK_CONTROL|MASK_SHIFT)) == (MASK_CONTROL|MASK_SHIFT))
+	{
+		if (key == 'C')
+		{
+			if (canCopy())
+				copy(true);
+			else
+				reportBadKeystroke();
+			handled = TRUE;
+		}
+	}
 	else
 	if( MASK_CONTROL & mask )
 	{
