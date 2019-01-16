@@ -360,6 +360,13 @@ LLTextEditor::LLTextEditor(
 	menu->addChild(new LLMenuItemCallGL("Copy Raw", [](void* data) {
 		if (LLTextEditor* line = static_cast<LLTextEditor*>(data)) line->copyRaw();
 	}, NULL, this));
+	menu->addChild(new LLMenuItemCallGL("Copy URL", [](void* data) {
+		if (std::string* str = static_cast<std::string*>(data))
+		{
+			auto url = utf8str_to_wstring(*str);
+			gClipboard.copyFromSubstring(url, 0, url.size());
+		}
+	}, NULL, this));
 	menu->addChild(new LLMenuItemCallGL("Paste", context_paste, NULL, this));
 	menu->addChild(new LLMenuItemCallGL("Delete", context_delete, NULL, this));
 	menu->addChild(new LLMenuItemCallGL("Select All", context_selectall, NULL, this));
@@ -1455,6 +1462,18 @@ BOOL LLTextEditor::handleRightMouseDown( S32 x, S32 y, MASK mask )
 			suggestionMenuItems.push_back(tempStruct);
 			menu->addChild(suggMenuItem);
 		}
+
+		{
+			const LLStyleSP style = mHoverSegment ? mHoverSegment->getStyle() : nullptr;
+			auto copy_url = menu->findChild<LLMenuItemCallGL>("Copy URL");
+			if (mReadOnly && mParseHTML && style && !style->getLinkHREF().empty())
+			{
+				copy_url->setVisible(true);
+				copy_url->setUserData((void*)&style->getLinkHREF()); // Yes, this can be invalidated, but they'll never click it then.
+			}
+			else copy_url->setVisible(false);
+		}
+
 		mLastContextMenuX = x;
 		mLastContextMenuY = y;
 		menu->buildDrawLabels();
