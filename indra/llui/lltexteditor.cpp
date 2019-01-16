@@ -657,7 +657,7 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 	//LLStringUtil::removeCRLF(text);
 
 	// appendText modifies mCursorPos...
-	LLStyleSP style(new LLStyle(TRUE, mReadOnly ? mReadOnlyFgColor : mFgColor, LLFontGL::nameFromFont(mGLFont)));
+	LLStyleSP style(new LLStyle(TRUE, mReadOnly ? mReadOnlyFgColor : mFgColor, LLStringUtil::null));
 	appendText(utf8str, false, false, style);
 	// ...so move cursor to top after appending text
 	setCursorPos(0);
