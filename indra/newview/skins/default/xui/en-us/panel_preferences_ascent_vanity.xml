@@ -16,6 +16,9 @@
       <check_box bottom_delta="-20" control_name="SinguCompleteNameProfiles" follows="top" height="16" label="Show complete names (display name and username) in profiles" tool_tip="Disregards the global name display settings, will not work if display names are switched off." name="complete_name_profiles"/>
       <check_box bottom_delta="-20" control_name="LiruScriptErrorsStealFocus" follows="top" height="16" label="Let scripts steal focus when they can't compile due to errors" name="script_errors_steal_focus"/>
       <check_box bottom_delta="-20" control_name="AlchemyConnectToNeighbors" follows="top" height="16" label="Connect to neighboring regions" name="connect_to_neighbors"/>
+      <check_box bottom_delta="-20" follows="top" label="Auto-minimize region restart notice" name="region_restart_minimized" control_name="LiruRegionRestartMinimized" tool_tip="Useful for sim owners and people who need to pack up before leaving"/>
+      <text bottom_delta="-16" follows="top" name="UISndRestartText">Sound played when regions will restart:</text>
+      <line_editor bottom_delta="-6" left_delta="222" follows="top" width="209" height="16" name="UISndRestart" tool_tip="Empty for no sound to play"/>
     </panel>
     <panel border="true" left="1" bottom="-190" height="180" width="500" label="Tags/Colors" name="TagsColors">
       <!-- Client tag options -->

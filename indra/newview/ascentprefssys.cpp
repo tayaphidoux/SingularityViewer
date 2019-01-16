@@ -77,7 +77,6 @@ LLPrefsAscentSys::LLPrefsAscentSys()
 	getChild<LLUICtrl>("AlchemyChatCommandHoverHeight")->setCommitCallback(lineEditorControl);
 
 	//Security ----------------------------------------------------------------------------
-	getChild<LLUICtrl>("UISndRestart")->setCommitCallback(lineEditorControl);
 
 	//Build -------------------------------------------------------------------------------
 	getChild<LLUICtrl>("next_owner_copy")->setCommitCallback(boost::bind(&LLPrefsAscentSys::onCommitCheckBox, this, _1, _2));
@@ -207,8 +206,7 @@ void LLPrefsAscentSys::refreshValues()
 	mDisableClickSitOtherOwner	= gSavedSettings.getBOOL("DisableClickSitOtherOwner");
     mDisplayScriptJumps			= gSavedSettings.getBOOL("AscentDisplayTotalScriptJumps");
     mNumScriptDiff              = gSavedSettings.getF32("Ascentnumscriptdiff");
-	mRestartMinimized		= gSavedSettings.getBOOL("LiruRegionRestartMinimized");
-	mRestartSound			= gSavedSettings.getString("UISndRestart");
+	mReplaceLinks				= gSavedSettings.getBOOL("SinguReplaceLinks");
 	mLandmark			= gSavedPerAccountSettings.getString("EmergencyTeleportLandmark");
 	mLandmarkBackup			= gSavedPerAccountSettings.getString("EmergencyTeleportLandmarkBackup");
 
@@ -266,8 +264,6 @@ void LLPrefsAscentSys::refresh()
 	childSetValue("AlchemyChatCommandHoverHeight",            mCmdLineHover);
 
 	//Security ----------------------------------------------------------------------------
-	getChildView("UISndRestart")->setValue(mRestartSound);
-
 	if (LLComboBox* combo = getChild<LLComboBox>("lookat_namesystem_combobox"))
 		combo->setValue(mLookAtNames);
 
@@ -356,8 +352,7 @@ void LLPrefsAscentSys::cancel()
 	gSavedSettings.setBOOL("DisableClickSitOtherOwner",     mDisableClickSitOtherOwner);
     gSavedSettings.setBOOL("AscentDisplayTotalScriptJumps", mDisplayScriptJumps);
     gSavedSettings.setF32("Ascentnumscriptdiff",            mNumScriptDiff);
-	gSavedSettings.setBOOL("LiruRegionRestartMinimized", mRestartMinimized);
-	gSavedSettings.setString("UISndRestart", mRestartSound);
+	gSavedSettings.setBOOL("SinguReplaceLinks",             mReplaceLinks);
 	gSavedPerAccountSettings.setString("EmergencyTeleportLandmark",      mLandmark);
 	gSavedPerAccountSettings.setString("EmergencyTeleportLandmarkBackup",      mLandmarkBackup);
 

@@ -66,6 +66,8 @@ private:
 	bool mCompleteNameProfiles;
 	bool mScriptErrorsStealFocus;
 	bool mConnectToNeighbors;
+	bool mRestartMinimized;
+	std::string mRestartSound;
 	//Tags\Colors
 	bool mAscentBroadcastTag;
 	std::string mReportClientUUID;

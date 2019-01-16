@@ -62,6 +62,8 @@ LLPrefsAscentVan::LLPrefsAscentVan()
 	getChild<LLUICtrl>("tag_spoofing_combobox")->setCommitCallback(boost::bind(&LLPrefsAscentVan::onCommitClientTag, this, _1));
 
 	getChild<LLUICtrl>("custom_tag_label_box")->setCommitCallback(boost::bind(&LLControlGroup::setString, boost::ref(gSavedSettings), "AscentCustomTagLabel", _2));
+	commit_callback_t lineEditorControl(boost::bind(&LLControlGroup::setString, boost::ref(gSavedSettings), boost::bind(&LLUICtrl::getName, _1), _2));
+	getChild<LLUICtrl>("UISndRestart")->setCommitCallback(lineEditorControl);
 
 	getChild<LLUICtrl>("update_clientdefs")->setCommitCallback(boost::bind(LLPrefsAscentVan::onManualClientUpdate));
 
@@ -130,6 +132,8 @@ void LLPrefsAscentVan::refreshValues()
 	mCompleteNameProfiles   = gSavedSettings.getBOOL("SinguCompleteNameProfiles");
 	mScriptErrorsStealFocus = gSavedSettings.getBOOL("LiruScriptErrorsStealFocus");
 	mConnectToNeighbors = gSavedSettings.getBOOL("AlchemyConnectToNeighbors");
+	mRestartMinimized		= gSavedSettings.getBOOL("LiruRegionRestartMinimized");
+	mRestartSound			= gSavedSettings.getString("UISndRestart");
 
     //Tags\Colors ----------------------------------------------------------------------------
     mAscentBroadcastTag     = gSavedSettings.getBOOL("AscentBroadcastTag");
@@ -169,6 +173,7 @@ void LLPrefsAscentVan::refreshValues()
 void LLPrefsAscentVan::refresh()
 {
     //Main -----------------------------------------------------------------------------------
+	getChildView("UISndRestart")->setValue(mRestartSound);
 
     //Tags\Colors ----------------------------------------------------------------------------
     LLComboBox* combo = getChild<LLComboBox>("tag_spoofing_combobox");
@@ -201,6 +206,8 @@ void LLPrefsAscentVan::cancel()
 	gSavedSettings.setBOOL("SinguCompleteNameProfiles",     mCompleteNameProfiles);
 	gSavedSettings.setBOOL("LiruScriptErrorsStealFocus",    mScriptErrorsStealFocus);
 	gSavedSettings.setBOOL("AlchemyConnectToNeighbors",     mConnectToNeighbors);
+	gSavedSettings.setBOOL("LiruRegionRestartMinimized", mRestartMinimized);
+	gSavedSettings.setString("UISndRestart", mRestartSound);
 
     //Tags\Colors ----------------------------------------------------------------------------
     gSavedSettings.setBOOL("AscentBroadcastTag",         mAscentBroadcastTag);

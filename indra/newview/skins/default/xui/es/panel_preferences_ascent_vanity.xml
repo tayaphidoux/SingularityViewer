@@ -16,6 +16,11 @@
 			<check_box label="Mostrar nombres completos (Nombres mostrados y nombres de usuario) en perfiles" tool_tip="Sin importar la configuración global del mostrado de nombres, no funcionará si los nombres mostrados están desactivados." name="complete_name_profiles"/>
 			<check_box label="Permitir a los scripts apropiarse del foco cuando no se puedan compilar debido a errores" name="script_errors_steal_focus"/>
       <check_box label="Conectarse con regiones contiguas" name="connect_to_neighbors"/>
+			<check_box label="Minimizar automáticamente aviso de reinicio de región" name="region_restart_minimized" tool_tip="Útil para dueños de sim y personas que necesitan recoger sus cosas antes de salir"/>
+			<text name="UISndRestartText"  bottom_delta="-36" >
+				Ejecutar sonido cuando la región esté por reiniciarse:
+			</text>
+			<line_editor name="UISndRestart" tool_tip="Dejar vacío para no ejecutar sonidos" left_delta="258" />
 		</panel>
 		<!-- ============================ -->
 		<panel label="Tags/Colores" name="TagsColors">
