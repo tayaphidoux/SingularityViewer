@@ -94,7 +94,6 @@ LLFloaterChat::LLFloaterChat(const LLSD& seed)
 
 	LLTextEditor* history_editor_with_mute = getChild<LLTextEditor>("Chat History Editor with mute");
 	getChild<LLUICtrl>("show mutes")->setCommitCallback(boost::bind(&LLFloaterChat::onClickToggleShowMute, this, _2, getChild<LLTextEditor>("Chat History Editor"), history_editor_with_mute));
-	history_editor_with_mute->setVisible(false);
 	getChild<LLUICtrl>("chat_history_open")->setCommitCallback(boost::bind(show_log_browser, "chat", "chat"));
 }
 
