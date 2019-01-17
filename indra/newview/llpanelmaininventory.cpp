@@ -72,6 +72,7 @@ public:
 	BOOL getCheckShowEmpty();
 	BOOL getCheckSinceLogoff();
 
+	void onLinks(const LLSD& val);
 	static void onTimeAgo(LLUICtrl*, void *);
 	static void onCloseBtn(void* user_data);
 	static void selectAllTypes(void* user_data);
@@ -81,6 +82,7 @@ protected:
 	LLPanelMainInventory*	mPanelMainInventory;
 	LLSpinCtrl*			mSpinSinceDays;
 	LLSpinCtrl*			mSpinSinceHours;
+	LLUICtrl*			mRadioLinks;
 	LLInventoryFilter*	mFilter;
 };
 
@@ -918,10 +920,19 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	mSpinSinceDays = getChild<LLSpinCtrl>("spin_days_ago");
 	childSetCommitCallback("spin_days_ago", onTimeAgo, this);
 
+	mRadioLinks = getChild<LLUICtrl>("radio_links");
+	mRadioLinks->setCommitCallback(std::bind(&LLFloaterInventoryFinder::onLinks, this, std::placeholders::_2));
+
 	childSetAction("Close", onCloseBtn, this);
 
 	updateElementsFromFilter();
 	return TRUE;
+}
+
+void LLFloaterInventoryFinder::onLinks(const LLSD& val)
+{
+	auto value = val.asInteger();
+	mFilter->setFilterLinks(value == 0 ? LLInventoryFilter::FILTERLINK_INCLUDE_LINKS : value == 1 ? LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS : LLInventoryFilter::FILTERLINK_ONLY_LINKS);
 }
 
 void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)
@@ -995,6 +1006,8 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	getChild<LLUICtrl>("check_since_logoff")->setValue(mFilter->isSinceLogoff());
 	mSpinSinceHours->set((F32)(hours % 24));
 	mSpinSinceDays->set((F32)(hours / 24));
+	auto value = mFilter->getFilterLinks();
+	mRadioLinks->setValue(value == LLInventoryFilter::FILTERLINK_INCLUDE_LINKS ? 0 : value == LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS ? 1 : 2);
 }
 
 void LLFloaterInventoryFinder::draw()

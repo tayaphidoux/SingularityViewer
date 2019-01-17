@@ -917,6 +917,7 @@ void LLInventoryFilter::toLLSD(LLSD& data) const
 	data["substring"] = (LLSD::String)getFilterSubString();
 	data["sort_order"] = (LLSD::Integer)getSortOrder();
 	data["since_logoff"] = (LLSD::Boolean)isSinceLogoff();
+	data["filter_links"] = (LLSD::Integer)getFilterLinks();
 }
 
 void LLInventoryFilter::fromLLSD(LLSD& data)
@@ -959,6 +960,11 @@ void LLInventoryFilter::fromLLSD(LLSD& data)
 	if(data.has("since_logoff"))
 	{
 		setDateRangeLastLogoff((bool)data["since_logoff"].asBoolean());
+	}
+
+	if (data.has("filter_links"))
+	{
+		setFilterLinks(data["filter_links"].asInteger());
 	}
 }
 
