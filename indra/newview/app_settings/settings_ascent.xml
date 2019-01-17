@@ -1032,6 +1032,17 @@ Changing this setting only affects new text.</string>
       <key>Value</key>
       <real>3.5</real>
     </map>
+    <key>EmergencyTeleportSeconds</key>
+    <map>
+      <key>Comment</key>
+      <string>The remaining time left in seconds when to execute an emergency teleport out of a restarting region.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>20</integer>
+    </map>
     <key>LiruFlashWhenMinimized</key>
     <map>
       <key>Comment</key>
