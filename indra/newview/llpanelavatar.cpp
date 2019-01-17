@@ -1481,8 +1481,9 @@ void LLPanelAvatar::processProperties(void* data, EAvatarProcessorType type)
 		const LLAvatarNotes* pAvatarNotes = static_cast<const LLAvatarNotes*>( data );
 		if (pAvatarNotes && (mAvatarID == pAvatarNotes->target_id) && (pAvatarNotes->target_id != LLUUID::null))
 		{
-			childSetValue("notes edit", pAvatarNotes->notes);
-			childSetEnabled("notes edit", true);
+			auto notes = getChildView("notes edit");
+			notes->setEnabled("notes edit", true);
+			notes->setValue("notes edit", pAvatarNotes->notes);
 			mHaveNotes = true;
 			mLastNotes = pAvatarNotes->notes;
 		}
