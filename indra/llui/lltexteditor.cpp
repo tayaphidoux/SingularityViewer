@@ -96,9 +96,6 @@ const S32	PREEDIT_STANDOUT_GAP = 1;
 const S32	PREEDIT_STANDOUT_POSITION = 2;
 const S32	PREEDIT_STANDOUT_THICKNESS = 2;
 
-
-LLColor4 LLTextEditor::mLinkColor = LLColor4::blue;
-
 ///////////////////////////////////////////////////////////////////
 
 class LLTextEditor::LLTextCmdInsert : public LLTextEditor::LLTextCmd
@@ -670,6 +667,9 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 	setCursorPos(0);
 
 	resetDirty();
+
+	mUTF8Text = text;
+	mTextIsUpToDate = true;
 }
 
 void LLTextEditor::setWText(const LLWString& text)
@@ -4672,6 +4672,11 @@ void LLTextEditor::updateSegments()
 		}
 	}
 
+	updateTextSegments();
+}
+
+void LLTextEditor::updateTextSegments()
+{
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TEXT_SEGMENTS);
 	// Make sure we have at least one segment
 	if (mSegments.size() == 1 && mSegments[0]->getIsDefault())

@@ -1132,9 +1132,6 @@ bool idle_startup()
 			//LLPanelLogin::close();
 		}
 
-		//For HTML parsing in text boxes.
-		LLTextEditor::setLinkColor( gSavedSettings.getColor4("HTMLLinkColor") );
-
 		// Load URL History File
 		LLURLHistory::loadFile("url_history.xml");
 		// Load media plugin cookies

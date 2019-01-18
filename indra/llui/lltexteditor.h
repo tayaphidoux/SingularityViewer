@@ -260,8 +260,6 @@ public:
 
 	void			setHandleEditKeysDirectly( BOOL b ) 	{ mHandleEditKeysDirectly = b; }
 
-	// Callbacks
-	static void		setLinkColor(LLColor4 color) { mLinkColor = color; }
 
 	void			setOnScrollEndCallback(void (*callback)(void*), void* userdata);
 
@@ -506,7 +504,6 @@ private:
 	// Data
 	//
 	LLKeywords		mKeywords;
-	static LLColor4 mLinkColor;
 
 	// Concrete LLTextCmd sub-classes used by the LLTextEditor base class
 	class LLTextCmdInsert;
