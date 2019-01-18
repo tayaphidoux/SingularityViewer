@@ -3516,12 +3516,14 @@ void LLTextEditor::drawText()
 	F32 text_y = (F32)(mTextRect.mTop - line_height);
 	while((mTextRect.mBottom <= text_y) && (cur_line < num_lines))
 	{
+		S32 next_line = cur_line + 1;
+
 		S32 next_start = -1;
 		S32 line_end = text_len;
 
-		if ((cur_line + 1) < num_lines)
+		if (next_line < num_lines)
 		{
-			next_start = getLineStart(cur_line + 1);
+			next_start = getLineStart(next_line);
 			line_end = next_start;
 		}
 		line_wraps = text[line_end-1] != '\n';
@@ -3557,6 +3559,7 @@ void LLTextEditor::drawText()
 				NULL); // max pixels
 		}
 
+		// draw a single line of text
 		S32 seg_start = line_start;
 		while( seg_start < line_end )
 		{
