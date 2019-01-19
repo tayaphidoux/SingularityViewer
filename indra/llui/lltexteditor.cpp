@@ -661,8 +661,7 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 	//LLStringUtil::removeCRLF(text);
 
 	// appendText modifies mCursorPos...
-	LLStyleSP style(new LLStyle(TRUE, mReadOnly ? mReadOnlyFgColor : mFgColor, LLStringUtil::null));
-	appendText(utf8str, false, false, style);
+	appendText(utf8str, false, false);
 	// ...so move cursor to top after appending text
 	setCursorPos(0);
 
@@ -4439,7 +4438,8 @@ void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 h
 		LLWString wide_text;
 		wide_text = utf8str_to_wstring(new_text);
 
-		insertStringNoUndo(getLength(), utf8str_to_wstring(new_text));
+		auto length = getLength();
+		auto insert_len = length + insertStringNoUndo(length, utf8str_to_wstring(new_text));
 
 		if (stylep)
 		{
@@ -4447,6 +4447,21 @@ void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 h
 			S32 segment_end = old_length + wide_text.size();
 			LLTextSegmentPtr segment = new LLTextSegment(stylep, segment_start, segment_end);
 			mSegments.push_back(segment);
+		}
+		else // If no style, still make a segment,
+		{
+			auto segment = mSegments.empty() ? nullptr : mSegments.back();
+			if (!segment || !segment->getIsDefault())
+			{
+				LLColor4& text_color = (mReadOnly ? mReadOnlyFgColor : mFgColor);
+				LLTextSegmentPtr segment = new LLTextSegment(text_color, length, insert_len);
+				segment->setIsDefault(true); // call it a default segment so we can consolidate later.
+				mSegments.push_back(segment);
+			}
+			else // It's later!
+			{
+				segment->setEnd(insert_len);
+			}
 		}
 	}
 
