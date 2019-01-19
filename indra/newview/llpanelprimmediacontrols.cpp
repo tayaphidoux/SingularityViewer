@@ -118,6 +118,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeDown",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeDown, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Volume",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeSlider, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.ToggleMute",		boost::bind(&LLPanelPrimMediaControls::onToggleMute, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.MOAPStop",			std::bind([this]() { getTargetMediaImpl()->setDisabled(true); }));
 	mCommitCallbackRegistrar.add("MediaCtrl.ShowVolumeSlider",		boost::bind(&LLPanelPrimMediaControls::showVolumeSlider, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.HideVolumeSlider",		boost::bind(&LLPanelPrimMediaControls::hideVolumeSlider, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipBack",		boost::bind(&LLPanelPrimMediaControls::onClickSkipBack, this));
@@ -150,6 +151,7 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	mPauseCtrl				= getChild<LLUICtrl>("pause");
 	mStopCtrl				= getChild<LLUICtrl>("stop");
 	mMediaStopCtrl			= getChild<LLUICtrl>("media_stop");
+	mMOAPStopCtrl			= getChild<LLUICtrl>("moap_stop");
 	mHomeCtrl				= getChild<LLUICtrl>("home");
 	mUnzoomCtrl				= getChild<LLUICtrl>("close"); // This is actually "unzoom" 
 	mOpenCtrl				= getChild<LLUICtrl>("new_window");
@@ -368,6 +370,7 @@ void LLPanelPrimMediaControls::updateShape()
 			mReloadCtrl->setEnabled(false);
 			mReloadCtrl->setVisible(false);
 			mMediaStopCtrl->setVisible(has_focus);
+			mMOAPStopCtrl->setVisible(false);
 			mHomeCtrl->setVisible(has_focus);
 			mBackCtrl->setVisible(false);
 			mFwdCtrl->setVisible(false);
@@ -466,6 +469,7 @@ void LLPanelPrimMediaControls::updateShape()
 			mPlayCtrl->setVisible(FALSE);
 			mPauseCtrl->setVisible(FALSE);
 			mMediaStopCtrl->setVisible(FALSE);
+			mMOAPStopCtrl->setVisible(!!media_plugin);
 			mMediaAddressCtrl->setVisible(has_focus && !mini_controls);
 			mMediaAddressCtrl->setEnabled(has_focus && !mini_controls);
 			mMediaPlaySliderPanel->setVisible(FALSE);
