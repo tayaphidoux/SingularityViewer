@@ -274,6 +274,7 @@ LLTextEditor::LLTextEditor(
 	mWriteableBgColor(LLUI::sColorsGroup->getColor("TextBgWriteableColor")),
 	mReadOnlyBgColor(LLUI::sColorsGroup->getColor("TextBgReadOnlyColor")),
 	mFocusBgColor(LLUI::sColorsGroup->getColor("TextBgFocusColor")),
+	mLinkColor(nullptr),
 	mReadOnly(parse_html),
 	mWordWrap(FALSE),
 	mShowLineNumbers(FALSE),
@@ -378,6 +379,11 @@ LLTextEditor::LLTextEditor(
 LLTextEditor::~LLTextEditor()
 {
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit()
+	if (mLinkColor)
+	{
+		delete mLinkColor;
+		mLinkColor = nullptr;
+	}
 
 	// Scrollbar is deleted by LLView
 
@@ -4187,7 +4193,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 		LLUrlMatch match;
 		LLStyleSP link_style(new LLStyle);
 		if (style) *link_style = *style;
-		link_style->setColor(LLUI::sConfigGroup->getColor4("HTMLLinkColor"));
+		link_style->setColor(mLinkColor ? *mLinkColor : LLUI::sConfigGroup->getColor4("HTMLLinkColor"));
 		auto append_substr = [&](const size_t& pos, const size_t& count)
 		{
 			appendAndHighlightText(text.substr(pos, count), part, style);

@@ -243,7 +243,11 @@ LLNotifyBox::LLNotifyBox(LLNotificationPtr notification)
 		text->setReadOnlyBgColor ( LLColor4::transparent ); // the background color of the box is manually 
 															// rendered under the text box, therefore we want 
 															// the actual text box to be transparent
-		text->setReadOnlyFgColor(gColors.getColor(mIsCaution && mIsTip ? "NotifyCautionWarnColor" : "NotifyTextColor")); //sets caution text color for tip notifications
+
+		auto text_color = gColors.getColor(mIsCaution && mIsTip ? "NotifyCautionWarnColor" : "NotifyTextColor");
+		text->setReadOnlyFgColor(text_color); //sets caution text color for tip notifications
+		if (!mIsCaution) // We could do some extra color math here to determine if bg's too close to link color, but let's just cross with the link color instead
+			text->setLinkColor(new LLColor4(lerp(text_color, gSavedSettings.getColor4("HTMLLinkColor"), 0.4)));
 		text->setTabStop(FALSE); // can't tab to it (may be a problem for scrolling via keyboard)
 		text->setText(message); // Now we can set the text, since colors have been set.
 		addChild(text);
