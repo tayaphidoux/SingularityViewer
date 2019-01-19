@@ -183,7 +183,6 @@ LLGroupNotifyBox::LLGroupNotifyBox(const std::string& subject,
 
 	LLColor4 semi_transparent(1.0f,1.0f,1.0f,0.8f);
 	text->setCursor(0,0);
-	text->setEnabled(FALSE);
 	text->setWordWrap(TRUE);
 	//text->setTabStop(FALSE); // was interfering with copy-and-paste
 	text->setTabsToNextField(TRUE);
