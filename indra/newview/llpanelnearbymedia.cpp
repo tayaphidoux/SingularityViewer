@@ -93,6 +93,7 @@ LLPanelNearByMedia::LLPanelNearByMedia(bool standalone_panel)
 	, mDebugInfoVisible(false)
 	, mParcelMediaItem(nullptr)
 	, mParcelAudioItem(nullptr)
+	, mStandalonePanel(standalone_panel)
 {
 	mHoverTimer.stop();
 
