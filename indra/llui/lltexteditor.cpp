@@ -4690,11 +4690,6 @@ void LLTextEditor::updateSegments()
 		}
 	}
 
-	updateTextSegments();
-}
-
-void LLTextEditor::updateTextSegments()
-{
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TEXT_SEGMENTS);
 	// Make sure we have at least one segment
 	if (mSegments.size() == 1 && mSegments[0]->getIsDefault())
