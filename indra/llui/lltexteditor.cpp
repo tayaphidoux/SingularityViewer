@@ -1581,6 +1581,7 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
 
+	auto old_hover = mHoverSegment;
 	mHoverSegment = NULL;
 	if(hasMouseCapture() )
 	{
@@ -1663,6 +1664,14 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 			}
 			handled = TRUE;
 		}
+	}
+
+	if (old_hover != mHoverSegment)
+	{
+		if (old_hover)
+			old_hover->underlineOnHover(false);
+		if (mHoverSegment)
+			mHoverSegment->underlineOnHover(true);
 	}
 
 	if (mOnScrollEndCallback && mOnScrollEndData && (mScrollbar->getDocPos() == mScrollbar->getDocPosMax()))
@@ -4269,7 +4278,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 			LLStyleSP link_style(style ? new LLStyle(*style) : new LLStyle);
 			link_style->setColor(link_color);
 			link_style->setLinkHREF(match.getUrl());
-			appendAndHighlightText(link, part, link_style);
+			appendAndHighlightText(link, part, link_style, match.underlineOnHoverOnly());
 		};
 		while (!text.empty() && LLUrlRegistry::instance().findUrl(text, match,
 				boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3)))
@@ -4387,7 +4396,7 @@ void LLTextEditor::appendLineBreakSegment(/*const LLStyle::Params& style_params*
 	insertStringNoUndo(getLength(), LLWString(1, '\n'));
 }
 
-void LLTextEditor::appendAndHighlightText(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep)
+void LLTextEditor::appendAndHighlightText(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep, bool underline_on_hover)
 {
 	if (new_text.empty()) return;
 
@@ -4407,7 +4416,7 @@ void LLTextEditor::appendAndHighlightText(const std::string& new_text, S32 highl
 	}*/
 
 	std::string str = std::string(new_text,start,new_text.length()-start);
-	appendAndHighlightTextImpl(str,highlight_part, stylep);
+	appendAndHighlightTextImpl(str,highlight_part, stylep, underline_on_hover);
 }
 
 
@@ -4478,7 +4487,7 @@ void LLTextEditor::replaceUrl(const std::string &url,
 }
 
 
-void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep)
+void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep, bool underline_on_hover)
 {
 	// Save old state
 	BOOL was_scrolled_to_bottom = (mScrollbar->getDocPos() == mScrollbar->getDocPosMax());
@@ -4519,6 +4528,7 @@ void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 h
 				LLStyleSP sp(new LLStyle(*highlight_params));
 				LLTextSegmentPtr segmentp;
 				segmentp = new LLTextSegment(sp, cur_length, cur_length + wide_text.size());
+				if (underline_on_hover) segmentp->setUnderlineOnHover(true);
 				mSegments.push_back(segmentp);
 			}
 			return;
@@ -4537,6 +4547,7 @@ void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 h
 			S32 segment_start = old_length;
 			S32 segment_end = old_length + wide_text.size();
 			LLTextSegmentPtr segment = new LLTextSegment(stylep, segment_start, segment_end);
+			if (underline_on_hover) segment->setUnderlineOnHover(true);
 			mSegments.push_back(segment);
 		}
 		else // If no style, still make a segment,

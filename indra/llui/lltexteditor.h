@@ -187,7 +187,7 @@ public:
 
 	void			appendLineBreakSegment();
 
-	void			appendAndHighlightText(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep);
+	void			appendAndHighlightText(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep, bool underline_on_hover = false);
 
 	void			replaceUrl(const std::string& url, const std::string& label, const std::string& icon);
 
@@ -196,7 +196,7 @@ public:
 									  const LLColor4 &color,
 									  const std::string& font_name = LLStringUtil::null);
 	
-	void			appendAndHighlightTextImpl(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep);
+	void			appendAndHighlightTextImpl(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep, bool underline_on_hover = false);
 
 	// Removes text from the end of document
 	// Does not change highlight or cursor position.
@@ -634,6 +634,8 @@ public:
 	void 				setStyle(const LLStyleSP &style)	{ mStyle = style; }
 	void 				setIsDefault(BOOL b)   				{ mIsDefault = b; }
 	BOOL 				getIsDefault() const   				{ return mIsDefault; }
+	void				setUnderlineOnHover(bool b)			{ mUnderlineOnHover = b; }
+	void				underlineOnHover(bool hover)		{ if (mUnderlineOnHover) mStyle->mUnderline = hover; }
 	void				setToken( LLKeywordToken* token )	{ mToken = token; }
 	LLKeywordToken*		getToken() const					{ return mToken; }
 	BOOL				getToolTip( std::string& msg ) const;
@@ -655,6 +657,7 @@ private:
 	S32			mEnd;
 	LLKeywordToken* mToken;
 	BOOL		mIsDefault;
+	bool		mUnderlineOnHover = false;
 	std::string mTooltip;
 };
 
