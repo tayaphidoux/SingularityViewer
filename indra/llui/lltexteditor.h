@@ -456,7 +456,6 @@ protected:
 
 	BOOL			mParseHTML;
 	BOOL			mParseHighlights;
-	std::string		mHTML;
 
 	typedef std::vector<LLTextSegmentPtr> segment_list_t;
 	segment_list_t mSegments;

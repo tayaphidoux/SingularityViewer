@@ -345,7 +345,6 @@ LLTextEditor::LLTextEditor(
 
 	resetDirty();		// Update saved text state
 
-	mHTML.clear();
 	// make the popup menu available
 	//LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_texteditor.xml", parent_view);
 	LLMenuGL* menu = new LLMenuGL("rclickmenu");
@@ -3599,13 +3598,6 @@ void LLTextEditor::drawText()
 					style->mUnderline = TRUE;
 				}
 
-				S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
-				
-				if ( (mParseHTML) && (left_pos > seg_start) && (left_pos < clipped_end) &&  mIsSelecting && (mSelectionStart == mSelectionEnd) )
-				{
-					mHTML = style->getLinkHREF();
-				}
-
 				drawClippedSegment( text, seg_start, clipped_end, text_x, text_y, selection_left, selection_right, style, &text_x );
 
 				if( text_x == text_start && mShowLineNumbers ) 
@@ -4805,10 +4797,16 @@ BOOL LLTextEditor::handleMouseUpOverSegment(S32 x, S32 y, MASK mask)
 		// This mouse up was part of a click.
 		// Regardless of where the cursor is, see if we recently touched a link
 		// and launch it if we did.
-		if (mParseHTML && mHTML.length() > 0)
+		if (mParseHTML)
 		{
-			LLUrlAction::clickAction(mHTML);
-			mHTML.clear();
+			if (auto segment = getSegmentAtLocalPos(x, y))
+			{
+				if (auto style = segment->getStyle())
+				{
+					if (style->isLink())
+						LLUrlAction::clickAction(style->getLinkHREF());
+				}
+			}
 		}
 	}
 
