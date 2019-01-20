@@ -1681,6 +1681,14 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+void LLTextEditor::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	if (mHoverSegment)
+	{
+		mHoverSegment->underlineOnHover(false);
+		mHoverSegment = nullptr;
+	}
+}
 
 BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 {
