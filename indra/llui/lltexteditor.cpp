@@ -2210,7 +2210,7 @@ void LLTextEditor::copy(bool raw)
 			// If our selection starts in the middle of a link, set our left_pos to the beginning of its segment.
 			auto segment = **begin;
 			if (auto style = segment.getStyle())
-				if (!style->getLinkHREF().empty())
+				if (style->isLink())
 					left_pos = llmin(segment.getStart(), left_pos);
 		}
 		auto text = mWText.substr(left_pos, length);
