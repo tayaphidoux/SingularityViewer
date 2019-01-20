@@ -4183,15 +4183,15 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 		LL_RECORD_BLOCK_TIME(FTM_PARSE_HTML);
 		S32 start=0,end=0;
 		LLUrlMatch match;
-		LLStyleSP link_style(new LLStyle);
-		if (style) *link_style = *style;
-		link_style->setColor(mLinkColor ? *mLinkColor : LLUI::sConfigGroup->getColor4("HTMLLinkColor"));
+		const auto& link_color = mLinkColor ? *mLinkColor : LLUI::sConfigGroup->getColor4("HTMLLinkColor");
 		auto append_substr = [&](const size_t& pos, const size_t& count)
 		{
 			appendAndHighlightText(text.substr(pos, count), part, style);
 		};
 		auto append_link = [&](const std::string& link)
 		{
+			LLStyleSP link_style(style ? new LLStyle(*style) : new LLStyle);
+			link_style->setColor(link_color);
 			link_style->setLinkHREF(match.getUrl());
 			appendAndHighlightText(link, part, link_style);
 		};
