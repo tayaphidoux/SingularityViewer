@@ -79,7 +79,7 @@ enum ACTIVITY_TYPE
 	 * Update world position.
 	 * Affects age.
 	 */	
-	void setPosition(const LLVector3d& position, const F32& dist, bool drawn);
+	void setPosition(const LLVector3d& position, const F32& dist, bool drawn, bool flood = false);
 
 	const LLVector3d& getPosition() const { return mPosition; }
 
@@ -202,7 +202,7 @@ public:
 	/**
 	 * @brief Updates the internal avatar list with the currently present avatars.
 	 */
-	void updateAvatarList(const class LLViewerRegion* region);
+	void updateAvatarList(const class LLViewerRegion* region, bool first = false);
 
 	/**
 	 * @brief Refresh avatar list (display)
@@ -318,8 +318,6 @@ public:
 
 	static bool onConfirmRadarChatKeys(const LLSD& notification, const LLSD& response );
 
-	static void callbackIdle(void *userdata);
-
 	void doCommand(avlist_command_t cmd, bool single = false) const;
 
 	/**
@@ -330,6 +328,7 @@ public:
 	 */
 	void expireAvatarList(const std::list<LLUUID>& ids);
 	void updateAvatarSorting();
+	bool isCleanup() const { return mCleanup; }
 
 private:
 	void setFocusAvatarInternal(const LLUUID& id);
@@ -340,6 +339,7 @@ private:
 	LLScrollListCtrl*			mAvatarList;
 	av_list_t	mAvatars;
 	bool		mDirtyAvatarSorting;
+	bool		mCleanup = false;
 
 	/**
 	 * @brief true when Updating

@@ -7790,6 +7790,28 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RadarAlertFlood</key>
+    <map>
+      <key>Comment</key>
+      <string>Show the flood of people arriving and (if RadarAlertFloodLeaving) leaving when you login and when you open/close the Radar with RadarKeepOpen off.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RadarAlertFloodLeaving</key>
+    <map>
+      <key>Comment</key>
+      <string>When activated along with RadarAlertFlood shows the flood of people leaving when you close the Radar with RadarKeepOpen off.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RadarAlertShowDist</key>
     <map>
       <key>Comment</key>
