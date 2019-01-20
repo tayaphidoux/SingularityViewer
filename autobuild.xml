@@ -2476,7 +2476,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/alchemyviewer/publiclibs-darwin/downloads/uriparser-0.8.4-darwin-201511221948.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/darwin/lib/uriparser-0.8.4-darwin-201511221948.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2498,11 +2498,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>69224d9285e5a26fc7a9aca5d3da7543</string>
+              <string>cf21d9f7ed7949d2230413e8a391fb73</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-trusty/uriparser-0.8.4-linux64-201603240044.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/linux64/lib-xenial/uriparser-0.8.4-linux64-201609241428.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2512,11 +2512,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f9f82fbd29751a969e9ab55a1f33ac7b</string>
+              <string>89f3fc7f3fe396439d306f099d1a12d3</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/uriparser-0.8.4-windows-201601151009.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc141/uriparser-0.8.4-windows-201703090606.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

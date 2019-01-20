@@ -125,6 +125,9 @@
 	<string name="TooltipMapUrl">Klicken, um diese Position auf der Karte anzuzeigen</string>
 	<string name="TooltipSLAPP">Anklicken, um Befehl secondlife:// auszuführen</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]"/>
+	<string name="TooltipEmail">
+		Klicken, um eine E-Mail zu verfassen
+	</string>
 
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleportieren zu</string>

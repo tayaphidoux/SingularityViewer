@@ -40,6 +40,7 @@ set(cmake_SOURCE_FILES
     FindNDOF.cmake
     FindOpenJPEG.cmake
     FindTut.cmake
+    FindURIPARSER.cmake
     FindXmlRpcEpi.cmake
     FreeType.cmake
     GLOD.cmake
@@ -93,6 +94,7 @@ set(cmake_SOURCE_FILES
     Tut.cmake
     UI.cmake
     UnixInstall.cmake
+    URIPARSER.cmake
     Variables.cmake
     ViewerMiscLibs.cmake
     WinManifest.cmake

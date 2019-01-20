@@ -13,6 +13,7 @@ include(LLSharedLibs)
 include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
 include(ZLIB)
+include(URIPARSER)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
@@ -101,6 +102,7 @@ set(llcommon_SOURCE_FILES
     llthreadsafequeue.cpp
     lltimer.cpp
     lluri.cpp
+    lluriparser.cpp
     lluuid.cpp
     llworkerthread.cpp
     metaclass.cpp
@@ -238,6 +240,7 @@ set(llcommon_HEADER_FILES
     llunittype.h
     lltypeinfolookup.h
     lluri.h
+    lluriparser.h
     lluuid.h
     llwin32headers.h
     llwin32headerslean.h
@@ -296,6 +299,7 @@ target_link_libraries(
     ${Boost_THREAD_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${CORESERVICES_LIBRARY}
+    ${URIPARSER_LIBRARY}
     )
 
 if (DARWIN)

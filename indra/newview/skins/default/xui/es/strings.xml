@@ -133,6 +133,9 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="TooltipMapUrl">Pulsa para ver esta ubicación en el mapa</string>
 	<string name="TooltipSLAPP">Pulsa para ejecutar el comando secondlife://</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
+	<string name="TooltipEmail">
+		Haz clic para redactar un correo electrónico
+	</string>
 
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleportar a</string>

@@ -403,6 +403,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 		Clique para ativar no secondlife:// comando
 	</string>
 	<string name="CurrentURL" value="URL atual: [CurrentURL]"/>
+	<string name="TooltipEmail">
+		Clique para escrever um email
+	</string>
 	<string name="SLurlLabelTeleport">
 		Teletransportar para
 	</string>
@@ -426,6 +429,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="SLappAgentRequestFriend">
 		Pedido de amizade
+	</string>
+	<string name="SLappAgentRemoveFriend">
+		Remoção de amigo
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Fechar (⌘W)

@@ -535,7 +535,7 @@ bool cmd_line_chat(std::string data, EChatType type)
 					LLAvatarActions::showProfile(id);
 					return false;
 				}
-				LLUrlAction::clickAction(sub);
+				LLUrlAction::clickAction(sub, true);
 			}
 			return false;
 		}

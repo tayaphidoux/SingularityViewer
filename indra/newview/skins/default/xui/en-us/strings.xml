@@ -141,6 +141,7 @@ Make sure you entered the correct Login URI. An example of a Login URI is: \"htt
 	<string name="TooltipMapUrl">Click to view this location on a map</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
+	<string name="TooltipEmail">Click to compose an email</string>
 
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleport to</string>

@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /** 
  * @file llurlentry.cpp
  * @author Martin Reddy
@@ -31,6 +33,7 @@
 #include "lluri.h"
 #include "llurlmatch.h"
 #include "llurlregistry.h"
+#include "lluriparser.h"
 
 #include "llavatarnamecache.h"
 #include "llcachename.h"
@@ -38,14 +41,18 @@
 //#include "lluicolortable.h"
 #include "message.h"
 
-#define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
+#include <boost/format.hpp> // <alchemy/>
+
+#define APP_HEADER_REGEX "((((x-grid-info://)|(x-grid-location-info://))[-\\w\\.]+(:\\d+)?/app)|(secondlife:///app))"
+#define X_GRID_OR_SECONDLIFE_HEADER_REGEX "((((x-grid-info://)|(x-grid-location-info://))[-\\w\\.]+(:\\d+)?/)|(secondlife://))"
 
 // Utility functions
 std::string localize_slapp_label(const std::string& url, const std::string& full_name);
 
 
 LLUrlEntryBase::LLUrlEntryBase()
-{}
+{
+}
 
 LLUrlEntryBase::~LLUrlEntryBase()
 {
@@ -111,7 +118,7 @@ std::string LLUrlEntryBase::getLabelFromWikiLink(const std::string &url) const
 {
 	// return the label part from [http://www.example.org Label]
 	const char *text = url.c_str();
-	S32 start = 0;
+	size_t start = 0;
 	while (! isspace(text[start]))
 	{
 		start++;
@@ -127,7 +134,7 @@ std::string LLUrlEntryBase::getUrlFromWikiLink(const std::string &string) const
 {
 	// return the url part from [http://www.example.org Label]
 	const char *text = string.c_str();
-	S32 end = 0;
+	size_t end = 0;
 	while (! isspace(text[end]))
 	{
 		end++;
@@ -142,11 +149,14 @@ void LLUrlEntryBase::addObserver(const std::string &id,
 	// add a callback to be notified when we have a label for the uuid
 	LLUrlEntryObserver observer;
 	observer.url = url;
-	observer.signal = new LLUrlLabelSignal();
-	if (observer.signal)
+	try
 	{
+		observer.signal = new LLUrlLabelSignal();
 		observer.signal->connect(cb);
-		mObservers.insert(std::pair<std::string, LLUrlEntryObserver>(id, observer));
+		mObservers.emplace(id, observer);
+	}
+	catch (...)
+	{
 	}
 }
 
@@ -178,12 +188,49 @@ bool LLUrlEntryBase::isLinkDisabled() const
 	return globally_disabled;
 }
 
-static std::string getStringAfterToken(const std::string str, const std::string token)
+bool LLUrlEntryBase::isWikiLinkCorrect(const std::string& url)
+{
+	LLWString label = utf8str_to_wstring(getLabelFromWikiLink(url));
+	label.erase(std::remove(label.begin(), label.end(), L'\u200B'), label.end());
+	return (LLUrlRegistry::instance().hasUrl(wstring_to_utf8str(label))) ? false : true;
+}
+
+std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) const
+{
+	LLUriParser up(unescapeUrl(url));
+	up.normalize();
+
+	std::string label;
+	up.extractParts();
+	up.glueFirst(label);
+
+	return label;
+}
+
+std::string LLUrlEntryBase::urlToGreyQuery(const std::string &url) const
+{
+	LLUriParser up(unescapeUrl(url));
+
+	std::string label;
+	up.extractParts();
+	up.glueFirst(label, false);
+
+	size_t pos = url.find(label);
+	if (pos == std::string::npos)
+	{
+		return "";
+	}
+	pos += label.size();
+	return url.substr(pos);
+}
+
+
+static std::string getStringAfterToken(const std::string& str, const std::string& token)
 {
 	size_t pos = str.find(token);
 	if (pos == std::string::npos)
 	{
-		return "";
+		return std::string();
 	}
 
 	pos += token.size();
@@ -194,8 +241,9 @@ static std::string getStringAfterToken(const std::string str, const std::string 
 // LLUrlEntryHTTP Describes generic http: and https: Urls
 //
 LLUrlEntryHTTP::LLUrlEntryHTTP()
+	: LLUrlEntryBase()
 {
-	mPattern = boost::regex("https?://([-\\w\\.]+)+(:\\d+)?(:\\w+)?(@\\d+)?(@\\w+)?/?\\S*",
+	mPattern = boost::regex("https?://([^\\s/?\\.#]+\\.?)+\\.\\w+(:\\d+)?(/\\S*)?",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
 	mTooltip = LLTrans::getString("TooltipHttpUrl");
@@ -204,6 +252,20 @@ LLUrlEntryHTTP::LLUrlEntryHTTP()
 std::string LLUrlEntryHTTP::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
 	return unescapeUrl(url);
+}
+
+std::string LLUrlEntryHTTP::getUrl(const std::string &string) const
+{
+	if (string.find("://") == std::string::npos)
+	{
+		return "http://" + escapeUrl(string);
+	}
+	return escapeUrl(string);
+}
+
+std::string LLUrlEntryHTTP::getTooltip(const std::string &url) const
+{
+	return mTooltip;;
 }
 
 //
@@ -238,20 +300,22 @@ std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string) const
 // LLUrlEntryHTTPNoProtocol Describes generic Urls like www.google.com
 //
 LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
+	: LLUrlEntryBase()
 {
-	mPattern = boost::regex("("
-				"\\bwww\\.\\S+\\.\\S+" // i.e. www.FOO.BAR
-				"|" // or
-				"(?<!@)\\b[^[:space:]:@/>]+\\.(?:com|net|edu|org)([/:][^[:space:]<]*)?\\b" // i.e. FOO.net
-				")",
-				boost::regex::perl|boost::regex::icase);
+	mPattern = boost::regex("\\bwww\\.\\S+\\.([^\\s<]*)?\\b", // i.e. www.FOO.BAR
+		boost::regex::perl | boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
 	mTooltip = LLTrans::getString("TooltipHttpUrl");
 }
 
 std::string LLUrlEntryHTTPNoProtocol::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
-	return unescapeUrl(url);
+	return urlToLabelWithGreyQuery(url);
+}
+
+std::string LLUrlEntryHTTPNoProtocol::getQuery(const std::string &url) const
+{
+	return urlToGreyQuery(url);
 }
 
 std::string LLUrlEntryHTTPNoProtocol::getUrl(const std::string &string) const
@@ -261,6 +325,95 @@ std::string LLUrlEntryHTTPNoProtocol::getUrl(const std::string &string) const
 		return "http://" + escapeUrl(string);
 	}
 	return escapeUrl(string);
+}
+
+std::string LLUrlEntryHTTPNoProtocol::getTooltip(const std::string &url) const
+{
+	return unescapeUrl(url);
+}
+
+LLUrlEntryInvalidSLURL::LLUrlEntryInvalidSLURL()
+	: LLUrlEntryBase()
+{
+	mPattern = boost::regex("(http://(maps.secondlife.com|slurl.com)/secondlife/|secondlife://(/app/(worldmap|teleport)/)?)[^ /]+(/-?[0-9]+){1,3}(/?(\\?title|\\?img|\\?msg)=\\S*)?/?",
+									boost::regex::perl|boost::regex::icase);
+	mMenuName = "menu_url_http.xml";
+	mTooltip = LLTrans::getString("TooltipHttpUrl");
+}
+
+std::string LLUrlEntryInvalidSLURL::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+
+	return escapeUrl(url);
+}
+
+std::string LLUrlEntryInvalidSLURL::getUrl(const std::string &string) const
+{
+	return escapeUrl(string);
+}
+
+std::string LLUrlEntryInvalidSLURL::getTooltip(const std::string &url) const
+{
+	return unescapeUrl(url);
+}
+
+bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
+{
+	S32 actual_parts;
+
+	if(url.find(".com/secondlife/") != std::string::npos)
+	{
+	   actual_parts = 5;
+	}
+	else if(url.find("/app/") != std::string::npos)
+	{
+		actual_parts = 6;
+	}
+	else
+	{
+		actual_parts = 3;
+	}
+
+	LLURI uri(url);
+	LLSD path_array = uri.pathArray();
+	S32 path_parts = path_array.size();
+	S32 x,y,z;
+
+	if (path_parts == actual_parts)
+	{
+		// handle slurl with (X,Y,Z) coordinates
+		LLStringUtil::convertToS32(path_array[path_parts-3],x);
+		LLStringUtil::convertToS32(path_array[path_parts-2],y);
+		LLStringUtil::convertToS32(path_array[path_parts-1],z);
+
+		if((x>= 0 && x<= 256) && (y>= 0 && y<= 256) && (z>= 0))
+		{
+			return TRUE;
+		}
+	}
+	else if (path_parts == (actual_parts-1))
+	{
+		// handle slurl with (X,Y) coordinates
+
+		LLStringUtil::convertToS32(path_array[path_parts-2],x);
+		LLStringUtil::convertToS32(path_array[path_parts-1],y);
+		;
+		if((x>= 0 && x<= 256) && (y>= 0 && y<= 256))
+		{
+				return TRUE;
+		}
+	}
+	else if (path_parts == (actual_parts-2))
+	{
+		// handle slurl with (X) coordinate
+		LLStringUtil::convertToS32(path_array[path_parts-1],x);
+		if(x>= 0 && x<= 256)
+		{
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 //
@@ -284,6 +437,7 @@ std::string LLUrlEntrySLURL::getLabel(const std::string &url, const LLUrlLabelCa
 	//   - http://slurl.com/secondlife/Place/X
 	//   - http://slurl.com/secondlife/Place
 	//
+
 	LLURI uri(url);
 	LLSD path_array = uri.pathArray();
 	S32 path_parts = path_array.size();
@@ -336,12 +490,61 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 }
 
 //
+// LLUrlEntrySeconlifeURL Describes *secondlife.com/ and *lindenlab.com/ urls to substitute icon 'hand.png' before link
+//
+LLUrlEntrySecondlifeURL::LLUrlEntrySecondlifeURL()
+{ 
+	mPattern = boost::regex("\\b(https?://)?([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com(:\\d{1,5})?(/\\S*)?\\b",
+		boost::regex::perl|boost::regex::icase);
+	
+	mIcon = "Hand";
+	mMenuName = "menu_url_http.xml";
+	mTooltip = LLTrans::getString("TooltipHttpUrl");
+}
+
+/// Return the url from a string that matched the regex
+std::string LLUrlEntrySecondlifeURL::getUrl(const std::string &string) const
+{
+	if (string.find("://") == std::string::npos)
+	{
+		return "https://" + escapeUrl(string);
+	}
+	return escapeUrl(string);
+}
+
+std::string LLUrlEntrySecondlifeURL::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	return urlToLabelWithGreyQuery(url);
+}
+
+std::string LLUrlEntrySecondlifeURL::getQuery(const std::string &url) const
+{
+	return urlToGreyQuery(url);
+}
+
+std::string LLUrlEntrySecondlifeURL::getTooltip(const std::string &url) const
+{
+	return url;
+}
+
+//
+// LLUrlEntrySimpleSecondlifeURL Describes *secondlife.com and *lindenlab.com urls to substitute icon 'hand.png' before link
+//
+LLUrlEntrySimpleSecondlifeURL::LLUrlEntrySimpleSecondlifeURL()
+  {
+	mPattern = boost::regex("(https?://)?([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com(?!\\S)",
+		boost::regex::perl|boost::regex::icase);
+
+	mIcon = "Hand";
+	mMenuName = "menu_url_http.xml";
+}
+
+//
 // LLUrlEntryAgent Describes a Second Life agent Url, e.g.,
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
-// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+// x-grid-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 //
-LLUrlEntryAgent::LLUrlEntryAgent() :
-	mAvatarNameCacheConnection()
+LLUrlEntryAgent::LLUrlEntryAgent()
 {
 	mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/\\w+",
 							boost::regex::perl|boost::regex::icase);
@@ -372,7 +575,15 @@ void LLUrlEntryAgent::callObservers(const std::string &id,
 void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
 {
-	mAvatarNameCacheConnection.disconnect();
+	auto range = mAvatarNameCacheConnections.equal_range(id);
+	for (auto it = range.first; it != range.second; ++it)
+	{
+		if (it->second.connected())
+		{
+			it->second.disconnect();
+		}
+	}
+	mAvatarNameCacheConnections.erase(range.first, range.second);
 
 	std::string label = av_name.getCompleteName();
 
@@ -459,11 +670,8 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		if (mAvatarNameCacheConnection.connected())
-		{
-			mAvatarNameCacheConnection.disconnect();
-		}
-		mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2));
+		auto connection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2));
+		mAvatarNameCacheConnections.emplace(agent_id, connection);
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}
@@ -522,16 +730,23 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 //
 // LLUrlEntryAgentName describes a Second Life agent name Url, e.g.,
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
-// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
+// x-grid-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
 //
-LLUrlEntryAgentName::LLUrlEntryAgentName() :
-	mAvatarNameCacheConnection()
+LLUrlEntryAgentName::LLUrlEntryAgentName()
 {}
 
 void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
 {
-	mAvatarNameCacheConnection.disconnect();
+	auto range = mAvatarNameCacheConnections.equal_range(id);
+	for (auto it = range.first; it != range.second; ++it)
+	{
+		if (it->second.connected())
+		{
+			it->second.disconnect();
+		}
+	}
+	mAvatarNameCacheConnections.erase(range.first, range.second);
 
 	std::string label = getName(av_name);
 	// received the agent name from the server - tell our observers
@@ -566,11 +781,8 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 	}
 	else
 	{
-		if (mAvatarNameCacheConnection.connected())
-		{
-			mAvatarNameCacheConnection.disconnect();
-		}
-		mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2));
+		auto connection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2));
+		mAvatarNameCacheConnections.emplace(agent_id, connection);
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}
@@ -585,7 +797,7 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 //
 // LLUrlEntryAgentCompleteName describes a Second Life agent complete name Url, e.g.,
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/completename
-// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/completename
+// x-grid-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/completename
 //
 LLUrlEntryAgentCompleteName::LLUrlEntryAgentCompleteName()
 {
@@ -599,9 +811,25 @@ std::string LLUrlEntryAgentCompleteName::getName(const LLAvatarName& avatar_name
 }
 
 //
+// LLUrlEntryAgentLegacyName describes a Second Life agent legacy name Url, e.g.,
+// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/legacyname
+// x-grid-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/legacyname
+//
+LLUrlEntryAgentLegacyName::LLUrlEntryAgentLegacyName()
+{
+	mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/legacyname",
+							boost::regex::perl|boost::regex::icase);
+}
+
+std::string LLUrlEntryAgentLegacyName::getName(const LLAvatarName& avatar_name)
+{
+	return avatar_name.getLegacyName();
+}
+
+//
 // LLUrlEntryAgentDisplayName describes a Second Life agent display name Url, e.g.,
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/displayname
-// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/displayname
+// x-grid-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/displayname
 //
 LLUrlEntryAgentDisplayName::LLUrlEntryAgentDisplayName()
 {
@@ -617,7 +845,7 @@ std::string LLUrlEntryAgentDisplayName::getName(const LLAvatarName& avatar_name)
 //
 // LLUrlEntryAgentUserName describes a Second Life agent user name Url, e.g.,
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/username
-// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/username
+// x-grid-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/username
 //
 LLUrlEntryAgentUserName::LLUrlEntryAgentUserName()
 {
@@ -634,7 +862,7 @@ std::string LLUrlEntryAgentUserName::getName(const LLAvatarName& avatar_name)
 // LLUrlEntryGroup Describes a Second Life group Url, e.g.,
 // secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about
 // secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect
-// x-grid-location-info://lincoln.lindenlab.com/app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect
+// x-grid-info://lincoln.lindenlab.com/app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect
 //
 LLUrlEntryGroup::LLUrlEntryGroup()
 {
@@ -714,7 +942,7 @@ LLUrlEntryInventory::LLUrlEntryInventory()
 	//*TODO: add supporting of inventory item names with whitespaces
 	//this pattern cann't parse for example 
 	//secondlife:///app/inventory/0e346d8b-4433-4d66-a6b0-fd37083abc4c/select?name=name with spaces&param2=value
-	//x-grid-location-info://lincoln.lindenlab.com/app/inventory/0e346d8b-4433-4d66-a6b0-fd37083abc4c/select?name=name with spaces&param2=value
+	//x-grid-info://lincoln.lindenlab.com/app/inventory/0e346d8b-4433-4d66-a6b0-fd37083abc4c/select?name=name with spaces&param2=value
 	mPattern = boost::regex(APP_HEADER_REGEX "/inventory/[\\da-f-]+/\\w+\\S*",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_inventory.xml";
@@ -732,7 +960,7 @@ std::string LLUrlEntryInventory::getLabel(const std::string &url, const LLUrlLab
 //
 LLUrlEntryObjectIM::LLUrlEntryObjectIM()
 {
-	mPattern = boost::regex("secondlife:///app/objectim/[\\da-f-]+\?.*",
+	mPattern = boost::regex(APP_HEADER_REGEX "/objectim/[\\da-f-]+\?\\S*\\w",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_objectim.xml";
 }
@@ -765,7 +993,7 @@ std::set<LLUrlEntryParcel*> LLUrlEntryParcel::sParcelInfoObservers;
 ///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
-/// x-grid-location-info://lincoln.lindenlab.com/app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
+/// x-grid-info://lincoln.lindenlab.com/app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
 ///
 LLUrlEntryParcel::LLUrlEntryParcel()
 {
@@ -860,7 +1088,7 @@ void LLUrlEntryParcel::processParcelInfo(const LLParcelData& parcel_data)
 //
 LLUrlEntryPlace::LLUrlEntryPlace()
 {
-	mPattern = boost::regex("((x-grid-location-info://[-\\w\\.]+/region/)|(secondlife://))\\S+/?(\\d+/\\d+/\\d+|\\d+/\\d+)/?",
+	mPattern = boost::regex("((((x-grid-info://)|(x-grid-location-info://))[-\\w\\.]+(:\\d+)?/region/)|(secondlife://))\\S+/?(\\d+/\\d+/\\d+|\\d+/\\d+)/?",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_slurl.xml";
 	mTooltip = LLTrans::getString("TooltipSLURL");
@@ -968,7 +1196,7 @@ std::string LLUrlEntryRegion::getLocation(const std::string &url) const
 //
 // LLUrlEntryTeleport Describes a Second Life teleport Url, e.g.,
 // secondlife:///app/teleport/Ahern/50/50/50/
-// x-grid-location-info://lincoln.lindenlab.com/app/teleport/Ahern/50/50/50/
+// x-grid-info://lincoln.lindenlab.com/app/teleport/Ahern/50/50/50/
 //
 LLUrlEntryTeleport::LLUrlEntryTeleport()
 {
@@ -1042,7 +1270,7 @@ std::string LLUrlEntryTeleport::getLocation(const std::string &url) const
 //
 LLUrlEntrySL::LLUrlEntrySL()
 {
-	mPattern = boost::regex("secondlife://(\\w+)?(:\\d+)?/\\S+",
+	mPattern = boost::regex(X_GRID_OR_SECONDLIFE_HEADER_REGEX "(\\w+)?(:\\d+)?/\\S+",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_slapp.xml";
 	mTooltip = LLTrans::getString("TooltipSLAPP");
@@ -1059,7 +1287,7 @@ std::string LLUrlEntrySL::getLabel(const std::string &url, const LLUrlLabelCallb
 //
 LLUrlEntrySLLabel::LLUrlEntrySLLabel()
 {
-	mPattern = boost::regex("\\[secondlife://\\S+[ \t]+[^\\]]+\\]",
+	mPattern = boost::regex("\\[" X_GRID_OR_SECONDLIFE_HEADER_REGEX "\\S+[ \t]+[^\\]]+\\]",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_slapp.xml";
 	mTooltip = LLTrans::getString("TooltipSLAPP");
@@ -1201,3 +1429,75 @@ std::string LLUrlEntryIcon::getIcon(const std::string &url)
 	LLStringUtil::trim(mIcon);
 	return mIcon;
 }
+
+//
+// LLUrlEntryEmail Describes a generic mailto: Urls
+//
+LLUrlEntryEmail::LLUrlEntryEmail()
+	: LLUrlEntryBase()
+{
+	mPattern = boost::regex("(mailto:)?[\\w\\.\\-]+@[\\w\\.\\-]+\\.[a-z]{2,63}",
+							boost::regex::perl | boost::regex::icase);
+	mMenuName = "menu_url_email.xml";
+	mTooltip = LLTrans::getString("TooltipEmail");
+}
+
+std::string LLUrlEntryEmail::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	size_t pos = url.find("mailto:");
+
+	if (pos == std::string::npos)
+	{
+		return escapeUrl(url);
+	}
+
+	std::string ret = escapeUrl(url.substr(pos + 7, url.length() - pos + 8));
+	return ret;
+}
+
+std::string LLUrlEntryEmail::getUrl(const std::string &string) const
+{
+	if (string.find("mailto:") == std::string::npos)
+	{
+		return "mailto:" + escapeUrl(string);
+	}
+	return escapeUrl(string);
+}
+
+// <alchemy>
+//
+// LLUrlEntryJIRA describes a Jira Issue Tracker entry
+//
+LLUrlEntryJira::LLUrlEntryJira()
+{
+	mPattern = boost::regex("((?:ALCH|SV|BUG|CHOP|FIRE|MAINT|OPEN|SCR|STORM|SVC|VWR|WEB)-\\d+)",
+							boost::regex::perl);
+	mMenuName = "menu_url_http.xml";
+	mTooltip = LLTrans::getString("TooltipHttpUrl");
+}
+
+std::string LLUrlEntryJira::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	return unescapeUrl(url);
+}
+
+std::string LLUrlEntryJira::getTooltip(const std::string &string) const
+{
+	return getUrl(string);
+}
+
+std::string LLUrlEntryJira::getUrl(const std::string &url) const
+{
+	return (boost::format(
+		(url.find("ALCH") != std::string::npos) ?
+			"http://alchemy.atlassian.net/browse/%1%" :
+		(url.find("SV") != std::string::npos) ?
+			"https://singularityviewer.atlassian.net/browse/%1%" :
+		(url.find("FIRE") != std::string::npos) ?
+			"http://jira.phoenixviewer.com/browse/%1%" :
+		"http://jira.secondlife.com/browse/%1%"
+	) % url).str();
+}
+// </alchemy>
+
+

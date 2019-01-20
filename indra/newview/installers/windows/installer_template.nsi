@@ -507,7 +507,27 @@ Section "Viewer"
   WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" "$INSTDIR\$INSTEXE"
   ;; URL param must be last item passed to viewer, it ignores subsequent params
   ;; to avoid parameter injection attacks.
+  WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\shell" "" "open"
+!ifdef WIN64_BIN_BUILD
+  WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open" "FriendlyAppName" "$INSTSHORTCUT (64 bit) Viewer"
+!else
+  WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open" "FriendlyAppName" "$INSTSHORTCUT Viewer"
+!endif
   WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" "$\"$INSTDIR\$INSTEXE$\" -url $\"%1$\""
+
+  DeleteRegKey HKEY_CLASSES_ROOT "x-grid-info"
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-info" "" "URL:Hypergrid"
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-info" "URL Protocol" ""
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-info\DefaultIcon" "" "$INSTDIR\$INSTEXE"
+  ;; URL param must be last item passed to viewer, it ignores subsequent params
+  ;; to avoid parameter injection attacks.
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-info\shell" "" "open"
+!ifdef WIN64_BIN_BUILD
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-info\shell\open" "FriendlyAppName" "$INSTSHORTCUT (64 bit) Viewer"
+!else
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-info\shell\open" "FriendlyAppName" "$INSTSHORTCUT Viewer"
+!endif
+  WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-info\shell\open\command" "" "$\"$INSTDIR\$INSTEXE$\" -url $\"%1$\""
 
   DeleteRegKey HKEY_CLASSES_ROOT "x-grid-location-info"
   WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "" "URL:Hypergrid legacy"
@@ -515,6 +535,12 @@ Section "Viewer"
   WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" "$\"$INSTDIR\$INSTEXE$\""
   ;; URL param must be last item passed to viewer, it ignores subsequent params
   ;; to avoid parameter injection attacks.
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\shell" "" "open"
+!ifdef WIN64_BIN_BUILD
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open" "FriendlyAppName" "$INSTSHORTCUT (64 bit) Viewer"
+!else
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open" "FriendlyAppName" "$INSTSHORTCUT Viewer"
+!endif
   WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" "$\"$INSTDIR\$INSTEXE$\" -url $\"%1$\""
   
   ;Create uninstaller

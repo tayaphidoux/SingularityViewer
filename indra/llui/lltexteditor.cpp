@@ -4238,6 +4238,23 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 				{
 					setLastSegmentToolTip(match.getTooltip());
 				}
+
+				// show query part of url with gray color only for LLUrlEntryHTTP and LLUrlEntryHTTPNoProtocol url entries
+				std::string label = match.getQuery();
+				if (!label.empty())
+				{
+					/* Singu Note: Upstream uses hardcoded Grey here, they have no care for skins, this could be awful! For now just make it a normal link
+					link_params.color = LLColor4::grey;
+					link_params.readonly_color = LLColor4::grey;
+					appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());*/
+					append_link(label);
+
+					// set the tooltip for the query part of url
+					if (tooltip_required)
+					{
+						setLastSegmentToolTip(match.getTooltip());
+					}
+				}
 			}
 			else if (!replace_links) // Still link the link itself
 			{
@@ -4804,7 +4821,7 @@ BOOL LLTextEditor::handleMouseUpOverSegment(S32 x, S32 y, MASK mask)
 				if (auto style = segment->getStyle())
 				{
 					if (style->isLink())
-						LLUrlAction::clickAction(style->getLinkHREF());
+						LLUrlAction::clickAction(style->getLinkHREF(), true);
 				}
 			}
 		}
