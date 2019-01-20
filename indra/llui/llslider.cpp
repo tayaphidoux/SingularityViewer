@@ -247,8 +247,11 @@ BOOL LLSlider::handleKeyHere(KEY key, MASK mask)
 
 BOOL LLSlider::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	F32 new_val = getValueF32() - clicks * getIncrement();
+	F32 old_val = getValueF32();
+	F32 new_val = old_val - clicks * getIncrement();
 	setValueAndCommit(new_val);
+	// Singu Note: We have to tell the viewer we're done dragging if it cares
+	if (mMouseUpSignal && old_val != new_val) (*mMouseUpSignal)(this, new_val);
 	return TRUE;
 }
 
