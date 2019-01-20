@@ -4323,7 +4323,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 				}*/
 
 				// output the styled url
-				append_link(label);
+				append_link(label + match.getQuery());
 				bool tooltip_required = !match.getTooltip().empty();
 
 				// set the tooltip for the Url label
@@ -4332,14 +4332,15 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 					setLastSegmentToolTip(match.getTooltip());
 				}
 
+				/* Singu Note: Upstream uses hardcoded Grey here, they have no care for skins, this could be awful! 
+				Also it splits up the link! For now just make it append it to the same segment with its label above.
 				// show query part of url with gray color only for LLUrlEntryHTTP and LLUrlEntryHTTPNoProtocol url entries
 				std::string label = match.getQuery();
 				if (!label.empty())
 				{
-					/* Singu Note: Upstream uses hardcoded Grey here, they have no care for skins, this could be awful! For now just make it a normal link
 					link_params.color = LLColor4::grey;
 					link_params.readonly_color = LLColor4::grey;
-					appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());*/
+					appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
 					append_link(label);
 
 					// set the tooltip for the query part of url
@@ -4347,7 +4348,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 					{
 						setLastSegmentToolTip(match.getTooltip());
 					}
-				}
+				}*/
 			}
 			else if (!replace_links) // Still link the link itself
 			{
