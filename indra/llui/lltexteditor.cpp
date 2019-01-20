@@ -2224,7 +2224,6 @@ void LLTextEditor::copy(bool raw)
 				const S32 label_length = (segment.getEnd() - segment.getStart());
 				const S32 start = (segment.getStart()+offset)-left_pos;
 				const auto label = text.substr(start, label_length);
-				LL_INFOS() << "Our label is " << wstring_to_utf8str(label) << LL_ENDL;
 				const auto wlink = utf8str_to_wstring(link);
 				const auto pos = wlink.find(label);
 				// Do not replace if normal link, or contains normal link (but may omit protocol) but ends the same way
