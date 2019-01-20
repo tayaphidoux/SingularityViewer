@@ -65,6 +65,7 @@
 #include "lltextparser.h"
 #include "lldir.h"
 #include <queue>
+#include "llmemberlistener.h"
 #include "llmenugl.h"
 #include "../newview/lgghunspell_wrapper.h"
 
@@ -243,6 +244,8 @@ private:
 
 
 ///////////////////////////////////////////////////////////////////
+LLTextEditor::is_friend_signal_t* LLTextEditor::mIsFriendSignal = nullptr;
+LLTextEditor::is_blocked_signal_t* LLTextEditor::mIsObjectBlockedSignal = nullptr;
 
 LLTextEditor::LLTextEditor(
 	const std::string& name,
@@ -345,32 +348,6 @@ LLTextEditor::LLTextEditor(
 
 	resetDirty();		// Update saved text state
 
-	// make the popup menu available
-	//LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_texteditor.xml", parent_view);
-	LLMenuGL* menu = new LLMenuGL("rclickmenu");
-	/*if (!menu)
-	{
-			menu = new LLMenuGL(LLStringUtil::null);
-	}*/
-	menu->addChild(new LLMenuItemCallGL("Cut", context_cut, NULL, this));
-	menu->addChild(new LLMenuItemCallGL("Copy", context_copy, NULL, this));
-	menu->addChild(new LLMenuItemCallGL("Copy Raw", [](void* data) {
-		if (LLTextEditor* line = static_cast<LLTextEditor*>(data)) line->copyRaw();
-	}, NULL, this));
-	menu->addChild(new LLMenuItemCallGL("Copy URL", [](void* data) {
-		if (std::string* str = static_cast<std::string*>(data))
-		{
-			auto url = utf8str_to_wstring(*str);
-			gClipboard.copyFromSubstring(url, 0, url.size());
-		}
-	}, NULL, this));
-	menu->addChild(new LLMenuItemCallGL("Paste", context_paste, NULL, this));
-	menu->addChild(new LLMenuItemCallGL("Delete", context_delete, NULL, this));
-	menu->addChild(new LLMenuItemCallGL("Select All", context_selectall, NULL, this));
-	menu->addSeparator();
-	menu->setCanTearOff(FALSE);
-	menu->setVisible(FALSE);
-	mPopupMenuHandle = menu->getHandle();
 	setCommitCallback(boost::bind(&LLTextEditor::setControlValue, this, _2));
 }
 
@@ -387,18 +364,75 @@ LLTextEditor::~LLTextEditor()
 	// Scrollbar is deleted by LLView
 
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
-	//LLView::deleteViewByHandle(mPopupMenuHandle);
+	mSegments.clear();
+	auto menu = mPopupMenuHandle.get();
+	if (menu)
+	{
+		menu->die();
+		mPopupMenuHandle.markDead();
+	}
+	/* Singu Note: Static this, we'll use it wherever we can!
+	delete mIsFriendSignal;
+	delete mIsObjectBlockedSignal;*/
 }
-void LLTextEditor::context_cut(void* data)
+
+const std::string& LLTextEditor::getMenuSegmentUrl() const
 {
-	LLTextEditor* line = (LLTextEditor*)data;
-	if(line)line->cut();
+	auto segment = getSegmentAtLocalPos(mLastContextMenuX, mLastContextMenuY);
+	auto style = segment->getStyle();
+	return style ? style->getLinkHREF() : LLStringUtil::null;
 }
-void LLTextEditor::context_copy(void* data)
+
+static LLTextEditor* get_focused_text_editor()
 {
-	LLTextEditor* line = (LLTextEditor*)data;
-	if(line)line->copy();
+	auto* list = dynamic_cast<LLTextEditor*>(gFocusMgr.getKeyboardFocus());
+	llassert(list); // This listener only applies to lists
+	return list;
 }
+
+class ContextText : public LLMemberListener<LLView>
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
+	{
+		auto text = get_focused_text_editor();
+		const auto& op = userdata.asStringRef();
+		if (op == "Cut") text->cut();
+		else if (op == "Copy") text->copy();
+		else if (op == "CopyRaw") text->copyRaw();
+		else if (op == "Paste") text->paste();
+		else if (op == "Delete") text->doDelete();
+		else if (op == "SelectAll") text->selectAll();
+		return true;
+	}
+};
+
+class ContextUrl : public LLMemberListener<LLView>
+{
+	static const std::string& get_focused_url()
+	{
+		return get_focused_text_editor()->getMenuSegmentUrl();
+	}
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
+	{
+		const auto& url = get_focused_url();
+		const auto& op = userdata.asStringRef();
+		if (op == "Open") LLUrlAction::openURL(url);
+		else if (op == "OpenInternal") LLUrlAction::openURLInternal(url);
+		else if (op == "OpenExternal") LLUrlAction::openURLExternal(url);
+		else if (op == "Execute") LLUrlAction::executeSLURL(url, true);
+		else if (op == "Block") LLUrlAction::blockObject(url);
+		else if (op == "Unblock") LLUrlAction::unblockObject(url);
+		else if (op == "Teleport") LLUrlAction::teleportToLocation(url);
+		else if (op == "ShowProfile") LLUrlAction::showProfile(url);
+		else if (op == "AddFriend") LLUrlAction::addFriend(url);
+		else if (op == "RemoveFriend") LLUrlAction::removeFriend(url);
+		else if (op == "SendIM") LLUrlAction::sendIM(url);
+		else if (op == "ShowOnMap") LLUrlAction::showLocationOnMap(url);
+		else if (op == "CopyLabel") LLUrlAction::copyLabelToClipboard(url);
+		else if (op == "CopyUrl") LLUrlAction::copyURLToClipboard(url);
+		return true;
+	}
+};
 
 
 void LLTextEditor::spell_correct(void* data)
@@ -477,21 +511,11 @@ void LLTextEditor::spell_add(void* data)
 	}
 }
 
-
-void LLTextEditor::context_paste(void* data)
+//static
+void LLTextEditor::addMenuListeners()
 {
-	LLTextEditor* line = (LLTextEditor*)data;
-	if(line)line->paste();
-}
-void LLTextEditor::context_delete(void* data)
-{
-	LLTextEditor* line = (LLTextEditor*)data;
-	if(line)line->doDelete();
-}
-void LLTextEditor::context_selectall(void* data)
-{
-	LLTextEditor* line = (LLTextEditor*)data;
-	if(line)line->selectAll();
+	(new ContextText)->registerListener(LLMenuGL::sMenuContainer, "Text");
+	(new ContextUrl)->registerListener(LLMenuGL::sMenuContainer, "Text.Url");
 }
 
 void LLTextEditor::setTrackColor( const LLColor4& color )
@@ -649,6 +673,56 @@ BOOL LLTextEditor::truncate()
 	}
 
 	return did_truncate;
+}
+
+LLMenuGL* LLTextEditor::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
+{
+	// work out the XUI menu file to use for this url
+	LLUrlMatch match;
+	std::string url = in_url;
+	if (!LLUrlRegistry::instance().findUrl(url, match))
+	{
+		return nullptr;
+	}
+
+	std::string xui_file = match.getMenuName();
+	if (xui_file.empty())
+	{
+		return nullptr;
+	}
+
+	// create and return the context menu from the XUI file
+	llassert(LLMenuGL::sMenuContainer != NULL);
+	auto menu = LLUICtrlFactory::getInstance()->buildMenu(xui_file, LLMenuGL::sMenuContainer);
+	if (menu)
+	{
+		if (mIsFriendSignal)
+		{
+			bool isFriend = *(*mIsFriendSignal)(LLUUID(LLUrlAction::getUserID(url)));
+			LLView* addFriendButton = menu->findChild<LLView>("add_friend");
+			LLView* removeFriendButton = menu->findChild<LLView>("remove_friend");
+
+			if (addFriendButton && removeFriendButton)
+			{
+				addFriendButton->setEnabled(!isFriend);
+				removeFriendButton->setEnabled(isFriend);
+			}
+		}
+
+		if (mIsObjectBlockedSignal)
+		{
+			bool is_blocked = *(*mIsObjectBlockedSignal)(LLUUID(LLUrlAction::getObjectId(url)), LLUrlAction::getObjectName(url));
+			LLView* blockButton = menu->findChild<LLView>("block_object");
+			LLView* unblockButton = menu->findChild<LLView>("unblock_object");
+
+			if (blockButton && unblockButton)
+			{
+				blockButton->setVisible(!is_blocked);
+				unblockButton->setVisible(is_blocked);
+			}
+		}
+	}
+	return menu;
 }
 
 void LLTextEditor::setText(const LLStringExplicit &utf8str)
@@ -1382,6 +1456,7 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 BOOL LLTextEditor::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
+
 	setFocus(TRUE);
 
 	//setCursorAtLocalPos( x, y, TRUE );
@@ -1392,43 +1467,56 @@ BOOL LLTextEditor::handleRightMouseDown( S32 x, S32 y, MASK mask )
 	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
 	if (menu)
 	{
-		for(int i = 0;i<(int)suggestionMenuItems.size();i++)
+		for (auto tempBind : suggestionMenuItems)
 		{
-			SpellMenuBind * tempBind = suggestionMenuItems[i];
-			if(tempBind)
+			if (tempBind)
 			{
 				menu->removeChild(tempBind->menuItem);
 				tempBind->menuItem->die();
-				//delete tempBind->menuItem;
-				//tempBind->menuItem = NULL;
 				delete tempBind;
 			}
 		}
 		suggestionMenuItems.clear();
+		menu->die();
+	}
+
+	auto segment = getSegmentAtLocalPos(x, y);
+	const LLStyleSP style = segment ? segment->getStyle() : nullptr;
+	auto submenu = (style && style->isLink()) ? createUrlContextMenu(x, y, style->getLinkHREF()) : nullptr;
+	// Add url menu to base menu if we have a selection, otherwise make it the menu.
+	menu = (submenu && !hasSelection()) ? submenu : LLUICtrlFactory::getInstance()->buildMenu("menu_texteditor.xml", LLMenuGL::sMenuContainer);
+	mPopupMenuHandle = menu->getHandle();
+	if (menu)
+	{
+		if (submenu && submenu != menu)
+		{
+			submenu->removeChild(submenu->getChild<LLMenuItemCallGL>("Select All")); // There can be only one!
+			menu->appendMenu(submenu);
+		}
 
 		// spell_check="true" in xui
-		menu->setItemVisible("Spelsep", !mReadOnly && mSpellCheckable);
 		if (!mReadOnly && mSpellCheckable)
 		{
 			bool is_word_part = getWordBoundriesAt(pos, &wordStart, &wordLen);
 			if (is_word_part)
 			{
 				const LLWString &text = mWText;
-				std::string selectedWord(std::string(text.begin(), text.end()).substr(wordStart,wordLen));
+				std::string selectedWord(std::string(text.begin(), text.end()).substr(wordStart, wordLen));
 
 				if (!glggHunSpell->isSpelledRight(selectedWord))
 				{
 					//misspelled word here, and you have just right clicked on it!
 					std::vector<std::string> suggs = glggHunSpell->getSuggestionList(selectedWord);
 
-					for (int i = 0; i<(int)suggs.size(); i++)
+					menu->addSeparator();
+					for (auto word : suggs)
 					{
 						SpellMenuBind * tempStruct = new SpellMenuBind;
 						tempStruct->origin = this;
-						tempStruct->word = suggs[i];
+						tempStruct->word = word;
 						tempStruct->wordPositionEnd = wordStart + wordLen;
-						tempStruct->wordPositionStart=wordStart;
-						tempStruct->wordY=y;
+						tempStruct->wordPositionStart = wordStart;
+						tempStruct->wordY = y;
 						LLMenuItemCallGL * suggMenuItem = new LLMenuItemCallGL(
 							tempStruct->word, spell_correct, NULL, tempStruct);
 						tempStruct->menuItem = suggMenuItem;
@@ -1439,8 +1527,8 @@ BOOL LLTextEditor::handleRightMouseDown( S32 x, S32 y, MASK mask )
 					tempStruct->origin = this;
 					tempStruct->word = selectedWord;
 					tempStruct->wordPositionEnd = wordStart + wordLen;
-					tempStruct->wordPositionStart=wordStart;
-					tempStruct->wordY=y;
+					tempStruct->wordPositionStart = wordStart;
+					tempStruct->wordY = y;
 					LLMenuItemCallGL * suggMenuItem = new LLMenuItemCallGL(
 						"Add Word", spell_add, NULL, tempStruct);
 					tempStruct->menuItem = suggMenuItem;
@@ -1465,17 +1553,6 @@ BOOL LLTextEditor::handleRightMouseDown( S32 x, S32 y, MASK mask )
 			tempStruct->menuItem = suggMenuItem;
 			suggestionMenuItems.push_back(tempStruct);
 			menu->addChild(suggMenuItem);
-		}
-
-		{
-			const LLStyleSP style = mHoverSegment ? mHoverSegment->getStyle() : nullptr;
-			auto copy_url = menu->findChild<LLMenuItemCallGL>("Copy URL");
-			if (mReadOnly && mParseHTML && style && !style->getLinkHREF().empty())
-			{
-				copy_url->setVisible(true);
-				copy_url->setUserData((void*)&style->getLinkHREF()); // Yes, this can be invalidated, but they'll never click it then.
-			}
-			else copy_url->setVisible(false);
 		}
 
 		mLastContextMenuX = x;
@@ -4973,6 +5050,24 @@ BOOL LLTextEditor::exportBuffer(std::string &buffer )
 	outstream << "}\n";
 
 	return TRUE;
+}
+
+boost::signals2::connection LLTextEditor::setIsFriendCallback(const is_friend_signal_t::slot_type& cb)
+{
+	if (!mIsFriendSignal)
+	{
+		mIsFriendSignal = new is_friend_signal_t();
+	}
+	return mIsFriendSignal->connect(cb);
+}
+
+boost::signals2::connection LLTextEditor::setIsObjectBlockedCallback(const is_blocked_signal_t::slot_type& cb)
+{
+	if (!mIsObjectBlockedSignal)
+	{
+		mIsObjectBlockedSignal = new is_blocked_signal_t();
+	}
+	return mIsObjectBlockedSignal->connect(cb);
 }
 
 //////////////////////////////////////////////////////////////////////////

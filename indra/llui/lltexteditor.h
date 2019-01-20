@@ -72,8 +72,15 @@ public:
 
 	virtual ~LLTextEditor();
 
-	typedef boost::signals2::signal<void (LLTextEditor* caller)> keystroke_signal_t;
+	const std::string& getMenuSegmentUrl() const;
 
+	typedef boost::signals2::signal<void (LLTextEditor* caller)> keystroke_signal_t;
+	typedef boost::signals2::signal<bool(const LLUUID& user_id)> is_friend_signal_t;
+	typedef boost::signals2::signal<bool(const LLUUID& blocked_id, const std::string from)> is_blocked_signal_t;
+
+	static boost::signals2::connection setIsFriendCallback(const is_friend_signal_t::slot_type& cb);
+	static boost::signals2::connection setIsObjectBlockedCallback(const is_blocked_signal_t::slot_type& cb);
+	static void addMenuListeners();
 	void	setKeystrokeCallback(const keystroke_signal_t::slot_type& callback);
 
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
@@ -152,12 +159,6 @@ public:
 	virtual BOOL	canSelectAll()	const;
 	virtual void	deselect();
 	virtual BOOL	canDeselect() const;
-	static void context_cut(void* data);
-
-	static void context_copy(void* data);
-	static void context_paste(void* data);
-	static void context_delete(void* data);
-	static void context_selectall(void* data);
 	static void spell_correct(void* data);
 	static void spell_add(void* data);
 	static void spell_show(void* data);
@@ -270,7 +271,9 @@ public:
 	LLSD 			getValue() const;
 
  	const std::string&	getText() const;
-	
+
+	LLMenuGL*		createUrlContextMenu(S32 x, S32 y, const std::string &url); // create a popup context menu for the given Url
+
 	// Non-undoable
 	void			setText(const LLStringExplicit &utf8str);
 	void			setWText(const LLWString &wtext);
@@ -467,6 +470,10 @@ protected:
 	BOOL			mTakesNonScrollClicks;
 	void			(*mOnScrollEndCallback)(void*);
 	void			*mOnScrollEndData;
+
+	// Used to check if user with given ID is avatar's friend
+	static is_friend_signal_t*         mIsFriendSignal;
+	static is_blocked_signal_t*        mIsObjectBlockedSignal;
 
 	LLWString			mPreeditWString;
 	LLWString			mPreeditOverwrittenWString;

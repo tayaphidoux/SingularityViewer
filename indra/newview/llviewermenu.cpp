@@ -127,6 +127,7 @@
 #include "llfloaternotificationsconsole.h"
 
 // <edit>
+#include "lltexteditor.h" // Initialize the text editor menu listeners in here
 #include "llfloatermessagelog.h"
 #include "shfloatermediaticker.h"
 #include "llpacketring.h"
@@ -9603,6 +9604,11 @@ void initialize_menus()
 	addMenu(new ListToggleMute(), "List.ToggleMute");
 
 	add_radar_listeners();
+
+	// Text Editor menus
+	LLTextEditor::setIsObjectBlockedCallback(boost::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
+	LLTextEditor::setIsFriendCallback(LLAvatarActions::isFriend);
+	LLTextEditor::addMenuListeners();
 
 	class LLViewBuildMode : public view_listener_t
 	{
