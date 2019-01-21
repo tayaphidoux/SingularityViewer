@@ -1203,13 +1203,13 @@ LLInventoryObject* LLInvFVBridge::getInventoryObject() const
 LLInventoryModel* LLInvFVBridge::getInventoryModel() const
 {
 	LLInventoryPanel* panel = mInventoryPanel.get();
-	return panel ? panel->getModel() : NULL;
+	return panel ? panel->getModel() : nullptr;
 }
 
 LLInventoryFilter* LLInvFVBridge::getInventoryFilter() const
 {
 	LLInventoryPanel* panel = mInventoryPanel.get();
-	return panel ? panel->getFilter() : NULL;
+	return panel ? &panel->getFilter() : nullptr;
 }
 
 BOOL LLInvFVBridge::isItemInTrash() const
@@ -3621,7 +3621,7 @@ void LLFolderBridge::perform_pasteFromClipboard(bool only_copies)
 					// move_inventory_item() is not enough, as we have to update inventory locally too
 					if (LLAssetType::AT_CATEGORY == obj->getType())
 					{
-						LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory *) model->getCategory(item_id);
+						LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory *)model->getCategory(item_id);
 						llassert(vicat);
 						if (vicat)
 						{
@@ -3673,7 +3673,7 @@ void LLFolderBridge::perform_pasteFromClipboard(bool only_copies)
 					// Do a "copy" to "paste" a regular copy clipboard
 					if (LLAssetType::AT_CATEGORY == obj->getType())
 					{
-						LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory *) model->getCategory(item_id);
+						LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory *)model->getCategory(item_id);
 						llassert(vicat);
 						if (vicat)
 						{
@@ -3687,7 +3687,7 @@ void LLFolderBridge::perform_pasteFromClipboard(bool only_copies)
 							}
 						}
 					}
-// [SL:KB] - Patch: Inventory-Links | Checked: 2010-04-12 (Catznip-2.2.0a) | Added: Catznip-2.0.0a
+					// [SL:KB] - Patch: Inventory-Links | Checked: 2010-04-12 (Catznip-2.2.0a) | Added: Catznip-2.0.0a
 					else if (!move_is_into_marketplacelistings && !only_copies && LLAssetType::lookupIsLinkType(item->getActualType()))
 					{
 						link_inventory_object(
@@ -3695,7 +3695,7 @@ void LLFolderBridge::perform_pasteFromClipboard(bool only_copies)
 							item,
 							NULL);
 					}
-// [/SL:KB]
+					// [/SL:KB]
 					else
 					{
 						LLViewerInventoryItem* viitem = dynamic_cast<LLViewerInventoryItem*>(item);
@@ -3722,6 +3722,8 @@ void LLFolderBridge::perform_pasteFromClipboard(bool only_copies)
 							}
 						}
 					}
+				}
+			}
 		}
 		// Change mode to copy for next paste
 		LLInventoryClipboard::instance().setCutMode(false);

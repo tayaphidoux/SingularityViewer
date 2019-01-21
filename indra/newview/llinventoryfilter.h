@@ -151,6 +151,7 @@ public:
 						mMaxDate;
 		U32				mHoursAgo;
 		U32				mDateSearchDirection;
+
 		EFolderShow		mShowFolderState;
 		PermissionMask	mPermissions;
 

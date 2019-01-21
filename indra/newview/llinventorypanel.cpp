@@ -165,8 +165,8 @@ LLUUID getStartFolder(const std::string& start_folder)
 	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(start_folder);
 
 	return (preferred_type != LLFolderType::FT_NONE)
-			? gInventory.findCategoryUUIDForType(preferred_type, false, false)
-			: gInventory.getCategory(static_cast<LLUUID>(start_folder)) ? static_cast<LLUUID>(mStartFolder) // Singu Note: if start folder is an id of a folder, use it
+			? gInventory.findCategoryUUIDForType(preferred_type, false)
+			: gInventory.getCategory(static_cast<LLUUID>(start_folder)) ? static_cast<LLUUID>(start_folder) // Singu Note: if start folder is an id of a folder, use it
 			: LLUUID::null;
 }
 
@@ -443,7 +443,7 @@ void LLInventoryPanel::setFilterSubString(const std::string& string)
 	if (string.empty())
 	{
 		// Unlike v3, do not clear other filters. Text is independent.
-		getFilter()->setFilterSubString(LLStringUtil::null);
+		getFilter().setFilterSubString(LLStringUtil::null);
 		getRootFolder()->restoreFolderState();
 		LLOpenFoldersWithSelection opener;
 		getRootFolder()->applyFunctorRecursively(opener);
@@ -1296,7 +1296,7 @@ void LLInventoryPanel::updateSelection()
 
 namespace LLInventoryAction
 {
-	bool doToSelected(LLFolderView* root, std::string action);
+	bool doToSelected(LLFolderView* root, std::string action, BOOL user_confirm = TRUE);
 }
 
 void LLInventoryPanel::doToSelected(const LLSD& userdata)

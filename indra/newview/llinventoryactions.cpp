@@ -693,12 +693,12 @@ struct LLAttachObject : public inventory_panel_listener_t
 
 void init_object_inventory_panel_actions(LLPanelObjectInventory *panel)
 {
-	(new LLBindMemberListener(panel, "Inventory.DoToSelected", boost::bind(&LLInventoryAction::doToSelected, boost::bind(&LLPanelObjectInventory::getRootFolder, panel), _2)));
+	(new LLBindMemberListener(panel, "Inventory.DoToSelected", boost::bind(&LLInventoryAction::doToSelected, boost::bind(&LLPanelObjectInventory::getRootFolder, panel), _2, true)));
 }
 
 void init_inventory_actions(LLPanelMainInventory *floater)
 {
-	(new LLBindMemberListener(floater, "Inventory.DoToSelected", boost::bind(&LLInventoryAction::doToSelected, boost::bind(&LLPanelMainInventory::getRootFolder, floater), _2)));
+	(new LLBindMemberListener(floater, "Inventory.DoToSelected", boost::bind(&LLInventoryAction::doToSelected, boost::bind(&LLPanelMainInventory::getRootFolder, floater), _2, true)));
 	(new LLBindMemberListener(floater, "Inventory.CloseAllFolders", boost::bind(&LLInventoryPanel::closeAllFolders, boost::bind(&LLPanelMainInventory::getPanel, floater))));
 	(new LLBindMemberListener(floater, "Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "", LLFolderType::FT_TRASH)));
 	(new LLBindMemberListener(floater, "Inventory.DoCreate", boost::bind(&do_create, &gInventory, boost::bind(&LLPanelMainInventory::getPanel, floater), _2, (LLFolderBridge*)0)));
@@ -711,7 +711,7 @@ void init_inventory_actions(LLPanelMainInventory *floater)
 
 void init_inventory_panel_actions(LLInventoryPanel *panel)
 {
-	(new LLBindMemberListener(panel, "Inventory.DoToSelected", boost::bind(&LLInventoryAction::doToSelected, boost::bind(&LLInventoryPanel::getRootFolder, panel), _2)));
+	(new LLBindMemberListener(panel, "Inventory.DoToSelected", boost::bind(&LLInventoryAction::doToSelected, boost::bind(&LLInventoryPanel::getRootFolder, panel), _2, true)));
 	(new LLAttachObject())->registerListener(panel, "Inventory.AttachObject");
 	(new LLBindMemberListener(panel, "Inventory.CloseAllFolders", boost::bind(&LLInventoryPanel::closeAllFolders, panel)));
 	(new LLBindMemberListener(panel, "Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH)));

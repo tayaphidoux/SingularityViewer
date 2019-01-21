@@ -49,18 +49,18 @@
 #include "lltrans.h"
 
 LLInventoryFilter::FilterOps::FilterOps(const Params& p)
-:	mFilterObjectTypes(p.object_types),
-	mFilterCategoryTypes(p.category_types),
+:	mFilterTypes(p.types),
+	mFilterObjectTypes(p.object_types),
 	mFilterWearableTypes(p.wearable_types),
+	mFilterCategoryTypes(p.category_types),
+	mFilterLinks(p.links),
+	mFilterUUID(p.uuid),
 	mMinDate(p.date_range.min_date),
 	mMaxDate(p.date_range.max_date),
 	mHoursAgo(p.hours_ago),
 	mDateSearchDirection(p.date_search_direction),
 	mShowFolderState(p.show_folder_state),
 	mPermissions(p.permissions),
-	mFilterTypes(p.types),
-	mFilterUUID(p.uuid),
-	mFilterLinks(p.links),
 	mFilterWornItems(p.worn_items)
 {
 }
@@ -69,13 +69,10 @@ LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 /// Class LLInventoryFilter
 ///----------------------------------------------------------------------------
 LLInventoryFilter::LLInventoryFilter(const Params& p)
-:	mName(p.name),
-	mFilterBehavior(FILTER_NONE),
-	mFilterOps(p.filter_ops),
+:	mFilterOps(p.filter_ops),
 	mFilterSubString(p.substring),
+	mName(p.name),
 	mFilterModified(FILTER_NONE),
-	mFilterOps(),
-	mFilterSubString(),
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
 	mFirstSuccessGeneration(0)
@@ -1291,18 +1288,6 @@ S32 LLInventoryFilter::getFirstSuccessGeneration() const
 S32 LLInventoryFilter::getFirstRequiredGeneration() const 
 { 
 	return mFirstRequiredGeneration; 
-}
-
-bool LLInventoryFilter::areDateLimitsSet()
-{
-	return     mFilterOps.mMinDate != time_min()
-			|| mFilterOps.mMaxDate != time_max()
-			|| mFilterOps.mHoursAgo != 0;
-}
-
-bool LLInventoryFilter::showAllResults() const
-{
-	return hasFilterString();
 }
 
 bool LLInventoryFilter::areDateLimitsSet()

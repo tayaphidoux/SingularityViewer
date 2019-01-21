@@ -530,15 +530,6 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 	}
 }
 
-LLRequestServerAppearanceUpdateOnDestroy::~LLRequestServerAppearanceUpdateOnDestroy()
-{
-	LL_DEBUGS("Avatar") << "ATT requesting server appearance update" << LL_ENDL;
-	if (!LLApp::isExiting())
-	{
-		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
-	}
-}
-
 U32 LLUpdateAppearanceOnDestroy::sActiveCallbacks = 0;
 
 LLUpdateAppearanceAndEditWearableOnDestroy::LLUpdateAppearanceAndEditWearableOnDestroy(const LLUUID& item_id):

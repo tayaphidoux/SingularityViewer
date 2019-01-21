@@ -44,8 +44,7 @@
 #include "llviewerregion.h"
 #include "hippogridmanager.h"
 
-#include "json/reader.h" // JSON
-#include "json/writer.h" // JSON
+#include "llsdutil.h"
 
 //
 // Helpers
@@ -248,11 +247,10 @@ public:
 			return;
 		}
 
-		Json::Value root;
-		Json::Reader reader;
-		if (!reader.parse(body, root))
+		LLSD result;
+		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
 		{
-			log_SLM_warning("Get /listings", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+			log_SLM_warning("Get /listings", getStatus(), "Json parsing failed", LLStringUtil::null, body);
 			LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
 			update_marketplace_category(mExpectedFolderId, false);
 			gInventory.notifyObservers();
@@ -262,18 +260,18 @@ public:
 		log_SLM_infos("Get /listings", getStatus(), body);
 
 		// Extract the info from the Json string
-		Json::ValueIterator it = root["listings"].begin();
+		auto it = result["listings"].beginArray();
 
-		while (it != root["listings"].end())
+		while (it != result["listings"].endArray())
 		{
-			Json::Value listing = *it;
+			auto listing = *it;
 
-			int listing_id = listing["id"].asInt();
-			bool is_listed = listing["is_listed"].asBool();
+			int listing_id = listing["id"].asInteger();
+			bool is_listed = listing["is_listed"].asBoolean();
 			std::string edit_url = listing["edit_url"].asString();
 			std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
 			std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
-			int count = listing["inventory_info"]["count_on_hand"].asInt();
+			int count = listing["inventory_info"]["count_on_hand"].asInteger();
 
 			LLUUID folder_id(folder_uuid_string);
 			LLUUID version_id(version_uuid_string);
@@ -322,11 +320,10 @@ public:
 			return;
 		}
 
-		Json::Value root;
-		Json::Reader reader;
-		if (!reader.parse(body, root))
+		LLSD result;
+		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
 		{
-			log_SLM_warning("Post /listings", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+			log_SLM_warning("Post /listings", getStatus(), "Json parsing failed", LLStringUtil::null, body);
 			update_marketplace_category(mExpectedFolderId, false);
 			gInventory.notifyObservers();
 			return;
@@ -335,18 +332,18 @@ public:
 		log_SLM_infos("Post /listings", getStatus(), body);
 
 		// Extract the info from the Json string
-		Json::ValueIterator it = root["listings"].begin();
+		auto it = result["listings"].beginArray();
 
-		while (it != root["listings"].end())
+		while (it != result["listings"].endArray())
 		{
-			Json::Value listing = *it;
+			auto listing = *it;
 
-			int listing_id = listing["id"].asInt();
-			bool is_listed = listing["is_listed"].asBool();
+			int listing_id = listing["id"].asInteger();
+			bool is_listed = listing["is_listed"].asBoolean();
 			std::string edit_url = listing["edit_url"].asString();
 			std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
 			std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
-			int count = listing["inventory_info"]["count_on_hand"].asInt();
+			int count = listing["inventory_info"]["count_on_hand"].asInteger();
 
 			LLUUID folder_id(folder_uuid_string);
 			LLUUID version_id(version_uuid_string);
@@ -397,11 +394,10 @@ public:
 			return;
 		}
 
-		Json::Value root;
-		Json::Reader reader;
-		if (!reader.parse(body, root))
+		LLSD result;
+		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
 		{
-			log_SLM_warning("Get /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+			log_SLM_warning("Get /listing", getStatus(), "Json parsing failed", LLStringUtil::null, body);
 			update_marketplace_category(mExpectedFolderId, false);
 			gInventory.notifyObservers();
 			return;
@@ -410,18 +406,18 @@ public:
 		log_SLM_infos("Get /listing", getStatus(), body);
 
 		// Extract the info from the Json string
-		Json::ValueIterator it = root["listings"].begin();
+		auto it = result["listings"].beginArray();
 
-		while (it != root["listings"].end())
+		while (it != result["listings"].endArray())
 		{
-			Json::Value listing = *it;
+			auto listing = *it;
 
-			int listing_id = listing["id"].asInt();
-			bool is_listed = listing["is_listed"].asBool();
+			int listing_id = listing["id"].asInteger();
+			bool is_listed = listing["is_listed"].asBoolean();
 			std::string edit_url = listing["edit_url"].asString();
 			std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
 			std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
-			int count = listing["inventory_info"]["count_on_hand"].asInt();
+			int count = listing["inventory_info"]["count_on_hand"].asInteger();
 
 			LLUUID folder_id(folder_uuid_string);
 			LLUUID version_id(version_uuid_string);
@@ -473,11 +469,10 @@ public:
 			return;
 		}
 
-		Json::Value root;
-		Json::Reader reader;
-		if (!reader.parse(body, root))
+		LLSD result;
+		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
 		{
-			log_SLM_warning("Put /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+			log_SLM_warning("Put /listing", getStatus(), "Json parsing failed", LLStringUtil::null, body);
 			update_marketplace_category(mExpectedFolderId, false);
 			gInventory.notifyObservers();
 			return;
@@ -486,18 +481,18 @@ public:
 		log_SLM_infos("Put /listing", getStatus(), body);
 
 		// Extract the info from the Json string
-		Json::ValueIterator it = root["listings"].begin();
+		auto it = result["listings"].beginArray();
 
-		while (it != root["listings"].end())
+		while (it != result["listings"].endArray())
 		{
-			Json::Value listing = *it;
+			auto listing = *it;
 
-			int listing_id = listing["id"].asInt();
-			bool is_listed = listing["is_listed"].asBool();
+			int listing_id = listing["id"].asInteger();
+			bool is_listed = listing["is_listed"].asBoolean();
 			std::string edit_url = listing["edit_url"].asString();
 			std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
 			std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
-			int count = listing["inventory_info"]["count_on_hand"].asInt();
+			int count = listing["inventory_info"]["count_on_hand"].asInteger();
 
 			LLUUID folder_id(folder_uuid_string);
 			LLUUID version_id(version_uuid_string);
@@ -561,11 +556,10 @@ public:
 			return;
 		}
 
-		Json::Value root;
-		Json::Reader reader;
-		if (!reader.parse(body, root))
+		LLSD result;
+		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
 		{
-			log_SLM_warning("Put /associate_inventory", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+			log_SLM_warning("Put /associate_inventory", getStatus(), "Json parsing failed", LLStringUtil::null, body);
 			update_marketplace_category(mExpectedFolderId, false);
 			update_marketplace_category(mSourceFolderId, false);
 			gInventory.notifyObservers();
@@ -575,18 +569,18 @@ public:
 		log_SLM_infos("Put /associate_inventory", getStatus(), body);
 
 		// Extract the info from the Json string
-		Json::ValueIterator it = root["listings"].begin();
+		auto it = result["listings"].beginArray();
 
-		while (it != root["listings"].end())
+		while (it != result["listings"].endArray())
 		{
-			Json::Value listing = *it;
+			auto listing = *it;
 
-			int listing_id = listing["id"].asInt();
-			bool is_listed = listing["is_listed"].asBool();
+			int listing_id = listing["id"].asInteger();
+			bool is_listed = listing["is_listed"].asBoolean();
 			std::string edit_url = listing["edit_url"].asString();
 			std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
 			std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
-			int count = listing["inventory_info"]["count_on_hand"].asInt();
+			int count = listing["inventory_info"]["count_on_hand"].asInteger();
 
 			LLUUID folder_id(folder_uuid_string);
 			LLUUID version_id(version_uuid_string);
@@ -648,11 +642,11 @@ public:
 			return;
 		}
 
-		Json::Value root;
-		Json::Reader reader;
-		if (!reader.parse(body, root))
+
+		LLSD result;
+		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
 		{
-			log_SLM_warning("Delete /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+			log_SLM_warning("Delete /listing", getStatus(), "Json parsing failed", LLStringUtil::null, body);
 			update_marketplace_category(mExpectedFolderId, false);
 			gInventory.notifyObservers();
 			return;
@@ -661,13 +655,13 @@ public:
 		log_SLM_infos("Delete /listing", getStatus(), body);
 
 		// Extract the info from the Json string
-		Json::ValueIterator it = root["listings"].begin();
+		auto it = result["listings"].beginArray();
 
-		while (it != root["listings"].end())
+		while (it != result["listings"].endArray())
 		{
-			Json::Value listing = *it;
+			auto listing = *it;
 
-			int listing_id = listing["id"].asInt();
+			int listing_id = listing["id"].asInteger();
 			LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
 			LLMarketplaceData::instance().deleteListing(folder_id);
 
@@ -1328,20 +1322,23 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folder_id, const LLUUID& 
 	headers.addHeader("Accept", "application/json");
 	headers.addHeader("Content-Type", "application/json");
 
-	// Build the json message
-	Json::Value root;
-	Json::FastWriter writer;
-
 	LLViewerInventoryCategory* category = gInventory.getCategory(folder_id);
-	root["listing"]["name"] = category->getName();
-	root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
-	root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
-	root["listing"]["inventory_info"]["count_on_hand"] = count;
+	LLSD invInfo;
+	invInfo["listing_folder_id"] = folder_id;
+	invInfo["version_folder_id"] = version_id;
+	invInfo["count_on_hand"] = count;
+	LLSD listing;
+	listing["name"] = category->getName();
+	listing["inventory_info"] = invInfo;
+	LLSD postData;
+	postData["listing"] = listing;
 
-	std::string json_str = writer.write(root);
+	std::stringstream json;
+	LLSDSerialize::toPrettyNotation(postData, json);
+	auto json_str = json.str();
 
 	// postRaw() takes ownership of the buffer and releases it later.
-	size_t size = json_str.size();
+	size_t size = json_str.length();
 	U8* data = new U8[size];
 	memcpy(data, (U8*)(json_str.c_str()), size);
 
@@ -1358,9 +1355,6 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 	headers.addHeader("Accept", "application/json");
 	headers.addHeader("Content-Type", "application/json");
 
-	Json::Value root;
-	Json::FastWriter writer;
-
 	// Note : auto unlist if the count is 0 (out of stock)
 	if (is_listed && (count == 0))
 	{
@@ -1368,14 +1362,20 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 		LLNotificationsUtil::add("AlertMerchantStockFolderEmpty");
 	}
 
-	// Note : we're assuming that sending unchanged info won't break anything server side...
-	root["listing"]["id"] = listing_id;
-	root["listing"]["is_listed"] = is_listed;
-	root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
-	root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
-	root["listing"]["inventory_info"]["count_on_hand"] = count;
+	LLSD invInfo;
+	invInfo["listing_folder_id"] = folder_id;
+	invInfo["version_folder_id"] = version_id;
+	invInfo["count_on_hand"] = count;
+	LLSD listing;
+	listing["inventory_info"] = invInfo;
+	listing["id"] = listing_id;
+	listing["is_listed"] = is_listed;
+	LLSD postData;
+	postData["listing"] = listing;
 
-	std::string json_str = writer.write(root);
+	std::stringstream json;
+	LLSDSerialize::toPrettyNotation(postData, json);
+	auto json_str = json.str();
 
 	// postRaw() takes ownership of the buffer and releases it later.
 	size_t size = json_str.size();
@@ -1395,15 +1395,18 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
 	headers.addHeader("Accept", "application/json");
 	headers.addHeader("Content-Type", "application/json");
 
-	Json::Value root;
-	Json::FastWriter writer;
+	LLSD invInfo;
+	invInfo["listing_folder_id"] = folder_id;
+	invInfo["version_folder_id"] = version_id;
+	LLSD listing;
+	listing["id"] = listing_id;
+	listing["inventory_info"] = invInfo;
+	LLSD postData;
+	postData["listing"] = listing;
 
-	// Note : we're assuming that sending unchanged info won't break anything server side...
-	root["listing"]["id"] = listing_id;
-	root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
-	root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
-
-	std::string json_str = writer.write(root);
+	std::stringstream json;
+	LLSDSerialize::toPrettyNotation(postData, json);
+	auto json_str = json.str();
 
 	// postRaw() takes ownership of the buffer and releases it later.
 	size_t size = json_str.size();

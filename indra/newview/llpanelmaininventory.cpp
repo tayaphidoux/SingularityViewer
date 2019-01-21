@@ -1094,7 +1094,7 @@ void LLFloaterInventoryFinder::draw()
 		filtered_by_all_types = FALSE;
 	}
 
-	if (!filtered_by_all_types || (mInventoryView->getPanel()->getFilter().getFilterTypes() & LLInventoryFilter::FILTERTYPE_DATE))
+	if (!filtered_by_all_types || (mPanelMainInventory->getPanel()->getFilter().getFilterTypes() & LLInventoryFilter::FILTERTYPE_DATE))
 	{
 		// don't include folders in filter, unless I've selected everything or filtering by date
 		filter &= ~(0x1 << LLInventoryType::IT_CATEGORY);
