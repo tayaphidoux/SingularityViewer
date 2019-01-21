@@ -298,9 +298,9 @@ with the same filename but different name
   <texture name="inv_folder_texture.tga"/>
   <texture name="inv_folder_trash.tga" preload="true"/>
   <texture name="Inv_StockFolderClosed" file_name="Inv_StockFolderClosed.png" preload="false" />
-  <texture name="Inv_StockFolderOpen" file_name="icons/Inv_StockFolderOpen.png" preload="false" />
-  <texture name="Inv_VersionFolderClosed" file_name="icons/Inv_VersionFolderClosed.png" preload="false" />
-  <texture name="Inv_VersionFolderOpen" file_name="icons/Inv_VersionFolderOpen.png" preload="false" />
+  <texture name="Inv_StockFolderOpen" file_name="Inv_StockFolderOpen.png" preload="false" />
+  <texture name="Inv_VersionFolderClosed" file_name="Inv_VersionFolderClosed.png" preload="false" />
+  <texture name="Inv_VersionFolderOpen" file_name="Inv_VersionFolderOpen.png" preload="false" />
   
   <texture name="inv_item_animation.tga"/>
   <texture name="inv_item_callingcard_offline.tga"/>
@@ -352,8 +352,6 @@ with the same filename but different name
   <texture name="minimize_pressed.tga"	preload="true"/>
   <texture name="music_icon.tga" file_name="icn_label_music.tga" />
   <texture name="mute_icon.tga"/>
-  <texture name="noentrylines.j2c" use_mips="true"/>
-  <texture name="noentrypasslines.j2c" use_mips="true"/>
   <texture name="notify_box_icon.tga"/>
   <texture name="notify_next.png" preload="true"/>
   <texture name="notify_tip_icon.tga"/>
