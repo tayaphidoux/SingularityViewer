@@ -134,7 +134,9 @@ public:
 				date_search_direction("date_search_direction", FILTERDATEDIRECTION_NEWER),
 				show_folder_state("show_folder_state", SHOW_NON_EMPTY_FOLDERS),
 				permissions("permissions", PERM_NONE)
-			{}
+			{
+				addSynonym(links, "filter_links");
+			}
 		};
 
 		FilterOps(const Params& = Params());
