@@ -4286,7 +4286,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 			LLStyleSP link_style(style ? new LLStyle(*style) : new LLStyle);
 			link_style->setColor(link_color);
 			link_style->setLinkHREF(match.getUrl());
-			appendAndHighlightText(link, part, link_style, match.underlineOnHoverOnly());
+			appendAndHighlightText(link, part, link_style, true/*match.underlineOnHoverOnly()*/);
 		};
 		while (!text.empty() && LLUrlRegistry::instance().findUrl(text, match,
 				boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3)))
