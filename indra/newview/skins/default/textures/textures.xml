@@ -29,6 +29,7 @@ with the same filename but different name
 -->
 
 <textures version="101">
+  <!-- Please add new files alphabetically to prevent merge conflicts. JC -->
   <texture name="Accordion_ArrowClosed_Off" file_name="Accordion_ArrowClosed_Off.png" preload="false" />
   <texture name="Accordion_ArrowClosed_Press" file_name="Accordion_ArrowClosed_Press.png" preload="false" />
   <texture name="Accordion_ArrowOpened_Off" file_name="Accordion_ArrowOpened_Off.png" preload="false" />
@@ -67,6 +68,8 @@ with the same filename but different name
   <texture name="silhouette.j2c" use_mips="true"/>
   <texture name="foot_shadow.j2c" use_mips="true"/>
   <texture name="cloud-particle.j2c" use_mips="true"/>
+
+  <!--WARNING OLD ART BELOW *do not use*-->
   <texture name="icn_media_web.tga" preload="true"/>
   <texture name="icn_media_movie.tga" preload="true"/>
   <texture name="scrollbutton_left_out_blue.tga"	preload="true"/>
@@ -81,31 +84,41 @@ with the same filename but different name
   <texture name="down_arrow.tga" file_name="down_arrow.png"/>
   <texture name="arrow_down.tga"/>
   <texture name="color_swatch_alpha.tga" preload="true"/>
+
   <texture name="button_anim_pause.tga"/>
   <texture name="button_anim_pause_selected.tga"/>
   <texture name="button_anim_play.tga"/>
   <texture name="button_anim_play_selected.tga"/>
   <texture name="crosshairs.tga"/>
   <texture name="direction_arrow.tga"/>
+
   <texture name="icon_avatar_offline.tga"/>
   <texture name="icon_avatar_online.tga"/>
   <texture name="icon_diurnal.tga"/>
   <texture name="icon_for_sale.tga"/>
   <texture name="icon_top_pick.tga"/>
+
+
   <texture name="lag_status_critical.tga"/>
   <texture name="lag_status_good.tga"/>
   <texture name="lag_status_warning.tga"/>
+
   <texture name="legend.tga"/>
+
   <texture name="map_avatar_16.tga"/>
   <texture name="map_avatar_8.tga"/>
+  <texture name="map_event.tga"/>
   <texture name="map_home.tga"/>
   <texture name="map_infohub.tga"/>
   <texture name="map_telehub.tga"/>
   <texture name="map_track_16.tga"/>
+
   <texture name="notify_caution_icon.tga"/>
+
   <texture name="default_land_picture.j2c"/>
   <texture name="default_profile_picture.j2c"/>
   <texture name="locked_image.j2c"/>
+
   <!-- Images that have since been renamed to something else in v3 and need updating. Alphabetical. -->
   <texture name="Flag.png" file_name="Flag.png" preload="false" />
   <texture name="Inv_WaterLight.png" preload="true"/>
@@ -396,7 +409,6 @@ with the same filename but different name
   <texture name="toolbar_tab.tga"	preload="true" scale.left="6" scale.top="42" scale.right="104" scale.bottom="8"/>
   
   <!--DeleteMe-->
-  <texture name="map_event.tga"/>
   <texture name="map_event_mature.tga"/>
   <texture name="ProgressBar"	preload="true" scale.left="10" scale.top="7" scale.right="65" scale.bottom="7"/>
   <texture name="ProgressTrack"	preload="true" scale.left="10" scale.top="7" scale.right="80" scale.bottom="7"/>
