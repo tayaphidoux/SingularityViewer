@@ -5001,7 +5001,11 @@ bool LLContextMenu::addChild(LLView* view, S32 tab_group)
 	if (LLContextMenu* context = dynamic_cast<LLContextMenu*>(view))
 		return appendContextSubMenu(context);
 	if (LLMenuItemGL* item = dynamic_cast<LLMenuItemGL*>(view))
+	{
+		if (!mItems.empty() && mItems.back()->getType() == "separator" && item->getType() == "separator") // Singu TODO: Profile this? Does it matter?
+			item->setVisible(false);
 		return append(item);
+	}
 	if (LLMenuGL* menu = dynamic_cast<LLMenuGL*>(view))
 		return appendMenu(menu);
 	return false;
@@ -5042,7 +5046,7 @@ LLPieMenu::LLPieMenu(const std::string& name, const std::string& label)
 // Separators on pie menus are invisible
 bool LLPieMenu::addChild(LLView* view, S32 tab_group)
 {
-	if (LLContextMenu::addChild(view, tab_group))
+	if (LLContextMenu::addChild(view, tab_group) && view->getVisible())
 	{
 		LLMenuItemSeparatorGL* sep = dynamic_cast<LLMenuItemSeparatorGL*>(view);
 		if(sep)
