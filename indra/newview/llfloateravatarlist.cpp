@@ -147,7 +147,7 @@ LLAvatarListEntry::LLAvatarListEntry(const LLUUID& id, const std::string& name, 
 LLAvatarListEntry::~LLAvatarListEntry()
 {
 	static LLCachedControl<bool> radar_alert_flood_leaving(gSavedSettings, "RadarAlertFloodLeaving");
-	bool cleanup = LLFloaterAvatarList::instance().isCleanup();
+	bool cleanup = LLFloaterAvatarList::isCleanup();
 	if (radar_alert_flood_leaving || !cleanup)
 	{
 		setPosition(mPosition, F32_MIN, false, cleanup); // Dead and gone

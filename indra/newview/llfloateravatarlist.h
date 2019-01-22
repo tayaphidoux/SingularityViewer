@@ -328,7 +328,11 @@ public:
 	 */
 	void expireAvatarList(const std::list<LLUUID>& ids);
 	void updateAvatarSorting();
-	bool isCleanup() const { return mCleanup; }
+	static bool isCleanup()
+	{
+		const auto& inst = getIfExists();
+		return inst && inst->mCleanup;
+	}
 
 private:
 	void setFocusAvatarInternal(const LLUUID& id);
