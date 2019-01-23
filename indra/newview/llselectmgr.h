@@ -146,6 +146,7 @@ public:
 	void selectTE(S32 te_index, BOOL selected);
 	BOOL isTESelected(S32 te_index);
 	S32 getLastSelectedTE();
+	S32 getLastOperatedTE();
 	S32 getTESelectMask() { return mTESelectMask; }
 	void renderOneWireframe(const LLColor4& color);
 	void renderOneSilhouette(const LLColor4 &color);
@@ -155,6 +156,7 @@ public:
 	void setObject(LLViewerObject* object);
 	// *NOTE: invalidate stored textures and colors when # faces change
 	void saveColors();
+	void saveShinyColors();
 	void saveTextures(const uuid_vec_t& textures);
 	void saveTextureScaleRatios(LLRender::eTexIndex index_to_query);
 
@@ -191,6 +193,7 @@ public:
 	std::string		mSitName;
 	U64				mCreationDate;
 	std::vector<LLColor4>	mSavedColors;
+	std::vector<LLColor4>	mSavedShinyColors;
 	uuid_vec_t		mSavedTextures;
 	std::vector<LLVector3>  mTextureScaleRatios;
 	std::vector<LLVector3>	mSilhouetteVertices;	// array of vertices to render silhouette of object
@@ -206,6 +209,7 @@ protected:
 class LLObjectSelection : public LLRefCount
 {
 	friend class LLSelectMgr;
+	friend class LLSafeHandle<LLObjectSelection>;
 
 protected:
 	~LLObjectSelection();
@@ -218,7 +222,7 @@ public:
 	{
 		bool operator()(LLSelectNode* node)
 		{
-			return (node->getObject() != NULL);
+			return (node->getObject() != nullptr);
 		}
 	};
 	typedef boost::filter_iterator<is_non_null, list_t::iterator > iterator;
@@ -229,7 +233,7 @@ public:
 	{
 		bool operator()(LLSelectNode* node)
 		{
-			return (node->getObject() != NULL) && node->mValid;
+			return (node->getObject() != nullptr) && node->mValid;
 		}
 	};
 	typedef boost::filter_iterator<is_valid, list_t::iterator > valid_iterator;
@@ -267,8 +271,8 @@ public:
 
 	BOOL isEmpty() const;
 
-	LLSelectNode*	getFirstNode(LLSelectedNodeFunctor* func = NULL);
-	LLSelectNode*	getFirstRootNode(LLSelectedNodeFunctor* func = NULL, BOOL non_root_ok = FALSE);
+	LLSelectNode*	getFirstNode(LLSelectedNodeFunctor* func = nullptr);
+	LLSelectNode*	getFirstRootNode(LLSelectedNodeFunctor* func = nullptr, BOOL non_root_ok = FALSE);
 	LLViewerObject* getFirstSelectedObject(LLSelectedNodeFunctor* func, BOOL get_parent = FALSE);
 	LLViewerObject*	getFirstObject();
 	LLViewerObject*	getFirstRootObject(BOOL non_root_ok = FALSE);
@@ -298,8 +302,8 @@ public:
 	F32 getSelectedLinksetPhysicsCost();
 	S32 getSelectedObjectRenderCost();
 	
-	F32 getSelectedObjectStreamingCost(S32* total_bytes = NULL, S32* visible_bytes = NULL);
-	U32 getSelectedObjectTriangleCount(S32* vcount = NULL);
+	F32 getSelectedObjectStreamingCost(S32* total_bytes = nullptr, S32* visible_bytes = nullptr);
+	U32 getSelectedObjectTriangleCount(S32* vcount = nullptr);
 
 	S32 getTECount();
 	S32 getRootObjectCount();
@@ -320,6 +324,15 @@ public:
 	bool applyToRootNodes(LLSelectedNodeFunctor* func, bool firstonly = false);
 	bool applyToNodes(LLSelectedNodeFunctor* func, bool firstonly = false);
 
+	/*
+	 * Used to apply (no-copy) textures to the selected object or
+	 * selected face/faces of the object.
+	 * This method moves (no-copy) texture to the object's inventory
+	 * and doesn't make copy of the texture for each face.
+	 * Then this only texture is used for all selected faces.
+	 */
+	void applyNoCopyTextureToTEs(LLViewerInventoryItem* item);
+
 	ESelectType getSelectType() const { return mSelectType; }
 
 private:
@@ -330,10 +343,8 @@ private:
 	void deleteAllNodes();
 	void cleanupNodes();
 
-
-private:
 	list_t mList;
-	const LLObjectSelection &operator=(const LLObjectSelection &);
+	const LLObjectSelection& operator=(const LLObjectSelection&) = delete;
 
 	LLPointer<LLViewerObject> mPrimaryObject;
 	std::map<LLPointer<LLViewerObject>, LLSelectNode*> mSelectNodeMap;
@@ -346,6 +357,9 @@ typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
 #ifndef LLSELECTMGR_CPP
 extern template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance();
 #endif
+
+// For use with getFirstTest()
+struct LLSelectGetFirstTest;
 
 class LLSelectMgr : public LLEditMenuHandler, public LLSingleton<LLSelectMgr>
 {
@@ -380,20 +394,19 @@ public:
 	static void cleanupGlobals();
 
 	// LLEditMenuHandler interface
-	virtual BOOL canUndo() const;
-	virtual void undo();
+	BOOL canUndo() const override;
+	void undo() override;
 
-	virtual BOOL canRedo() const;
-	virtual void redo();
+	BOOL canRedo() const override;
+	void redo() override;
 
-	virtual BOOL canDoDelete() const;
-	virtual void doDelete();
+	BOOL canDoDelete() const override;
+	void doDelete() override;
 
-	virtual void selectAll();
-	virtual BOOL canSelectAll() const;
-
-	virtual void deselect();
-	virtual BOOL canDeselect() const;
+	void selectAll() override;
+	BOOL canSelectAll() const override;
+	void deselect() override;
+	BOOL canDeselect() const override;
 
 	virtual void duplicate();
 	virtual BOOL canDuplicate() const;
@@ -513,6 +526,7 @@ public:
 	////////////////////////////////////////////////////////////////
 	void saveSelectedObjectTransform(EActionType action_type);
 	void saveSelectedObjectColors();
+	void saveSelectedShinyColors();
 	void saveSelectedObjectTextures();
 
 	// Sets which texture channel to query for scale and rot of display
@@ -541,6 +555,7 @@ public:
 	void selectionSetColorOnly(const LLColor4 &color); // Set only the RGB channels
 	void selectionSetAlphaOnly(const F32 alpha); // Set only the alpha channel
 	void selectionRevertColors();
+	void selectionRevertShinyColors();
 	BOOL selectionRevertTextures();
 	void selectionSetBumpmap( U8 bumpmap );
 	void selectionSetTexGen( U8 texgen );
@@ -583,6 +598,9 @@ public:
 	// returns TRUE if you can modify all selected objects. 
 	BOOL selectGetRootsModify();
 	BOOL selectGetModify();
+
+	// returns TRUE if all objects are in same region
+	BOOL selectGetSameRegion();
 
 	// returns TRUE if is all objects are non-permanent-enforced
 	BOOL selectGetRootsNonPermanentEnforced();
@@ -723,6 +741,7 @@ private:
 	void sendListToRegions(	const std::string& message_name,
 							void (*pack_header)(void *user_data), 
 							void (*pack_body)(LLSelectNode* node, void *user_data), 
+							void (*log_func)(LLSelectNode* node, void *user_data), 
 							void *user_data,
 							ESendType send_type);
 
@@ -758,6 +777,9 @@ private:
 	static void packHingeHead(void *user_data);
 	static void packPermissionsHead(void* user_data);
 	static void packGodlikeHead(void* user_data);
+    static void logNoOp(LLSelectNode* node, void *user_data);
+    static void logAttachmentRequest(LLSelectNode* node, void *user_data);
+    static void logDetachRequest(LLSelectNode* node, void *user_data);
 	static bool confirmDelete(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle);
 
 public:
