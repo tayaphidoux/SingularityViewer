@@ -875,7 +875,7 @@ BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 		}
 	}
 
-	return handleDoubleClick(x, y, mask);
+	return LLTextEditor::handleDoubleClick(x, y, mask);
 }
 
 
