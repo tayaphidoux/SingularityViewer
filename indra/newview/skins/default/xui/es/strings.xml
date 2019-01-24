@@ -148,6 +148,33 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="SLappAgentPay">Pagar</string>
 	<string name="SLappAgentOfferTeleport">Ofrecer Teleporte a</string>
 	<string name="SLappAgentRequestFriend">Ofrecer Amistad</string>
+	<string name="SLappAgentRemoveFriend">
+		Eliminación de amigos
+	</string>
+	<string name="BUTTON_CLOSE_DARWIN">
+		Cerrar (⌘W)
+	</string>
+	<string name="BUTTON_CLOSE_WIN">
+		Cerrar (Ctrl+W)
+	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		Cerrar
+	</string>
+	<string name="BUTTON_RESTORE">
+		Maximizar
+	</string>
+	<string name="BUTTON_MINIMIZE">
+		Minimizar
+	</string>
+	<string name="BUTTON_TEAR_OFF">
+		Separar la ventana
+	</string>
+	<string name="BUTTON_DOCK">
+		Fijar
+	</string>
+	<string name="BUTTON_HELP">
+		Ver la Ayuda
+	</string>
 	
 	<!-- searching - generic -->
 	<string name="Searching">Buscando...</string>

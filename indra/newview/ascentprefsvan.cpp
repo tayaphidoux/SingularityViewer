@@ -128,7 +128,8 @@ void LLPrefsAscentVan::refreshValues()
 	mCustomizeAnim = gSavedSettings.getBOOL("LiruCustomizeAnim");
 	mAnnounceSnapshots = gSavedSettings.getBOOL("AnnounceSnapshots");
 	mAnnounceStreamMetadata = gSavedSettings.getBOOL("AnnounceStreamMetadata");
-	mUnfocusedFloatersOpaque = gSavedSettings.getBOOL("FloaterUnfocusedBackgroundOpaque");
+	mInactiveFloaterTransparency = gSavedSettings.getF32("InactiveFloaterTransparency");
+	mActiveFloaterTransparency = gSavedSettings.getF32("ActiveFloaterTransparency");
 	mCompleteNameProfiles   = gSavedSettings.getBOOL("SinguCompleteNameProfiles");
 	mScriptErrorsStealFocus = gSavedSettings.getBOOL("LiruScriptErrorsStealFocus");
 	mConnectToNeighbors = gSavedSettings.getBOOL("AlchemyConnectToNeighbors");
@@ -202,7 +203,8 @@ void LLPrefsAscentVan::cancel()
 	gSavedSettings.setBOOL("LiruCustomizeAnim", mCustomizeAnim);
 	gSavedSettings.setBOOL("AnnounceSnapshots", mAnnounceSnapshots);
 	gSavedSettings.setBOOL("AnnounceStreamMetadata", mAnnounceStreamMetadata);
-	gSavedSettings.setBOOL("FloaterUnfocusedBackgroundOpaque", mUnfocusedFloatersOpaque);
+	gSavedSettings.setF32("InactiveFloaterTransparency", mInactiveFloaterTransparency);
+	gSavedSettings.setF32("ActiveFloaterTransparency", mActiveFloaterTransparency);
 	gSavedSettings.setBOOL("SinguCompleteNameProfiles",     mCompleteNameProfiles);
 	gSavedSettings.setBOOL("LiruScriptErrorsStealFocus",    mScriptErrorsStealFocus);
 	gSavedSettings.setBOOL("AlchemyConnectToNeighbors",     mConnectToNeighbors);

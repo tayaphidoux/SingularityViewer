@@ -773,7 +773,6 @@ bool LLAppViewer::init()
 
 	writeSystemInfo();
 
-
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -818,7 +817,14 @@ bool LLAppViewer::init()
 	LLUrlAction::setOpenURLInternalCallback(boost::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null));
 	LLUrlAction::setOpenURLExternalCallback(boost::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
 	LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
-	
+
+	LL_INFOS("InitInfo") << "UI initialization is done." << LL_ENDL ;
+
+	// Load translations for tooltips
+	LLFloater::initClass();
+
+	/////////////////////////////////////////////////
+
 	LLToolMgr::getInstance(); // Initialize tool manager if not already instantiated
 		
 	/////////////////////////////////////////////////
@@ -884,7 +890,7 @@ bool LLAppViewer::init()
 		std::ostringstream msg;
 		msg << LLTrans::getString("MBUnableToAccessFile");
 		OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
-		return 1;
+		return true;
 	}
 	LL_INFOS("InitInfo") << "Cache initialization is done." << LL_ENDL ;
 
@@ -923,10 +929,9 @@ bool LLAppViewer::init()
 			msg,
 			LLStringUtil::null,
 			OSMB_OK);
-		return 0;
+		return false;
 	}
 
-#if (_M_IX86_FP > 1 || defined(__SSE2__))
 	// Without SSE2 support we will crash almost immediately, warn here.
 	if (!gSysCPU.hasSSE2())
 	{
@@ -938,23 +943,8 @@ bool LLAppViewer::init()
 			msg,
 			LLStringUtil::null,
 			OSMB_OK);
-		return 0;
+		return false;
 	}
-#elif (_M_IX86_FP == 1 || defined(__SSE__))
-	// Without SSE support we will crash almost immediately, warn here.
-	if (!gSysCPU.hasSSE())
-	{
-		// can't use an alert here since we're exiting and
-		// all hell breaks lose.
-		std::string msg = LNotificationTemplates::instance().getGlobalString("UnsupportedCPUSSE2");
-		LLStringUtil::format(msg,LLTrans::getDefaultArgs());
-		OSMessageBox(
-			msg,
-			LLStringUtil::null,
-			OSMB_OK);
-		return 0;
-	}
-#endif
 
 	// alert the user if they are using unsupported hardware
 	if(!gSavedSettings.getBOOL("AlertedUnsupportedHardware"))

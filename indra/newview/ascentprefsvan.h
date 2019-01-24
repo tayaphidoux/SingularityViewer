@@ -62,7 +62,7 @@ private:
 	bool mCustomizeAnim;
 	bool mAnnounceSnapshots;
 	bool mAnnounceStreamMetadata;
-	bool mUnfocusedFloatersOpaque;
+	F32 mInactiveFloaterTransparency, mActiveFloaterTransparency;
 	bool mCompleteNameProfiles;
 	bool mScriptErrorsStealFocus;
 	bool mConnectToNeighbors;
