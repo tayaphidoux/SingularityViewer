@@ -818,6 +818,17 @@
 			<key>Value</key>
 			<string>/regionsay</string>
 		</map>
+		<key>SinguCmdLineSetting</key>
+		<map>
+			<key>Comment</key>
+			<string>Set or toggle debug settings from the chatbar.</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>String</string>
+			<key>Value</key>
+			<string>/setdebug</string>
+		</map>
 		<key>SinguCmdLineURL</key>
 		<map>
 			<key>Comment</key>
