@@ -3005,9 +3005,9 @@ class LLAvatarFreeze : public view_listener_t
 	}
 };
 
-void do_script_count(bool del)
+void do_script_count(bool del, LLViewerObject* object = nullptr)
 {
-	if (LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
+	if (object || (object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()))
 	{
 		if (ScriptCounter::getInstance(object->getID())) return;
 		ScriptCounter* sc = new ScriptCounter(del, object);
@@ -3020,7 +3020,7 @@ class LLScriptCount : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		do_script_count(false);
+		do_script_count(false, userdata["data"].asString() == "agent" ? gAgentAvatarp : nullptr);
 		return true;
 	}
 };
@@ -3038,7 +3038,7 @@ class LLObjectVisibleScriptCount : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		LLViewerObject* object = userdata["data"].asString() == "agent" ? gAgentAvatarp : LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		bool new_value = (object != NULL);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		
