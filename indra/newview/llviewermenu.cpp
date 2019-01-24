@@ -3005,17 +3005,22 @@ class LLAvatarFreeze : public view_listener_t
 	}
 };
 
+void do_script_count(bool del)
+{
+	if (LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
+	{
+		if (ScriptCounter::getInstance(object->getID())) return;
+		ScriptCounter* sc = new ScriptCounter(del, object);
+		sc->requestInventories();
+		// sc will destroy itself
+	}
+}
+
 class LLScriptCount : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if (LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
-		{
-			if (ScriptCounter::getInstance(object->getID())) return true;
-			ScriptCounter* sc = new ScriptCounter(false, object);
-			sc->requestInventories();
-			// sc will destroy itself
-		}
+		do_script_count(false);
 		return true;
 	}
 };
@@ -3024,13 +3029,7 @@ class LLScriptDelete : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if (LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
-		{
-			if (ScriptCounter::getInstance(object->getID())) return true;
-			ScriptCounter* sc = new ScriptCounter(true, object);
-			sc->requestInventories();
-			// sc will destroy itself
-		}
+		do_script_count(true);
 		return true;
 	}
 };
@@ -3051,20 +3050,20 @@ class LLObjectEnableScriptDelete : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		auto objects = LLSelectMgr::getInstance()->getSelection();
+		LLViewerObject* object = objects->getPrimaryObject();
 		bool new_value = (object != NULL);
 		if(new_value)
-		for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-			iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
+		for (LLObjectSelection::root_iterator iter = objects->root_begin();
+			iter != objects->root_end(); iter++)
 		{
 			LLSelectNode* selectNode = *iter;
 			LLViewerObject* object = selectNode->getObject();
-			if(object)
-				if(!object->permModify())
-				{
-					new_value=false;
-					break;
-				}
+			if (object && !object->permModify())
+			{
+				new_value=false;
+				break;
+			}
 		}
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		
