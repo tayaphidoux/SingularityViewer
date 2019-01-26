@@ -7,7 +7,6 @@ set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
 include(Variables)
 
-
 # Portable compilation flags.
 
 set(CMAKE_CXX_FLAGS_DEBUG "-D_DEBUG -DLL_DEBUG=1")
@@ -31,14 +30,11 @@ if(NON_RELEASE_CRASH_REPORTING)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DLL_SEND_CRASH_REPORTS=1")
 endif()
 
-
 # Don't bother with a MinSizeRel build.
-
 set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release;Debug" CACHE STRING
     "Supported build types." FORCE)
 
 # Platform-specific compilation flags.
-
 if (WINDOWS)
   # Don't build DLLs.
   set(BUILD_SHARED_LIBS OFF)
@@ -128,21 +124,24 @@ set (GCC_EXTRA_OPTIMIZATIONS "-ffast-math")
 if (LINUX)
   set(CMAKE_SKIP_RPATH TRUE)
 
+  add_compile_options(
+    -fvisibility=hidden
+    -fexceptions
+    -fno-math-errno
+    -fno-strict-aliasing
+    -fsigned-char
+    -g
+    -pthread
+    )
+
   add_definitions(
-      -DLL_LINUX=1
-      -DAPPID=secondlife
-      -D_REENTRANT
-      -fexceptions
-      -fno-math-errno
-      -fno-strict-aliasing
-      -fsigned-char
-      -fvisibility=hidden
-      -g
-      -pthread
-      )
+    -DLL_LINUX=1
+    -DAPPID=secondlife
+    -D_REENTRANT
+  )
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
 
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2")
 
