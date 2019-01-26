@@ -105,9 +105,9 @@ void HippoGridInfo::setPlatform(const std::string& platform)
 	for (unsigned i=0; i<platform.size(); i++)
 		tmp[i] = tolower(tmp[i]);
 
-	if (tmp == "aurora") 
+	if (tmp == "aurora" || tmp == "whitecore")
 	{
-		setPlatform(PLATFORM_AURORA);
+		setPlatform(PLATFORM_WHITECORE);
 	} 
 	else if (tmp == "opensim") 
 	{
@@ -484,7 +484,7 @@ const char* HippoGridInfo::getPlatformString(Platform platform)
 {
 	static const char* platformStrings[PLATFORM_LAST] = 
 	{
-		"Other", "Aurora", "OpenSim", "SecondLife"
+		"Other", "WhiteCore", "OpenSim", "SecondLife"
 	};
 
 	if ((platform < PLATFORM_OTHER) || (platform >= PLATFORM_LAST))

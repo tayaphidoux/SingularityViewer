@@ -21,8 +21,8 @@ void HippoLimits::setLimits()
 {
 	if (gHippoGridManager->getConnectedGrid()->getPlatform() == HippoGridInfo::PLATFORM_SECONDLIFE) {
 		setSecondLifeLimits();
-	} else if (gHippoGridManager->getConnectedGrid()->getPlatform() == HippoGridInfo::PLATFORM_AURORA) {
-		setAuroraLimits();
+	} else if (gHippoGridManager->getConnectedGrid()->getPlatform() == HippoGridInfo::PLATFORM_WHITECORE) {
+		setWhiteCoreLimits();
 	} else {
 		setOpenSimLimits();
 	}
@@ -66,7 +66,7 @@ void HippoLimits::setOpenSimLimits()
 	}
 }
 
-void HippoLimits::setAuroraLimits()
+void HippoLimits::setWhiteCoreLimits()
 {
 	setMaxAgentGroups();
 	mMaxPrimScale = 8192.0f;

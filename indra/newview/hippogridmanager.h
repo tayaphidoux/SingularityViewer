@@ -26,7 +26,7 @@ class HippoGridInfo
 public:
 	enum Platform {
 		PLATFORM_OTHER = 0,
-		PLATFORM_AURORA,
+		PLATFORM_WHITECORE,
 		PLATFORM_OPENSIM,
 		PLATFORM_SECONDLIFE,
 		PLATFORM_LAST
@@ -35,8 +35,8 @@ public:
 	explicit HippoGridInfo(const std::string& gridName);
 
 	Platform getPlatform() { return mPlatform; }
-	bool isOpenSimulator() const { return (mPlatform == PLATFORM_OPENSIM || mPlatform == PLATFORM_AURORA); }
-	bool isAurora() const { return (mPlatform == PLATFORM_AURORA); }
+	bool isOpenSimulator() const { return (mPlatform == PLATFORM_OPENSIM || mPlatform == PLATFORM_WHITECORE); }
+	bool isWhiteCore() const { return (mPlatform == PLATFORM_WHITECORE); }
 	bool isSecondLife() const { return (mPlatform == PLATFORM_SECONDLIFE); }
 	bool isAvination() const { return mIsInAvination; }
 	bool isInProductionGrid() const { llassert(mPlatform == PLATFORM_SECONDLIFE); return mIsInProductionGrid; } // Should only be called if isSecondLife() returns true.

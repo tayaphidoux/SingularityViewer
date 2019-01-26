@@ -95,8 +95,8 @@ LLSimInfo::LLSimInfo(U64 handle)
 
 void LLSimInfo::setLandForSaleImage (LLUUID image_id) 
 {
-	const bool is_aurora = gHippoGridManager->getConnectedGrid()->isAurora();
-	if (is_aurora && mMapImageID[SIM_LAYER_OVERLAY].isNull() && image_id.notNull() && gTextureList.findImage(image_id))
+	const bool is_whitecore = gHippoGridManager->getConnectedGrid()->isWhiteCore();
+	if (is_whitecore && mMapImageID[SIM_LAYER_OVERLAY].isNull() && image_id.notNull() && gTextureList.findImage(image_id))
 		LLAppViewer::getTextureCache()->removeFromCache(image_id);
 
 	mMapImageID[SIM_LAYER_OVERLAY] = image_id;
@@ -105,7 +105,7 @@ void LLSimInfo::setLandForSaleImage (LLUUID image_id)
 	if (mMapImageID[SIM_LAYER_OVERLAY].notNull())
 	{
 		mLayerImage[SIM_LAYER_OVERLAY] = LLViewerTextureManager::getFetchedTexture(mMapImageID[SIM_LAYER_OVERLAY], FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_MAP, LLViewerTexture::LOD_TEXTURE);
-		if (is_aurora) mLayerImage[SIM_LAYER_OVERLAY]->forceImmediateUpdate();
+		if (is_whitecore) mLayerImage[SIM_LAYER_OVERLAY]->forceImmediateUpdate();
 		mLayerImage[SIM_LAYER_OVERLAY]->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
