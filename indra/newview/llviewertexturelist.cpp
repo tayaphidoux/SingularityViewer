@@ -383,8 +383,16 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
 		return NULL ;
 	}
 
-	std::string full_path = gDirUtilp->findSkinnedFilename("textures", filename);
-	if (full_path.empty())
+	// Singu Note: Detect if we were given a full path already, require being over a certain size, so we have more than just a path
+	bool full = filename.size() >
+#ifdef LL_WINDOWS
+	3 && filename.substr(1, 2) == ":\\"; // Drive letter comes first
+#else
+	1 && filename.front() == '/'; // delim is root
+#endif
+
+	std::string full_path = full ? filename : gDirUtilp->findSkinnedFilename("textures", filename);
+	if (full_path.empty() || (full && !gDirUtilp->fileExists(full_path)))
 	{
 		LL_WARNS() << "Failed to find local image file: " << filename << LL_ENDL;
 		return LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
