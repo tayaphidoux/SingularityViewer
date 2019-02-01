@@ -380,21 +380,32 @@ BOOL LLPanelAvatarSecondLife::postBuild()
 
 	LLTextureCtrl* ctrl = getChild<LLTextureCtrl>("img");
 	ctrl->setFallbackImageName("default_profile_picture.j2c");
+	auto show_pic = [&]
+	{
+		show_picture(getChild<LLTextureCtrl>("img")->getImageAssetID(), profile_picture_title(getChildView("dnname")->getValue()));
+	};
+	auto show_pic_if_not_self = [=] { if (!ctrl->canChange()) show_pic(); };
 
-	getChild<LLUICtrl>("bigimg")->setCommitCallback(boost::bind(boost::bind(show_picture, boost::bind(&LLTextureCtrl::getImageAssetID, ctrl), boost::bind(profile_picture_title, boost::bind(&LLView::getValue, getChild<LLNameEditor>("dnname"))))));
+	ctrl->setMouseUpCallback(std::bind(show_pic_if_not_self));
+	getChild<LLUICtrl>("bigimg")->setCommitCallback(std::bind(show_pic));
 
 	return TRUE;
 }
 
 BOOL LLPanelAvatarFirstLife::postBuild()
 {
-	BOOL own_avatar = (getPanelAvatar()->getAvatarID() == gAgent.getID() );
-	enableControls(own_avatar);
+	enableControls(getPanelAvatar()->getAvatarID() == gAgentID);
 
 	LLTextureCtrl* ctrl = getChild<LLTextureCtrl>("img");
 	ctrl->setFallbackImageName("default_profile_picture.j2c");
+	auto show_pic = [&]
+	{
+		show_picture(getChild<LLTextureCtrl>("img")->getImageAssetID(), "First Life Picture");
+	};
+	auto show_pic_if_not_self = [=] { if (!ctrl->canChange()) show_pic(); };
 
-	getChild<LLUICtrl>("flbigimg")->setCommitCallback(boost::bind(boost::bind(boost::bind(show_picture, boost::bind(&LLTextureCtrl::getImageAssetID, ctrl), "First Life Picture"))));
+	ctrl->setMouseUpCallback(std::bind(show_pic_if_not_self));
+	getChild<LLUICtrl>("flbigimg")->setCommitCallback(std::bind(show_pic));
 	return TRUE;
 }
 

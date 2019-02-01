@@ -126,8 +126,11 @@ void LLPanelPick::reset()
 
 BOOL LLPanelPick::postBuild()
 {
+	auto show_pic = [this] { show_picture(mSnapshotCtrl->getImageAssetID(), mNameEditor->getText()); };
+	auto show_pic_if_not_self = [=] { if (!mSnapshotCtrl->canChange()) show_pic(); };
     mSnapshotCtrl = getChild<LLTextureCtrl>("snapshot_ctrl");
 	mSnapshotCtrl->setCommitCallback(boost::bind(&LLPanelPick::onCommitAny, this));
+	mSnapshotCtrl->setMouseUpCallback(std::bind(show_pic_if_not_self));
 
     mNameEditor = getChild<LLLineEditor>("given_name_editor");
 	mNameEditor->setCommitOnFocusLost(true);
@@ -144,7 +147,7 @@ BOOL LLPanelPick::postBuild()
 	mSetBtn->setCommitCallback(boost::bind(&LLPanelPick::onClickSet,this));
 
 	mOpenBtn = getChild<LLUICtrl>("open_picture_btn");
-	mOpenBtn->setCommitCallback(boost::bind(show_picture, boost::bind(&LLTextureCtrl::getImageAssetID, mSnapshotCtrl), boost::bind(&LLLineEditor::getText, mNameEditor)));
+	mOpenBtn->setCommitCallback(std::bind(show_pic));
 
 	getChild<LLUICtrl>("pick_teleport_btn")->setCommitCallback(boost::bind(&LLPanelPick::onClickTeleport,this));
 	getChild<LLUICtrl>("pick_map_btn")->setCommitCallback(boost::bind(&LLPanelPick::onClickMap,this));
