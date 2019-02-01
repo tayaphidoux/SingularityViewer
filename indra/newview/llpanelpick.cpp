@@ -61,7 +61,7 @@
 void show_picture(const LLUUID& id, const std::string& name)
 {
 	// Try to show and focus existing preview
-	if (LLPreview::show(id)) return;
+	if (id.isNull() || LLPreview::show(id)) return;
 	// If there isn't one, make a new preview
 	S32 left, top;
 	gFloaterView->getNewFloaterPosition(&left, &top);
