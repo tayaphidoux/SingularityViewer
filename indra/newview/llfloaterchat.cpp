@@ -213,8 +213,8 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	if (!chat.mURL.empty()
 		&& (line.length() > chat.mFromName.length() && line.find(chat.mFromName,0) == 0))
 	{
-		std::string start_line = line.substr(0, chat.mFromName.length() + 1);
-		line = line.substr(chat.mFromName.length() + 1);
+		std::string start_line = chat.mFromName;
+		line = line.substr(chat.mFromName.length());
 		LLStyleSP sourceStyle = LLStyleMap::instance().lookup(chat.mFromID, chat.mURL);
 		sourceStyle->mItalic = is_irc;
 		edit->appendText(start_line, false, prepend_newline, sourceStyle);
