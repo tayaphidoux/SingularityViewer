@@ -9075,7 +9075,7 @@ This should be as low as possible, but too low may break functionality</string>
     <key>HTMLAgentColor</key>
     <map>
       <key>Comment</key>
-      <string>Color of hyperlinked usernames</string>
+      <string>Color of hyperlinked user/object names</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
