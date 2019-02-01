@@ -4268,7 +4268,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 {
 	std::string text = new_text;
 	static LLUICachedControl<bool> replace_links("SinguReplaceLinks");
-	bool is_link = style && !style->isLink(); // Don't search for URLs inside a link segment (STORM-358).
+	bool is_link = style && style->isLink(); // Don't search for URLs inside a link segment (STORM-358).
 
 	S32 part = (S32)LLTextParser::WHOLE;
 	if (mReadOnly && mParseHTML && !is_link) // Singu Note: Do not replace html if the user is going to edit it. (Like in profiles)
