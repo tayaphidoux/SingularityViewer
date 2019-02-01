@@ -70,7 +70,7 @@ public:
 	std::string getIcon() const { return mIcon; }
 
 	/// Return the color to render the displayed text
-	//LLStyle::Params getStyle() const { return mStyle; }
+	LLStyleSP getStyle() const { return mStyle; }
 
 	/// Return the name of a XUI file containing the context menu items
 	std::string getMenuName() const { return mMenuName; }
@@ -87,7 +87,7 @@ public:
 	/// Change the contents of this match object (used by LLUrlRegistry)
 	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
 	               const std::string& query, const std::string &tooltip, const std::string &icon,
-				   /*const LLStyle::Params& style,*/ const std::string &menu, 
+				   const LLStyleSP& style, const std::string &menu, 
 				   const std::string &location, const LLUUID& id,
 				   bool underline_on_hover_only = false, bool trusted = false);
 
@@ -103,7 +103,7 @@ private:
 	std::string mMenuName;
 	std::string mLocation;
 	LLUUID		mID;
-	//LLStyle::Params mStyle;
+	LLStyleSP mStyle;
 	bool		mUnderlineOnHoverOnly;
 	bool		mTrusted;
 };

@@ -4268,7 +4268,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 {
 	std::string text = new_text;
 	static LLUICachedControl<bool> replace_links("SinguReplaceLinks");
-	bool is_link = style && !style->getLinkHREF().empty(); // Don't search for URLs inside a link segment (STORM-358).
+	bool is_link = style && !style->isLink(); // Don't search for URLs inside a link segment (STORM-358).
 
 	S32 part = (S32)LLTextParser::WHOLE;
 	if (mReadOnly && mParseHTML && !is_link) // Singu Note: Do not replace html if the user is going to edit it. (Like in profiles)
@@ -4276,16 +4276,21 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 		LL_RECORD_BLOCK_TIME(FTM_PARSE_HTML);
 		S32 start=0,end=0;
 		LLUrlMatch match;
-		const auto& link_color = mLinkColor ? *mLinkColor : LLUI::sConfigGroup->getColor4("HTMLLinkColor");
 		auto append_substr = [&](const size_t& pos, const size_t& count)
 		{
 			appendAndHighlightText(text.substr(pos, count), part, style);
 		};
-		auto append_link = [&](const std::string& link)
+		auto append_link = [&](const std::string& link, LLStyleSP link_style)
 		{
-			LLStyleSP link_style(style ? new LLStyle(*style) : new LLStyle);
-			link_style->setColor(link_color);
-			link_style->setLinkHREF(match.getUrl());
+			if (style) // Respect styling
+			{
+				const auto& text_style = *style;
+				link_style->mItalic = text_style.mItalic;
+				link_style->mBold = text_style.mBold;
+				link_style->mUnderline = text_style.mUnderline;
+			}
+			// Hack around colors looking bad on some backgrounds by allowing setting link color for this editor
+			if (mLinkColor) link_style->setColor(*mLinkColor);
 			appendAndHighlightText(link, part, link_style, true/*match.underlineOnHoverOnly()*/);
 		};
 		while (!text.empty() && LLUrlRegistry::instance().findUrl(text, match,
@@ -4323,7 +4328,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 				}*/
 
 				// output the styled url
-				append_link(label + match.getQuery());
+				append_link(label + match.getQuery(), match.getStyle());
 				bool tooltip_required = !match.getTooltip().empty();
 
 				// set the tooltip for the Url label
@@ -4359,7 +4364,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 					append_substr(start, brackets ? 1 : pos-start);
 				// In the special cases, only link exactly the url, this might not have a protocol so calculate the exact string
 				if (fallback) url = brackets ? text.substr(start+1, text.find(' ', start+2)-start) : text.substr(start, end-start);
-				append_link(url); // Append the link
+				append_link(url, match.getStyle()); // Append the link
 				const auto url_end = pos + url.size();
 				if (fallback == brackets && end > url_end) // Ending text, only in special case if brackets present
 					append_substr(url_end, end-url_end);

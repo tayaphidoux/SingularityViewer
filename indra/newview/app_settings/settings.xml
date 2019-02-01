@@ -9072,6 +9072,22 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>400</integer>
     </map>
+    <key>HTMLAgentColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of hyperlinked usernames</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.600000023842</real>
+        <real>0.600000023842</real>
+        <real>1.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
     <key>HTMLLinkColor</key>
     <map>
       <key>Comment</key>

@@ -58,7 +58,7 @@ const LLStyleSP &LLStyleMap::lookupAgent(const LLUUID &source)
 		LLStyleSP style(new LLStyle);
 		if (source.notNull())
 		{
-			style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
+			style->setColor(gSavedSettings.getColor4("HTMLAgentColor"));
 			std::string link = llformat("secondlife:///app/agent/%s/about",source.asString().c_str());
 			style->setLinkHREF(link);
 		}

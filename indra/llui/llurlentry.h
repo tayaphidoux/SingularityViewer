@@ -82,7 +82,7 @@ public:
 	virtual std::string getIcon(const std::string &url);
 
 	/// Return the style to render the displayed text
-	//virtual LLStyle::Params getStyle() const;
+	virtual LLStyleSP getStyle() const;
 
 	/// Given a matched Url, return a tooltip string for the hyperlink
 	virtual std::string getTooltip(const std::string &string) const { return mTooltip; }
@@ -232,7 +232,7 @@ public:
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) override;
 	/*virtual*/ std::string getIcon(const std::string &url) override;
 	/*virtual*/ std::string getTooltip(const std::string &string) const override;
-	///*virtual*/ LLStyle::Params getStyle() const override;
+	/*virtual*/ LLStyleSP getStyle() const override;
 	/*virtual*/ LLUUID	getID(const std::string &string) const override;
 	/*virtual*/ bool underlineOnHoverOnly(const std::string &string) const override;
 protected:
@@ -265,7 +265,7 @@ public:
 
 	}
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) override;
-	///*virtual*/ LLStyle::Params getStyle() const override;
+	/*virtual*/ LLStyleSP getStyle() const override;
 protected:
 	// override this to pull out relevant name fields
 	virtual std::string getName(const LLAvatarName& avatar_name) = 0;
@@ -332,7 +332,7 @@ class LLUrlEntryGroup : public LLUrlEntryBase
 public:
 	LLUrlEntryGroup();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) override;
-	///*virtual*/ LLStyle::Params getStyle() const override;
+	/*virtual*/ LLStyleSP getStyle() const override;
 	/*virtual*/ LLUUID	getID(const std::string &string) const override;
 private:
 	void onGroupNameReceived(const LLUUID& id, const std::string& name, bool is_group);
@@ -492,7 +492,7 @@ public:
 	LLUrlEntryNoLink();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) override;
 	/*virtual*/ std::string getUrl(const std::string &string) const override;
-	///*virtual*/ LLStyle::Params getStyle() const override;
+	/*virtual*/ LLStyleSP getStyle() const override;
 };
 
 ///
