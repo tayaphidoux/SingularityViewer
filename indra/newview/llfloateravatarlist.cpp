@@ -112,6 +112,7 @@ namespace
 			if (radar_show_dist) chat.mText += llformat(" (%.2fm)", dist);
 		}
 		chat.mFromName = name;
+		chat.mFromID = key;
 		if (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) // RLVa:LF - No way!
 			chat.mURL = llformat("secondlife:///app/agent/%s/about", key.asString().c_str());
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
