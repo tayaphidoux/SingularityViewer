@@ -409,11 +409,17 @@ class LLFileUploadBulk : public view_listener_t
 		//
 		// Also fix single upload to charge first, then refund
 		// <edit>
-		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-		const char* notification_type = expected_upload_cost ? "BulkTemporaryUpload" : "BulkTemporaryUploadFree";
-		LLSD args;
-		args["UPLOADCOST"] = gHippoGridManager->getConnectedGrid()->getUploadFee();
-		LLNotificationsUtil::add(notification_type, args, LLSD(), onConfirmBulkUploadTemp);
+		const auto grid(gHippoGridManager->getConnectedGrid());
+		if (grid->isSecondLife()) // For SL, we can't do temp uploads anymore.
+		{
+			doBulkUpload();
+		}
+		else
+		{
+			S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+			const char* notification_type = expected_upload_cost ? "BulkTemporaryUpload" : "BulkTemporaryUploadFree";
+			LLNotificationsUtil::add(notification_type, LLSD().with("UPLOADCOST", grid->getUploadFee()), LLSD(), onConfirmBulkUploadTemp);
+		}
 		return true;
 	}
 
@@ -428,10 +434,15 @@ class LLFileUploadBulk : public view_listener_t
 		else					// cancel
 			return false;
 
+		doBulkUpload(enabled);
+		return true;
+	}
+
+	static void doBulkUpload(bool temp = false)
+	{
 		AIFilePicker* filepicker = AIFilePicker::create();
 		filepicker->open(FFLOAD_ALL, "", "openfile", true);
-		filepicker->run(boost::bind(&LLFileUploadBulk::onConfirmBulkUploadTemp_continued, enabled, filepicker));
-		return true;
+		filepicker->run(boost::bind(&LLFileUploadBulk::onConfirmBulkUploadTemp_continued, temp, filepicker));
 	}
 
 	static void onConfirmBulkUploadTemp_continued(bool enabled, AIFilePicker* filepicker)
