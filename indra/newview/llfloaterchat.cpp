@@ -200,7 +200,7 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	if (chat.mSourceType == CHAT_SOURCE_OBJECT)
 	{
 		LLStringUtil::trim(chat.mFromName);
-		if (!chat.mFromName.length())
+		if (chat.mFromName.empty())
 		{
 			chat.mFromName = LLTrans::getString("Unnamed");
 			line = chat.mFromName + line;
@@ -211,13 +211,12 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	bool is_irc = italicize && chat.mChatStyle == CHAT_STYLE_IRC;
 	// If the chat line has an associated url, link it up to the name.
 	if (!chat.mURL.empty()
-		&& (line.length() > chat.mFromName.length() && line.find(chat.mFromName,0) == 0))
+		&& (!chat.mFromName.empty() && line.find(chat.mFromName,0) == 0))
 	{
-		std::string start_line = chat.mFromName;
 		line = line.substr(chat.mFromName.length());
 		LLStyleSP sourceStyle = LLStyleMap::instance().lookup(chat.mFromID, chat.mURL);
 		sourceStyle->mItalic = is_irc;
-		edit->appendText(start_line, false, prepend_newline, sourceStyle);
+		edit->appendText(chat.mFromName, false, prepend_newline, sourceStyle);
 		prepend_newline = false;
 	}
 	LLStyleSP style(new LLStyle);
