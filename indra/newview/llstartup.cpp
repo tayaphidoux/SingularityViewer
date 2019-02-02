@@ -944,7 +944,9 @@ bool idle_startup()
 		display_startup();
 
 		// Push our window frontmost
-		gViewerWindow->getWindow()->show();
+		// Singu Note: Actually, don't! But flash the window to let the user know
+		if (gSavedSettings.getBOOL("LiruFlashWhenMinimized")) // No, we're not minimized, but if you flash my bar, I will give you the biggest SIGSEGV ~Liru <3
+			gViewerWindow->getWindow()->flashIcon(5.f);
 		display_startup();
 
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
