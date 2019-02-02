@@ -1306,7 +1306,7 @@ void LLTextureCtrl::setEnabled( BOOL enabled )
 	mCaption->setEnabled( enabled );
 	mEnable = enabled;
 
-	LLView::setEnabled( enabled );
+	//LLView::setEnabled( enabled ); // <edit/>
 }
 
 void LLTextureCtrl::setValid(BOOL valid )
