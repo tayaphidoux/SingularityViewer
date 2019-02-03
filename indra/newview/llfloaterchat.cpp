@@ -211,7 +211,7 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	bool is_irc = italicize && chat.mChatStyle == CHAT_STYLE_IRC;
 	// If the chat line has an associated url, link it up to the name.
 	if (!chat.mURL.empty()
-		&& (!chat.mFromName.empty() && line.find(chat.mFromName,0) == 0))
+		&& boost::algorithm::starts_with(line, chat.mFromName))
 	{
 		line = line.substr(chat.mFromName.length());
 		LLStyleSP sourceStyle = LLStyleMap::instance().lookup(chat.mFromID, chat.mURL);
