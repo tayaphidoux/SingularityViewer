@@ -731,7 +731,9 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 // x-grid-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
 //
 LLUrlEntryAgentName::LLUrlEntryAgentName()
-{}
+{
+	mMenuName = "menu_url_agent.xml";
+}
 
 void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
