@@ -326,7 +326,7 @@ Function CloseSecondLife
   IntCmp $0 0 DONE
   
   StrCmp $SKIP_DIALOGS "true" CLOSE
-    MessageBox MB_OKCANCEL $(CloseSecondLifeInstMB) IDOK CLOSE IDCANCEL CANCEL_INSTALL
+    MessageBox MB_YESNOCANCEL $(CloseSecondLifeInstMB) IDYES CLOSE IDNO DONE
 
   CANCEL_INSTALL:
   Quit
