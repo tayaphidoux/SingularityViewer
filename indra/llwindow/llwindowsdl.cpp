@@ -790,7 +790,7 @@ LLWindowSDL::~LLWindowSDL()
 }
 
 
-void LLWindowSDL::show()
+void LLWindowSDL::show(bool focus)
 {
     // *FIX: What to do with SDL?
 }

@@ -49,7 +49,7 @@
 class LLWindowSDL : public LLWindow
 {
 public:
-	/*virtual*/ void show();
+	/*virtual*/ void show(bool focus);
 	/*virtual*/ void hide();
 	/*virtual*/ void close();
 	/*virtual*/ BOOL getVisible();
