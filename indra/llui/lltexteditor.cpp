@@ -406,12 +406,13 @@ class ContextText : public LLMemberListener<LLView>
 	}
 };
 
+static const std::string& get_focused_url()
+{
+	return get_focused_text_editor()->getMenuSegmentUrl();
+}
+
 class ContextUrl : public LLMemberListener<LLView>
 {
-	static const std::string& get_focused_url()
-	{
-		return get_focused_text_editor()->getMenuSegmentUrl();
-	}
 	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
 	{
 		const auto& url = get_focused_url();
@@ -430,6 +431,20 @@ class ContextUrl : public LLMemberListener<LLView>
 		else if (op == "ShowOnMap") LLUrlAction::showLocationOnMap(url);
 		else if (op == "CopyLabel") LLUrlAction::copyLabelToClipboard(url);
 		else if (op == "CopyUrl") LLUrlAction::copyURLToClipboard(url);
+		return true;
+	}
+};
+
+class ContextUrlCopy : public LLMemberListener<LLView>
+{
+
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
+	{
+		const auto& url = get_focused_url();
+		const auto& type = userdata.asStringRef();
+		// Empty works like avatar and group, "object" is an object (you needed to be told this)
+		const auto& id = type.empty() ? LLUrlAction::getUserID(url) : LLUrlAction::getObjectId(url);
+		LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(id));
 		return true;
 	}
 };
@@ -516,6 +531,7 @@ void LLTextEditor::addMenuListeners()
 {
 	(new ContextText)->registerListener(LLMenuGL::sMenuContainer, "Text");
 	(new ContextUrl)->registerListener(LLMenuGL::sMenuContainer, "Text.Url");
+	(new ContextUrlCopy)->registerListener(LLMenuGL::sMenuContainer, "Text.Url.CopyUUID");
 }
 
 void LLTextEditor::setTrackColor( const LLColor4& color )
