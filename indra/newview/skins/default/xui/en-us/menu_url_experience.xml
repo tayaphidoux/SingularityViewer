@@ -4,7 +4,7 @@
  label="URL"
  name="Url Popup">
     <menu_item_call
-     label="Copy SLurl to clipboard"
+     label="Copy SLURL to clipboard"
      layout="topleft"
      name="url_copy">
         <menu_item_call.on_click
