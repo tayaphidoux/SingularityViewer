@@ -368,15 +368,40 @@ void LLPanelLogin::setSiteIsAlive(bool alive)
 	}
 }
 
+void LLPanelLogin::clearPassword()
+{
+	getChild<LLUICtrl>("password_edit")->setValue(mIncomingPassword = mMungedPassword = LLStringUtil::null);
+}
+
+void LLPanelLogin::hidePassword()
+{
+	// This is a MD5 hex digest of a password.
+	// We don't actually use the password input field,
+	// fill it with MAX_PASSWORD characters so we get a
+	// nice row of asterixes.
+	getChild<LLUICtrl>("password_edit")->setValue("123456789!123456");
+}
+
 void LLPanelLogin::mungePassword(const std::string& password)
 {
 	// Re-md5 if we've changed at all
 	if (password != mIncomingPassword)
 	{
-		LLMD5 pass((unsigned char *)password.c_str());
-		char munged_password[MD5HEX_STR_SIZE];
-		pass.hex_digest(munged_password);
-		mMungedPassword = munged_password;
+		// Max "actual" password length is 16 characters.
+		// Hex digests are always 32 characters.
+		if (password.length() == MD5HEX_STR_BYTES)
+		{
+			hidePassword();
+			mMungedPassword = password;
+		}
+		else
+		{
+			LLMD5 pass((unsigned char *)password.substr(16).c_str());
+			char munged_password[MD5HEX_STR_SIZE];
+			pass.hex_digest(munged_password);
+			mMungedPassword = munged_password;
+		}
+		mIncomingPassword = password;
 	}
 }
 
@@ -552,29 +577,11 @@ void LLPanelLogin::setFields(const std::string& firstname,
 	llassert_always(firstname.find(' ') == std::string::npos);
 	login_combo->setLabel(nameJoin(firstname, lastname, false));
 
-	// Max "actual" password length is 16 characters.
-	// Hex digests are always 32 characters.
-	if (password.length() == 32)
-	{
-		// This is a MD5 hex digest of a password.
-		// We don't actually use the password input field, 
-		// fill it with MAX_PASSWORD characters so we get a 
-		// nice row of asterixes.
-		const std::string filler("123456789!123456");
-		sInstance->getChild<LLUICtrl>("password_edit")->setValue(filler);
-		sInstance->mIncomingPassword = filler;
-		sInstance->mMungedPassword = password;
-	}
-	else
-	{
-		// this is a normal text password
+	sInstance->mungePassword(password);
+	if (sInstance->mIncomingPassword != sInstance->mMungedPassword)
 		sInstance->getChild<LLUICtrl>("password_edit")->setValue(password);
-		sInstance->mIncomingPassword = password;
-		LLMD5 pass((unsigned char *)password.c_str());
-		char munged_password[MD5HEX_STR_SIZE];
-		pass.hex_digest(munged_password);
-		sInstance->mMungedPassword = munged_password;
-	}
+	else
+		sInstance->hidePassword();
 }
 
 // static
@@ -591,33 +598,26 @@ void LLPanelLogin::setFields(const LLSavedLoginEntry& entry, bool takeFocus)
 	LLComboBox* login_combo = sInstance->getChild<LLComboBox>("username_combo");
 	login_combo->setTextEntry(fullname);
 	login_combo->resetTextDirty();
-	//sInstance->getChild<LLUICtrl>("username_combo")->setValue(fullname);
+	//login_combo->setValue(fullname);
 
-	std::string grid = entry.getGrid();
+	const auto& grid = entry.getGrid();
 	//grid comes via LLSavedLoginEntry, which uses full grid names, not nicks
-	if(!grid.empty() && gHippoGridManager->getGrid(grid) && grid != gHippoGridManager->getCurrentGridName())
+	if (!grid.empty() && gHippoGridManager->getGrid(grid) && grid != gHippoGridManager->getCurrentGridName())
 	{
 		gHippoGridManager->setCurrentGrid(grid);
 	}
-	
-	if (entry.getPassword().empty())
-	{
-		sInstance->getChild<LLUICtrl>("password_edit")->setValue(LLStringUtil::null);
-		remember_pass_check->setValue(LLSD(false));
-	}
-	else
-	{
-		const std::string filler("123456789!123456");
-		sInstance->getChild<LLUICtrl>("password_edit")->setValue(filler);
-		sInstance->mIncomingPassword = filler;
-		sInstance->mMungedPassword = entry.getPassword();
-		remember_pass_check->setValue(LLSD(true));
-	}
 
-	if (takeFocus)
+	const auto& password = entry.getPassword();
+	bool remember_pass = !password.empty();
+	if (remember_pass)
 	{
-		giveFocus();
+		sInstance->mIncomingPassword = sInstance->mMungedPassword = password;
+		sInstance->hidePassword();
 	}
+	else sInstance->clearPassword();
+	remember_pass_check->setValue(remember_pass);
+
+	if (takeFocus) giveFocus();
 }
 
 // static
@@ -1066,7 +1066,7 @@ void LLPanelLogin::onLoginComboLostFocus(LLComboBox* combo_box)
 {
 	if (combo_box->isTextDirty())
 	{
-		getChild<LLUICtrl>("password_edit")->setValue(mIncomingPassword = mMungedPassword = LLStringUtil::null);
+		clearPassword();
 		combo_box->resetTextDirty();
 	}
 }
