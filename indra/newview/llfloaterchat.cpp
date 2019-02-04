@@ -45,6 +45,7 @@
 #include "llcombobox.h"
 #include "lltextparser.h"
 #include "lltrans.h"
+#include "llurlregistry.h"
 #include "llwindow.h"
 
 // project include
@@ -384,7 +385,19 @@ void LLFloaterChat::addChat(const LLChat& chat,
 		// We display anything if it's not an IM. If it's an IM, check pref...
 		if	( !from_instant_message || gSavedSettings.getBOOL("IMInChatConsole") ) 
 		{
-			gConsole->addConsoleLine(chat.mText, text_color);
+			// Replace registered urls in the console so it looks right.
+			std::string chit(chat.mText), // Read through this
+						chat; // Add parts to this
+			LLUrlMatch match;
+			while (!chit.empty() && LLUrlRegistry::instance().findUrl(chit, match))
+			{
+				const auto start(match.getStart()), length(match.getEnd()+1-start);
+				if (start > 0) chat += chit.substr(0, start); // Add up to the start of the match
+				chat += match.getLabel() + match.getQuery(); // Add the label and the query
+				chit.erase(0, start+length); // remove the url match and all before it
+			}
+			if (!chit.empty()) chat += chit; // Add any leftovers
+			gConsole->addConsoleLine(chat, text_color);
 		}
 	}
 
