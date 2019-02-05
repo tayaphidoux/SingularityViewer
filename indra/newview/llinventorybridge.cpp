@@ -4075,7 +4075,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		{
 			accept = can_move_to_outfit(inv_item, move_is_into_current_outfit);
 		}
-		else if (move_is_into_favorites || move_is_into_landmarks)
+		else if (/*move_is_into_favorites ||*/ move_is_into_landmarks)
 		{
 			accept = can_move_to_landmarks(inv_item);
 		}
@@ -4151,7 +4151,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 			// FAVORITES folder
 			// (copy the item)
-			else */if (move_is_into_favorites)
+			else if (move_is_into_favorites)
 			{
 				dropToFavorites(inv_item);
 			}
@@ -4233,7 +4233,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 		// Don't allow to move a single item to Favorites or Landmarks
 		// if it is not a landmark or a link to a landmark.
-		else if ((move_is_into_favorites || move_is_into_landmarks)
+		else if ((/*move_is_into_favorites ||*/ move_is_into_landmarks)
 				 && !can_move_to_landmarks(inv_item))
 		{
 			accept = FALSE;
@@ -4304,7 +4304,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 			// Don't allow to move a single item to Favorites or Landmarks
 			// if it is not a landmark or a link to a landmark.
-			else if (move_is_into_favorites || move_is_into_landmarks)
+			else if (/*move_is_into_favorites ||*/ move_is_into_landmarks)
 			{
 				accept = can_move_to_landmarks(inv_item);
 			}
