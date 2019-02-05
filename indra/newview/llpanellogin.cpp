@@ -409,7 +409,7 @@ void LLPanelLogin::mungePassword(const std::string& password)
 // (with some padding so the other login screen doesn't show through)
 void LLPanelLogin::reshapeBrowser()
 {
-	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
+	auto web_browser = getChild<LLMediaCtrl>("login_html");
 	LLRect rect = gViewerWindow->getWindowRectScaled();
 	LLRect html_rect;
 	html_rect.setCenterAndSize(
@@ -424,10 +424,13 @@ LLPanelLogin::~LLPanelLogin()
 {
 	std::string login_hist_filepath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "saved_logins_sg2.xml");
 	LLSavedLogins::saveFile(mLoginHistoryData, login_hist_filepath);
-	LLPanelLogin::sInstance = NULL;
 
+	sInstance = nullptr;
+
+	// Controls having keyboard focus by default
+	// must reset it on destroy. (EXT-2748)
 	if (gFocusMgr.getDefaultKeyboardFocus() == this)
-		gFocusMgr.setDefaultKeyboardFocus(NULL);
+		gFocusMgr.setDefaultKeyboardFocus(nullptr);
 }
 
 // virtual
@@ -518,8 +521,8 @@ void LLPanelLogin::giveFocus()
 		BOOL have_username = !username.empty();
 		BOOL have_pass = !pass.empty();
 
-		LLLineEditor* edit = NULL;
-		LLComboBox* combo = NULL;
+		LLLineEditor* edit = nullptr;
+		LLComboBox* combo = nullptr;
 		if (have_username && !have_pass)
 		{
 			// User saved his name but not his password.  Move
@@ -678,7 +681,7 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 
 	LL_DEBUGS("AppInit")<<new_start_slurl.asString()<<LL_ENDL;
 
-	LLComboBox* location_combo = sInstance->getChild<LLComboBox>("start_location_combo");
+	auto location_combo = sInstance->getChild<LLComboBox>("start_location_combo");
 	/*
 	 * Determine whether or not the new_start_slurl modifies the grid.
 	 *
@@ -697,12 +700,15 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 		location_combo->setTextEntry(new_start_slurl.getLocationString());
 	}
 	break;
+
 	case LLSLURL::HOME_LOCATION:
 		location_combo->setCurrentByIndex(0);	// home location
 		break;
+
 	case LLSLURL::LAST_LOCATION:
 		location_combo->setCurrentByIndex(1); // last location
 		break;
+
 	default:
 		LL_WARNS("AppInit")<<"invalid login slurl, using home"<<LL_ENDL;
 		location_combo->setCurrentByIndex(1); // home location
@@ -736,8 +742,9 @@ void LLPanelLogin::close()
 	if (sInstance)
 	{
 		sInstance->getParent()->removeChild(sInstance);
+
 		delete sInstance;
-		sInstance = NULL;
+		sInstance = nullptr;
 	}
 }
 
@@ -1045,7 +1052,7 @@ void LLPanelLogin::onSelectGrid(LLUICtrl *ctrl)
 
 void LLPanelLogin::onLocationSLURL()
 {
-	LLComboBox* location_combo = getChild<LLComboBox>("start_location_combo");
+	auto location_combo = getChild<LLComboBox>("start_location_combo");
 	std::string location = location_combo->getValue().asString();
 	LLStringUtil::trim(location);
 	LL_DEBUGS("AppInit")<<location<<LL_ENDL;
