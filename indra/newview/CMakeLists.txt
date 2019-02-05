@@ -174,6 +174,7 @@ set(viewer_SOURCE_FILES
     llexternaleditor.cpp
     llface.cpp
     llfasttimerview.cpp
+    llfavoritesbar.cpp
     llfeaturemanager.cpp
     llfirstuse.cpp
     llflexibleobject.cpp
@@ -320,6 +321,7 @@ set(viewer_SOURCE_FILES
     llinventoryobserver.cpp
     llinventorypanel.cpp
     lljoystickbutton.cpp
+    lllandmarkactions.cpp
     lllandmarklist.cpp
     lllogchat.cpp
     llloginhandler.cpp
@@ -707,6 +709,7 @@ set(viewer_HEADER_FILES
     llexternaleditor.h
     llface.h
     llfasttimerview.h
+    llfavoritesbar.h
     llfeaturemanager.h
     llfirstuse.h
     llflexibleobject.h
@@ -852,6 +855,7 @@ set(viewer_HEADER_FILES
     llinventoryobserver.h
     llinventorypanel.h
     lljoystickbutton.h
+    lllandmarkactions.h
     lllandmarklist.h
     lllightconstants.h
     lllogchat.h

@@ -86,6 +86,8 @@
 #include <boost/lexical_cast.hpp>
 // </edit>
 #include <boost/algorithm/string.hpp>
+
+#include "llsdserialize.h"
 #include "llstring.h"
 #include <cctype>
 
@@ -353,6 +355,67 @@ LLPanelLogin::LLPanelLogin(const LLRect& rect)
 	if (saved_login_entries.size() > 0)
 	{
 		setFields(*saved_login_entries.rbegin());
+	}
+
+	addFavoritesToStartLocation();
+}
+
+void LLPanelLogin::addFavoritesToStartLocation()
+{
+	// Clear the combo.
+	auto combo = getChild<LLComboBox>("start_location_combo");
+	if (!combo) return;
+	S32 num_items = combo->getItemCount();
+	for (S32 i = num_items - 1; i > 2; i--)
+	{
+		combo->remove(i);
+	}
+
+	// Load favorites into the combo.
+	const auto grid = gHippoGridManager->getCurrentGrid();
+	std::string first, last;
+	getFields(first, last, std::string());
+	auto user_defined_name(first + ' ' + last);
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + grid->getGridName() + ".xml");
+	std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+
+	LLSD fav_llsd;
+	llifstream file;
+	file.open(filename);
+	if (!file.is_open())
+	{
+		file.open(old_filename);
+		if (!file.is_open()) return;
+	}
+	LLSDSerialize::fromXML(fav_llsd, file);
+
+	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
+		iter != fav_llsd.endMap(); ++iter)
+	{
+		// The account name in stored_favorites.xml has Resident last name even if user has
+		// a single word account name, so it can be compared case-insensitive with the
+		// user defined "firstname lastname".
+		S32 res = LLStringUtil::compareInsensitive(user_defined_name, iter->first);
+		if (res != 0)
+		{
+			LL_DEBUGS() << "Skipping favorites for " << iter->first << LL_ENDL;
+			continue;
+		}
+
+		combo->addSeparator();
+		LL_DEBUGS() << "Loading favorites for " << iter->first << LL_ENDL;
+		auto user_llsd = iter->second;
+		for (LLSD::array_const_iterator iter1 = user_llsd.beginArray();
+			iter1 != user_llsd.endArray(); ++iter1)
+		{
+			std::string label = (*iter1)["name"].asString();
+			std::string value = (*iter1)["slurl"].asString();
+			if (!label.empty() && !value.empty())
+			{
+				combo->add(label, value);
+			}
+		}
+		break;
 	}
 }
 
@@ -1048,6 +1111,42 @@ void LLPanelLogin::onSelectGrid(LLUICtrl *ctrl)
 	}
 	gHippoGridManager->setCurrentGrid(grid);
 	ctrl->setValue(grid);
+	sInstance->addFavoritesToStartLocation();
+
+	/*
+	 * Determine whether or not the value in the start_location_combo makes sense
+	 * with the new grid value.
+	 *
+	 * Note that some forms that could be in the location combo are grid-agnostic,
+	 * such as "MyRegion/128/128/0".  There could be regions with that name on any
+	 * number of grids, so leave them alone.  Other forms, such as
+	 * https://grid.example.com/region/Party%20Town/20/30/5 specify a particular
+	 * grid; in those cases we want to clear the location.
+	 */
+	auto location_combo = sInstance->getChild<LLComboBox>("start_location_combo");
+	S32 index = location_combo->getCurrentIndex();
+	switch (index)
+	{
+	case 0: // last location
+	case 1: // home location
+		// do nothing - these are grid-agnostic locations
+		break;
+
+	default:
+		{
+			std::string location = location_combo->getValue().asString();
+			LLSLURL slurl(location); // generata a slurl from the location combo contents
+			if (   slurl.getType() == LLSLURL::LOCATION
+				&& slurl.getGrid() != gHippoGridManager->getCurrentGridNick()
+				)
+			{
+				// the grid specified by the location is not this one, so clear the combo
+				location_combo->setCurrentByIndex(0); // last location on the new grid
+				location_combo->setTextEntry(LLStringUtil::null);
+			}
+		}
+		break;
+	}
 }
 
 void LLPanelLogin::onLocationSLURL()
@@ -1067,6 +1166,8 @@ void LLPanelLogin::onSelectLoginEntry(const LLSD& selected_entry)
 		setFields(LLSavedLoginEntry(selected_entry));
 	// This stops the automatic matching of the first name to a selected grid.
 	LLViewerLogin::getInstance()->setNameEditted(true);
+
+	sInstance->addFavoritesToStartLocation();
 }
 
 void LLPanelLogin::onLoginComboLostFocus(LLComboBox* combo_box)

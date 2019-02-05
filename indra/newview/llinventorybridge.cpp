@@ -42,6 +42,7 @@
 #include "llattachmentsmgr.h"
 #include "llavataractions.h"
 #include "llcallingcard.h"
+#include "llfavoritesbar.h" // management of favorites folder
 #include "llfirstuse.h"
 #include "llfloatercustomize.h"
 #include "llfloateropenobject.h"
@@ -3957,7 +3958,7 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 	}
 	else
 	{
-		LLPointer<LLInventoryCallback> cb = NULL;
+		LLPointer<LLInventoryCallback> cb = nullptr;
 		link_inventory_object(mUUID, LLConstPointer<LLInventoryObject>(inv_item), cb);
 	}
 }
@@ -4135,7 +4136,6 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// Destination folder logic
 			//
 
-			/* Singu TODO: Favorites
 			// REORDER
 			// (only reorder the item in Favorites folder)
 			if ((mUUID == inv_item->getParentUUID()) && move_is_into_favorites)
@@ -4145,7 +4145,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				{
 					LLUUID srcItemId = inv_item->getUUID();
 					LLUUID destItemId = itemp->getListener()->getUUID();
-					gInventory.rearrangeFavoriteLandmarks(srcItemId, destItemId);
+					LLFavoritesOrderStorage::instance().rearrangeFavoriteLandmarks(srcItemId, destItemId);
 				}
 			}
 

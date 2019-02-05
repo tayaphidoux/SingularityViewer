@@ -107,6 +107,7 @@ public:
 
 private:
 	void reshapeBrowser();
+	void addFavoritesToStartLocation();
 	void onLocationSLURL();
 
 	void onClickConnect();
