@@ -107,7 +107,6 @@ LocalBitmap::LocalBitmap(std::string fullpath)
 		bitmap_type   = TYPE_TEXTURE;
 		sculpt_dirty  = false;
 		volume_dirty  = false;
-		valid         = false;
 
 		/* taking care of extension type now to avoid switch madness */
 		std::string temp_exten = gDirUtilp->getExtension(filename);
@@ -294,63 +293,54 @@ void LocalBitmap::setType( S32 type )
 }
 
 /* [information query functions] */
-std::string LocalBitmap::getShortName()
+std::string LocalBitmap::getShortName() const
 {
 	return shortname;
 }
 
-std::string LocalBitmap::getFileName()
+std::string LocalBitmap::getFileName() const
 {
 	return filename;
 }
 
-LLUUID LocalBitmap::getID()
+LLUUID LocalBitmap::getID() const
 {
 	return id;
 }
 
-LLSD LocalBitmap::getLastModified()
+LLSD LocalBitmap::getLastModified() const
 {
 	return last_modified;
 }
 
-std::string LocalBitmap::getLinkStatus()
+std::string LocalBitmap::getLinkStatus() const
 {
 	switch(linkstatus)
 	{
-		case LINK_ON:
-			return "On";
-
-		case LINK_OFF:
-			return "Off";
-
-		case LINK_BROKEN:
-			return "Broken";
-
-		case LINK_UPDATING:
-			return "Updating";
-
-		default:
-			return "Unknown";
+		case LINK_ON: return "On";
+		case LINK_OFF: return "Off";
+		case LINK_BROKEN: return "Broken";
+		case LINK_UPDATING: return "Updating";
+		default: return "Unknown";
 	}
 }
 
-bool LocalBitmap::getUpdateBool()
+bool LocalBitmap::getUpdateBool() const
 {
 	return keep_updating;
 }
 
-bool LocalBitmap::getIfValidBool()
+bool LocalBitmap::getIfValidBool() const
 {
 	return valid;
 }
 
-S32 LocalBitmap::getType()
+S32 LocalBitmap::getType() const
 {
 	return bitmap_type;
 }
 
-std::vector<LLFace*> LocalBitmap::getFaceUsesThis(LLDrawable* drawable)
+std::vector<LLFace*> LocalBitmap::getFaceUsesThis(LLDrawable* drawable) const
 {
 	std::vector<LLFace*> matching_faces;
 
@@ -365,7 +355,7 @@ std::vector<LLFace*> LocalBitmap::getFaceUsesThis(LLDrawable* drawable)
 	return matching_faces;
 }
 
-std::vector<affected_object> LocalBitmap::getUsingObjects(bool seek_by_type, bool seek_textures, bool seek_sculptmaps)
+std::vector<affected_object> LocalBitmap::getUsingObjects(bool seek_by_type, bool seek_textures, bool seek_sculptmaps) const
 {
 	std::vector<affected_object> affected_vector;
 	
@@ -413,21 +403,20 @@ std::vector<affected_object> LocalBitmap::getUsingObjects(bool seek_by_type, boo
 	return affected_vector;
 }
 
-void LocalBitmap::getDebugInfo()
+void LocalBitmap::getDebugInfo() const
 {
 	/* debug function: dumps everything human readable into llinfos */
-	LL_INFOS() << "===[local bitmap debug]==="               << "\n"
-			<< "path: "          << filename        << "\n"
-			<< "name: "          << shortname       << "\n"
-			<< "extension: "     << extension       << "\n"
-			<< "uuid: "          << id              << "\n"
-			<< "last modified: " << last_modified   << "\n"
-			<< "link status: "   << getLinkStatus() << "\n"
-			<< "keep updated: "  << keep_updating   << "\n"
-			<< "type: "          << bitmap_type     << "\n"
-			<< "is valid: "      << valid           << "\n"
+	LL_INFOS() << "===[local bitmap debug]==="               << '\n'
+			<< "path: "          << filename        << '\n'
+			<< "name: "          << shortname       << '\n'
+			<< "extension: "     << extension       << '\n'
+			<< "uuid: "          << id              << '\n'
+			<< "last modified: " << last_modified   << '\n'
+			<< "link status: "   << getLinkStatus() << '\n'
+			<< "keep updated: "  << keep_updating   << '\n'
+			<< "type: "          << bitmap_type     << '\n'
+			<< "is valid: "      << valid           << '\n'
 			<< "=========================="               << LL_ENDL;
-	
 }
 
 /*=======================================*/
@@ -592,21 +581,20 @@ void LocalAssetBrowser::UpdateTextureCtrlList(LLScrollListCtrl* ctrl)
 	if (ctrl) // checking again in case called externally for some silly reason.
 	{
 		ctrl->clearRows(); 
-		if ( !loaded_bitmaps.empty() )
+		for (const auto& bitmap : loaded_bitmaps)
 		{
-			for (local_list_iter iter = loaded_bitmaps.begin(); iter != loaded_bitmaps.end(); ++iter)
-			{
-				LLSD element;
-				element["columns"][0]["column"] = "unit_name";
-				element["columns"][0]["type"] = "text";
-				element["columns"][0]["value"] = (*iter).shortname;
+			auto row = LLScrollListItem::Params();
+			row.columns.add(LLScrollListCell::Params()
+				.column("unit_name")
+				.type("text")
+				.value(bitmap.shortname));
 
-				element["columns"][1]["column"] = "unit_id_HIDDEN";
-				element["columns"][1]["type"] = "text";
-				element["columns"][1]["value"] = (*iter).id;
+			row.columns.add(LLScrollListCell::Params()
+				.column("unit_id_HIDDEN")
+				.type("text")
+				.value(bitmap.id));
 
-				ctrl->addElement(element);
-			}
+			ctrl->addRow(row);
 		}
 	}
 }
@@ -855,10 +843,9 @@ void FloaterLocalAssetBrowser::UpdateRightSide()
 	*/
 	if (!mTextureView->getVisible()) return;
 
-	if (!mBitmapList->getAllSelected().empty())
+	if (const auto& selected = mBitmapList->getFirstSelected())
 	{
-		LocalBitmap* unit = gLocalBrowser->GetBitmapUnit( LLUUID(mBitmapList->getSelectedItemLabel(BITMAPLIST_COL_ID)) );
-		
+		LocalBitmap* unit = gLocalBrowser->GetBitmapUnit(LLUUID(selected->getColumn(BITMAPLIST_COL_ID)->getValue()));
 		if ( unit )
 		{
 			mTextureView->setImageAssetID(unit->getID());
@@ -885,11 +872,12 @@ void FloaterLocalAssetBrowser::UpdateRightSide()
 		mTypeComboBox->selectFirstItem();
 		mTypeComboBox->setEnabled(false);
 
-		mPathTxt->setText(LLStringExplicit("None"));
-		mUUIDTxt->setText(LLStringExplicit("None"));
-		mNameTxt->setText(LLStringExplicit("None"));
-		mLinkTxt->setText(LLStringExplicit("None"));
-		mTimeTxt->setText(LLStringExplicit("None"));
+		const auto none = LLStringExplicit("None");
+		mPathTxt->setText(none);
+		mUUIDTxt->setText(none);
+		mNameTxt->setText(none);
+		mLinkTxt->setText(none);
+		mTimeTxt->setText(none);
 	}
 }
 
@@ -931,7 +919,7 @@ void LocalAssetBrowserTimer::stop()
 	mEventTimer.stop();
 }
 
-bool LocalAssetBrowserTimer::isRunning()
+bool LocalAssetBrowserTimer::isRunning() const
 {
 	return mEventTimer.getStarted();
 }

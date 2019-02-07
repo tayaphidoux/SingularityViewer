@@ -127,25 +127,24 @@ class LocalBitmap
 		};
 
 	public: /* [information query functions] */
-		std::string getShortName();
-		std::string getFileName();
-		LLUUID      getID();
-		LLSD        getLastModified();
-		std::string getLinkStatus();
-		bool        getUpdateBool();
+		std::string getShortName() const;
+		std::string getFileName() const;
+		LLSD        getLastModified() const;
+		std::string getLinkStatus() const;
+		bool        getUpdateBool() const;
 		void        setType( S32 );
-		bool        getIfValidBool();
-		S32		    getType();
-		void		getDebugInfo();
+		bool        getIfValidBool() const;
+		S32		    getType() const;
+		void		getDebugInfo() const;
 
 	private: /* [maintenence functions] */
 		void updateSelf();
 		bool decodeSelf(LLImageRaw* rawimg);
 		void setUpdateBool();
 
-		std::vector<LLFace*>		 getFaceUsesThis(LLDrawable*);
+		std::vector<LLFace*>		 getFaceUsesThis(LLDrawable*) const;
 		std::vector<affected_object> getUsingObjects(bool seek_by_type = true,
-												     bool seek_textures = false, bool seek_sculptmaps = false);
+												     bool seek_textures = false, bool seek_sculptmaps = false) const;
 
 	protected: /* [basic properties] */
 		std::string    shortname;
@@ -289,10 +288,10 @@ class LocalAssetBrowserTimer : public LLEventTimer
 	public:
 		LocalAssetBrowserTimer();
 		~LocalAssetBrowserTimer();
-		virtual BOOL tick();
+		BOOL tick() override;
 		void		 start();
 		void		 stop();
-		bool         isRunning();
+		bool         isRunning() const;
 };
 
 #endif
