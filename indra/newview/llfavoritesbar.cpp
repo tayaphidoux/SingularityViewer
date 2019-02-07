@@ -52,7 +52,7 @@
 #include "lllogininstance.h"
 #endif
 #include "llnotificationsutil.h"
-#include "lltoggleablemenu.h"
+//#include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
 #include "hippogridmanager.h" //"llviewernetwork.h"
