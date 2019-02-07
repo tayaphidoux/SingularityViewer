@@ -292,6 +292,15 @@ void LocalBitmap::setType( S32 type )
 	bitmap_type = type;
 }
 
+void LocalBitmap::setID(const LLUUID& uuid)
+{
+	LLViewerFetchedTexture* image = gTextureList.findImage(id);
+	gTextureList.deleteImage(image);
+	id = uuid;
+	image->setID(id);
+	gTextureList.addImage(image);
+}
+
 /* [information query functions] */
 std::string LocalBitmap::getShortName() const
 {
@@ -719,6 +728,11 @@ FloaterLocalAssetBrowser::FloaterLocalAssetBrowser()
 
 	// checkbox callbacks
 	mUpdateChkBox->setCommitCallback(boost::bind(&FloaterLocalAssetBrowser::onClickUpdateChkbox,this));
+
+	// Allow changing the ID!
+	mUUIDTxt->setCommitCallback(boost::bind(&FloaterLocalAssetBrowser::onUpdateID, this, _2));
+	mUUIDTxt->setCommitOnReturn(true);
+	mUUIDTxt->setCommitOnFocusLost(true);
 }
 
 void FloaterLocalAssetBrowser::show(void*)
@@ -783,6 +797,21 @@ void FloaterLocalAssetBrowser::onCommitTypeCombo()
 	{
 		S32 selection = mTypeComboBox->getCurrentIndex();
 		gLocalBrowser->onSetType((LLUUID)temp_str, selection);
+	}
+}
+
+void FloaterLocalAssetBrowser::onUpdateID(const LLSD& val)
+{
+	const auto& id = val.asUUID();
+	const auto& col = mBitmapList->getFirstSelected()->getColumn(BITMAPLIST_COL_ID);
+	const auto& old_id = col->getValue().asString();
+	if (id.isNull() && id.asString() != old_id) // Just reset if invalid or unchanged
+		mUUIDTxt->setValue(old_id);
+	else
+	{
+		gLocalBrowser->GetBitmapUnit(LLUUID(old_id))->setID(id);
+		mTextureView->setImageAssetID(id);
+		col->setValue(id);
 	}
 }
 
@@ -860,6 +889,7 @@ void FloaterLocalAssetBrowser::UpdateRightSide()
 			mTextureView->setEnabled(true);
 			mUpdateChkBox->setEnabled(true);
 			mTypeComboBox->setEnabled(true);
+			mUUIDTxt->setEnabled(true);
 		}
 	}
 	else
@@ -871,6 +901,7 @@ void FloaterLocalAssetBrowser::UpdateRightSide()
 
 		mTypeComboBox->selectFirstItem();
 		mTypeComboBox->setEnabled(false);
+		mUUIDTxt->setEnabled(false);
 
 		const auto none = LLStringExplicit("None");
 		mPathTxt->setText(none);

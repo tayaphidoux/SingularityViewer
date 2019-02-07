@@ -129,6 +129,8 @@ class LocalBitmap
 	public: /* [information query functions] */
 		std::string getShortName() const;
 		std::string getFileName() const;
+		LLUUID      getID() const;
+		void        setID(const LLUUID&);
 		LLSD        getLastModified() const;
 		std::string getLinkStatus() const;
 		bool        getUpdateBool() const;
@@ -239,6 +241,8 @@ private:
 
 	// Combobox type select
 	void onCommitTypeCombo();
+
+	void onUpdateID(const LLSD& val);
 
 	// Widgets
 	LLButton* mAddBtn;
