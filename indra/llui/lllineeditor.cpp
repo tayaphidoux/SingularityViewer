@@ -1497,8 +1497,9 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 		break;
 
 	case KEY_RETURN:
+		if (getCommitOnReturn()) onCommit();
 		// store sent line in history
-		updateHistory();
+		else updateHistory();
 		break;
 
 	case KEY_ESCAPE:
