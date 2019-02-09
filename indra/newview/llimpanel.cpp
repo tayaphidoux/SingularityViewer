@@ -804,7 +804,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, LLColor4 incol
 			// Convert the name to a hotlink and add to message.
 			LLStyleSP source_style = LLStyleMap::instance().lookupAgent(source);
 			source_style->mItalic = is_irc;
-			mHistoryEditor->appendText(show_name,false,prepend_newline,source_style);
+			mHistoryEditor->appendText(show_name,false,prepend_newline,source_style, false);
 		}
 		prepend_newline = false;
 	}
@@ -815,7 +815,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, LLColor4 incol
 		style->setColor(incolor);
 		style->mItalic = is_irc;
 		style->mBold = from_user && gSavedSettings.getBOOL("SingularityBoldGroupModerator") && isModerator(source);
-		mHistoryEditor->appendText(utf8msg, false, prepend_newline, style);
+		mHistoryEditor->appendText(utf8msg, false, prepend_newline, style, false);
 	}
 
 	if (log_to_file

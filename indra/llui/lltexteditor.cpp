@@ -4262,7 +4262,7 @@ void LLTextEditor::appendColoredText(const std::string &new_text,
 static LLTrace::BlockTimerStatHandle FTM_APPEND_TEXT("Append Text");
 
 void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool prepend_newline,
-							  const LLStyleSP style)
+							  const LLStyleSP style, bool force_replace_links)
 {
 	LL_RECORD_BLOCK_TIME(FTM_APPEND_TEXT);
 	if (new_text.empty())
@@ -4280,10 +4280,11 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 static LLTrace::BlockTimerStatHandle FTM_PARSE_HTML("Parse HTML");
 
 // Appends new text to end of document
-void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP style)
+void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP style, bool force_replace_links)
 {
 	std::string text = new_text;
-	static LLUICachedControl<bool> replace_links("SinguReplaceLinks");
+	static const LLUICachedControl<bool> replace_links("SinguReplaceLinks");
+	force_replace_links = force_replace_links || replace_links;
 	bool is_link = style && style->isLink(); // Don't search for URLs inside a link segment (STORM-358).
 
 	S32 part = (S32)LLTextParser::WHOLE;
@@ -4309,8 +4310,8 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 			if (mLinkColor) link_style->setColor(*mLinkColor);
 			appendAndHighlightText(link, part, link_style, true/*match.underlineOnHoverOnly()*/);
 		};
-		while (!text.empty() && LLUrlRegistry::instance().findUrl(text, match,
-				boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3)))
+		const auto&& cb = force_replace_links ? boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3) : LLUrlLabelCallback::slot_function_type();
+		while (!text.empty() && LLUrlRegistry::instance().findUrl(text, match, cb))
 		{
 			start = match.getStart();
 			end = match.getEnd()+1;
@@ -4332,7 +4333,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 
 			auto url = match.getUrl();
 			const auto& label = match.getLabel();
-			if (replace_links || url == label)
+			if (force_replace_links || replace_links || url == label)
 			{
 				// add icon before url if need
 				/* Singu TODO: Icons next to links?
@@ -4371,7 +4372,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 					}
 				}*/
 			}
-			else if (!replace_links) // Still link the link itself
+			else // Still link the link itself
 			{
 				const auto pos = text.find(url);
 				bool fallback(pos == std::string::npos); // In special cases like no protocol and brackets
@@ -4454,9 +4455,6 @@ void LLTextEditor::replaceUrl(const std::string &url,
 							const std::string &label,
 							const std::string &icon)
 {
-	static LLUICachedControl<bool> replace_links("SinguReplaceLinks");
-	if (!replace_links) return;
-
 	// get the full (wide) text for the editor so we can change it
 	LLWString text = getWText();
 	LLWString wlabel = utf8str_to_wstring(label);
