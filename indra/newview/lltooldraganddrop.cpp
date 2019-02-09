@@ -524,6 +524,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 
 void LLToolDragAndDrop::endDrag()
 {
+	mEndDragSignal();
 	LLSelectMgr::getInstance()->unhighlightAll();
 	setMouseCapture(FALSE);
 }
