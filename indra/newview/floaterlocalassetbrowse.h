@@ -97,7 +97,15 @@ struct affected_object
 class LocalBitmap
 {
 	public:
-		LocalBitmap(std::string filename);
+		struct Params : public LLInitParam::Block<Params>
+		{
+			Mandatory<std::string> fullpath;
+			Optional<bool> keep_updating;
+			Optional<S32> type;
+			Optional<LLUUID> id;
+			Params(const std::string& path = LLStringUtil::null);
+		};
+		LocalBitmap(const Params& p);
 		virtual ~LocalBitmap();
 		friend class LocalAssetBrowser;
 
@@ -138,6 +146,8 @@ class LocalBitmap
 		bool        getIfValidBool() const;
 		S32		    getType() const;
 		void		getDebugInfo() const;
+		LLSD		asLLSD() const;
+
 
 	private: /* [maintenence functions] */
 		void updateSelf();
@@ -174,9 +184,10 @@ class LocalBitmap
 
 class AIFilePicker;
 
-class LocalAssetBrowser
+class LocalAssetBrowser : public LLSingleton<LocalAssetBrowser>
 {
 	public:
+		const std::string getFileName() const;
 		LocalAssetBrowser();
 		virtual ~LocalAssetBrowser();
 		friend class FloaterLocalAssetBrowser;
@@ -184,6 +195,7 @@ class LocalAssetBrowser
 		static void UpdateTextureCtrlList(LLScrollListCtrl*);
 		static void setLayerUpdated(bool toggle) { mLayerUpdated = toggle; }
 		static void setSculptUpdated(bool toggle) { mSculptUpdated = toggle; }
+		static void add(const LocalBitmap& unit) { loaded_bitmaps.push_back(unit); }
 		static void AddBitmap();
 		static void AddBitmap_continued(AIFilePicker* filepicker);
 		static void DelBitmap( std::vector<LLScrollListItem*>, S32 column = BITMAPLIST_COL_ID );

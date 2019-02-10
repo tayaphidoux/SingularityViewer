@@ -217,6 +217,7 @@
 #include "generichandlers.h"
 
 // <edit>
+#include "floaterlocalassetbrowse.h"
 #include "llpanellogin.h"
 //#include "llfloateravatars.h"
 //#include "llactivation.h"
@@ -890,6 +891,8 @@ bool idle_startup()
 			LLToolMgr::getInstance()->initTools();
 
 			display_startup();
+			// Load local textures now, maybe someone wants to use them in UI (why?)
+			LocalAssetBrowser::instance(); // <edit/>
 			// Quickly get something onscreen to look at.
 			gViewerWindow->initWorldUI();
 			display_startup();

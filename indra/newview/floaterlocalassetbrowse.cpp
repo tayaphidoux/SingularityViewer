@@ -64,6 +64,8 @@ this feature is still a work in progress.
 #include "llviewermenufile.h"
 #include "llfloaterimagepreview.h"
 #include "llfile.h"
+#include "llsdparam.h"
+#include "llsdserialize.h"
 
 /* including to force rebakes when needed */
 #include "llvoavatarself.h"
@@ -93,18 +95,27 @@ bool    LocalAssetBrowser::mSculptUpdated;
 	containing one loaded local texture.
 */
 
-LocalBitmap::LocalBitmap(std::string fullpath)
+LocalBitmap::Params::Params(const std::string& path)
+: fullpath("path", path)
+, keep_updating("update", gSavedSettings.getBOOL("LocalBitmapUpdate"))
+, type("type", TYPE_TEXTURE)
+, id("id", LLUUID::generateNewID())
 {
+}
+
+LocalBitmap::LocalBitmap(const Params& p)
+{
+	llassert(!p.fullpath.empty());
 	valid = false;
-	if ( gDirUtilp->fileExists(fullpath) )
+	if ( gDirUtilp->fileExists(p.fullpath) )
 	{
 		/* taking care of basic properties */
-		id.generate();
-		filename	    = fullpath;
-		keep_updating = gSavedSettings.getBOOL("LocalBitmapUpdate");
+		id            = p.id;
+		filename	  = p.fullpath;
+		keep_updating = p.keep_updating;
 		linkstatus    = keep_updating ? LINK_ON : LINK_OFF;
 		shortname     = gDirUtilp->getBaseFileName(filename, true);
-		bitmap_type   = TYPE_TEXTURE;
+		bitmap_type   = p.type;
 		sculpt_dirty  = false;
 		volume_dirty  = false;
 
@@ -142,6 +153,7 @@ LocalBitmap::LocalBitmap(std::string fullpath)
 
 			/* filename is valid, bitmap is decoded and valid, i can haz liftoff! */
 			valid = true;
+			LocalAssetBrowser::add(*this);
 		}
 	}
 }
@@ -428,6 +440,15 @@ void LocalBitmap::getDebugInfo() const
 			<< "=========================="               << LL_ENDL;
 }
 
+LLSD LocalBitmap::asLLSD() const
+{
+	return LLSD()
+		.with("path", filename)
+		.with("id", id)
+		.with("update", keep_updating)
+		.with("type", bitmap_type);
+}
+
 /*=======================================*/
 /*  LocalAssetBrowser: internal class  */
 /*=======================================*/ 
@@ -437,15 +458,47 @@ void LocalBitmap::getDebugInfo() const
 	Sits in memory until the viewer is closed.
 */
 
+const std::string LocalAssetBrowser::getFileName() const
+{
+	return gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "local_assets.xml");
+}
+
 LocalAssetBrowser::LocalAssetBrowser()
 {
+	gLocalBrowser = this;
 	mLayerUpdated = false;
 	mSculptUpdated = false;
+
+	// Load bitmaps
+	llifstream file(getFileName());
+	if (!file) return;
+	LLSD saved_assets;
+	LLSDSerialize::fromXML(saved_assets, file);
+	file.close();
+	for (auto it = saved_assets.beginArray(), end = saved_assets.endArray(); it < end; ++it)
+	{
+		const auto&& p = LLSDParamAdapter<LocalBitmap::Params>(*it);
+		LocalBitmap bm(p); // Creating one adds it to the list
+	}
+
+	if (!loaded_bitmaps.empty()) PingTimer();
 }
 
 LocalAssetBrowser::~LocalAssetBrowser()
 {
-
+	// Save bitmaps
+	llofstream file(getFileName());
+	if (!file)
+	{
+		LL_WARNS() << "Could not open file " << getFileName() << " for saving." << LL_ENDL;
+		return;
+	}
+	LLSD saved_assets(LLSD::emptyArray());
+	for (const auto& bitmap : loaded_bitmaps)
+		saved_assets.append(bitmap.asLLSD());
+	LLSDSerialize::toPrettyXML(saved_assets, file);
+	file.close();
+	gLocalBrowser = nullptr;
 }
 
 void LocalAssetBrowser::AddBitmap()
@@ -461,20 +514,13 @@ void LocalAssetBrowser::AddBitmap_continued(AIFilePicker* filepicker)
 		return;
 
 	bool change_happened = false;
-	std::vector<std::string> const& filenames(filepicker->getFilenames());
-	for(std::vector<std::string>::const_iterator filename = filenames.begin(); filename != filenames.end(); ++filename)
-	{
-		LocalBitmap unit(*filename);
-		if (unit.getIfValidBool())
-		{
-			loaded_bitmaps.push_back(unit);
+
+	for(const auto& filename : filepicker->getFilenames())
+		if (LocalBitmap(filename).getIfValidBool())
 			change_happened = true;
-		}
-	}
 
 	if (change_happened) onChangeHappened();
 }
-
 void LocalAssetBrowser::DelBitmap( std::vector<LLScrollListItem*> delete_vector, S32 column )
 {
 	bool change_happened = false;
