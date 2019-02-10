@@ -1666,7 +1666,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		// send the message
 		msg->sendReliable(mHost);
 
-		if (gSavedSettings.getBOOL("LogInventoryDecline"))
+		if (!mFromGroup && gSavedSettings.getBOOL("LogInventoryDecline"))
 		{
 // [RLVa:KB] - Checked: 2010-09-23 (RLVa-1.2.1e) | Added: RLVa-1.2.1e
 			if ( (rlv_handler_t::isEnabled()) &&
