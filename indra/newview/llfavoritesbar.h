@@ -35,10 +35,9 @@
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
 #include "llui.h" //"llinitdestroyclass.h"
-#if 0
 
 class LLMenuItemCallGL;
-class LLToggleableMenu;
+class LLMenuGL;
 
 class LLFavoritesBarCtrl : public LLUICtrl, public LLInventoryObserver
 {
@@ -141,14 +140,14 @@ private:
 
 	void createOverflowMenu();
 
-	void updateMenuItems(LLToggleableMenu* menu);
+	void updateMenuItems(LLMenuGL* menu);
 
 	// Fits menu item label width with favorites menu width
 	void fitLabelWidth(LLMenuItemCallGL* menu_item);
 
-	void addOpenLandmarksMenuItem(LLToggleableMenu* menu);
+	void addOpenLandmarksMenuItem(LLMenuGL* menu);
 
-	void positionAndShowMenu(LLToggleableMenu* menu);
+	void positionAndShowMenu(LLMenuGL* menu);
 
 	BOOL mShowDragMarker;
 	LLUICtrl* mLandingTab;
@@ -164,7 +163,6 @@ private:
 
 	boost::signals2::connection mEndDragConnection;
 };
-#endif
 
 /**
  * Class to store sorting order of favorites landmarks in a local file. EXT-3985.
