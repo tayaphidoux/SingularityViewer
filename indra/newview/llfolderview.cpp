@@ -2164,8 +2164,8 @@ void LLFolderView::doIdle()
 	}
 
 	LLFavoritesOrderStorage::instance(); // Singu TODO: Favorites bar.
-	BOOL collectFavoriteItems();
-	collectFavoriteItems();
+	BOOL collectFavoriteItems(LLInventoryModel::item_array_t&);
+	collectFavoriteItems(LLInventoryModel::item_array_t());
 	
 	LL_RECORD_BLOCK_TIME(FTM_INVENTORY);
 

@@ -912,7 +912,7 @@ BOOL LLFavoritesBarCtrl::postBuild()
 	return TRUE;
 }
 
-BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t& items)
+BOOL collectFavoriteItems(LLInventoryModel::item_array_t& items)
 {
 
 	auto mFavoriteFolderId = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
@@ -927,6 +927,7 @@ BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t& it
 
 	std::sort(items.begin(), items.end(), LLFavoritesSort());
 
+	BOOL needToSaveItemsOrder(const LLInventoryModel::item_array_t& items);
 	if (needToSaveItemsOrder(items))
 	{
 		S32 sortField = 0;
@@ -938,6 +939,7 @@ BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t& it
 
 	return TRUE;
 }
+BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t& items) { return ::collectFavoriteItems(items); }
 
 void LLFavoritesBarCtrl::showDropDownMenu()
 {
@@ -1363,7 +1365,7 @@ LLUICtrl* LLFavoritesBarCtrl::findChildByLocalCoords(S32 x, S32 y)
 	return ctrl;
 }
 
-BOOL LLFavoritesBarCtrl::needToSaveItemsOrder(const LLInventoryModel::item_array_t& items)
+BOOL needToSaveItemsOrder(const LLInventoryModel::item_array_t& items)
 {
 	BOOL result = FALSE;
 
@@ -1379,6 +1381,7 @@ BOOL LLFavoritesBarCtrl::needToSaveItemsOrder(const LLInventoryModel::item_array
 
 	return result;
 }
+BOOL LLFavoritesBarCtrl::needToSaveItemsOrder(const LLInventoryModel::item_array_t& items) { return ::needToSaveItemsOrder(items); }
 
 void LLFavoritesBarCtrl::insertItem(LLInventoryModel::item_array_t& items, const LLUUID& dest_item_id, LLViewerInventoryItem* insertedItem, bool insert_before)
 {

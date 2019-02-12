@@ -373,8 +373,8 @@ void LLPanelLogin::addFavoritesToStartLocation()
 
 	// Load favorites into the combo.
 	const auto grid = gHippoGridManager->getCurrentGrid();
-	std::string first, last;
-	getFields(first, last, std::string());
+	std::string first, last, password;
+	getFields(first, last, password);
 	auto user_defined_name(first + ' ' + last);
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + grid->getGridName() + ".xml");
 	std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
