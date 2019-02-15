@@ -9452,7 +9452,7 @@ void initialize_menus()
 	addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	addMenu(new LLObjectEnableMute(), "Avatar.EnableMute");
 	addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
-	addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeletonAndAnimations");
+	addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
 	addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
 	addMenu(new LLAvatarEnableFreezeEject(), "Avatar.EnableFreezeEject");
 	addMenu(new LLAvatarCopyUUID(), "Avatar.CopyUUID");
