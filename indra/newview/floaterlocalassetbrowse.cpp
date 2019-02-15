@@ -920,7 +920,7 @@ void FloaterLocalAssetBrowser::UpdateRightSide()
 
 	if (const auto& selected = mBitmapList->getFirstSelected())
 	{
-		LocalBitmap* unit = gLocalBrowser->GetBitmapUnit(LLUUID(selected->getColumn(BITMAPLIST_COL_ID)->getValue()));
+		LocalBitmap* unit = gLocalBrowser->GetBitmapUnit(LLUUID(selected->getColumn(BITMAPLIST_COL_ID)->getValue().asString()));
 		if ( unit )
 		{
 			mTextureView->setImageAssetID(unit->getID());
