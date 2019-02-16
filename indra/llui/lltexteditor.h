@@ -295,6 +295,7 @@ public:
 	llwchar			getWChar(S32 pos) const { return mWText[pos]; }
 	LLWString		getWSubString(S32 pos, S32 len) const { return mWText.substr(pos, len); }
 	
+	const LLTextSegment*	getLastSegment() const { return mSegments.empty() ? nullptr : mSegments.back(); }
 	const LLTextSegment*	getCurrentSegment() const { return getSegmentAtOffset(mCursorPos); }
 	const LLTextSegment*	getPreviousSegment() const;
 	void getSelectedSegments(std::vector<LLTextSegmentPtr>& segments) const;
