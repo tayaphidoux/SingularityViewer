@@ -459,7 +459,7 @@ void LLPanelLogin::mungePassword(const std::string& password)
 		}
 		else
 		{
-			LLMD5 pass((unsigned char *)password.substr(16).c_str());
+			LLMD5 pass((unsigned char *)utf8str_truncate(password, 16).c_str());
 			char munged_password[MD5HEX_STR_SIZE];
 			pass.hex_digest(munged_password);
 			mMungedPassword = munged_password;
