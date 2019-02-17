@@ -247,7 +247,7 @@ LLNotifyBox::LLNotifyBox(LLNotificationPtr notification)
 		auto text_color = gColors.getColor(mIsCaution && mIsTip ? "NotifyCautionWarnColor" : "NotifyTextColor");
 		text->setReadOnlyFgColor(text_color); //sets caution text color for tip notifications
 		if (!mIsCaution) // We could do some extra color math here to determine if bg's too close to link color, but let's just cross with the link color instead
-			text->setLinkColor(new LLColor4(lerp(text_color, gSavedSettings.getColor4("HTMLLinkColor"), 0.4)));
+			text->setLinkColor(new LLColor4(lerp(text_color, gSavedSettings.getColor4("HTMLLinkColor"), 0.4f)));
 		text->setTabStop(FALSE); // can't tab to it (may be a problem for scrolling via keyboard)
 		text->appendText(message,false,false,nullptr,!layout_script_dialog); // Now we can set the text, since colors have been set.
 		addChild(text);

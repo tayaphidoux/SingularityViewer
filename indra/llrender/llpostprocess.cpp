@@ -286,7 +286,7 @@ public:
 		LLVector2 screen_rect = LLPostProcess::getInstance()->getDimensions();
 
 		mPassLoc = getShader().getUniformLocation(sHorizontalPass);
-		LLVector4 vec[] = { LLVector4(1.3846153846, 3.2307692308, 0, 0) / screen_rect.mV[VX], LLVector4( 0,0, 1.3846153846, 3.2307692308 ) / screen_rect.mV[VY] };
+		LLVector4 vec[] = { LLVector4(1.3846153846f, 3.2307692308f, 0.f, 0.f) / screen_rect.mV[VX], LLVector4( 0.f,0.f, 1.3846153846f, 3.2307692308f ) / screen_rect.mV[VY] };
 		getShader().uniform4fv(sKern, LL_ARRAY_SIZE(vec), (GLfloat*)vec);
 		return QUAD_NORMAL;
 	}
