@@ -7175,17 +7175,6 @@ void LLVOAvatar::removeChild(LLViewerObject *childp)
 	}
 }
 
-namespace
-{
-	boost::signals2::connection sDetachBridgeConnection;
-	void detach_bridge(const LLViewerObject* obj, const LLViewerObject* bridge)
-	{
-		if (obj != bridge) return;
-		sDetachBridgeConnection.disconnect();
-		LLVOAvatarSelf::detachAttachmentIntoInventory(obj->getAttachmentItemID());
-	}
-}
-
 LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* viewer_object)
 {
 	S32 attachmentID = ATTACHMENT_ID_FROM_STATE(viewer_object->getState());
@@ -7206,11 +7195,6 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 			<< " trying to use 1 (chest)"
 			<< LL_ENDL;
 
-		if (isSelf() && attachmentID == 127 && gSavedSettings.getBOOL("SGDetachBridge"))
-		{
-			LL_INFOS() << "Bridge detected! detaching" << LL_ENDL;
-			sDetachBridgeConnection = gAgentAvatarp->setAttachmentCallback(boost::bind(detach_bridge, _1, viewer_object));
-		}
 		attachment = get_if_there(mAttachmentPoints, 1, (LLViewerJointAttachment*)NULL); // Arbitrary using 1 (chest)
 		if (attachment)
 		{
