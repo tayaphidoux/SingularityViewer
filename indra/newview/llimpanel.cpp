@@ -1154,13 +1154,8 @@ void show_log_browser(const std::string& name, const std::string& id)
 	const std::string file(LLLogChat::makeLogFileName(name));
 	if (gSavedSettings.getBOOL("LiruLegacyLogLaunch"))
 	{
-#if LL_WINDOWS || LL_DARWIN
-		gViewerWindow->getWindow()->ShellEx(file);
-#elif LL_LINUX
-		// xdg-open might not actually be installed on all distros, but it's our best bet.
-		if (!std::system(("/usr/bin/xdg-open \"" + file +'"').c_str())) // 0 = success, otherwise fallback on internal browser.
-#endif
-		return;
+		if (!LLWindow::ShellEx(file)) // 0 = success, otherwise fallback on internal browser.
+			return;
 	}
 	LLFloaterWebContent::Params p;
 	p.url("file:///" + file);

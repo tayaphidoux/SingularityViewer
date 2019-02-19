@@ -1756,13 +1756,6 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
 	}
 }
 
-// Open a URL with the user's default web browser.
-// Must begin with protocol identifier.
-void LLWindowMacOSX::ShellEx(const std::string& command)
-{
-	std::system(("open " + command).data());
-}
-
 LLSD LLWindowMacOSX::getNativeKeyData()
 {
 	LLSD result = LLSD::emptyMap();

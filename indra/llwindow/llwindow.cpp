@@ -252,6 +252,19 @@ BOOL LLWindow::copyTextToPrimary(const LLWString &src)
 	return FALSE; // fail
 }
 
+int LLWindow::ShellEx(const std::string& command)
+{
+	constexpr auto&& open =
+#if LL_WINDOWS
+	"start \"\" \""; // Quoted first argument is the title of the command prompt
+#elif LL_DARWIN
+	"open \"";
+#else // LL_LINUX or other modern unix, pray it has xdg-open
+	"xdg-open \""
+#endif
+	return std::system((open + command + '"').c_str());
+}
+
 // static
 std::vector<std::string> LLWindow::getDynamicFallbackFontList()
 {
