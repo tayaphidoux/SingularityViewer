@@ -260,7 +260,7 @@ int LLWindow::ShellEx(const std::string& command)
 #elif LL_DARWIN
 	"open \"";
 #else // LL_LINUX or other modern unix, pray it has xdg-open
-	"xdg-open \""
+	"xdg-open \"";
 #endif
 	return std::system((open + command + '"').c_str());
 }
