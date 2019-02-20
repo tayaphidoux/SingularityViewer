@@ -98,7 +98,7 @@ namespace
 			case STAT_TYPE_DRAW:		if (radar_alert_draw)			args["[RANGE]"] = LLTrans::getString("draw_distance");										break;
 			case STAT_TYPE_SHOUTRANGE:	if (radar_alert_shout_range)	args["[RANGE]"] = LLTrans::getString("shout_range");										break;
 			case STAT_TYPE_CHATRANGE:	if (radar_alert_chat_range)		args["[RANGE]"] = LLTrans::getString("chat_range");										break;
-			case STAT_TYPE_AGE:			if (radar_alert_age)			chat.mText = name + " " + LLTrans::getString("has_triggered_your_avatar_age_alert") + ".";	break;
+			case STAT_TYPE_AGE:			if (radar_alert_age)			chat.mText = name + ' ' + LLTrans::getString("has_triggered_your_avatar_age_alert") + '.';	break;
 			default:					llassert(type);																											break;
 		}
 		args["[NAME]"] = name;
@@ -592,13 +592,13 @@ void LLFloaterAvatarList::updateAvatarList(const LLViewerRegion* region, bool fi
 			U32 num_ids = 0;
 			while(!announce_keys.empty())
 			{
-				ids << "," << announce_keys.front().asString();
+				ids << ',' << announce_keys.front().asString();
 				++num_ids;
 				if (ids.tellp() > 200)
 				{
 					send_keys_message(transact_num, num_ids, ids.str());
 					ids.seekp(num_ids = 0);
-					ids.str("");
+					ids.str(LLStringUtil::null);
 				}
 				announce_keys.pop();
 			}
@@ -1102,7 +1102,6 @@ void LLFloaterAvatarList::trackAvatar(const LLAvatarListEntry* entry) const
 
 LLAvatarListEntry* LLFloaterAvatarList::getAvatarEntry(const LLUUID& avatar) const
 {
-	if (avatar.isNull()) return NULL;
 	av_list_t::const_iterator iter = std::find_if(mAvatars.begin(),mAvatars.end(),LLAvatarListEntry::uuidMatch(avatar));
 	return (iter != mAvatars.end()) ? iter->get() : NULL;
 }
@@ -1272,13 +1271,13 @@ void LLFloaterAvatarList::sendKeys() const
 
 	for (U32 i = 0; i < regionp->mMapAvatarIDs.size(); ++i)
 	{
-		ids << "," << regionp->mMapAvatarIDs.at(i);
+		ids << ',' << regionp->mMapAvatarIDs.at(i);
 		++num_ids;
 		if (ids.tellp() > 200)
 		{
 			send_keys_message(transact_num, num_ids, ids.str());
 			ids.seekp(num_ids = 0);
-			ids.str("");
+			ids.str(LLStringUtil::null);
 		}
 	}
 	if (num_ids > 0) send_keys_message(transact_num, num_ids, ids.str());
@@ -1417,7 +1416,7 @@ std::string LLFloaterAvatarList::getSelectedNames(const std::string& separator) 
 std::string LLFloaterAvatarList::getSelectedName() const
 {
 	LLAvatarListEntry* entry = getAvatarEntry(getSelectedID());
-	return entry ? entry->getName() : "";
+	return entry ? entry->getName() : LLStringUtil::null;
 }
 
 LLUUID LLFloaterAvatarList::getSelectedID() const
