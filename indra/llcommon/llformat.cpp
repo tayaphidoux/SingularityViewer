@@ -37,24 +37,26 @@
 
 #include <cstdarg>
 
-constexpr auto smallsize = 1024;
 // common used function with va_list argument
 // wrapper for vsnprintf to be called from llformatXXX functions.
-static void va_format(std::string& charvector, const char *fmt, va_list va)
+static void va_format(std::string& out, const char *fmt, va_list va)
 {
+	constexpr auto smallsize = 1024;
+	std::vector<char> charvector(smallsize); // Evolves into charveleon
 	va_list va2;
 	va_copy(va2, va);
 	const auto size = std::vsnprintf(charvector.data(), charvector.size(), fmt, va);
-	if (size >= smallsize) // Evolve into charveleon
+	if (size >= smallsize)
 	{
 		charvector.resize(1+size); // Use the String Stone
 		std::vsnprintf(charvector.data(), charvector.size(), fmt, va2);
 	}
+	out.assign(charvector.data());
 }
 
 std::string llformat(const char *fmt, ...)
 {
-	std::string res(smallsize, '\0');
+	std::string res;
 	va_list va;
 	va_start(va, fmt);
 	va_format(res, fmt, va);
@@ -64,7 +66,7 @@ std::string llformat(const char *fmt, ...)
 
 std::string llformat_to_utf8(const char *fmt, ...)
 {
-	std::string res(smallsize, '\0');
+	std::string res;
 	va_list va;
 	va_start(va, fmt);
 	va_format(res, fmt, va);
