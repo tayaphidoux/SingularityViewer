@@ -41,13 +41,17 @@
 // wrapper for vsnprintf to be called from llformatXXX functions.
 static void va_format(std::string& out, const char *fmt, va_list va)
 {
-	char tstr[1024];	/* Flawfinder: ignore */
-#if LL_WINDOWS
-	_vsnprintf(tstr, 1024, fmt, va);
-#else
-	vsnprintf(tstr, 1024, fmt, va);	/* Flawfinder: ignore */
-#endif
-	out.assign(tstr);
+	constexpr auto smallsize = 1024;
+	std::vector<char> charvector(smallsize); // Evolves into charveleon
+	va_list va2;
+	va_copy(va2, va);
+	const auto size = std::vsnprintf(charvector.data(), charvector.size(), fmt, va);
+	if (size >= smallsize)
+	{
+		charvector.resize(1+size); // Use the String Stone
+		std::vsnprintf(charvector.data(), charvector.size(), fmt, va2);
+	}
+	out.assign(charvector.data());
 }
 
 std::string llformat(const char *fmt, ...)
