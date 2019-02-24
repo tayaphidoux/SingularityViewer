@@ -227,6 +227,7 @@ namespace
 			// They are essentially disconnected from the region even though some things may still work.
 			// Since things won't get better until they relog we force a disconnect now.
 
+			/* Singu Note: There's no reason to disconnect, just because this failed a few too many times
 			// *NOTE:Mani - The following condition check to see if this failing event poll
 			// is attached to the Agent's main region. If so we disconnect the viewer.
 			// Else... its a child region and we just leave the dead event poll stopped and 
@@ -236,6 +237,7 @@ namespace
 				LL_WARNS() << "Forcing disconnect due to stalled main region event poll."  << LL_ENDL;
 				LLAppViewer::instance()->forceDisconnect(LLTrans::getString("AgentLostConnection"));
 			}
+			*/
 		}
 	}
 
