@@ -55,7 +55,7 @@ static void va_format(std::string& out, const char *fmt, va_list& va)
 	const auto size = vsnprintf(va);
 	if (size < 0)
 	{
-		LL_ERRS() << "Encoding failed, code " << size << ". String hint:" << out << '/' << fmt << LL_ENDL;
+		LL_ERRS() << "Encoding failed, code " << size << ". String hint: " << out << '/' << fmt << LL_ENDL;
 	}
 	else if (static_cast<vec_t::size_type>(size) >= smallsize) // Resize if we need more space
 	{

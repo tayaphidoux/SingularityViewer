@@ -190,6 +190,20 @@ namespace
 			mErrorCount = 0;
 			makeRequest();
 		}
+		else if (mStatus == HTTP_NOT_FOUND)
+		{   // Event polling for this server has been canceled.  In
+			// some cases the server gets ahead of the viewer and will
+			// return a 404 error (Not Found) before the cancel event
+			// comes back in the queue
+			LL_WARNS("LLEventPollImpl") << "Canceling coroutine" << LL_ENDL;
+			stop();
+		}
+		else if (mCode != CURLE_OK)
+		{
+			/// Some LLCore or LIBCurl error was returned.  This is unlikely to be recoverable
+		    LL_WARNS("LLEventPollImpl") << "Critical error from poll request returned from libraries.  Canceling coroutine." << LL_ENDL;
+			stop();
+		}
 		else if (mErrorCount < MAX_EVENT_POLL_HTTP_ERRORS)
 		{
 			++mErrorCount;
