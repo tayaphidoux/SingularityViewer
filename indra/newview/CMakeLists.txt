@@ -78,7 +78,7 @@ include_directories(
 set(viewer_SOURCE_FILES
     NACLantispam.cpp
     aihttpview.cpp
-    #aixmllindengenepool.cpp
+    aixmllindengenepool.cpp
     alfloaterregiontracker.cpp
     aoremotectrl.cpp
     ascentfloatercontactgroups.cpp
@@ -613,7 +613,7 @@ set(viewer_HEADER_FILES
 
     NACLantispam.h
     aihttpview.h
-    #aixmllindengenepool.h
+    aixmllindengenepool.h
     alfloaterregiontracker.h
     aoremotectrl.h
     ascentfloatercontactgroups.h

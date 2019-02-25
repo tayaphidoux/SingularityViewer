@@ -113,8 +113,7 @@
 #include "llskinningutil.h"
 
 #include "llfloaterexploreanimations.h"
-//#include "aixmllindengenepool.h"
-#include "aifile.h"
+#include "aixmllindengenepool.h"
 
 #include "llavatarname.h"
 #include "../lscript/lscript_byteformat.h"
@@ -9420,11 +9419,9 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 
 void LLVOAvatar::dumpArchetypeXML_cont(std::string const& fullpath, bool group_by_wearables)
 {
-#if 0
 	try
 	{
-	  AIFile outfile(fullpath, "wb");
-	  AIXMLLindenGenepool linden_genepool(outfile);
+	  AIXMLLindenGenepool linden_genepool(fullpath);
 
 	  if (group_by_wearables)
 	  {
@@ -9496,7 +9493,6 @@ void LLVOAvatar::dumpArchetypeXML_cont(std::string const& fullpath, bool group_b
 	{
 		AIAlert::add_modal("AIXMLdumpArchetypeXMLError", AIArgs("[FILE]", fullpath), error);
 	}
-#endif 
 }
 
 

@@ -68,7 +68,7 @@ AIXMLLindenGenepool::MetaData::MetaData(AIXMLElementParser const& parser)
   parser.attribute(DEFAULT_LLDATE_NAME, mDate);
 }
 
-AIXMLLindenGenepool::AIXMLLindenGenepool(LLFILE* fp) : AIXMLRootElement(fp, "linden_genepool")
+AIXMLLindenGenepool::AIXMLLindenGenepool(const std::string& filename) : AIXMLRootElement(filename, "linden_genepool")
 {
   attribute("version", "1.0");
   attribute("metaversion", "1.0");

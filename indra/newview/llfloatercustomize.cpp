@@ -55,8 +55,7 @@
 
 #include "statemachine/aifilepicker.h"
 #include "hippogridmanager.h"
-//#include "aixmllindengenepool.h"
-#include "aifile.h"
+#include "aixmllindengenepool.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -314,7 +313,6 @@ void LLFloaterCustomize::onBtnImport()
 
 void LLFloaterCustomize::onBtnImport_continued(AIFilePicker* filepicker)
 {
-#if 0
 	if (!filepicker->hasFilename())
 	{
 		// User canceled import.
@@ -457,7 +455,6 @@ void LLFloaterCustomize::onBtnImport_continued(AIFilePicker* filepicker)
 	{
 		AIAlert::add("AIXMLImportWearableTypeMismatch", args("[TYPE]", label)("[ARCHETYPENAME]", wearable_types));
 	}
-#endif
 }
 
 // reX: new function
@@ -514,9 +511,7 @@ void LLFloaterCustomize::onBtnExport_continued(LLViewerWearable* edit_wearable, 
 	bool success = false;
 	try
 	{
-		AIFile outfile(filename, "wb");
-
-		AIXMLLindenGenepool linden_genepool(outfile);
+		AIXMLLindenGenepool linden_genepool(filename);
 		linden_genepool.child(edit_wearable->getArchetype());
 
 		success = true;

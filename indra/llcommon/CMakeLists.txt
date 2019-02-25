@@ -25,7 +25,6 @@ include_directories(
 
 set(llcommon_SOURCE_FILES
     aialert.cpp
-    aifile.cpp
     aiframetimer.cpp
     aisyncclient.cpp
     aithreadid.cpp
@@ -116,7 +115,6 @@ set(llcommon_HEADER_FILES
     CMakeLists.txt
 
     aialert.h
-    aifile.h
     aiframetimer.h
     airecursive.h
     aisyncclient.h
