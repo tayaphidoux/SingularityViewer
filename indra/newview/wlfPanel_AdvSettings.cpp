@@ -34,15 +34,11 @@
 #include "wlfPanel_AdvSettings.h"
 
 #include "llbutton.h"
-#include "lluictrlfactory.h"
-#include "llviewercontrol.h"
-#include "lliconctrl.h"
-#include "lloverlaybar.h"
-#include "lltextbox.h"
-#include "llcombobox.h"
-#include "llsliderctrl.h"
 #include "llcheckboxctrl.h"
-#include "llstartup.h"
+#include "llcombobox.h"
+#include "llpostprocess.h"
+#include "llsliderctrl.h"
+#include "lluictrlfactory.h"
 
 #include "llfloaterwindlight.h"
 #include "llfloaterwater.h"
@@ -56,6 +52,10 @@
 #include "llwaterparammanager.h"
 #include "llwlparamset.h"
 #include "llwlparammanager.h"
+
+ // [RLVa:KB]
+#include "rlvhandler.h"
+// [/RLVa:KB]
 
 // Hover funcs
 void syncFromPreferenceSetting(LLSliderCtrl* sldrCtrl);
@@ -171,10 +171,10 @@ BOOL wlfPanel_AdvSettings::postBuild()
 		//populateDayCyclePresetsList();
 
 		// next/prev buttons
-		getChild<LLUICtrl>("WWnext")->setCommitCallback(boost::bind(&wlfPanel_AdvSettings::onClickWWNext, this));
-		getChild<LLUICtrl>("WWprev")->setCommitCallback(boost::bind(&wlfPanel_AdvSettings::onClickWWPrev, this));
-		getChild<LLUICtrl>("WLnext")->setCommitCallback(boost::bind(&wlfPanel_AdvSettings::onClickWLNext, this));
-		getChild<LLUICtrl>("WLprev")->setCommitCallback(boost::bind(&wlfPanel_AdvSettings::onClickWLPrev, this));
+		getChild<LLUICtrl>("WWnext")->setCommitCallback(boost::bind(wlfPanel_AdvSettings::onClickArrow, mWaterPresetCombo, true));
+		getChild<LLUICtrl>("WWprev")->setCommitCallback(boost::bind(wlfPanel_AdvSettings::onClickArrow, mWaterPresetCombo, false));
+		getChild<LLUICtrl>("WLnext")->setCommitCallback(boost::bind(wlfPanel_AdvSettings::onClickArrow, mSkyPresetCombo, true));
+		getChild<LLUICtrl>("WLprev")->setCommitCallback(boost::bind(wlfPanel_AdvSettings::onClickArrow, mSkyPresetCombo, false));
 
 		getChild<LLUICtrl>("EnvAdvancedSkyButton")->setCommitCallback(boost::bind(LLFloaterWindLight::show));
 		getChild<LLUICtrl>("EnvAdvancedWaterButton")->setCommitCallback(boost::bind(LLFloaterWater::show));
@@ -224,7 +224,7 @@ BOOL wlfPanel_AdvSettings::postBuild()
 	}
 	else
 	{
-		mHoverHeight = NULL;
+		mHoverHeight = nullptr;
 	}
 	return TRUE;
 }
@@ -301,48 +301,13 @@ void wlfPanel_AdvSettings::onChangeWLPresetName(const LLSD& value)
 	}
 }
 
-void wlfPanel_AdvSettings::onClickWWNext()
+void wlfPanel_AdvSettings::onClickArrow(LLComboBox* combo, bool next)
 {
-	S32 index = mWaterPresetCombo->getCurrentIndex();
-	++index;
-	if (index == mWaterPresetCombo->getItemCount())
-		index = 0;
-	mWaterPresetCombo->setCurrentByIndex(index);
-
-	onChangeWWPresetName(mWaterPresetCombo->getSelectedValue());
-}
-
-void wlfPanel_AdvSettings::onClickWWPrev()
-{
-	S32 index = mWaterPresetCombo->getCurrentIndex();
-	if (index == 0)
-		index = mWaterPresetCombo->getItemCount();
-	--index;
-	mWaterPresetCombo->setCurrentByIndex(index);
-
-	onChangeWWPresetName(mWaterPresetCombo->getSelectedValue());
-}
-
-void wlfPanel_AdvSettings::onClickWLNext()
-{
-	S32 index = mSkyPresetCombo->getCurrentIndex();
-	++index;
-	if (index == mSkyPresetCombo->getItemCount())
-		index = 0;
-	mSkyPresetCombo->setCurrentByIndex(index);
-
-	onChangeWLPresetName(mSkyPresetCombo->getSelectedValue());
-}
-
-void wlfPanel_AdvSettings::onClickWLPrev()
-{
-	S32 index = mSkyPresetCombo->getCurrentIndex();
-	if (index == 0)
-		index = mSkyPresetCombo->getItemCount();
-	--index;
-	mSkyPresetCombo->setCurrentByIndex(index);
-
-	onChangeWLPresetName(mSkyPresetCombo->getSelectedValue());
+	S32 index = combo->getCurrentIndex() + (next ? 1 : -1);
+	const auto too_far = next ? combo->getItemCount() : -1;
+	const auto wrap_around = next ? 0 : combo->getItemCount();
+	combo->setCurrentByIndex(index == too_far ? wrap_around : index);
+	combo->onCommit();
 }
 
 void wlfPanel_AdvSettings::onChangeDayTime(const LLSD& value)
