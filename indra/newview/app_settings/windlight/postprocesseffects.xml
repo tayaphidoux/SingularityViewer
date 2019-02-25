@@ -144,7 +144,7 @@
 			<key>saturation</key>
 			<real>1</real>
 		</map>
-		<key>default</key>
+		<key>Default</key>
 		<map>
 			<key>bloom_strength</key>
 			<real>1.5</real>

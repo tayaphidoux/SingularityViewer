@@ -367,10 +367,10 @@ LLPostProcess::LLPostProcess(void) :
 	}
 
 	// Singu TODO: Make this configurable via settings
-	if (!mAllEffectInfo.has("default"))
-		mAllEffectInfo["default"] = LLSD::emptyMap();
+	if (!mAllEffectInfo.has("Default"))
+		mAllEffectInfo["Default"] = LLSD::emptyMap();
 
-	LLSD& defaults = mAllEffectInfo["default"];
+	LLSD& defaults = mAllEffectInfo["Default"];
 
 	for(std::list<LLPointer<LLPostProcessShader> >::iterator it=mShaders.begin();it!=mShaders.end();++it)
 	{
@@ -385,7 +385,7 @@ LLPostProcess::LLPostProcess(void) :
 	{
 		(*it)->loadSettings(defaults);
 	}
-	setSelectedEffect("default");
+	setSelectedEffect("Default");
 }
 
 LLPostProcess::~LLPostProcess(void)
