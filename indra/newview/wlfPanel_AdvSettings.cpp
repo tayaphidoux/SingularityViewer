@@ -40,6 +40,7 @@
 #include "llsliderctrl.h"
 #include "lluictrlfactory.h"
 
+#include "llfloaterpostprocess.h"
 #include "llfloaterwindlight.h"
 #include "llfloaterwater.h"
 
@@ -152,6 +153,9 @@ BOOL wlfPanel_AdvSettings::postBuild()
 		// Windlight
 		getChild<LLCheckBoxCtrl>("use_estate_wl")->setCommitCallback(boost::bind(&wlfPanel_AdvSettings::onUseRegionSettings, this, _2));
 
+		auto mPostProcessPresetCombo = getChild<LLComboBox>("PostProcessPresetsCombo");
+		mPostProcessPresetCombo->setCommitCallback(boost::bind(&LLPostProcess::setSelectedEffect, LLPostProcess::getInstance(), boost::bind(&LLSD::asStringRef, _2)));
+
 		mWaterPresetCombo = getChild<LLComboBox>("WLWaterPresetsCombo");
 		mWaterPresetCombo->setCommitCallback(boost::bind(&wlfPanel_AdvSettings::onChangeWWPresetName, this, _2));
 
@@ -161,21 +165,27 @@ BOOL wlfPanel_AdvSettings::postBuild()
 		// mDayCyclePresetCombo = getChild<LLComboBox>("DCPresetsCombo");
 		// mDayCyclePresetCombo->setCommitCallback(boost::bind(&wlfPanel_AdvSettings::onChangeDCPresetName, this, _2));
 
+		void populatePostProcessList(LLComboBox* comboBox);
+		mConnections.push_front(new boost::signals2::scoped_connection(LLPostProcess::instance().setSelectedEffectChangeCallback(boost::bind(populatePostProcessList, mPostProcessPresetCombo))));
 		mConnections.push_front(new boost::signals2::scoped_connection(LLEnvManagerNew::instance().setPreferencesChangeCallback(boost::bind(&wlfPanel_AdvSettings::refreshLists, this))));
 		mConnections.push_front(new boost::signals2::scoped_connection(LLWaterParamManager::getInstance()->setPresetListChangeCallback(boost::bind(&wlfPanel_AdvSettings::populateWaterPresetsList, this))));
 		mConnections.push_front(new boost::signals2::scoped_connection(LLWLParamManager::getInstance()->setPresetListChangeCallback(boost::bind(&wlfPanel_AdvSettings::populateSkyPresetsList, this))));
 		// LLDayCycleManager::instance().setModifyCallback(boost::bind(&wlfPanel_AdvSettings::populateDayCyclePresetsList, this));
 
+		populatePostProcessList(mPostProcessPresetCombo);
 		populateWaterPresetsList();
 		populateSkyPresetsList();
 		//populateDayCyclePresetsList();
 
 		// next/prev buttons
+		getChild<LLUICtrl>("PPnext")->setCommitCallback(boost::bind(wlfPanel_AdvSettings::onClickArrow, mPostProcessPresetCombo, true));
+		getChild<LLUICtrl>("PPprev")->setCommitCallback(boost::bind(wlfPanel_AdvSettings::onClickArrow, mPostProcessPresetCombo, false));
 		getChild<LLUICtrl>("WWnext")->setCommitCallback(boost::bind(wlfPanel_AdvSettings::onClickArrow, mWaterPresetCombo, true));
 		getChild<LLUICtrl>("WWprev")->setCommitCallback(boost::bind(wlfPanel_AdvSettings::onClickArrow, mWaterPresetCombo, false));
 		getChild<LLUICtrl>("WLnext")->setCommitCallback(boost::bind(wlfPanel_AdvSettings::onClickArrow, mSkyPresetCombo, true));
 		getChild<LLUICtrl>("WLprev")->setCommitCallback(boost::bind(wlfPanel_AdvSettings::onClickArrow, mSkyPresetCombo, false));
 
+		getChild<LLUICtrl>("PostProcessButton")->setCommitCallback(boost::bind(LLFloaterPostProcess::toggleInstance, LLSD()));
 		getChild<LLUICtrl>("EnvAdvancedSkyButton")->setCommitCallback(boost::bind(LLFloaterWindLight::show));
 		getChild<LLUICtrl>("EnvAdvancedWaterButton")->setCommitCallback(boost::bind(LLFloaterWater::show));
 

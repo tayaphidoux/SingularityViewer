@@ -675,10 +675,11 @@ void LLPostProcess::setSelectedEffect(std::string const & effectName)
 {
 	mSelectedEffectName = effectName;
 	mSelectedEffectInfo = mAllEffectInfo[effectName];
-	for(std::list<LLPointer<LLPostProcessShader> >::iterator it=mShaders.begin();it!=mShaders.end();++it)
+	for(auto shader : mShaders)
 	{
-		(*it)->loadSettings(mSelectedEffectInfo);
+		shader->loadSettings(mSelectedEffectInfo);
 	}
+	mSelectedEffectChanged(mSelectedEffectName);
 }
 
 void LLPostProcess::setSelectedEffectValue(std::string const & setting, LLSD value)
@@ -714,6 +715,7 @@ void LLPostProcess::resetSelectedEffect()
 void LLPostProcess::saveEffectAs(std::string const & effectName)
 {
 	mAllEffectInfo[effectName] = mSelectedEffectInfo;
+	mSelectedEffectChanged(mSelectedEffectName); // Might've changed, either way update the lists
 
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
 	//LL_INFOS() << "Saving PostProcess Effects settings to " << pathName << LL_ENDL;
