@@ -679,7 +679,7 @@ void hide_context_entries(LLMenuGL& menu,
 		// between two separators).
 		if (found)
 		{
-			const bool is_entry_separator = (dynamic_cast<LLMenuItemSeparatorGL *>(menu_item) != NULL);
+			const bool is_entry_separator = !branchp && (dynamic_cast<LLMenuItemSeparatorGL *>(menu_item) != NULL);
 			found = !(is_entry_separator && is_previous_entry_separator);
 			is_previous_entry_separator = is_entry_separator;
 		}
