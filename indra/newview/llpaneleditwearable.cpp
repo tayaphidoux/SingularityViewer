@@ -511,12 +511,8 @@ void for_each_picker_ctrl_entry(LLPanel* panel, LLWearableType::EType type, func
 		return;
 	}
 	const texture_vec_t& indexes = get_pickers_indexes<CtrlType>(wearable_entry);
-	for (texture_vec_t::const_iterator
-			iter = indexes.begin(),
-			iter_end = indexes.end();
-			iter != iter_end; ++iter)
+	for (const auto& te : indexes)
 	{
-		const ETextureIndex te = *iter;
 		const LLEditWearableDictionary::PickerControlEntry* entry = get_picker_entry<CtrlType>(te);
 		if (!entry)
 		{
@@ -695,9 +691,7 @@ BOOL LLPanelEditWearable::postBuild()
 
 	mTakeOff = getChild<LLUICtrl>("Take Off");
 	// If PG, can't take off underclothing or shirt
-	mCanTakeOff =
-		LLWearableType::getAssetType( mType ) == LLAssetType::AT_CLOTHING &&
-		!( gAgent.isTeen() && (mType == LLWearableType::WT_UNDERSHIRT || mType == LLWearableType::WT_UNDERPANTS) );
+	mCanTakeOff = !(gAgent.isTeen() && (mType == LLWearableType::WT_UNDERSHIRT || mType == LLWearableType::WT_UNDERPANTS) );
 	mTakeOff->setVisible(mCanTakeOff);
 	mTakeOff->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnTakeOff, this) );
 
@@ -707,7 +701,7 @@ BOOL LLPanelEditWearable::postBuild()
 	}
 
 	mSave = getChild<LLUICtrl>("Save");
-	mSave->setCommitCallback(boost::bind(&LLPanelEditWearable::saveChanges, this, false, std::string()) );
+	mSave->setCommitCallback(boost::bind(&LLPanelEditWearable::saveChanges, this, false, LLStringUtil::null) );
 
 	mSaveAs = getChild<LLUICtrl>("Save As");
 	mSaveAs->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnSaveAs, this) );
@@ -811,7 +805,7 @@ void LLPanelEditWearable::draw()
 	BOOL is_modifiable = FALSE;
 	BOOL is_copyable = FALSE;
 	BOOL is_complete = FALSE;
-	LLInventoryItem* item = NULL;
+	LLInventoryItem* item = nullptr;
 	if (wearable && (item = gInventory.getItem(wearable->getItemID())))
 	{
 		const LLPermissions& perm = item->getPermissions();
