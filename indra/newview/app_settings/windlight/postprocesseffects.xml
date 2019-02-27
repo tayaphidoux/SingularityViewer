@@ -6,6 +6,8 @@
 			<real>4.5799999237060547</real>
 			<key>bloom_width</key>
 			<real>12.539999961853027</real>
+			<key>gamma</key>
+			<real>1.0</real>
 			<key>brightness</key>
 			<real>0.89999997615814209</real>
 			<key>brightness_multiplier</key>
@@ -42,6 +44,8 @@
 			<real>1.5</real>
 			<key>bloom_width</key>
 			<real>2.25</real>
+			<key>gamma</key>
+			<real>1.0</real>
 			<key>brightness</key>
 			<real>1</real>
 			<key>brightness_multiplier</key>
