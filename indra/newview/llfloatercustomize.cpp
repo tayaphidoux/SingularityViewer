@@ -237,7 +237,11 @@ void LLFloaterCustomize::editWearable(LLViewerWearable* wearable, bool disable_c
 {
 	if(!wearable)
 		return;
-	LLFloaterCustomize::getInstance()->setCurrentWearableType(wearable->getType(), disable_camera_switch);
+	auto& inst = LLFloaterCustomize::instance();
+	inst.setCurrentWearableType(wearable->getType(), disable_camera_switch);
+	U32 index(0);
+	gAgentWearables.getWearableIndex(wearable, index);
+	static_cast<LLPanelEditWearable*>(inst.mTabContainer->getCurrentPanel())->setWearableIndex(index);
 }
 
 //static
