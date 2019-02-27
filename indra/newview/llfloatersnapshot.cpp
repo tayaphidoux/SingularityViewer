@@ -3187,16 +3187,9 @@ BOOL LLSnapshotFloaterView::handleKey(KEY key, MASK mask, BOOL called_from_paren
 		return LLFloaterView::handleKey(key, mask, called_from_parent);
 	}
 
-	if (called_from_parent)
-	{
-		// pass all keystrokes down
-		LLFloaterView::handleKey(key, mask, called_from_parent);
-	}
-	else
-	{
-		// bounce keystrokes back down
-		LLFloaterView::handleKey(key, mask, TRUE);
-	}
+	// pass all keystrokes down
+	// bounce keystrokes back down
+	LLFloaterView::handleKey(key, mask, TRUE);
 	return TRUE;
 }
 
