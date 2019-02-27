@@ -118,9 +118,9 @@ LLFloaterCustomize::LLFloaterCustomize()
 	gInventory.addObserver(mInventoryObserver);
 
 	LLOutfitObserver& outfit_observer =  LLOutfitObserver::instance();
-	outfit_observer.addBOFReplacedCallback(boost::bind(&LLFloaterCustomize::refreshCurrentOutfitName, this, ""));
-	outfit_observer.addBOFChangedCallback(boost::bind(&LLFloaterCustomize::refreshCurrentOutfitName, this, ""));
-	outfit_observer.addCOFChangedCallback(boost::bind(&LLFloaterCustomize::refreshCurrentOutfitName, this, ""));
+	outfit_observer.addBOFReplacedCallback(boost::bind(&LLFloaterCustomize::refreshCurrentOutfitName, this, LLStringUtil::null));
+	outfit_observer.addBOFChangedCallback(boost::bind(&LLFloaterCustomize::refreshCurrentOutfitName, this, LLStringUtil::null));
+	outfit_observer.addCOFChangedCallback(boost::bind(&LLFloaterCustomize::refreshCurrentOutfitName, this, LLStringUtil::null));
 
 	LLCallbackMap::map_t factory_map;
 	const std::string &invalid_name = LLWearableType::getTypeName(LLWearableType::WT_INVALID);
@@ -672,7 +672,8 @@ const S32 HEADER_HEIGHT = 3 * (LINE_HEIGHT + LLFLOATER_VPAD) + (2 * LLPANEL_BORD
 void LLFloaterCustomize::wearablesChanged(LLWearableType::EType type)
 {
 	llassert( type < LLWearableType::WT_COUNT );
-	gSavedSettings.setU32("AvatarSex", (gAgentAvatarp->getSex() == SEX_MALE) );
+	if (type == LLWearableType::WT_SHAPE)
+		gSavedSettings.setU32("AvatarSex", (gAgentAvatarp->getSex() == SEX_MALE));
 	
 	LLPanelEditWearable* panel = mWearablePanelList[ type ];
 	if( panel )
