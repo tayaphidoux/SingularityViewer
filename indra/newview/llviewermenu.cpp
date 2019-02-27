@@ -41,6 +41,7 @@
 #include "llnotificationsutil.h"
 #include "llfeaturemanager.h"
 #include "llsecondlifeurls.h"
+#include "llurlaction.h"
 // <edit>
 #include "llfloaterblacklist.h"
 // </edit>
@@ -8872,6 +8873,15 @@ class SinguVisibleDebugConsole : public view_listener_t
 	}
 };
 
+class SinguUrlAction : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLUrlAction::clickAction(userdata.asStringRef(), true);
+		return true;
+	}
+};
+
 class VisibleSecondLife : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9556,6 +9566,7 @@ void initialize_menus()
 	addMenu(new SinguCheckPoseStand(), "CheckPoseStand");
 	addMenu(new SinguRebake(), "Rebake");
 	addMenu(new SinguVisibleDebugConsole(), "VisibleRegionDebugConsole");
+	addMenu(new SinguUrlAction(), "URLAction");
 	addMenu(new LLSyncAnimations(), "Tools.ResyncAnimations");
 
 // [RLVa:KB] - Checked: 2010-01-18 (RLVa-1.1.0m) | Added: RLVa-1.1.0m | OK
