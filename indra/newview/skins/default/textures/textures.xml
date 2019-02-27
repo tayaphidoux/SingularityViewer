@@ -39,6 +39,13 @@ with the same filename but different name
   <texture name="Accordion_Over" file_name="Accordion_Over.png" preload="false" />
   <texture name="Accordion_Selected" file_name="Accordion_Selected.png" preload="false" />
 
+  <texture name="Cam_Preset_Back_Off" file_name="Cam_Preset_Back_Off.png" preload="false" />
+  <texture name="Cam_Preset_Back_On" file_name="Cam_Preset_Back_On.png" preload="false" />
+  <texture name="Cam_Preset_Front_Off" file_name="Cam_Preset_Front_Off.png" preload="false" />
+  <texture name="Cam_Preset_Front_On" file_name="Cam_Preset_Front_On.png" preload="false" />
+  <texture name="Cam_Preset_Side_Off" file_name="Cam_Preset_Side_Off.png" preload="false" />
+  <texture name="Cam_Preset_Side_On" file_name="Cam_Preset_Side_On.png" preload="false" />
+
   <texture name="icon_group.tga"/>
 
   <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
