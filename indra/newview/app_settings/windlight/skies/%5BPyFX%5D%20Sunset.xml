@@ -23,16 +23,16 @@
         </array>
     <key>cloud_color</key>
         <array>
-            <real>0.09999998658895492553710938</real>
-            <real>0.09999998658895492553710938</real>
-            <real>0.09999998658895492553710938</real>
-            <real>0.0999999940395355224609375</real>
+            <real>0</real>
+            <real>0.02999999932944774627685547</real>
+            <real>0.05999999865889549255371094</real>
+            <real>0.05999999865889549255371094</real>
         </array>
     <key>cloud_pos_density1</key>
         <array>
             <real>1</real>
             <real>1</real>
-            <real>0.1499999910593032836914063</real>
+            <real>0.1199999973177909851074219</real>
             <real>1</real>
         </array>
     <key>cloud_pos_density2</key>
@@ -44,7 +44,7 @@
         </array>
     <key>cloud_scale</key>
         <array>
-            <real>0.0999999940395355224609375</real>
+            <real>0.07000000029802322387695313</real>
             <real>0</real>
             <real>0</real>
             <real>1</real>
