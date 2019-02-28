@@ -2,10 +2,10 @@
     <map>
     <key>ambient</key>
         <array>
-            <real>3</real>
-            <real>3</real>
-            <real>3</real>
-            <real>1</real>
+            <real>1.5</real>
+            <real>1.5</real>
+            <real>1.5</real>
+            <real>0.5</real>
         </array>
     <key>blue_density</key>
         <array>
@@ -63,14 +63,14 @@
         </array>
     <key>density_multiplier</key>
         <array>
-            <real>4.999999873689375817775726e-05</real>
+            <real>0.0008999999845400452613830566</real>
             <real>0</real>
             <real>0</real>
             <real>1</real>
         </array>
     <key>distance_multiplier</key>
         <array>
-            <real>50</real>
+            <real>1</real>
             <real>0</real>
             <real>0</real>
             <real>1</real>
