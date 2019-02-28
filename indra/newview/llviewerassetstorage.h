@@ -32,6 +32,8 @@
 
 class LLVFile;
 
+class LLViewerAssetRequest;
+
 class LLViewerAssetStorage : public LLAssetStorage
 {
 public:
@@ -73,7 +75,6 @@ protected:
 						   BOOL duplicate,
 						   BOOL is_priority);
 
-
     void queueRequestUDP(const LLUUID& uuid,
                           LLAssetType::EType type,
                           void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
@@ -81,6 +82,17 @@ protected:
                           BOOL duplicate,
                           BOOL is_priority);
 
+    void capsRecvForRegion(const LLUUID& uuid, LLAssetType::EType atype, const LLUUID& region_id);
+    
+    void assetRequestCoro(LLViewerAssetRequest *req,
+                          const LLUUID uuid,
+                          LLAssetType::EType atype,
+                          void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+                          void *user_data);
+
+    std::string getAssetURL(const std::string& cap_url, const LLUUID& uuid, LLAssetType::EType atype);
+    
+    std::string mViewerAssetUrl;
 };
 
 #endif
