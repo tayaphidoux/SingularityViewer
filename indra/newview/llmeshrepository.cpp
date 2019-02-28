@@ -2584,7 +2584,8 @@ void LLMeshRepository::notifyLoadedMeshes()
 		if (gAgent.getRegion()->getName() != region_name && gAgent.getRegion()->capabilitiesReceived())
 		{
 			region_name = gAgent.getRegion()->getName();
-			mGetMeshCapability = gAgent.getRegion()->getCapability("GetMesh2");
+			const std::string mesh_cap(gAgent.getRegion()->getViewerAssetUrl());
+			mGetMeshCapability = !mesh_cap.empty() ? mesh_cap : gAgent.getRegion()->getCapability("GetMesh2");
 			if (mGetMeshCapability.empty())
 			{
 				mGetMeshCapability = gAgent.getRegion()->getCapability("GetMesh");
