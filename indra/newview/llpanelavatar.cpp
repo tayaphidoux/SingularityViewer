@@ -70,9 +70,8 @@
 #include <iosfwd>
 #include <boost/date_time.hpp>
 
-//Include Gridmanager for Profile
-#include "hippogridmanager.h"
-#include "hippopanelgrids.h"
+
+#include "hippogridmanager.h" // Include Gridmanager for OpenSim Support in profiles, provides ability for the helpbutton to redirect to GRID Websites Help page
 
 // [RLVa:KB]
 #include "rlvhandler.h"
