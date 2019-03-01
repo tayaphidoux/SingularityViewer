@@ -49,6 +49,7 @@ HippoGridInfo::HippoGridInfo(const std::string& gridName) :
 	mSupportUrl(LLStringUtil::null),
 	mRegisterUrl(LLStringUtil::null),
 	mPasswordUrl(LLStringUtil::null),
+	mPartnerUrl(LLStringUtil::null),
 	mSearchUrl(LLStringUtil::null),
 	mGridMessage(""),
 	mXmlState(XML_VOID),
@@ -220,6 +221,11 @@ void HippoGridInfo::setPasswordUrl(const std::string& url)
 	mPasswordUrl = url;
 }
 
+void HippoGridInfo::setPartnerUrl(const std::string& url)
+{
+	mPartnerUrl = url;
+}
+
 void HippoGridInfo::setSearchUrl(const std::string& url)
 {
 	mSearchUrl = url;
@@ -279,6 +285,8 @@ void HippoGridInfo::onXmlElementStart(void* userData, const XML_Char* name, cons
 		self->mXmlState = XML_REGISTER;
 	else if (strcasecmp(name, "password") == 0)
 		self->mXmlState = XML_PASSWORD;
+	else if (strcasecmp(name, "partner") == 0)
+		self->mXmlState = XML_PARTNER;
 	else if (strcasecmp(name, "search") == 0)
 		self->mXmlState = XML_SEARCH;
 	else if (strcasecmp(name, "message") == 0)
@@ -348,6 +356,7 @@ void HippoGridInfo::onXmlCharacterData(void* userData, const XML_Char* s, int le
 		case XML_SUPPORT: self->mSupportUrl.assign(s, len); break;
 		case XML_REGISTER: self->mRegisterUrl.assign(s, len); break;
 		case XML_PASSWORD: self->mPasswordUrl.assign(s, len); break;
+		case XML_PARTNER: self->mPartnerUrl.assign(s, len); break;
 		case XML_MESSAGE: self->mGridMessage.assign(s, len); break;
 
 		case XML_VOID: break;
@@ -894,6 +903,7 @@ void HippoGridManager::parseData(LLSD &gridInfo, bool mergeIfNewer)
 			if (gridMap.has("support")) grid->setSupportUrl(gridMap["support"]);
 			if (gridMap.has("register")) grid->setRegisterUrl(gridMap["register"]);
 			if (gridMap.has("password")) grid->setPasswordUrl(gridMap["password"]);
+			if (gridMap.has("partner")) grid->setPartnerUrl(gridMap["partner"]);
 			if (gridMap.has("search")) grid->setSearchUrl(gridMap["search"]);
 			if (gridMap.has("render_compat")) grid->setRenderCompat(gridMap["render_compat"]);
 			if (gridMap.has("auto_update")) grid->mAutoUpdate = gridMap["auto_update"];
@@ -929,6 +939,7 @@ void HippoGridManager::saveFile()
 		gridInfo[i]["support"] = grid->getSupportUrl();
 		gridInfo[i]["register"] = grid->getRegisterUrl();
 		gridInfo[i]["password"] = grid->getPasswordUrl();
+		gridInfo[i]["partner"] = grid->getPartnerUrl();
 		
 		gridInfo[i]["search"] = grid->getSearchUrl();
 		gridInfo[i]["render_compat"] = grid->isRenderCompat();

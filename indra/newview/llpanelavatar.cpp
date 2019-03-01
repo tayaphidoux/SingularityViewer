@@ -70,6 +70,10 @@
 #include <iosfwd>
 #include <boost/date_time.hpp>
 
+//Include Gridmanager for Profile
+#include "hippogridmanager.h"
+#include "hippopanelgrids.h"
+
 // [RLVa:KB]
 #include "rlvhandler.h"
 // [/RLVa:KB]
@@ -299,11 +303,15 @@ void LLPanelAvatarSecondLife::onDoubleClickGroup()
 		LLGroupActions::show(item->getUUID());
 }
 
-// static 
+// static - Not anymore :P
 bool LLPanelAvatarSecondLife::onClickPartnerHelpLoadURL(const LLSD& notification, const LLSD& response)
 {
 	if (!LLNotification::getSelectedOption(notification, response))
-		LLWeb::loadURL("http://secondlife.com/partner");
+	{
+		const auto& grid = *gHippoGridManager->getConnectedGrid();
+		const std::string url = grid.isSecondLife() ? "http://secondlife.com/partner" : grid.getPartnerUrl();
+		if (!url.empty()) LLWeb::loadURL(url);
+	}
 	return false;
 }
 
