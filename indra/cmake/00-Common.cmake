@@ -84,6 +84,7 @@ if (WINDOWS)
       /DNOMINMAX
       /DUNICODE
       /D_UNICODE
+      /DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
       /GS
       /TP
       /W3
