@@ -149,6 +149,11 @@ with the same filename but different name
   <!-- Images that have since been renamed to something else in v3 and need updating. Alphabetical. -->
   <texture name="Flag.png" file_name="Flag.png" preload="false" />
   <texture name="Inv_Post_Process.png" preload="true"/>
+  <texture name="Inv_Settings" file_name="Inv_Settings.png" preload="false" />
+  <texture name="Inv_SettingsSky" file_name="Inv_SettingsSky.png" preload="false" />
+  <texture name="Inv_SettingsWater" file_name="Inv_SettingsWater.png" preload="false" />
+  <texture name="Inv_SettingsDay" file_name="Inv_SettingsDay.png" preload="false" />
+  <texture name="Inv_Unknown" file_name="Inv_UnknownObject.png" preload="false" />
   <texture name="Inv_WaterLight.png" preload="true"/>
   <texture name="Inv_WindLight.png" preload="true"/>
   <texture name="Parcel_Exp_Color.png" file_name="Parcel_Exp_Color.png" preload="false" />
