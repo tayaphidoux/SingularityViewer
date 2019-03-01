@@ -42,6 +42,7 @@
 #include "llinventoryfunctions.h"
 #include "lllocaltextureobject.h"
 #include "llpaneleditwearable.h"
+#include "aixmllindengenepool.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -135,8 +136,8 @@ LLWearable::EImportResult LLViewerWearable::importStream( std::istream& input_st
 
 	return result;
 }
-#if 0
-AIArchetype LLViewerWearable::getArchetype(void) const
+
+AIArchetype LLViewerWearable::getArchetype() const
 {
 	AIArchetype archetype(this);
 	for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin(); iter != mVisualParamIndexMap.end(); ++iter)
@@ -149,7 +150,7 @@ AIArchetype LLViewerWearable::getArchetype(void) const
 	}
 	return archetype;
 }
-#endif 
+
 // Avatar parameter and texture definitions can change over time.
 // This function returns true if parameters or textures have been added or removed
 // since this wearable was created.

@@ -503,7 +503,6 @@ void LLFloaterCustomize::onBtnExport()
 //static
 void LLFloaterCustomize::onBtnExport_continued(LLViewerWearable* edit_wearable, AIFilePicker* filepicker)
 {
-#if 0
 	if (!filepicker->hasFilename())
 	{
 		// User canceled export.
@@ -529,7 +528,6 @@ void LLFloaterCustomize::onBtnExport_continued(LLViewerWearable* edit_wearable, 
 	{
 		AIAlert::add_modal("AIXMLExportSuccess", AIArgs("[FILE]", filename));
 	}
-#endif
 }
 
 void LLFloaterCustomize::onBtnOk()
