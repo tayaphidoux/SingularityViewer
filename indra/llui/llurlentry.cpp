@@ -69,14 +69,13 @@ std::string LLUrlEntryBase::getIcon(const std::string &url)
 	return mIcon;
 }
 
-/*LLStyle::Params LLUrlEntryBase::getStyle() const
+LLStyleSP LLUrlEntryBase::getStyle() const
 {
-	LLStyle::Params style_params;
-	style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-	style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-	style_params.font.style = "UNDERLINE";
+	static LLUICachedControl<LLColor4> color("HTMLLinkColor");
+	LLStyleSP style_params(new LLStyle(true, color, LLStringUtil::null));
+	//style_params->mUnderline = true; // Singu Note: We're not gonna bother here, underlining on hover
 	return style_params;
-}*/
+}
 
 
 std::string LLUrlEntryBase::getIDStringFromUrl(const std::string &url) const
@@ -677,13 +676,12 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 }
 
-/*LLStyle::Params LLUrlEntryAgent::getStyle() const
+LLStyleSP LLUrlEntryAgent::getStyle() const
 {
-	LLStyle::Params style_params = LLUrlEntryBase::getStyle();
-	style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-	style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	static LLUICachedControl<LLColor4> color("HTMLAgentColor");
+	LLStyleSP style_params(new LLStyle(true, color, LLStringUtil::null));
 	return style_params;
-}*/
+}
 
 std::string localize_slapp_label(const std::string& url, const std::string& full_name)
 {
@@ -733,7 +731,9 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 // x-grid-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
 //
 LLUrlEntryAgentName::LLUrlEntryAgentName()
-{}
+{
+	mMenuName = "menu_url_agent.xml";
+}
 
 void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
@@ -788,11 +788,12 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 	}
 }
 
-/*LLStyle::Params LLUrlEntryAgentName::getStyle() const
+LLStyleSP LLUrlEntryAgentName::getStyle() const
 {
-	// don't override default colors
-	return LLStyle::Params().is_link(false);
-}*/
+	static LLUICachedControl<LLColor4> color("HTMLAgentColor");
+	LLStyleSP style_params(new LLStyle(true, color, LLStringUtil::null));
+	return style_params;
+}
 
 //
 // LLUrlEntryAgentCompleteName describes a Second Life agent complete name Url, e.g.,
@@ -924,13 +925,12 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 }
 
-/*LLStyle::Params LLUrlEntryGroup::getStyle() const
+LLStyleSP LLUrlEntryGroup::getStyle() const
 {
-	LLStyle::Params style_params = LLUrlEntryBase::getStyle();
-	style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-	style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	LLStyleSP style_params = LLUrlEntryBase::getStyle();
+	//style_params->mUnderline = false; // Singu Note: We're not gonna bother here, underlining on hover
 	return style_params;
-}*/
+}
 
 
 //
@@ -1392,11 +1392,12 @@ std::string LLUrlEntryNoLink::getLabel(const std::string &url, const LLUrlLabelC
 	return getUrl(url);
 }
 
-/*LLStyle::Params LLUrlEntryNoLink::getStyle() const 
+LLStyleSP LLUrlEntryNoLink::getStyle() const
 { 
 	// Don't render as URL (i.e. no context menu or hand cursor).
-	return LLStyle::Params().is_link(false);
-}*/
+	// Singu Note: What the heck? No, that's misleading!!
+	return LLUrlEntryBase::getStyle();
+}
 
 
 //

@@ -3617,25 +3617,25 @@ void LLInventoryModel::saveItemsOrder(const LLInventoryModel::item_array_t& item
 }
 */
 // See also LLInventorySort where landmarks in the Favorites folder are sorted.
-/*class LLViewerInventoryItemSort
+class LLViewerInventoryItemSort
 {
 public:
-	bool operator()(const LLPointer<LLViewerInventoryItem>& a, const LLPointer<LLViewerInventoryItem>& b)
+	bool operator()(const LLPointer<LLViewerInventoryItem>& a, const LLPointer<LLViewerInventoryItem>& b) const
 	{
 		return a->getSortField() < b->getSortField();
 	}
-};*/
+};
 
 /**
  * Sorts passed items by LLViewerInventoryItem sort field.
  *
  * @param[in, out] items - array of items, not sorted.
  */
-/*static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
-{
-	static LLViewerInventoryItemSort sort_functor;
-	std::sort(items.begin(), items.end(), sort_functor);
-}*/
+//static void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
+//{
+//	static LLViewerInventoryItemSort sort_functor;
+//	std::sort(items.begin(), items.end(), sort_functor);
+//}
 
 // * @param source_item_id - LLUUID of the source item to be moved into new position
 // * @param target_item_id - LLUUID of the target item before which source item should be placed.

@@ -406,12 +406,13 @@ class ContextText : public LLMemberListener<LLView>
 	}
 };
 
+static const std::string& get_focused_url()
+{
+	return get_focused_text_editor()->getMenuSegmentUrl();
+}
+
 class ContextUrl : public LLMemberListener<LLView>
 {
-	static const std::string& get_focused_url()
-	{
-		return get_focused_text_editor()->getMenuSegmentUrl();
-	}
 	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
 	{
 		const auto& url = get_focused_url();
@@ -430,6 +431,20 @@ class ContextUrl : public LLMemberListener<LLView>
 		else if (op == "ShowOnMap") LLUrlAction::showLocationOnMap(url);
 		else if (op == "CopyLabel") LLUrlAction::copyLabelToClipboard(url);
 		else if (op == "CopyUrl") LLUrlAction::copyURLToClipboard(url);
+		return true;
+	}
+};
+
+class ContextUrlCopy : public LLMemberListener<LLView>
+{
+
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
+	{
+		const auto& url = get_focused_url();
+		const auto& type = userdata.asStringRef();
+		// Empty works like avatar and group, "object" is an object (you needed to be told this)
+		const auto& id = type.empty() ? LLUrlAction::getUserID(url) : LLUrlAction::getObjectId(url);
+		LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(id));
 		return true;
 	}
 };
@@ -516,6 +531,7 @@ void LLTextEditor::addMenuListeners()
 {
 	(new ContextText)->registerListener(LLMenuGL::sMenuContainer, "Text");
 	(new ContextUrl)->registerListener(LLMenuGL::sMenuContainer, "Text.Url");
+	(new ContextUrlCopy)->registerListener(LLMenuGL::sMenuContainer, "Text.Url.CopyUUID");
 }
 
 void LLTextEditor::setTrackColor( const LLColor4& color )
@@ -4246,7 +4262,7 @@ void LLTextEditor::appendColoredText(const std::string &new_text,
 static LLTrace::BlockTimerStatHandle FTM_APPEND_TEXT("Append Text");
 
 void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool prepend_newline,
-							  const LLStyleSP style)
+							  const LLStyleSP style, bool force_replace_links)
 {
 	LL_RECORD_BLOCK_TIME(FTM_APPEND_TEXT);
 	if (new_text.empty())
@@ -4264,11 +4280,12 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 static LLTrace::BlockTimerStatHandle FTM_PARSE_HTML("Parse HTML");
 
 // Appends new text to end of document
-void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP style)
+void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP style, bool force_replace_links)
 {
 	std::string text = new_text;
-	static LLUICachedControl<bool> replace_links("SinguReplaceLinks");
-	bool is_link = style && !style->getLinkHREF().empty(); // Don't search for URLs inside a link segment (STORM-358).
+	static const LLUICachedControl<bool> replace_links("SinguReplaceLinks");
+	force_replace_links = force_replace_links || replace_links;
+	bool is_link = style && style->isLink(); // Don't search for URLs inside a link segment (STORM-358).
 
 	S32 part = (S32)LLTextParser::WHOLE;
 	if (mReadOnly && mParseHTML && !is_link) // Singu Note: Do not replace html if the user is going to edit it. (Like in profiles)
@@ -4276,20 +4293,25 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 		LL_RECORD_BLOCK_TIME(FTM_PARSE_HTML);
 		S32 start=0,end=0;
 		LLUrlMatch match;
-		const auto& link_color = mLinkColor ? *mLinkColor : LLUI::sConfigGroup->getColor4("HTMLLinkColor");
 		auto append_substr = [&](const size_t& pos, const size_t& count)
 		{
 			appendAndHighlightText(text.substr(pos, count), part, style);
 		};
-		auto append_link = [&](const std::string& link)
+		auto append_link = [&](const std::string& link, LLStyleSP link_style)
 		{
-			LLStyleSP link_style(style ? new LLStyle(*style) : new LLStyle);
-			link_style->setColor(link_color);
-			link_style->setLinkHREF(match.getUrl());
+			if (style) // Respect styling
+			{
+				const auto& text_style = *style;
+				link_style->mItalic = text_style.mItalic;
+				link_style->mBold = text_style.mBold;
+				link_style->mUnderline = text_style.mUnderline;
+			}
+			// Hack around colors looking bad on some backgrounds by allowing setting link color for this editor
+			if (mLinkColor) link_style->setColor(*mLinkColor);
 			appendAndHighlightText(link, part, link_style, true/*match.underlineOnHoverOnly()*/);
 		};
-		while (!text.empty() && LLUrlRegistry::instance().findUrl(text, match,
-				boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3)))
+		const auto&& cb = force_replace_links ? boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3) : LLUrlLabelCallback::slot_function_type();
+		while (!text.empty() && LLUrlRegistry::instance().findUrl(text, match, cb))
 		{
 			start = match.getStart();
 			end = match.getEnd()+1;
@@ -4311,7 +4333,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 
 			auto url = match.getUrl();
 			const auto& label = match.getLabel();
-			if (replace_links || url == label)
+			if (force_replace_links || replace_links || url == label)
 			{
 				// add icon before url if need
 				/* Singu TODO: Icons next to links?
@@ -4323,7 +4345,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 				}*/
 
 				// output the styled url
-				append_link(label + match.getQuery());
+				append_link(label + match.getQuery(), match.getStyle());
 				bool tooltip_required = !match.getTooltip().empty();
 
 				// set the tooltip for the Url label
@@ -4350,7 +4372,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 					}
 				}*/
 			}
-			else if (!replace_links) // Still link the link itself
+			else // Still link the link itself
 			{
 				const auto pos = text.find(url);
 				bool fallback(pos == std::string::npos); // In special cases like no protocol and brackets
@@ -4359,7 +4381,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 					append_substr(start, brackets ? 1 : pos-start);
 				// In the special cases, only link exactly the url, this might not have a protocol so calculate the exact string
 				if (fallback) url = brackets ? text.substr(start+1, text.find(' ', start+2)-start) : text.substr(start, end-start);
-				append_link(url); // Append the link
+				append_link(url, match.getStyle()); // Append the link
 				const auto url_end = pos + url.size();
 				if (fallback == brackets && end > url_end) // Ending text, only in special case if brackets present
 					append_substr(url_end, end-url_end);
@@ -4433,9 +4455,6 @@ void LLTextEditor::replaceUrl(const std::string &url,
 							const std::string &label,
 							const std::string &icon)
 {
-	static LLUICachedControl<bool> replace_links("SinguReplaceLinks");
-	if (!replace_links) return;
-
 	// get the full (wide) text for the editor so we can change it
 	LLWString text = getWText();
 	LLWString wlabel = utf8str_to_wstring(label);

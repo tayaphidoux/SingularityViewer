@@ -412,6 +412,9 @@ scratch and wear it.
       <button bottom="-250" follows="left|top" font="SansSerif" halign="center"
 			     height="20" label="Take Off" label_selected="Take Off" left="8"
 			     mouse_opaque="true" name="Take Off" scale_image="true" width="82" />
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save" label_selected="Save" left="123"
 			     mouse_opaque="true" name="Save" scale_image="true" width="82" />
@@ -494,6 +497,9 @@ scratch and wear it.
       <button bottom="-250" follows="left|top" font="SansSerif" halign="center"
 			     height="20" label="Take Off" label_selected="Take Off" left="8"
 			     mouse_opaque="true" name="Take Off" scale_image="true" width="82" />
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save" label_selected="Save" left="123"
 			     mouse_opaque="true" name="Save" scale_image="true" width="82" />
@@ -627,6 +633,9 @@ scratch and wear it.
       <button bottom="-250" follows="left|top" font="SansSerif" halign="center"
 			     height="20" label="Take Off" label_selected="Take Off" left="8"
 			     mouse_opaque="true" name="Take Off" scale_image="true" width="82" />
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save" label_selected="Save" left="123"
 			     mouse_opaque="true" name="Save" scale_image="true" width="82" />
@@ -709,6 +718,9 @@ scratch and wear it.
       <button bottom="-250" follows="left|top" font="SansSerif" halign="center"
 			     height="20" label="Take Off" label_selected="Take Off" left="8"
 			     mouse_opaque="true" name="Take Off" scale_image="true" width="82" />
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save" label_selected="Save" left="123"
 			     mouse_opaque="true" name="Save" scale_image="true" width="82" />
@@ -795,6 +807,9 @@ scratch and wear it.
       <button bottom="-330" follows="left|top" font="SansSerif" halign="center"
 			     height="20" label="Take Off" label_selected="Take Off" left="8"
 			     mouse_opaque="true" name="Take Off" scale_image="true" width="82" />
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save" label_selected="Save" left="123"
 			     mouse_opaque="true" name="Save" scale_image="true" width="82" />
@@ -877,6 +892,9 @@ scratch and wear it.
       <button bottom="-250" follows="left|top" font="SansSerif" halign="center"
 			     height="20" label="Take Off" label_selected="Take Off" left="8"
 			     mouse_opaque="true" name="Take Off" scale_image="true" width="82" />
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save" label_selected="Save" left="123"
 			     mouse_opaque="true" name="Save" scale_image="true" width="82" />
@@ -961,6 +979,9 @@ one from scratch and wear it.
       <button bottom="-250" follows="left|top" font="SansSerif" halign="center"
 			     height="20" label="Take Off" label_selected="Take Off" left="8"
 			     mouse_opaque="true" name="Take Off" scale_image="true" width="82" />
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save" label_selected="Save" left="123"
 			     mouse_opaque="true" name="Save" scale_image="true" width="82" />
@@ -1045,6 +1066,9 @@ one from scratch and wear it.
       <button bottom="-250" follows="left|top" font="SansSerif" halign="center"
 			     height="20" label="Take Off" label_selected="Take Off" left="8"
 			     mouse_opaque="true" name="Take Off" scale_image="true" width="82" />
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save" label_selected="Save" left="123"
 			     mouse_opaque="true" name="Save" scale_image="true" width="82" />
@@ -1127,6 +1151,9 @@ scratch and wear it.
       <button bottom="-250" follows="left|top" font="SansSerif" halign="center"
 			     height="20" label="Take Off" label_selected="Take Off" left="8"
 			     mouse_opaque="true" name="Take Off" scale_image="true" width="82" />
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save" label_selected="Save" left="123"
 			     mouse_opaque="true" name="Save" scale_image="true" width="82" />
@@ -1213,6 +1240,9 @@ scratch and wear it.
 			     mouse_opaque="true" scale_image="true"/>
             <button name="Take Off" label="Take Off" label_selected="Take Off"
              follows="left|top" width="82" height="20" left="8" bottom="-440"/>
+            <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+            <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+            <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
             <button name="Save" label="Save" label_selected="Save"
              follows="right|bottom" width="82" height="20" left="123" bottom="-478"/>
             <button name="Save As" label="Save As..." label_selected="Save As..."
@@ -1288,11 +1318,11 @@ one from scratch and wear it.
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
              follows="left|top" width="64" height="80" left_delta="90" bottom="-165"/>
             <check_box name="head alpha texture invisible"
-             follows="left" width="16" height="16" left="142" bottom="-90"/>
+             follows="left|top" width="16" height="16" left="142" bottom="-90"/>
             <check_box name="upper alpha texture invisible"
-             follows="left" width="16" height="16" left_delta="90" bottom="-90"/>
+             follows="left|top" width="16" height="16" left_delta="90" bottom="-90"/>
             <check_box name="lower alpha texture invisible"
-             follows="left" width="16" height="16" left_delta="90" bottom="-90"/>
+             follows="left|top" width="16" height="16" left_delta="90" bottom="-90"/>
             <texture_picker name="Hair Alpha" label="Hair Alpha" tool_tip="Click to choose a picture"
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
              follows="left|top" width="64" height="80" left="120" bottom="-280"/>
@@ -1300,14 +1330,17 @@ one from scratch and wear it.
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
              follows="left|top" width="64" height="80" left_delta="90" bottom="-280"/>
             <check_box name="hair alpha texture invisible"
-             follows="left" width="16" height="16" left="142" bottom="-205"/>
+             follows="left|top" width="16" height="16" left="142" bottom="-205"/>
             <check_box name="eye alpha texture invisible"
-             follows="left" width="16" height="16" left_delta="90" bottom="-205"/>
+             follows="left|top" width="16" height="16" left_delta="90" bottom="-205"/>
 			<button name="Create New" label="Create New Alpha" label_selected="Create New Alpha"
                  follows="left|top" halign="center" width="170" height="24" left="160" bottom="-148"
 			     mouse_opaque="true" scale_image="true"/>
             <button name="Take Off" label="Take Off" label_selected="Take Off"
-             follows="left|top" width="82" height="20" left="123" bottom="-340"/>
+             follows="left|top" width="82" height="20" left="117" bottom="-320"/>
+            <button bottom_delta="0" left_delta="86" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+            <button bottom_delta="0" left_delta="86" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+            <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
             <button name="Save" label="Save" label_selected="Save"
              follows="right|bottom" width="82" height="20" left="123" bottom="-478"/>
             <button name="Save As" label="Save As..." label_selected="Save As..."
@@ -1345,7 +1378,10 @@ one from scratch and wear it.
 			     mouse_opaque="true" name="Advanced Parameters" scale_image="true" width="82" />
       <button name="Take Off" label="Take Off" label_selected="Take Off"
            follows="left|top" width="82" height="20" left="8" bottom="-375"/>
-      
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
+
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-24" drop_shadow_visible="true" follows="left|top|right"
 			     font="SansSerif" h_pad="0" halign="left" height="16" left="26"

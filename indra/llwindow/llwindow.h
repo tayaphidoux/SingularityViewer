@@ -66,7 +66,7 @@ public:
 	};
 public:
 	virtual void postInitialized() {}
-	virtual void show() = 0;
+	virtual void show(bool focus = true) = 0;
 	virtual void hide() = 0;
 	virtual void close() = 0;
 	virtual BOOL getVisible() = 0;

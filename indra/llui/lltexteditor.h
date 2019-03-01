@@ -181,8 +181,8 @@ public:
 	void			insertText(const std::string &text, BOOL deleteSelection = TRUE);
 	// appends text at end
 	void 			appendText(const std::string &wtext, bool allow_undo, bool prepend_newline,
-							   const LLStyleSP stylep = NULL);
-	void			appendTextImpl(const std::string& new_text, const LLStyleSP style);
+							   const LLStyleSP stylep = NULL, bool force_replace_links = true);
+	void			appendTextImpl(const std::string& new_text, const LLStyleSP style, bool force_replace_links = true);
 
 	void			setLastSegmentToolTip(const std::string& tooltip);
 
@@ -295,6 +295,7 @@ public:
 	llwchar			getWChar(S32 pos) const { return mWText[pos]; }
 	LLWString		getWSubString(S32 pos, S32 len) const { return mWText.substr(pos, len); }
 	
+	const LLTextSegment*	getLastSegment() const { return mSegments.empty() ? nullptr : mSegments.back(); }
 	const LLTextSegment*	getCurrentSegment() const { return getSegmentAtOffset(mCursorPos); }
 	const LLTextSegment*	getPreviousSegment() const;
 	void getSelectedSegments(std::vector<LLTextSegmentPtr>& segments) const;

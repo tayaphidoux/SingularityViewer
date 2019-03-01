@@ -511,12 +511,8 @@ void for_each_picker_ctrl_entry(LLPanel* panel, LLWearableType::EType type, func
 		return;
 	}
 	const texture_vec_t& indexes = get_pickers_indexes<CtrlType>(wearable_entry);
-	for (texture_vec_t::const_iterator
-			iter = indexes.begin(),
-			iter_end = indexes.end();
-			iter != iter_end; ++iter)
+	for (const auto& te : indexes)
 	{
-		const ETextureIndex te = *iter;
 		const LLEditWearableDictionary::PickerControlEntry* entry = get_picker_entry<CtrlType>(te);
 		if (!entry)
 		{
@@ -684,6 +680,16 @@ LLPanelEditWearable::~LLPanelEditWearable()
 	}
 }
 
+static std::string getTabName(U32 i) { return llformat("%i", i); }
+void LLPanelEditWearable::addLayerTabs(U32 index, U32 last)
+{
+	for(U32 i = index; i <= last; ++i)
+	{
+		const auto number = getTabName(i);
+		mTab->addTabPanel(new LLPanel(number), "Layer " + number);
+	}
+}
+
 BOOL LLPanelEditWearable::postBuild()
 {
 	std::string icon_name = LLInventoryIcon::getIconName(LLWearableType::getAssetType( mType ),LLInventoryType::IT_WEARABLE,mType,FALSE);
@@ -691,15 +697,22 @@ BOOL LLPanelEditWearable::postBuild()
 	getChildView("icon")->setValue(icon_name);
 
 	mCreateNew = getChild<LLUICtrl>("Create New");
-	mCreateNew->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnCreateNew, this) );
+	mCreateNew->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnCreateNew, this));
+
+	mCreateNewLayer = getChild<LLUICtrl>("New Layer");
+	mCreateNewLayer->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnCreateNew, this));
 
 	mTakeOff = getChild<LLUICtrl>("Take Off");
 	// If PG, can't take off underclothing or shirt
-	mCanTakeOff =
-		LLWearableType::getAssetType( mType ) == LLAssetType::AT_CLOTHING &&
-		!( gAgent.isTeen() && (mType == LLWearableType::WT_UNDERSHIRT || mType == LLWearableType::WT_UNDERPANTS) );
+	mCanTakeOff = !(gAgent.isTeen() && (mType == LLWearableType::WT_UNDERSHIRT || mType == LLWearableType::WT_UNDERPANTS) );
 	mTakeOff->setVisible(mCanTakeOff);
-	mTakeOff->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnTakeOff, this) );
+	mTakeOff->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnTakeOff, this));
+
+	mArrowLeft = getChild<LLUICtrl>("Arrow Left");
+	mArrowLeft->setCommitCallback(boost::bind(&LLPanelEditWearable::onMoveToLayer, this, true));
+	mArrowRight = getChild<LLUICtrl>("Arrow Right");
+	mArrowRight->setCommitCallback(boost::bind(&LLPanelEditWearable::onMoveToLayer, this, false));
+
 
 	if (mSexRadio = findChild<LLUICtrl>("sex radio"))
 	{
@@ -707,7 +720,7 @@ BOOL LLPanelEditWearable::postBuild()
 	}
 
 	mSave = getChild<LLUICtrl>("Save");
-	mSave->setCommitCallback(boost::bind(&LLPanelEditWearable::saveChanges, this, false, std::string()) );
+	mSave->setCommitCallback(boost::bind(&LLPanelEditWearable::saveChanges, this, false, LLStringUtil::null) );
 
 	mSaveAs = getChild<LLUICtrl>("Save As");
 	mSaveAs->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnSaveAs, this) );
@@ -774,12 +787,7 @@ BOOL LLPanelEditWearable::postBuild()
 
 	if (mTab = findChild<LLTabContainer>("layer_tabs"))
 	{
-		LL_COMPILE_TIME_MESSAGE("layer_tabs needs re-implemented");
-		for(U32 i = 1; i <= 6/*LLAgentWearables::MAX_CLOTHING_PER_TYPE*/; ++i)
-		{
-			LLPanel* new_panel = new LLPanel(llformat("%i",i));
-			mTab->addTabPanel(new_panel, llformat("Layer %i",i));
-		}
+		addLayerTabs(1, gAgentWearables.getWearableCount(mType));
 		mTab->setCommitCallback(boost::bind(&LLPanelEditWearable::onTabChanged, this, _1));
 		mTab->setValidateCallback(boost::bind(&LLPanelEditWearable::onTabPrecommit, this));
 	}
@@ -805,13 +813,12 @@ void LLPanelEditWearable::draw()
 	refreshWearables(false);
 
 	LLViewerWearable* wearable = getWearable();
-	BOOL has_wearable = (wearable != NULL );
-	BOOL has_any_wearable = has_wearable || gAgentWearables.getWearableCount(mType);
+	BOOL has_wearable = wearable != nullptr;
 	BOOL is_dirty = isDirty();
 	BOOL is_modifiable = FALSE;
 	BOOL is_copyable = FALSE;
 	BOOL is_complete = FALSE;
-	LLInventoryItem* item = NULL;
+	LLInventoryItem* item = nullptr;
 	if (wearable && (item = gInventory.getItem(wearable->getItemID())))
 	{
 		const LLPermissions& perm = item->getPermissions();
@@ -823,17 +830,8 @@ void LLPanelEditWearable::draw()
 	mSave->setEnabled(has_wearable && is_modifiable && is_complete && is_dirty);
 	mSaveAs->setEnabled(has_wearable && is_copyable && is_complete);
 	mRevert->setEnabled(has_wearable && is_dirty );
-	mTakeOff->setEnabled(has_wearable);
-	if (mCanTakeOff) mTakeOff->setVisible(has_wearable);
-	mCreateNew->setVisible(!has_any_wearable);
-	mNotWornI->setVisible(!has_any_wearable);
-	mNotWornT->setVisible(!has_any_wearable);
-	mNoModI->setVisible(has_wearable && !is_modifiable);
-	mNoModT->setVisible(has_wearable && !is_modifiable);
 	mTitle->setVisible(has_wearable && is_modifiable && is_complete);
-	mTitleLoading->setVisible(has_wearable ? is_modifiable && !is_complete : has_any_wearable);
-	mPath->setVisible(has_wearable);
-	mSquare->setVisible(has_wearable && !is_modifiable); //lock icon
+	mTitleLoading->setVisible(has_wearable && is_modifiable && !is_complete);
 
 	if (has_wearable && is_modifiable)
 	{
@@ -924,7 +922,7 @@ void LLPanelEditWearable::onTabChanged(LLUICtrl* ctrl)
 	if (mPendingWearable)
 		return;
 	U32 tab_index = ((LLTabContainer*)ctrl)->getCurrentPanelIndex();
-	U32 wearable_index = gAgentWearables.getWearableCount(mType) - tab_index - 1;
+	U32 wearable_index = tab_index ;
 	if (wearable_index != mCurrentIndex )
 	{
 		setWearableIndex(wearable_index);
@@ -945,25 +943,17 @@ void LLPanelEditWearable::setWearableIndex(S32 index)
 
 	if (mTab)
 	{
-		U32 tab_index = gAgentWearables.getWearableCount(mType) - index - 1;
-
-		if (mTab->getCurrentPanelIndex() != tab_index)
-			mTab->selectTab(tab_index);
+		if (mTab->getTabCount() && mTab->getCurrentPanelIndex() != index)
+			mTab->selectTab(index);
 	}
+
 
 	LLViewerWearable* wearable = gAgentWearables.getViewerWearable(mType,mCurrentIndex);
 
 	// Singu note: Set title even if the wearable didn't change: the name might have changed (when renamed).
-	if (wearable)
-	{
-		mTitle->setTextArg("[DESC]", wearable->getName());
-		mNoModT->setTextArg("[DESC]", wearable->getName());
-	}
-	else
-	{
-		mTitle->setTextArg("[DESC]", std::string(LLWearableType::getTypeLabel(mType)));
-		mNoModT->setTextArg("[DESC]", std::string(LLWearableType::getTypeLabel(mType)));
-	}
+	const auto& desc = wearable ? wearable->getName() : LLWearableType::getTypeLabel(mType);
+	mTitle->setTextArg("[DESC]", desc);
+	mNoModT->setTextArg("[DESC]", desc);
 
 	if (wearable == getWearable())
 		return;
@@ -999,7 +989,6 @@ void LLPanelEditWearable::setWearableIndex(S32 index)
 	}
 
 	updateScrollingPanelList();
-
 }
 
 void LLPanelEditWearable::refreshWearables(bool force_immediate)
@@ -1028,10 +1017,22 @@ void LLPanelEditWearable::refreshWearables(bool force_immediate)
 
 	if (mTab)
 	{
-		LL_COMPILE_TIME_MESSAGE("layer_tabs needs re-implemented");
-		for(U32 i = 0; i < 6/*LLAgentWearables::MAX_CLOTHING_PER_TYPE*/; ++i)
+		S32 layer_count = gAgentWearables.getWearableCount(mType);
+		S32 tab_count = mTab->getTabCount();
+		if (tab_count > layer_count) // Remove some tabs
 		{
-			mTab->enableTabButton(i, i < gAgentWearables.getWearableCount(mType));
+			while (tab_count && tab_count > layer_count)
+			{
+				if (auto tab = mTab->getChild<LLPanel>(getTabName(tab_count--), false, false))
+				{
+					mTab->removeTabPanel(tab);
+					delete tab;
+				}
+			}
+		}
+		else if (layer_count > tab_count) // Add some tabs
+		{
+			addLayerTabs(tab_count+1, layer_count);
 		}
 	}
 	setWearableIndex(index);
@@ -1078,7 +1079,7 @@ void LLPanelEditWearable::onCommitSexChange()
 		return;
 	}
 
-	bool is_new_sex_male = (gSavedSettings.getU32("AvatarSex") ? SEX_MALE : SEX_FEMALE) == SEX_MALE;
+	bool is_new_sex_male = gSavedSettings.getU32("AvatarSex") ? true : false;
 	LLViewerWearable* wearable = gAgentWearables.getViewerWearable(type, index);
 	if (wearable)
 	{
@@ -1116,7 +1117,7 @@ bool LLPanelEditWearable::onSelectAutoWearOption(const LLSD& notification, const
 
 		// Only auto wear the new item if the AutoWearNewClothing checkbox is selected.
 		LLPointer<LLInventoryCallback> cb = option == 0 ? 
-			new LLBoostFuncInventoryCallback(boost::bind(&wear_on_avatar_cb,_1,false)) : NULL;
+			new LLBoostFuncInventoryCallback(boost::bind(&wear_on_avatar_cb,_1,false)) : nullptr;
 		create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
 			folder_id, wearable->getTransactionID(), wearable->getName(), wearable->getDescription(),
 			asset_type, LLInventoryType::IT_WEARABLE, wearable->getType(),
@@ -1125,9 +1126,27 @@ bool LLPanelEditWearable::onSelectAutoWearOption(const LLSD& notification, const
 	return false;
 }
 
+void LLPanelEditWearable::onMoveToLayer(bool closer)
+{
+	const auto wearable = getWearable();
+	auto& appearance_mgr(LLAppearanceMgr::instance());
+	auto links = appearance_mgr.findCOFItemLinks(wearable->getItemID());
+	if (links.empty()) return;
+	auto link = links.front();
+	if (gAgentWearables.moveWearable(link, closer))
+	{
+		gAgentAvatarp->wearableUpdated(mType, true);
+		/* Singu TODO: Figure out how to maintain focus on the current tab
+		U32 index(0);
+		gAgentWearables.getWearableIndex(wearable, index);
+		setWearableIndex(index);
+		*/
+	}
+}
+
 LLViewerWearable* LLPanelEditWearable::getWearable() const
 {
-	return mCurrentWearable;//gAgentWearables.getWearable(mType, mCurrentIndex);	// TODO: MULTI-WEARABLE
+	return mCurrentWearable;
 }
 
 U32 LLPanelEditWearable::getIndex() const
@@ -1445,23 +1464,46 @@ void LLPanelEditWearable::updateScrollingPanelList()
 void LLPanelEditWearable::updateScrollingPanelUI()
 {
 	LLViewerWearable* wearable = getWearable();
-	 // do nothing if we don't have a valid wearable we're editing
-	if (!wearable)
-	{
-		return;
-	}
-	
-	LL_INFOS() << llformat("%#.8lX",wearable) << LL_ENDL;
-	LL_INFOS() << "cur_wearable->isDirty()=" << wearable->isDirty() << LL_ENDL;
 
-	LLViewerInventoryItem* item = gInventory.getItem(wearable->getItemID());
+	BOOL is_modifiable = FALSE;
+	BOOL is_copyable = FALSE;
+	LLViewerInventoryItem* item = wearable ? gInventory.getItem(wearable->getItemID()) : nullptr;
 	if (item)
 	{
-		U32 perm_mask = item->getPermissions().getMaskOwner();
 		BOOL is_complete = item->isComplete();
 		LLScrollingPanelParam::sUpdateDelayFrames = 0;
-		mCustomizeFloater->getScrollingPanelList()->updatePanels((perm_mask & PERM_MODIFY) && is_complete);
+		const LLPermissions& perm = item->getPermissions();
+		const auto& group_id(gAgent.getGroupID());
+		is_modifiable = perm.allowModifyBy(gAgentID, group_id);
+		is_copyable = perm.allowCopyBy(gAgentID, group_id);
+		mCustomizeFloater->getScrollingPanelList()->updatePanels(is_modifiable && is_complete);
 	}
+
+	// Update some UI here instead of the draw call
+	bool has_wearable = wearable != nullptr;
+	bool max_layers = gAgentWearables.getClothingLayerCount() == LLAgentWearables::MAX_CLOTHING_LAYERS;
+	bool show_create_new = !has_wearable && !max_layers;
+
+	mTakeOff->setEnabled(has_wearable);
+	if (mCanTakeOff) mTakeOff->setVisible(has_wearable);
+	mCreateNewLayer->setVisible(has_wearable && !max_layers);
+	mArrowLeft->setEnabled(has_wearable && gAgentWearables.getBottomWearable(mType) != wearable);
+	mArrowLeft->setVisible(has_wearable);
+	mArrowRight->setEnabled(has_wearable && gAgentWearables.getTopWearable(mType) != wearable);
+	mArrowRight->setVisible(has_wearable);
+	mCreateNew->setVisible(show_create_new);
+	mNotWornI->setVisible(show_create_new);
+	mNotWornT->setVisible(show_create_new);
+	mNoModI->setVisible(has_wearable && !is_modifiable);
+	mNoModT->setVisible(has_wearable && !is_modifiable);
+	mPath->setVisible(has_wearable);
+	mSquare->setVisible(has_wearable && !is_modifiable); //lock icon
+
+	 // do nothing else if we don't have a valid wearable we're editing
+	if (!wearable) return;
+	LL_INFOS() << llformat("%#.8lX", wearable) << LL_ENDL;
+	LL_INFOS() << "cur_wearable->isDirty()=" << wearable->isDirty() << LL_ENDL;
+	refreshWearables(false);
 }
 
 void LLPanelEditWearable::onBtnTakeOff()

@@ -97,6 +97,7 @@ public:
 	U32 getCargoCount() const { return (mCargoCount > 0) ? mCargoCount : mCargoIDs.size(); }
 	S32 getCargoIndex() const { return mCurItemIndex; }
 
+	uuid_vec_t::size_type getCargoIDsCount() const { return mCargoIDs.size(); }
 	static S32 getOperationId() { return sOperationId; }
 
 	// deal with permissions of object, etc. returns TRUE if drop can

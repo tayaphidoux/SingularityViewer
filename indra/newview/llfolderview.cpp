@@ -66,6 +66,7 @@
 
 // Linden library includes
 #include "lldbstrings.h"
+#include "llfavoritesbar.h" // Singu TODO: Favorites bar.
 #include "llfocusmgr.h"
 #include "llfontgl.h"
 #include "llgl.h" 
@@ -2165,6 +2166,11 @@ void LLFolderView::doIdle()
 	{
 		return;
 	}
+
+	LLFavoritesOrderStorage::instance(); // Singu TODO: Favorites bar.
+	BOOL collectFavoriteItems(LLInventoryModel::item_array_t&);
+	LLInventoryModel::item_array_t items;
+	collectFavoriteItems(items);
 	
 	LL_RECORD_BLOCK_TIME(FTM_INVENTORY);
 

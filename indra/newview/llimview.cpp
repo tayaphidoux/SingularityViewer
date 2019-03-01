@@ -1097,31 +1097,39 @@ bool LLIMMgr::isNonFriendSessionNotified(const LLUUID& session_id)
 	return mNotifiedNonFriendSessions.end() != mNotifiedNonFriendSessions.find(session_id);
 }
 
+std::string LLIMMgr::getOfflineMessage(const LLUUID& id)
+{
+	std::string full_name;
+	if (LLAvatarNameCache::getNSName(id, full_name))
+	{
+		LLUIString offline = LLTrans::getString("offline_message");
+		offline.setArg("[NAME]", full_name);
+		return offline;
+	}
+	return LLStringUtil::null;
+}
+
 void LLIMMgr::noteOfflineUsers(
 	LLFloaterIMPanel* floater,
 	const std::vector<LLUUID>& ids)
 {
-	S32 count = ids.size();
-	if(count == 0)
+	if(ids.empty())
 	{
 		const std::string& only_user = LLTrans::getString("only_user_message");
 		floater->addHistoryLine(only_user, gSavedSettings.getColor4("SystemChatColor"));
 	}
 	else
 	{
-		const LLRelationship* info = NULL;
+		const LLRelationship* info = nullptr;
 		LLAvatarTracker& at = LLAvatarTracker::instance();
-		for(S32 i = 0; i < count; ++i)
+		for(const auto& id : ids)
 		{
-			info = at.getBuddyInfo(ids.at(i));
-			std::string full_name;
-			if (info
-				&& !info->isOnline()
-				&& LLAvatarNameCache::getNSName(ids.at(i), full_name))
+			info = at.getBuddyInfo(id);
+			if (info && !info->isOnline())
 			{
-				LLUIString offline = LLTrans::getString("offline_message");
-				offline.setArg("[NAME]", full_name);
-				floater->addHistoryLine(offline, gSavedSettings.getColor4("SystemChatColor"));
+				auto offline(getOfflineMessage(id));
+				if (!offline.empty())
+					floater->addHistoryLine(offline, gSavedSettings.getColor4("SystemChatColor"));
 			}
 		}
 	}

@@ -135,7 +135,16 @@ public:
 		AT_MESH = 49,
 			// Mesh data in our proprietary SLM format
 		
-		AT_COUNT = 50,
+		AT_RESERVED_1 = 50,
+		AT_RESERVED_2 = 51,
+		AT_RESERVED_3 = 52,
+		AT_RESERVED_4 = 53,
+		AT_RESERVED_5 = 54,
+		AT_RESERVED_6 = 55,
+
+		AT_SETTINGS = 56,   // Collection of settings
+
+		AT_COUNT = 57,
 
 			// +*********************************************************+
 			// |  TO ADD AN ELEMENT TO THIS ENUM:                        |
@@ -146,7 +155,7 @@ public:
 			// | 4. ADD TO LLViewerAssetType.cpp                         |
 			// | 5. ADD TO DEFAULT_ASSET_FOR_INV in LLInventoryType.cpp  |
 			// +*********************************************************+
-
+		AT_UNKNOWN = 255,
 		AT_NONE = -1
 	};
 

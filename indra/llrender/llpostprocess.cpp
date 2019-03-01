@@ -286,7 +286,7 @@ public:
 		LLVector2 screen_rect = LLPostProcess::getInstance()->getDimensions();
 
 		mPassLoc = getShader().getUniformLocation(sHorizontalPass);
-		LLVector4 vec[] = { LLVector4(1.3846153846, 3.2307692308, 0, 0) / screen_rect.mV[VX], LLVector4( 0,0, 1.3846153846, 3.2307692308 ) / screen_rect.mV[VY] };
+		LLVector4 vec[] = { LLVector4(1.3846153846f, 3.2307692308f, 0.f, 0.f) / screen_rect.mV[VX], LLVector4( 0.f,0.f, 1.3846153846f, 3.2307692308f ) / screen_rect.mV[VY] };
 		getShader().uniform4fv(sKern, LL_ARRAY_SIZE(vec), (GLfloat*)vec);
 		return QUAD_NORMAL;
 	}
@@ -367,10 +367,10 @@ LLPostProcess::LLPostProcess(void) :
 	}
 
 	// Singu TODO: Make this configurable via settings
-	if (!mAllEffectInfo.has("default"))
-		mAllEffectInfo["default"] = LLSD::emptyMap();
+	if (!mAllEffectInfo.has("Default"))
+		mAllEffectInfo["Default"] = LLSD::emptyMap();
 
-	LLSD& defaults = mAllEffectInfo["default"];
+	LLSD& defaults = mAllEffectInfo["Default"];
 
 	for(std::list<LLPointer<LLPostProcessShader> >::iterator it=mShaders.begin();it!=mShaders.end();++it)
 	{
@@ -385,7 +385,7 @@ LLPostProcess::LLPostProcess(void) :
 	{
 		(*it)->loadSettings(defaults);
 	}
-	setSelectedEffect("default");
+	setSelectedEffect("Default");
 }
 
 LLPostProcess::~LLPostProcess(void)
@@ -675,10 +675,11 @@ void LLPostProcess::setSelectedEffect(std::string const & effectName)
 {
 	mSelectedEffectName = effectName;
 	mSelectedEffectInfo = mAllEffectInfo[effectName];
-	for(std::list<LLPointer<LLPostProcessShader> >::iterator it=mShaders.begin();it!=mShaders.end();++it)
+	for(auto shader : mShaders)
 	{
-		(*it)->loadSettings(mSelectedEffectInfo);
+		shader->loadSettings(mSelectedEffectInfo);
 	}
+	mSelectedEffectChanged(mSelectedEffectName);
 }
 
 void LLPostProcess::setSelectedEffectValue(std::string const & setting, LLSD value)
@@ -714,6 +715,7 @@ void LLPostProcess::resetSelectedEffect()
 void LLPostProcess::saveEffectAs(std::string const & effectName)
 {
 	mAllEffectInfo[effectName] = mSelectedEffectInfo;
+	mSelectedEffectChanged(mSelectedEffectName); // Might've changed, either way update the lists
 
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
 	//LL_INFOS() << "Saving PostProcess Effects settings to " << pathName << LL_ENDL;

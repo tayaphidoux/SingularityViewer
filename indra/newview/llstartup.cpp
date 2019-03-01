@@ -217,6 +217,7 @@
 #include "generichandlers.h"
 
 // <edit>
+#include "floaterlocalassetbrowse.h"
 #include "llpanellogin.h"
 //#include "llfloateravatars.h"
 //#include "llactivation.h"
@@ -890,6 +891,8 @@ bool idle_startup()
 			LLToolMgr::getInstance()->initTools();
 
 			display_startup();
+			// Load local textures now, maybe someone wants to use them in UI (why?)
+			LocalAssetBrowser::instance(); // <edit/>
 			// Quickly get something onscreen to look at.
 			gViewerWindow->initWorldUI();
 			display_startup();
@@ -944,7 +947,11 @@ bool idle_startup()
 		display_startup();
 
 		// Push our window frontmost
-		gViewerWindow->getWindow()->show();
+		// Singu Note: Actually, don't! But flash the window to let the user know
+		auto& window(*gViewerWindow->getWindow());
+		window.show(false);
+		if (gSavedSettings.getBOOL("LiruFlashWhenMinimized")) // No, we're not minimized, but if you flash my bar, I will give you the biggest SIGSEGV ~Liru <3
+			window.flashIcon(5.f);
 		display_startup();
 
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 

@@ -95,6 +95,8 @@ public:
 	static void refreshLoginPage();
 	static void giveFocus();
 	static void setAlwaysRefresh(bool refresh); 
+	void clearPassword();
+	void hidePassword();
 	void mungePassword(const std::string& password);
 
 	// inherited from LLViewerMediaObserver
@@ -105,6 +107,7 @@ public:
 
 private:
 	void reshapeBrowser();
+	void addFavoritesToStartLocation();
 	void onLocationSLURL();
 
 	void onClickConnect();

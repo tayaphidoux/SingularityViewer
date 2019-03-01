@@ -39,7 +39,21 @@ with the same filename but different name
   <texture name="Accordion_Over" file_name="Accordion_Over.png" preload="false" />
   <texture name="Accordion_Selected" file_name="Accordion_Selected.png" preload="false" />
 
+  <texture name="Cam_Preset_Back_Off" file_name="Cam_Preset_Back_Off.png" preload="false" />
+  <texture name="Cam_Preset_Back_On" file_name="Cam_Preset_Back_On.png" preload="false" />
+  <texture name="Cam_Preset_Front_Off" file_name="Cam_Preset_Front_Off.png" preload="false" />
+  <texture name="Cam_Preset_Front_On" file_name="Cam_Preset_Front_On.png" preload="false" />
+  <texture name="Cam_Preset_Side_Off" file_name="Cam_Preset_Side_Off.png" preload="false" />
+  <texture name="Cam_Preset_Side_On" file_name="Cam_Preset_Side_On.png" preload="false" />
+
   <texture name="icon_group.tga"/>
+
+  <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
+  <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
+  <texture name="Favorite_Star_Press" file_name="navbar/Favorite_Star_Press.png" preload="false" />
+  <texture name="Favorite_Star_Over" file_name="navbar/Favorite_Star_Over.png" preload="false" />
+  <texture name="Favorite_Link_Over" file_name="navbar/Favorite_Link_Over.png" preload="false" />
+
   <texture name="Parcel_M_Dark" file_name="map_event_mature.tga" preload="true" />
   <texture name="Parcel_M_Light" file_name="map_event_mature.tga" preload="false" />
   <texture name="Parcel_PG_Light" file_name="map_event.tga" preload="false" />
@@ -119,21 +133,27 @@ with the same filename but different name
   <texture name="default_profile_picture.j2c"/>
   <texture name="locked_image.j2c"/>
 
-  <texture name="Progress_1" file_name="icons/Progress_1.png" preload="true" />
-  <texture name="Progress_2" file_name="icons/Progress_2.png" preload="true" />
-  <texture name="Progress_3" file_name="icons/Progress_3.png" preload="true" />
-  <texture name="Progress_4" file_name="icons/Progress_4.png" preload="true" />
-  <texture name="Progress_5" file_name="icons/Progress_5.png" preload="true" />
-  <texture name="Progress_6" file_name="icons/Progress_6.png" preload="true" />
-  <texture name="Progress_7" file_name="icons/Progress_7.png" preload="true" />
-  <texture name="Progress_8" file_name="icons/Progress_8.png" preload="true" />
-  <texture name="Progress_9" file_name="icons/Progress_9.png" preload="true" />
-  <texture name="Progress_10" file_name="icons/Progress_10.png" preload="true" />
-  <texture name="Progress_11" file_name="icons/Progress_11.png" preload="true" />
-  <texture name="Progress_12" file_name="icons/Progress_12.png" preload="true" />
+  <texture name="Progress_1" file_name="Progress_1.png" preload="true" />
+  <texture name="Progress_2" file_name="Progress_2.png" preload="true" />
+  <texture name="Progress_3" file_name="Progress_3.png" preload="true" />
+  <texture name="Progress_4" file_name="Progress_4.png" preload="true" />
+  <texture name="Progress_5" file_name="Progress_5.png" preload="true" />
+  <texture name="Progress_6" file_name="Progress_6.png" preload="true" />
+  <texture name="Progress_7" file_name="Progress_7.png" preload="true" />
+  <texture name="Progress_8" file_name="Progress_8.png" preload="true" />
+  <texture name="Progress_9" file_name="Progress_9.png" preload="true" />
+  <texture name="Progress_10" file_name="Progress_10.png" preload="true" />
+  <texture name="Progress_11" file_name="Progress_11.png" preload="true" />
+  <texture name="Progress_12" file_name="Progress_12.png" preload="true" />
 
   <!-- Images that have since been renamed to something else in v3 and need updating. Alphabetical. -->
   <texture name="Flag.png" file_name="Flag.png" preload="false" />
+  <texture name="Inv_Post_Process.png" preload="true"/>
+  <texture name="Inv_Settings" file_name="Inv_Settings.png" preload="false" />
+  <texture name="Inv_SettingsSky" file_name="Inv_SettingsSky.png" preload="false" />
+  <texture name="Inv_SettingsWater" file_name="Inv_SettingsWater.png" preload="false" />
+  <texture name="Inv_SettingsDay" file_name="Inv_SettingsDay.png" preload="false" />
+  <texture name="Inv_Unknown" file_name="Inv_UnknownObject.png" preload="false" />
   <texture name="Inv_WaterLight.png" preload="true"/>
   <texture name="Inv_WindLight.png" preload="true"/>
   <texture name="Parcel_Exp_Color.png" file_name="Parcel_Exp_Color.png" preload="false" />

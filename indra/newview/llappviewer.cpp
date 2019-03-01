@@ -165,6 +165,7 @@
 // in save_settings_to_globals()
 #include "llbutton.h"
 #include "llcombobox.h"
+#include "floaterlocalassetbrowse.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
 #include "llvosky.h"
@@ -1722,6 +1723,8 @@ bool LLAppViewer::cleanup()
 	AIFilePicker::saveFile("filepicker_contexts.xml");
 
 	LLFloaterTeleportHistory::saveFile("teleport_history.xml");
+
+	LocalAssetBrowser::deleteSingleton(); // <edit/>
 
 	// save mute list. gMuteList used to also be deleted here too.
 	LLMuteList::getInstance()->cache(gAgent.getID());

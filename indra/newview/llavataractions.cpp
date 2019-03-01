@@ -546,20 +546,12 @@ void LLAvatarActions::csr(const LLUUID& id)
 	if (!gCacheName->getFullName(id, name)) return;
 
 	std::string url = "http://csr.lindenlab.com/agent/";
-
-	// slow and stupid, but it's late
-	S32 len = name.length();
-	for (S32 i = 0; i < len; i++)
+	if (char* output = curl_easy_escape(nullptr, name.c_str(), name.length()))
 	{
-		if (name[i] == ' ')
-		{
-			url += "%20";
-		}
-		else
-		{
-			url += name[i];
-		}
+		name = output;
+		curl_free(output);
 	}
+	url += name;
 
 	LLWeb::loadURL(url);
 }

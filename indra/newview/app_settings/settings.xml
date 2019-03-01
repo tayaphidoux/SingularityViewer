@@ -1196,7 +1196,7 @@ Found in Advanced->Rendering->Info Displays</string>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <boolean>0</boolean>
+      <boolean>1</boolean>
     </map>
     <key>InstantMessageLogPathAnyAccount</key>
     <map>
@@ -9073,6 +9073,22 @@ This should be as low as possible, but too low may break functionality</string>
       <string>S32</string>
       <key>Value</key>
       <integer>400</integer>
+    </map>
+    <key>HTMLAgentColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of hyperlinked user/object names</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.600000023842</real>
+        <real>0.600000023842</real>
+        <real>1.0</real>
+        <real>1.0</real>
+      </array>
     </map>
     <key>HTMLLinkColor</key>
     <map>

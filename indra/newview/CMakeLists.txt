@@ -78,7 +78,7 @@ include_directories(
 set(viewer_SOURCE_FILES
     NACLantispam.cpp
     aihttpview.cpp
-    #aixmllindengenepool.cpp
+    aixmllindengenepool.cpp
     alfloaterregiontracker.cpp
     aoremotectrl.cpp
     ascentfloatercontactgroups.cpp
@@ -174,6 +174,7 @@ set(viewer_SOURCE_FILES
     llexternaleditor.cpp
     llface.cpp
     llfasttimerview.cpp
+    llfavoritesbar.cpp
     llfeaturemanager.cpp
     llfirstuse.cpp
     llflexibleobject.cpp
@@ -321,6 +322,7 @@ set(viewer_SOURCE_FILES
     llinventoryobserver.cpp
     llinventorypanel.cpp
     lljoystickbutton.cpp
+    lllandmarkactions.cpp
     lllandmarklist.cpp
     lllogchat.cpp
     llloginhandler.cpp
@@ -612,7 +614,7 @@ set(viewer_HEADER_FILES
 
     NACLantispam.h
     aihttpview.h
-    #aixmllindengenepool.h
+    aixmllindengenepool.h
     alfloaterregiontracker.h
     aoremotectrl.h
     ascentfloatercontactgroups.h
@@ -708,6 +710,7 @@ set(viewer_HEADER_FILES
     llexternaleditor.h
     llface.h
     llfasttimerview.h
+    llfavoritesbar.h
     llfeaturemanager.h
     llfirstuse.h
     llflexibleobject.h
@@ -854,6 +857,7 @@ set(viewer_HEADER_FILES
     llinventoryobserver.h
     llinventorypanel.h
     lljoystickbutton.h
+    lllandmarkactions.h
     lllandmarklist.h
     lllightconstants.h
     lllogchat.h

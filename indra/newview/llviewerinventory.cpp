@@ -50,8 +50,8 @@
 #include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "llfloaterperms.h"
+#include "lllandmarkactions.h"
 
-#include "lllandmark.h"
 #include "llviewerassettype.h"
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
@@ -62,6 +62,7 @@
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
 #include "llavatarnamecache.h"
+#include "llfavoritesbar.h"
 
 #include "llsdutil.h"
 
@@ -1120,13 +1121,6 @@ void create_notecard_cb(const LLUUID& inv_item)
 	}
 }
 
-void AddFavoriteLandmarkCallback::fire(const LLUUID& inv_item_id)
-{
-	if (mTargetLandmarkId.isNull()) return;
-
-	//gInventory.rearrangeFavoriteLandmarks(inv_item_id, mTargetLandmarkId);	// MULTI-WEARABLES TODO
-}
-
 LLInventoryCallbackManager gInventoryCallbacks;
 
 void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
@@ -2166,17 +2160,21 @@ const std::string& LLViewerInventoryItem::getName() const
 	return  LLInventoryItem::getName();
 }
 
-#if 0
 S32 LLViewerInventoryItem::getSortField() const
 {
 	return LLFavoritesOrderStorage::instance().getSortIndex(mUUID);
 }
 
+//void LLViewerInventoryItem::setSortField(S32 sortField)
+//{
+//	LLFavoritesOrderStorage::instance().setSortIndex(mUUID, sortField);
+//	getSLURL();
+//}
+
 void LLViewerInventoryItem::getSLURL()
 {
 	LLFavoritesOrderStorage::instance().getSLURL(mAssetUUID);
 }
-#endif
 
 const LLPermissions& LLViewerInventoryItem::getPermissions() const
 {
@@ -2272,6 +2270,33 @@ time_t LLViewerInventoryItem::getCreationDate() const
 U32 LLViewerInventoryItem::getCRC32() const
 {
 	return LLInventoryItem::getCRC32();	
+}
+
+// *TODO: mantipov: should be removed with LMSortPrefix patch in llinventorymodel.cpp, EXT-3985
+static char getSeparator() { return '@'; }
+BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName)
+{
+	const char separator = getSeparator();
+	const std::string::size_type separatorPos = name.find(separator, 0);
+
+	BOOL result = FALSE;
+
+	if (separatorPos < std::string::npos)
+	{
+		if (sortField)
+		{
+			*sortField = std::stoi(name.substr(0, separatorPos));
+		}
+
+		if (displayName)
+		{
+			*displayName = name.substr(separatorPos + 1, std::string::npos);
+		}
+
+		result = TRUE;
+	}
+
+	return result;
 }
 
 // This returns true if the item that this item points to 

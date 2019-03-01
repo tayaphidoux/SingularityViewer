@@ -175,11 +175,12 @@ LLGroupNotifyBox::LLGroupNotifyBox(const std::string& subject,
 
 	static const LLStyleSP headerstyle(new LLStyle(true,LLColor4::black,"SansSerifBig"));
 	static const LLStyleSP datestyle(new LLStyle(true,LLColor4::black,"serif"));
+	static const LLStyleSP msgstyle(new LLStyle(true, LLColor4::grey4, LLStringUtil::null));
 
-	text->appendText(subject + '\n',false,false,headerstyle);
+	text->appendText(subject + '\n',false,false,headerstyle,false);
 
-	text->appendText(time_buf,false,false,datestyle);
-	text->appendColoredText(std::string(" \n\n") + message,false,false,LLColor4::grey4);
+	text->appendText(time_buf,false,false,datestyle,false);
+	text->appendText(std::string(" \n\n") + message,false,false,msgstyle,false);
 
 	LLColor4 semi_transparent(1.0f,1.0f,1.0f,0.8f);
 	text->setCursor(0,0);

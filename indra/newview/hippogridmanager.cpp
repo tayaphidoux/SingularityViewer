@@ -81,7 +81,7 @@ const std::string& HippoGridInfo::getGridOwner() const
 	}
 	else
 	{
-		return this->getGridName();
+		return getGridName();
 	}	
 }
 
@@ -102,12 +102,11 @@ void HippoGridInfo::setPlatform(Platform platform)
 void HippoGridInfo::setPlatform(const std::string& platform)
 {
 	std::string tmp = platform;
-	for (unsigned i=0; i<platform.size(); i++)
-		tmp[i] = tolower(tmp[i]);
+	LLStringUtil::toLower(tmp);
 
-	if (tmp == "aurora") 
+	if (tmp == "aurora" || tmp == "whitecore")
 	{
-		setPlatform(PLATFORM_AURORA);
+		setPlatform(PLATFORM_WHITECORE);
 	} 
 	else if (tmp == "opensim") 
 	{
@@ -120,7 +119,7 @@ void HippoGridInfo::setPlatform(const std::string& platform)
 	else 
 	{
 		setPlatform(PLATFORM_OTHER);
-		LL_WARNS() << "Unknown platform '" << platform << "' for " << mGridName << "." << LL_ENDL;
+		LL_WARNS() << "Unknown platform '" << platform << "' for " << mGridName << '.' << LL_ENDL;
 	}
 }
 
@@ -337,7 +336,7 @@ void HippoGridInfo::onXmlCharacterData(void* userData, const XML_Char* s, int le
 
 		case XML_GRIDNAME:
 		{
-		  if (self->mGridName == "")
+		  if (self->mGridName.empty())
 		  {
 			self->mGridName.assign(s, len);
 		  }
@@ -366,7 +365,7 @@ void HippoGridInfo::getGridInfo()
 
 	// Make sure the uri ends on a '/'.
 	std::string uri = mLoginUri;
-	if (uri.compare(uri.length() - 1, 1, "/") != 0)
+	if (uri.back() != '/')
 	{
 		uri += '/';
 	}
@@ -482,9 +481,9 @@ std::string HippoGridInfo::getGridNick() const
 // static
 const char* HippoGridInfo::getPlatformString(Platform platform)
 {
-	static const char* platformStrings[PLATFORM_LAST] = 
+	constexpr const char* platformStrings[PLATFORM_LAST] =
 	{
-		"Other", "Aurora", "OpenSim", "SecondLife"
+		"Other", "WhiteCore", "OpenSim", "SecondLife"
 	};
 
 	if ((platform < PLATFORM_OTHER) || (platform >= PLATFORM_LAST))

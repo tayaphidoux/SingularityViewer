@@ -35,7 +35,7 @@
       </text>
       <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="-20"
            follows="left|bottom" font="SansSerifSmall" handle_edit_keys_directly="true"
-           height="20" left="4" max_length="16" mouse_opaque="true"
+           height="20" left="4" max_length="24" mouse_opaque="true"
            name="password_edit" select_all_on_focus_received="true" width="115" />
     </layout_panel>
     <layout_panel name="grids_panel" left="0" user_resize="false" auto_resize="false" width="143" min_width="0" visibility_control="ForceShowGrid">

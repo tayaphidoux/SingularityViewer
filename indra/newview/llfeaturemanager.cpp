@@ -421,6 +421,9 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 	else
 	{
 		LL_WARNS("RenderInit") << "GPU '" << rawRenderer << "' not recognized" << LL_ENDL;
+		mGPUString = rawRenderer;
+		mGPUClass = EGPUClass::GPU_CLASS_3;
+		mGPUSupported = true;
 	}
 }
 

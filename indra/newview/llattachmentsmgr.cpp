@@ -39,6 +39,7 @@
 #include "rlvhandler.h"
 #include "rlvlocks.h"
 // [/RLVa:KB]
+#include <boost/algorithm/string/predicate.hpp>
 
 const F32 COF_LINK_BATCH_TIME = 5.0F;
 const F32 MAX_ATTACHMENT_REQUEST_LIFETIME = 30.0F;
@@ -478,9 +479,17 @@ void LLAttachmentsMgr::onAttachmentArrived(const LLUUID& inv_item_id)
 {
     LLTimer timer;
     bool expected = mAttachmentRequests.getTime(inv_item_id, timer);
+    LLInventoryItem *item = gInventory.getItem(inv_item_id);
+
+    if (item && boost::algorithm::contains(item->getName(), " Bridge v") && gSavedSettings.getBOOL("SGDetachBridge"))
+    {
+        LL_INFOS() << "Bridge detected! detaching" << LL_ENDL;
+        LLVOAvatarSelf::detachAttachmentIntoInventory(item->getUUID());
+        return;
+    }
+
     if (!expected)
     {
-        LLInventoryItem *item = gInventory.getItem(inv_item_id);
         LL_WARNS() << "ATT Attachment was unexpected or arrived after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds: "
                    << (item ? item->getName() : "UNKNOWN") << " id " << inv_item_id << LL_ENDL;
     }

@@ -1241,7 +1241,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 			if (region)
 			{
-				std::string http_url = region->getHttpUrl() ;
+				std::string http_url = region->getViewerAssetUrl();
+				if (http_url.empty()) http_url = region->getCapability("GetTexture");
 				if (!http_url.empty())
 				{
 					if (mFTType != FTT_DEFAULT)
