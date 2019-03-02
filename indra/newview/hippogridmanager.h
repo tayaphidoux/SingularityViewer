@@ -48,6 +48,7 @@ public:
 	const std::string& getWebSite()         const { return mWebSite; }
 	const std::string& getSupportUrl()      const { return mSupportUrl; }
 	const std::string& getRegisterUrl()     const { return mRegisterUrl; }
+	const std::string& getPartnerUrl()     const { return mPartnerUrl; }
 	const std::string& getPasswordUrl()     const { return mPasswordUrl; }
 	// Returns the url base used for the Web Search tab
 	const std::string& getSearchUrl()       const { return mSearchUrl; }
@@ -75,6 +76,7 @@ public:
 	void setWebSite  (const std::string& website);
 	void setSupportUrl(const std::string& url);
 	void setRegisterUrl(const std::string& url);
+	void setPartnerUrl(const std::string& url);
 	void setPasswordUrl(const std::string& url);
 	// sets the url base used for the Web Search tab
 	void setSearchUrl(const std::string& url);
@@ -111,6 +113,7 @@ private:
 	std::string mWebSite;
 	std::string mSupportUrl;
 	std::string mRegisterUrl;
+	std::string mPartnerUrl;
 	std::string mPasswordUrl;
 	std::string mSearchUrl;
 	std::string mVoiceConnector;
@@ -134,7 +137,7 @@ private:
 	{
 		XML_VOID, XML_PLATFORM, XML_GRIDNAME, XML_GRIDNICK,
 		XML_LOGINURI, XML_LOGINPAGE, XML_HELPERURI,
-		XML_WEBSITE, XML_SUPPORT, XML_REGISTER, XML_PASSWORD, XML_SEARCH, XML_MESSAGE
+		XML_WEBSITE, XML_SUPPORT, XML_REGISTER, XML_PARTNER, XML_PASSWORD, XML_SEARCH, XML_MESSAGE
 	};
 	XmlState mXmlState;
 
