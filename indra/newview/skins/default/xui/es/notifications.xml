@@ -50,6 +50,14 @@
 		</form>
 	</template>
 	
+	<template name="okcancelignorecanceldefault">
+		<form>
+			<button name="OK" text="$yestext"/>
+			<button name="Cancel" text="$notext"/>
+			<ignore text="$ignoretext"/>
+		</form>
+	</template>
+	
 	<template name="okhelpbuttons">
 		<form> 
 			<button name="OK" text="$yestext"/>
@@ -72,7 +80,14 @@
 			<button name="Cancel" text="$canceltext"/>
 		</form>
 	</template>
+	
+	<notification name="AIAlert">
+		[PAYLOAD]
+	</notification>
 
+	<notification name="AIAlertModal">
+		[PAYLOAD]
+	</notification>
 
 	<notification name="MediaAlert">
 		El propietario de esta parcela ha solicitado que el siguiente URL de [TYPE] sea cargado en tu visor:
@@ -2867,6 +2882,7 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 	<notification name="NoSupportUrl">
 		Este grid no tiene enlace para consultar por Soporte.
 	</notification>	
+	
 	<notification name="ConfirmAddingChatParticipants">
 		Si agregas una persona a una conversación en curso, se creará una conversación nueva. Todos los participantes recibirán notificaciones de la nueva conversación.
 		<usetemplate ignoretext="Confirmar agregar participantes al chat" name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
@@ -5771,5 +5787,39 @@ porque la parcela está llena.
 
 	<notification name="WavefrontExportSuccess">
 		Los objetos han sido exportados satisfactoriamente a: [FILENAME]
+	</notification>
+
+	<notification label="Actualización Disponible" name="RecommendedUpdate">
+Una nueva versión, [RECOMMENDED_VER], para Singularity[TYPE], está disponible.
+
+Pulsa [Visit Page] para abrir
+[URL]
+para mayor información y enlaces de descarga para esta nueva versión.
+		<tag>confirm</tag>
+		<usetemplate name="okcancelignorecanceldefault" notext="Luego" yestext="Visitar Página" ignoretext="Ignorar notificaciones de actualizaciones recomendadas"/>
+	</notification>
+	
+	<notification label="¡Actualización Crítical!" name="UrgentUpdate">
+¡Tu versión de Singularity[TYPE] se encuentra críticamente desactualizada!
+
+Se recomienda ENÉRGICAMENTE descargues e instales una nueva versión de este visor para evitar problemas de compatibilidad con el grid y/o de seguridad.
+
+Pulsa [Visit Page] para abrir
+[URL]
+para mayor información y enlaces de descarga de nuevas versiones.
+		<tag>confirm</tag>
+		<usetemplate name="okcancelignorecanceldefault" notext="Luego" yestext="Visitar Página" ignoretext="Ignorar notificaciones de Actualizaciones Críticas"/>
+	</notification>
+	
+	<notification label="¡Actualización Crítica"  name="UrgentUpdateModal">
+¡Tu versión de Singularity[TYPE] se encuentra críticamente desactualizada!
+
+Se recomienda ENÉRGICAMENTE descargues e instales una nueva versión de este visor para evitar problemas de compatibilidad con el grid y/o de seguridad.
+
+Pulsa [Visit Page] para abrir
+[URL]
+para mayor información y enlaces de descarga de nuevas versiones.
+		<tag>confirm</tag>
+		<usetemplate name="okcancelignorecanceldefault" notext="Luego" yestext="Visitar Página" ignoretext="Ignorar alertas de actualizaciones críticas"/>
 	</notification>
 </notifications>
