@@ -657,7 +657,7 @@ void LLFloaterAO::toggleSwim(bool underwater)
 			constexpr std::array<AOState, 4> swim_states = { STATE_AGENT_FLOAT, STATE_AGENT_SWIM, STATE_AGENT_SWIM_UP, STATE_AGENT_SWIM_DOWN };
 			constexpr std::array<AOState, 4> fly_states = { STATE_AGENT_HOVER, STATE_AGENT_FLY, STATE_AGENT_HOVER_UP, STATE_AGENT_HOVER_DOWN };
 			uuid_vec_t vec;
-			for (const auto& state : swim ? fly_states : swim_states)
+			for (const auto& state : sSwimming ? fly_states : swim_states)
 				vec.push_back(GetAnimIDFromState(state));
 			gAgent.sendAnimationRequests(vec, ANIM_REQUEST_STOP);
 			// Process new animations
