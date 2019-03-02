@@ -36,8 +36,12 @@ void cmdline_printchat(const std::string& message);
 namespace
 {
 	bool sSwimming = false;
-	const LLCachedControl<bool> sSwim(gSavedSettings, "AOSwimEnabled", false);
-	bool is_underwater() { return sSwim && gAgentAvatarp && gAgentAvatarp->mBelowWater; }
+	bool enable_swim()
+	{
+		static const LLCachedControl<bool> swim(gSavedSettings, "AOSwimEnabled", false);
+		return swim;
+	}
+	bool is_underwater() { return enable_swim() && gAgentAvatarp && gAgentAvatarp->mBelowWater; }
 }
 
 class AONotecardCallback : public LLInventoryCallback
@@ -643,9 +647,9 @@ void LLFloaterAO::ChangeStand()
 
 void LLFloaterAO::toggleSwim(bool underwater)
 {
-	const LLCachedControl<bool> enabled(gSavedSettings, "AOEnabled", false);
+	static const LLCachedControl<bool> enabled(gSavedSettings, "AOEnabled", false);
 
-	sSwimming = underwater && sSwim;
+	sSwimming = underwater && enable_swim();
 
 	// Don't send requests if we have the AO disabled.
 	if (enabled)
