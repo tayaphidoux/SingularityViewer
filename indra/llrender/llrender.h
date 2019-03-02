@@ -235,7 +235,6 @@ struct LLLightStateData
 			mDiffuse.set(1, 1, 1, 1);
 			mSpecular.set(1, 1, 1, 1);
 		}
-;
 		mPosition.set(0, 0, 1, 0);
 		mSpotDirection.set(0, 0, -1);
 	}

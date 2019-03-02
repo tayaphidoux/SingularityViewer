@@ -285,7 +285,6 @@ PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB = NULL;
 //shader object prototypes
 PFNGLDELETEOBJECTARBPROC glDeleteShader = NULL;
 PFNGLDELETEOBJECTARBPROC glDeleteProgram = NULL;
-PFNGLGETHANDLEARBPROC glGetHandleARB = NULL;
 PFNGLDETACHOBJECTARBPROC glDetachObjectARB = NULL;
 PFNGLCREATESHADEROBJECTARBPROC glCreateShaderObjectARB = NULL;
 PFNGLSHADERSOURCEARBPROC glShaderSourceARB = NULL;
@@ -455,6 +454,7 @@ LLGLManager::LLGLManager() :
 	mHasGpuShader5(FALSE),
 	mHasAdaptiveVsync(FALSE),
 	mHasTextureSwizzle(FALSE),
+	mHasTextureCompression(false),
 
 	mIsATI(FALSE),
 	mIsNVIDIA(FALSE),
@@ -937,6 +937,11 @@ void LLGLManager::initExtensions()
 #else
 	mHasBlendFuncSeparate = FALSE;
 # endif // GL_EXT_blend_func_separate
+# if GL_ARB_texture_copression
+	mHasTextureCompression = true;
+#else
+	mHasTextureCompression = false;
+# endif 
 	mHasMipMapGeneration = FALSE;
 	mHasAnisotropic = FALSE;
 	mHasCubeMap = FALSE;
@@ -1001,6 +1006,9 @@ void LLGLManager::initExtensions()
 
 #ifdef GL_ARB_texture_swizzle
 	mHasTextureSwizzle = mGLVersion >= 3.3f || ExtensionExists("GL_ARB_texture_swizzle", gGLHExts.mSysExts);
+#endif
+#ifdef GL_ARB_texture_compression
+	mHasTextureCompression = mGLVersion >= 2.f || ExtensionExists("GL_ARB_texture_compression", gGLHExts.mSysExts);
 #endif
 
 #if LL_LINUX || LL_SOLARIS
@@ -1127,6 +1135,10 @@ void LLGLManager::initExtensions()
 	if (!mHasDrawBuffers)
 	{
 		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_draw_buffers" << LL_ENDL;
+	}
+	if (!mHasTextureCompression)
+	{
+		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_texture_compression" << LL_ENDL;
 	}
 
 	// Disable certain things due to known bugs
@@ -1278,7 +1290,6 @@ void LLGLManager::initExtensions()
 	{
 		glDeleteShader = (PFNGLDELETEOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glDeleteShader", "glDeleteObjectARB");
 		glDeleteProgram = (PFNGLDELETEOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glDeleteProgram", "glDeleteObjectARB");
-		glGetHandleARB = (PFNGLGETHANDLEARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glGetHandle");
 		glDetachObjectARB = (PFNGLDETACHOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glDetachShader", "glDetachObjectARB");
 		glCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glCreateShader", "glCreateShaderObjectARB");
 		glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glShaderSource");
@@ -1389,6 +1400,11 @@ void LLGLManager::initExtensions()
 		glGetVertexAttribivARB = (PFNGLGETVERTEXATTRIBIVARBPROC)GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glGetVertexAttribiv");
 		glGetVertexAttribPointervARB = (PFNGLGETVERTEXATTRIBPOINTERVARBPROC)GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glGetVertexAttribPointerv");
 		//glIsProgramARB = (PFNGLISPROGRAMARBPROC) GLH_EXT_GET_PROC_ADDRESS("glIsProgramARB");
+	}
+	if (mHasTextureCompression)
+	{
+		glGetCompressedTexImageARB = (PFNGLGETCOMPRESSEDTEXIMAGEARBPROC)GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glGetCompressedTexImage");
+		glCompressedTexImage2DARB = (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glCompressedTexImage2D");
 	}
 	LL_DEBUGS("RenderInit") << "GL Probe: Got symbols" << LL_ENDL;
 #endif

@@ -116,6 +116,8 @@ public:
 	BOOL mHasAdaptiveVsync;
 	BOOL mHasTextureSwizzle;
 
+	bool mHasTextureCompression;
+
 	// Vendor-specific extensions
 	BOOL mIsATI;
 	BOOL mIsNVIDIA;

@@ -5612,7 +5612,7 @@ void LLPipeline::gatherLocalLights()
 			F32 x = (3.f * (1.f + light->getLightFalloff())); // why this magic?  probably trying to match a historic behavior.
 			float linatten = x / (light_radius); // % of brightness at radius
 
-			LLLightStateData& light_state = LLLightStateData();
+			LLLightStateData light_state = LLLightStateData();
 			light_state.mPosition = light_pos_gl;
 			light_state.mDiffuse = light_color;
 			light_state.mConstantAtten = 0.f;

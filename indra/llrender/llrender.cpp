@@ -2686,7 +2686,7 @@ void LLRender::diffuseColor4fv(const F32* c)
 	else if (c[0] != mNewContext.color.mV[0] || c[1] != mNewContext.color.mV[1] || c[2] != mNewContext.color.mV[2] || c[3] != mNewContext.color.mV[3] || mDirty)
 	{
 		flush();
-		mNewContext.color = c;
+		mNewContext.color.set(c);
 	}
 }
 

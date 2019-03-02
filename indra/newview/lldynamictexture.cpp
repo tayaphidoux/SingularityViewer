@@ -227,7 +227,6 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 	}
 
 	LLGLSLShader::bindNoShader();
-	LLVertexBuffer::unbind();
 	
 	BOOL result = FALSE;
 	BOOL ret = FALSE ;
