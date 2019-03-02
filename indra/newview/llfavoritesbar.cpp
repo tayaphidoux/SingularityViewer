@@ -928,7 +928,7 @@ BOOL collectFavoriteItems(LLInventoryModel::item_array_t& items)
 	std::sort(items.begin(), items.end(), LLFavoritesSort());
 
 	BOOL needToSaveItemsOrder(const LLInventoryModel::item_array_t& items);
-	if (needToSaveItemsOrder(items))
+	//if (needToSaveItemsOrder(items))
 	{
 		S32 sortField = 0;
 		for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
