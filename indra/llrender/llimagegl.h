@@ -257,6 +257,7 @@ private:
 	S8       mCurrentDiscardLevel;
 	
 	bool mAllowCompression;
+	bool mIsCompressed = false;
 
 protected:
 	LLGLenum mTarget;		// Normally GL_TEXTURE2D, sometimes something else (ex. cube maps)

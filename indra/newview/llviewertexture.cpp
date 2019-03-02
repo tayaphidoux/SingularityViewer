@@ -1018,6 +1018,8 @@ LLViewerFetchedTexture::LLViewerFetchedTexture(const std::string& url, FTType f_
 	init(TRUE);
 	mFTType = f_type;
 	generateGLTexture();
+	if (f_type == FTT_LOCAL_FILE)
+		mGLTexturep->setAllowCompression(false);
 	mGLTexturep->setNeedsAlphaAndPickMask(TRUE);
 }
 

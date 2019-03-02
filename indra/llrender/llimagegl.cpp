@@ -448,7 +448,7 @@ BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, B
 //----------------------------------------------------------------------------
 
 LLImageGL::LLImageGL(BOOL usemipmaps)
-	: mSaveData(0), mSaveDiscardLevel(-1)
+	: mSaveData(0), mSaveDiscardLevel(-1), mIsCompressed(false)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -739,7 +739,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 	
 	llverify(gGL.getTexUnit(0)->bind(this));
 	
-	
+	mIsCompressed = false;
 	if (mUseMipMaps)
 	{
 		if (data_hasmips)
@@ -764,6 +764,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
  					S32 tex_size = dataFormatBytes(mFormatPrimary, w, h);
 					glCompressedTexImage2DARB(mTarget, gl_level, mFormatPrimary, w, h, 0, tex_size, (GLvoid *)data_in);
 					stop_glerror();
+					mIsCompressed = true;
 				}
 				else
 				{
@@ -938,6 +939,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 			S32 tex_size = dataFormatBytes(mFormatPrimary, w, h);
 			glCompressedTexImage2DARB(mTarget, 0, mFormatPrimary, w, h, 0, tex_size, (GLvoid *)data_in);
 			stop_glerror();
+			mIsCompressed = true;
 		}
 		else
 		{
@@ -1385,6 +1387,8 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, G
 		discard_level = mCurrentDiscardLevel;
 	}
 	
+	discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
+
 	// Actual image width/height = raw image width/height * 2^discard_level
 	S32 raw_w = imageraw->getWidth() ;
 	S32 raw_h = imageraw->getHeight() ;
@@ -1582,12 +1586,6 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 		LL_ERRS() << llformat("LLImageGL::readBackRaw: bogus params: %d x %d x %d",width,height,ncomponents) << LL_ENDL;
 	}
 	
-	LLGLint is_compressed = 0;
-	if (compressed_ok)
-	{
-		glGetTexLevelParameteriv(mTarget, is_compressed, GL_TEXTURE_COMPRESSED, (GLint*)&is_compressed);
-	}
-	
 	//-----------------------------------------------------------------------------------------------
 	GLenum error ;
 	while((error = glGetError()) != GL_NO_ERROR)
@@ -1596,8 +1594,13 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 	}
 	//-----------------------------------------------------------------------------------------------
 
-	if (is_compressed)
+	if (mIsCompressed)
 	{
+		if (!compressed_ok)
+		{
+			return false;
+		}
+
 		LLGLint glbytes;
 		glGetTexLevelParameteriv(mTarget, gl_discard, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, (GLint*)&glbytes);
 		if(!imageraw->allocateDataSize(width, height, ncomponents, glbytes))
