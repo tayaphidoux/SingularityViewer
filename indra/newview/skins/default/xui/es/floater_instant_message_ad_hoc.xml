@@ -27,6 +27,7 @@
 	<layout_stack name="panels">
 		<layout_panel name="im_contents_panel">
 			<flyout_button label="Historial" name="instant_message_flyout"/>
+			<flyout_button_item label="Añadir a la Conferencia" name="conference"/>
             <button name="ding_btn" label="Timbre"/>
 			<button label="Llamar" name="start_call_btn"/>
 			<button label="Colgar" name="end_call_btn"/>

@@ -76,11 +76,11 @@
 	<button bottom_delta="-24" enabled="true" follows="left|top" font="SansSerif"
 	     halign="center" height="20" label="None" label_selected="None" left="8"
 	     mouse_opaque="true" name="None" scale_image="true" width="100" />
-    <text bottom_delta="-16" left="3" follows="left|top" value="Links: "/>
+    <text bottom_delta="-16" left="3" follows="left|top" name="links">Links: </text>
     <radio_group bottom_delta="-6" left_delta="27" follows="left|top" height="16" draw_border="false" name="radio_links">
-      <radio_item bottom_delta="-8" name="Any" label="Any" value="0"/>
-      <radio_item bottom_delta="0" left_delta="19" name="Only" label="Only" value="2"/>
-      <radio_item bottom_delta="0" left_delta="21" name="None" label="None" value="1"/>
+      <radio_item bottom_delta="-8" name="Any" value="0">Any</radio_item>
+      <radio_item bottom_delta="0" left_delta="19" name="Only" value="2">Only</radio_item>
+      <radio_item bottom_delta="0" left_delta="21" name="None" value="1">None</radio_item> 
     </radio_group>
 	<check_box bottom_delta="-20" enabled="true" follows="left|top" font="SansSerifSmall"
 	     height="16" initial_value="false" label="Always show folders" left="8"
