@@ -1116,7 +1116,7 @@ void LLFloaterInventoryFinder::draw()
 	U32 hours = (U32)mSpinSinceHours->get();
 	if (hours >= 24)
 	{
-		days = hours / 24;
+		days += hours / 24;
 		hours = (U32)hours % 24;
 		mSpinSinceDays->set((F32)days);
 		mSpinSinceHours->set((F32)hours);
