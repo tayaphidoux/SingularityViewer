@@ -123,8 +123,7 @@ public:
 	BOOL       hasGLTexture() const ;
 	LLGLuint   getTexName() const ;		
 	BOOL       createGLTexture() ;
-	BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE, S32 category = LLGLTexture::OTHER);
-
+	BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, LLImageGL::GLTextureName* usename = nullptr, BOOL to_create = TRUE, S32 category = LLGLTexture::OTHER);
 	void       setFilteringOption(LLTexUnit::eTextureFilterOptions option);
 	void       setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
 	void       setAddressMode(LLTexUnit::eTextureAddressMode mode);

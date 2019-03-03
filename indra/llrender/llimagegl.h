@@ -45,11 +45,65 @@
 class LLImageGL : public LLRefCount
 {
 	friend class LLTexUnit;
+	friend class GLTextureName;
 public:
+	struct AllocationInfo;
+private:
 	// These 2 functions replace glGenTextures() and glDeleteTextures()
 	static void generateTextures(S32 numTextures, U32 *textures);
-	static void deleteTextures(S32 numTextures, U32 *textures);
+	static void deleteTextures(S32 numTextures, U32 *textures, const std::vector<AllocationInfo>& allocationData);
+	static void texMemoryAllocated(const AllocationInfo& entry);
+	static void texMemoryDeallocated(const AllocationInfo& entry);
+public:
 	static void deleteDeadTextures();
+
+	struct AllocationInfo
+	{
+		AllocationInfo(S32Bytes& _size, U8 _components, U32 _category) :
+			size(_size), components(_components), category(_category)
+		{}
+		S32Bytes size;
+		U8 components;
+		U32 category;
+	};
+	// Singu Note:
+	// The topology of GLImageGL is wrong. As a result, tex names are shared across multiple LLImageGL 
+	// instances. To avoid redundant glDelete calls gl tex names have been wrapped in GLTextureName,
+	// which is refcounted via std::shared_ptr.
+	class GLTextureNameInstance {
+	public:
+		GLTextureNameInstance(U32 size = 1) : mTexCount(size)
+		{
+			mTexNames.resize(mTexCount, 0);
+			LLImageGL::generateTextures(1, mTexNames.data());
+		}
+		~GLTextureNameInstance()
+		{
+			LLImageGL::deleteTextures(1, mTexNames.data(), mAllocationData);
+		}
+		GLuint getTexName(U32 idx = 0) const
+		{
+			return mTexNames[idx];
+		}
+		void addAllocatedMemory(S32Bytes size, U8 components, U32 category)
+		{
+			mAllocationData.emplace_back(size, components, category);
+			LLImageGL::texMemoryAllocated(mAllocationData.back());
+		}
+		const std::vector<AllocationInfo>& getAllocatedMemoryInfo() const
+		{
+			return mAllocationData;
+		}
+	private:
+		const size_t mTexCount;
+		std::vector<GLuint> mTexNames;
+		std::vector<AllocationInfo> mAllocationData;
+	};
+	typedef std::shared_ptr<GLTextureNameInstance> GLTextureName;
+
+	static GLTextureName createTextureName(U32 size = 0) {
+		return std::make_shared<GLTextureNameInstance>();
+	}
 
 	// Size calculation
 	static S32 dataFormatBits(S32 dataformat);
@@ -101,9 +155,9 @@ public:
 	static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression = true);
 
 	BOOL createGLTexture() ;
-	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE,
+	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, GLTextureName* usename = nullptr, BOOL to_create = TRUE,
 		S32 category = sMaxCategories-1);
-	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0);
+	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, GLTextureName* usename = nullptr);
 	void setImage(const LLImageRaw* imageraw);
 	void setImage(const U8* data_in, BOOL data_hasmips = FALSE);
 	BOOL setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE);
@@ -133,8 +187,8 @@ public:
 	LLGLenum getPrimaryFormat() const { return mFormatPrimary; }
 	LLGLenum getFormatType() const { return mFormatType; }
 
-	BOOL getHasGLTexture() const { return mTexName != 0; }
-	LLGLuint getTexName() const { return mTexName; }
+	BOOL getHasGLTexture() const { return mTexName != nullptr; }
+	LLGLuint getTexName() const { return mTexName ? mTexName->getTexName() : 0; }
 
 	BOOL getIsAlphaMask(const F32 max_rmse, const F32 max_mid) const { return mNeedsAlphaAndPickMask && (max_rmse < 0.f ? (bool)mIsMask : (mMaskRMSE <= max_rmse && mMaskMidPercentile <= max_mid)); }
 
@@ -197,12 +251,13 @@ private:
 	S8   mAlphaOffset ;
 	
 	bool     mGLTextureCreated ;
-	LLGLuint mTexName;
+	GLTextureName mTexName;
 	U16      mWidth;
 	U16      mHeight;	
 	S8       mCurrentDiscardLevel;
 	
 	bool mAllowCompression;
+	bool mIsCompressed = false;
 
 protected:
 	LLGLenum mTarget;		// Normally GL_TEXTURE2D, sometimes something else (ex. cube maps)

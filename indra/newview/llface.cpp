@@ -576,8 +576,8 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 				LLRiggedVolume* rigged = volume->getRiggedVolume();
 				if (rigged)
 				{
-					LLGLEnable offset(GL_POLYGON_OFFSET_FILL);
-					glPolygonOffset(-1.f, -1.f);
+					LLGLEnable<GL_POLYGON_OFFSET_FILL> offset;
+					gGL.setPolygonOffset(-1.f, -1.f);
 					gGL.multMatrix(volume->getRelativeXform());
 					const LLVolumeFace& vol_face = rigged->getVolumeFace(getTEOffset());
 
@@ -620,8 +620,8 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 		else
 		{
 			gGL.diffuseColor4fv(color.mV);
-			LLGLEnable poly_offset(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-1.f,-1.f);
+			LLGLEnable<GL_POLYGON_OFFSET_FILL> poly_offset;
+			gGL.setPolygonOffset(-1.f,-1.f);
 			// Singu Note: Disable per-vertex color to prevent fixed-function pipeline from using it. We want glColor color, not vertex color!
 			mVertexBuffer->setBuffer(mVertexBuffer->getTypeMask() & ~(LLVertexBuffer::MAP_COLOR));
 			mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);

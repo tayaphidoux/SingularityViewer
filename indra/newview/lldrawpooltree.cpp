@@ -87,7 +87,6 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 	}
 	else
 	{
-		gPipeline.enableLightsDynamic();
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 	}
 }
@@ -101,7 +100,12 @@ void LLDrawPoolTree::render(S32 pass)
 		return;
 	}
 
-	LLGLState test(GL_ALPHA_TEST, LLGLSLShader::sNoFixedFunction ? 0 : 1);
+	LLGLState<GL_ALPHA_TEST> test(LLGLSLShader::sNoFixedFunction ? 0 : 1);
+	LLGLState<GL_LIGHTING> light_state;
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		gPipeline.enableLightsDynamic(light_state);
+	}
 	LLOverrideFaceColor color(this, 1.f, 1.f, 1.f, 1.f);
 
 	gGL.getTexUnit(sDiffTex)->bind(mTexturep);
@@ -211,7 +215,7 @@ void LLDrawPoolTree::beginShadowPass(S32 pass)
 
 	static const LLCachedControl<F32> render_deferred_offset("RenderDeferredTreeShadowOffset",1.f);
 	static const LLCachedControl<F32> render_deferred_bias("RenderDeferredTreeShadowBias",1.f);
-	glPolygonOffset(render_deferred_offset,render_deferred_bias);
+	gGL.setPolygonOffset(render_deferred_offset,render_deferred_bias);
 	gDeferredTreeShadowProgram.bind();
 	gDeferredTreeShadowProgram.setMinimumAlpha(0.5f);
 }
@@ -227,7 +231,7 @@ void LLDrawPoolTree::endShadowPass(S32 pass)
 
 	static const LLCachedControl<F32> render_deferred_offset("RenderDeferredSpotShadowOffset",1.f);
 	static const LLCachedControl<F32> render_deferred_bias("RenderDeferredSpotShadowBias",1.f);
-	glPolygonOffset(render_deferred_offset,render_deferred_bias);
+	gGL.setPolygonOffset(render_deferred_offset,render_deferred_bias);
 	gDeferredTreeShadowProgram.unbind();
 }
 

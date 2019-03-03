@@ -1177,7 +1177,7 @@ static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_DRAW("Draw");
 
 void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* shift)
 {
-	LLGLDisable stencil(GL_STENCIL_TEST);
+	LLGLDisable<GL_STENCIL_TEST> stencil;
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
 		//move mBounds to the agent space if necessary
@@ -1218,7 +1218,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 												(mSpatialPartition->mDrawableType == LLDrawPool::POOL_WATER ||
 												mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER);
 
-					LLGLEnable clamp(use_depth_clamp ? GL_DEPTH_CLAMP : 0);	
+					LLGLEnable<GL_DEPTH_CLAMP> clamp(use_depth_clamp);
 
 #if !LL_DARWIN					
 					U32 mode = gGLManager.mHasOcclusionQuery2 ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED_ARB;

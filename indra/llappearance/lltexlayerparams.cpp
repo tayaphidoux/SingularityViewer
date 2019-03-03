@@ -363,7 +363,7 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 	}
 	else
 	{
-		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		LLGLDisable<GL_ALPHA_TEST> no_alpha;
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4f(0.f, 0.f, 0.f, effective_weight);
 		gl_rect_2d_simple(width, height);

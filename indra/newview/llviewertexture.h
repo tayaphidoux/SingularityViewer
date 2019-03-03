@@ -224,7 +224,7 @@ public:
 	static S32Megabytes sMaxBoundTextureMemory;
 	static S32Megabytes sMaxTotalTextureMem;
 	static S64Bytes sMaxDesiredTextureMem ;
-	static S8  sCameraMovingDiscardBias;
+	static S32 sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;
 	static S32 sMinLargeImageSize ;
@@ -319,7 +319,7 @@ public:
 	void addToCreateTexture();
 
 	 // ONLY call from LLViewerTextureList
-	BOOL createTexture(S32 usename = 0);
+	BOOL createTexture(LLImageGL::GLTextureName* usename = nullptr);
 	void destroyTexture() ;	
 	
 	virtual void processTextureStats() ;

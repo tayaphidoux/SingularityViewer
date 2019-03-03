@@ -341,7 +341,7 @@ protected:
 		bool								mIsLoaded;
 		bool								mIsUsed;
 		LLAvatarAppearanceDefines::ETextureIndex 	mTextureIndex;
-		U32									mMaskTexName;
+		LLImageGL::GLTextureName			mMaskTexName;
 		// Stores pointers to the joint meshes that this baked texture deals with
 		avatar_joint_mesh_list_t			mJointMeshes;
 		morph_list_t						mMaskedMorphs;

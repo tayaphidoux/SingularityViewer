@@ -90,8 +90,8 @@ private:
 	U32 mNextDrawTarget;	//Need to pingpong between two rendertargets. Cannot sample target texture of currently bound FBO.
 							// However this is ONLY the case if fbos are actually supported, else swapping isn't needed.
 	LLRenderTarget mRenderTarget[2];
-	U32 mDepthTexture;
-	U32 mNoiseTexture ;
+	LLImageGL::GLTextureName mDepthTexture;
+	LLImageGL::GLTextureName mNoiseTexture ;
 	
 	U32 mScreenWidth;
 	U32 mScreenHeight;

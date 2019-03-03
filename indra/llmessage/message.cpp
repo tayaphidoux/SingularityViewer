@@ -1001,14 +1001,6 @@ BOOL LLMessageSystem::isSendFullFast(const char* blockname)
 	return mMessageBuilder->isMessageFull(blockname);
 }
 
-
-// blow away the last block of a message, return FALSE if that leaves no blocks or there wasn't a block to remove
-// TODO: Babbage: Remove this horror.
-BOOL LLMessageSystem::removeLastBlock()
-{
-	return mMessageBuilder->removeLastBlock();
-}
-
 S32 LLMessageSystem::sendReliable(const LLHost &host)
 {
 	return sendReliable(host, LL_DEFAULT_RELIABLE_RETRIES, TRUE, LL_PING_BASED_TIMEOUT_DUMMY, NULL, NULL);

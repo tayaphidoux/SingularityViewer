@@ -759,12 +759,12 @@ void gl_stippled_line_3d( const LLVector3& start, const LLVector3& end, const LL
 	S32 shift = S32(phase * 4.f) % 4;
 
 	// Stippled line
-	LLGLEnable stipple(GL_LINE_STIPPLE);
+	LLGLEnable<GL_LINE_STIPPLE> stipple;
 	
 	gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], color.mV[VALPHA]);
 
 	gGL.flush();
-	glLineWidth(2.5f);
+	gGL.setLineWidth(2.5f);
 
 	if (!LLGLSLShader::sNoFixedFunction)
 	{

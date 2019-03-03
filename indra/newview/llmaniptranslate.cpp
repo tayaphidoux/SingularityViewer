@@ -1103,7 +1103,7 @@ void LLManipTranslate::renderSnapGuides()
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest gls_depth(GL_TRUE);
-	LLGLDisable gls_cull(GL_CULL_FACE);
+	LLGLDisable<GL_CULL_FACE> gls_cull;
 	LLVector3 translate_axis;
 
 	if (mManipPart == LL_NO_PART)
@@ -1546,7 +1546,7 @@ void LLManipTranslate::renderSnapGuides()
 			LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
 			{
-				LLGLDisable stencil(GL_STENCIL_TEST);
+				LLGLDisable<GL_STENCIL_TEST> stencil;
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GREATER);
 					gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, getGridTexName());
@@ -1558,7 +1558,7 @@ void LLManipTranslate::renderSnapGuides()
 				}
 				
 				{
-					LLGLDisable alpha_test(GL_ALPHA_TEST);
+					LLGLDisable<GL_ALPHA_TEST> alpha_test;
 					//draw black overlay
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 					renderGrid(u,v,tiles,0.0f, 0.0f, 0.0f,a*0.16f);
@@ -1579,7 +1579,7 @@ void LLManipTranslate::renderSnapGuides()
 
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GREATER);
-					LLGLEnable stipple(GL_LINE_STIPPLE);
+					LLGLEnable<GL_LINE_STIPPLE> stipple;
 					gGL.flush();
 
 					if (!LLGLSLShader::sNoFixedFunction)
@@ -1675,10 +1675,11 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 	{
 		glStencilMask(stencil_mask);
 		glClearStencil(1);
+		gGL.syncContextState();
 		glClear(GL_STENCIL_BUFFER_BIT);
 		glClearStencil(0);
-		LLGLEnable cull_face(GL_CULL_FACE);
-		LLGLEnable stencil(GL_STENCIL_TEST);
+		LLGLEnable<GL_CULL_FACE> cull_face;
+		LLGLEnable<GL_STENCIL_TEST> stencil;
 		LLGLDepthTest depth (GL_TRUE, GL_FALSE, GL_ALWAYS);
 		glStencilFunc(GL_ALWAYS, 0, stencil_mask);
 		gGL.setColorMask(false, false);
@@ -1768,7 +1769,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		LLGLDepthTest depth(GL_FALSE);
-		LLGLEnable stencil(GL_STENCIL_TEST);
+		LLGLEnable<GL_STENCIL_TEST> stencil;
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 		glStencilFunc(GL_EQUAL, 0, stencil_mask);
 		renderGrid(0,0,tiles,inner_color.mV[0], inner_color.mV[1], inner_color.mV[2], 0.25f);
@@ -1915,7 +1916,7 @@ void LLManipTranslate::renderTranslationHandles()
 
 		{
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			LLGLDisable cull_face(GL_CULL_FACE);
+			LLGLDisable<GL_CULL_FACE> cull_face;
 
 			LLColor4 color1;
 			LLColor4 color2;
@@ -2207,8 +2208,8 @@ void LLManipTranslate::renderTranslationHandles()
 void LLManipTranslate::renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_size, F32 arrow_size, F32 handle_size, BOOL reverse_direction)
 {
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	LLGLEnable gls_blend(GL_BLEND);
-	LLGLEnable gls_color_material(GL_COLOR_MATERIAL);
+	LLGLEnable<GL_BLEND> gls_blend;
+	LLGLEnable<GL_COLOR_MATERIAL> gls_color_material;
 
 	for (S32 pass = 1; pass <= 2; pass++)
 	{	

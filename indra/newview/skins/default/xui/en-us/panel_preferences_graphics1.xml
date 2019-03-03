@@ -124,6 +124,8 @@
       <combo_item name="VSyncAdaptive" value="-1">Adaptive</combo_item>
     </combo_box>
     <spinner bottom_delta="70" control_name="TextureMemory" decimal_digits="0" height="16" increment="16" initial_val="32" label="Texture Memory (MB):" label_width="138" left="10" max_val="4096" min_val="0" name="GrapicsCardTextureMemory" tool_tip="Amount of memory to allocate for textures. Defaults to Video Card Memory. Reducing this may improve performance but may also make textures blurry." width="202"/>
+    <check_box bottom_delta="-18" control_name="RenderCompressedTextures" height="16" label="Enable Texture Compression" left="5" name="compressed_textures"
+     tool_tip="Enabling this reduces GPU memory consumption at the expense of in-world texture quality."/>
     <check_box bottom_delta="-25" control_name="RenderVBOEnable" height="16" label="Enable OpenGL Vertex Buffer Objects" left="5" name="vbo"
      tool_tip="Enabling this on modern hardware gives a performance gain.  However, older hardware often has poor implementations of VBOs and you may get crashes when this is enabled."/>
     <check_box bottom_delta="-18" control_name="ShyotlRenderUseStreamVBO" enabled_control="RenderVBOEnable" height="16" label="Enable Streamed VBOs" left="14" name="vbo_stream"

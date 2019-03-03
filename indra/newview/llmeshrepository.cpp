@@ -603,7 +603,7 @@ bool LLMeshRepoThread::LODRequest::fetch(U32& count)
 	return true;
 }
 
-void LLMeshRepoThread::runQuery(std::queue<std::pair<std::shared_ptr<MeshRequest>, F32> >& query, U32& count, S32& active_requests)
+void LLMeshRepoThread::runQueue(std::deque<std::pair<std::shared_ptr<MeshRequest>, F32> >& query, U32& count, S32& active_requests)
 {
 	std::queue<std::pair<std::shared_ptr<MeshRequest>, F32> > incomplete;
 	while (!query.empty() && count < MAX_MESH_REQUESTS_PER_SECOND && active_requests < (S32)sMaxConcurrentRequests)
@@ -613,18 +613,23 @@ void LLMeshRepoThread::runQuery(std::queue<std::pair<std::shared_ptr<MeshRequest
 			mMutex->lock();
 			auto req = query.front().first;
 			F32 delay = query.front().second;
-			query.pop();
+			query.pop_front();
 			req->preFetch();
 			mMutex->unlock();
 			F32 remainder = delay - req->mTimer.getElapsedTimeF32();
 			if (remainder > 0.f)
 			{
+				//LL_INFOS() << req->mMeshParams.getSculptID() << " skipped. " << remainder << "s remaining" << LL_ENDL;
 				incomplete.push(std::make_pair(req, delay));
 			}
 			else if (!req->fetch(count))//failed, resubmit
 			{
+				LL_INFOS() << req->mMeshParams.getSculptID() << " fetch failed outright. Delaying for " << (delay ? delay : 15) << "s" << LL_ENDL;
 				req->mTimer.reset();
 				incomplete.push(std::make_pair(req, delay ? delay : 15));
+			}
+			else {
+				//LL_INFOS() << req->mMeshParams.getSculptID() << " fetch request created. " << std::hex << &(req->mMeshParams) << std::dec << LL_ENDL;
 			}
 		}
 	}
@@ -633,7 +638,7 @@ void LLMeshRepoThread::runQuery(std::queue<std::pair<std::shared_ptr<MeshRequest
 		mMutex->lock();
 		while (!incomplete.empty())
 		{
-			query.push(incomplete.front());
+			query.push_back(incomplete.front());
 			incomplete.pop();
 		}
 		mMutex->unlock();
@@ -678,8 +683,8 @@ void LLMeshRepoThread::run()
 			}
 
 			// NOTE: throttling intentionally favors LOD requests over header requests
-			runQuery(mLODReqQ, count, sActiveLODRequests);
-			runQuery(mHeaderReqQ, count, sActiveHeaderRequests);
+			runQueue(mLODReqQ, count, sActiveLODRequests);
+			runQueue(mHeaderReqQ, count, sActiveHeaderRequests);
 
 			// Protected by mSignal
 			runSet(mSkinRequests, std::bind(&LLMeshRepoThread::fetchMeshSkinInfo, this, std::placeholders::_1));
@@ -688,7 +693,11 @@ void LLMeshRepoThread::run()
 
 		}
 
-		mSignal->wait();
+		mSignal->unlock();
+		ms_sleep(1000 / 60);
+		mSignal->lock();
+
+		//mSignal->wait();
 	}
 
 	if (mSignal->isLocked())
@@ -795,9 +804,11 @@ bool LLMeshRepoThread::getMeshHeaderInfo(const LLUUID& mesh_id, const char* bloc
 
 	if ((info.mHeaderSize = mMeshHeaderSize[mesh_id]) > 0)
 	{
-		info.mVersion = mMeshHeader[mesh_id]["version"].asInteger();
-		info.mOffset = info.mHeaderSize + mMeshHeader[mesh_id][block_name]["offset"].asInteger();
-		info.mSize = mMeshHeader[mesh_id][block_name]["size"].asInteger();
+		const LLSD& header = mMeshHeader[mesh_id];
+		const LLSD& block = header[block_name];
+		info.mVersion = header["version"].asInteger();
+		info.mOffset = info.mHeaderSize + block["offset"].asInteger();
+		info.mSize = block["size"].asInteger();
 	}
 	return true;
 }
@@ -1943,7 +1954,6 @@ void LLMeshRepository::cacheOutgoingMesh(LLMeshUploadData& data, LLSD& header)
 
 void LLMeshLODResponder::retry()
 {
-	LL_INFOS() << "retry (lod)" << LL_ENDL;
 	AIStateMachine::StateTimer timer("loadMeshLOD");
 	LLMeshRepository::sHTTPRetryCount++;
 	gMeshRepo.mThread->loadMeshLOD(mMeshParams, mLOD);
@@ -2016,7 +2026,6 @@ void LLMeshLODResponder::completedRaw(LLChannelDescriptors const& channels,
 
 void LLMeshSkinInfoResponder::retry()
 {
-	LL_INFOS() << "retry" << LL_ENDL;
 	LLMeshRepository::sHTTPRetryCount++;
 	gMeshRepo.mThread->loadMeshSkinInfo(mMeshID);
 }
@@ -2085,7 +2094,6 @@ void LLMeshSkinInfoResponder::completedRaw(LLChannelDescriptors const& channels,
 
 void LLMeshDecompositionResponder::retry()
 {
-	LL_INFOS() << "retry" << LL_ENDL;
 	LLMeshRepository::sHTTPRetryCount++;
 	gMeshRepo.mThread->loadMeshDecomposition(mMeshID);
 }
@@ -2153,7 +2161,6 @@ void LLMeshDecompositionResponder::completedRaw(LLChannelDescriptors const& chan
 
 void LLMeshPhysicsShapeResponder::retry()
 {
-	LL_INFOS() << "retry" << LL_ENDL;
 	LLMeshRepository::sHTTPRetryCount++;
 	gMeshRepo.mThread->loadMeshPhysicsShape(mMeshID);
 }
@@ -2221,7 +2228,6 @@ void LLMeshPhysicsShapeResponder::completedRaw(LLChannelDescriptors const& chann
 
 void LLMeshHeaderResponder::retry()
 {
-	LL_INFOS() << "retry" << LL_ENDL;
 	AIStateMachine::StateTimer timer("Retry");
 	LLMeshRepository::sHTTPRetryCount++;
 	LLMutexLock lock(gMeshRepo.mThread->mMutex);
@@ -2231,6 +2237,7 @@ void LLMeshHeaderResponder::retry()
 void LLMeshHeaderResponder::completedRaw(LLChannelDescriptors const& channels,
 										 LLIOPipe::buffer_ptr_t const& buffer)
 {
+	//LL_INFOS() << mMeshParams.getSculptID() << " Status: " << mStatus << LL_ENDL;
 	mProcessed = true;
 
 	// thread could have already be destroyed during logout

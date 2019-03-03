@@ -1403,7 +1403,16 @@ void LLScrollListCtrl::drawItems()
 	{
 		LLLocalClipRect clip(mItemListRect);
 
-		S32 cur_y = y;
+		LLRect clip_rect = LLUI::getRootView()->getRect();
+		if (LLGLState<GL_SCISSOR_TEST>::isEnabled())
+		{
+			LLRect scissor = gGL.getScissor();
+			scissor.mLeft /= LLUI::getScaleFactor().mV[VX];
+			scissor.mTop /= LLUI::getScaleFactor().mV[VY];
+			scissor.mRight /= LLUI::getScaleFactor().mV[VX];
+			scissor.mBottom /= LLUI::getScaleFactor().mV[VY];
+			clip_rect.intersectWith(scissor);
+		}
 
 		S32 max_columns = 0;
 
@@ -1418,55 +1427,70 @@ void LLScrollListCtrl::drawItems()
 		{
 			return;
 		}
-		item_list::iterator iter;
-		for (S32 line = first_line; line <= last_line; line++)
+		bool done = false;
+		for (S32 pass = 0; !done; ++pass)
 		{
-			LLScrollListItem* item = mItemList[line];
-			
-			item_rect.setOriginAndSize( 
-				x, 
-				cur_y, 
-				mItemListRect.getWidth(),
-				mLineHeight );
-			item->setRect(item_rect);
-
-			//LL_INFOS() << item_rect.getWidth() << LL_ENDL;
-
-			max_columns = llmax(max_columns, item->getNumColumns());
-
-			LLColor4 fg_color;
-			LLColor4 bg_color(LLColor4::transparent);
-
-			if( mScrollLines <= line && line < mScrollLines + num_page_lines )
+			bool should_continue = false; // False until all passes are done for all row cells.
+			S32 cur_y = y;
+			for (S32 line = first_line; line <= last_line; line++)
 			{
-				fg_color = (item->getEnabled() ? mFgUnselectedColor : mFgDisabledColor);
-				if( item->getSelected() && mCanSelect)
+				LLScrollListItem* item = mItemList[line];
+
+				item_rect.setOriginAndSize(
+					x,
+					cur_y,
+					mItemListRect.getWidth(),
+					mLineHeight);
+				item->setRect(item_rect);
+
+				//LL_INFOS() << item_rect.getWidth() << LL_ENDL;
+
+				max_columns = llmax(max_columns, item->getNumColumns());
+
+				LLColor4 fg_color;
+				LLColor4 bg_color(LLColor4::transparent);
+
+				if (mScrollLines <= line && line < mScrollLines + num_page_lines)
 				{
-					bg_color = mBgSelectedColor;
-					fg_color = (item->getEnabled() ? mFgSelectedColor : mFgDisabledColor);
-				}
-				else if (mHighlightedItem == line && mCanSelect)
-				{
-					bg_color = mHighlightedColor;
-				}
-				else 
-				{
-					if (mDrawStripes && (line % 2 == 0) && (max_columns > 1))
+					cur_y -= mLineHeight;
+
+					// Do not draw if not on screen.
+					LLRect screen_rect = item_rect;
+					screen_rect.translate(LLFontGL::sCurOrigin.mX, LLFontGL::sCurOrigin.mY);
+					if (!clip_rect.overlaps(screen_rect))
 					{
-						bg_color = mBgStripeColor;
+						continue;
 					}
+
+					fg_color = (item->getEnabled() ? mFgUnselectedColor : mFgDisabledColor);
+					if (item->getSelected() && mCanSelect)
+					{
+						bg_color = mBgSelectedColor;
+						fg_color = (item->getEnabled() ? mFgSelectedColor : mFgDisabledColor);
+					}
+					else if (mHighlightedItem == line && mCanSelect)
+					{
+						bg_color = mHighlightedColor;
+					}
+					else
+					{
+						if (mDrawStripes && (line % 2 == 0) && (max_columns > 1))
+						{
+							bg_color = mBgStripeColor;
+						}
+					}
+
+					if (!item->getEnabled())
+					{
+						bg_color = mBgReadOnlyColor;
+					}
+
+					should_continue |= item->draw(pass, item_rect, fg_color, bg_color, highlight_color, mColumnPadding);
 				}
-
-				if (!item->getEnabled())
-				{
-					bg_color = mBgReadOnlyColor;
-				}
-
-				item->draw(item_rect, fg_color, bg_color, highlight_color, mColumnPadding);
-
-				cur_y -= mLineHeight;
 			}
+			done = !should_continue;
 		}
+
 	}
 }
 

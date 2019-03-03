@@ -92,7 +92,7 @@ public:
 
 	std::string getContentsCSV() const;
 
-	virtual void draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& bg_color, const LLColor4& highlight_color, S32 column_padding);
+	virtual bool draw(const U32 pass, const LLRect& rect, const LLColor4& fg_color, const LLColor4& bg_color, const LLColor4& highlight_color, S32 column_padding);
 
 protected:
 	LLScrollListItem( const Params& );

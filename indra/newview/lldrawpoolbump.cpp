@@ -421,7 +421,7 @@ void LLDrawPoolBump::renderShiny()
 
 	if( gSky.mVOSkyp->getCubeMap() )
 	{
-		LLGLEnable blend_enable(GL_BLEND);
+		LLGLEnable<GL_BLEND> blend_enable;
 		if (mVertexShaderLevel > 1)
 		{
 			LLRenderPass::pushBatches(LLRenderPass::PASS_SHINY, sVertexMask | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
@@ -547,7 +547,7 @@ void LLDrawPoolBump::renderFullbrightShiny()
 
 	if( gSky.mVOSkyp->getCubeMap() )
 	{
-		LLGLEnable blend_enable(GL_BLEND);
+		LLGLEnable<GL_BLEND> blend_enable;
 
 		gGL.setSceneBlendType(LLRender::BT_REPLACE);
 		if (mVertexShaderLevel > 1)
@@ -748,13 +748,13 @@ void LLDrawPoolBump::renderBump(U32 pass)
 	}
 
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_BUMP);
-	LLGLDisable fog(GL_FOG);
+	LLGLDisable<GL_FOG> fog;
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
-	LLGLEnable blend(GL_BLEND);
+	LLGLEnable<GL_BLEND> blend;
 	gGL.diffuseColor4f(1,1,1,1);
 	/// Get rid of z-fighting with non-bump pass.
-	LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(-1.0f, -1.0f);
+	LLGLEnable<GL_POLYGON_OFFSET_FILL> polyOffset;
+	gGL.setPolygonOffset(-1.0f, -1.0f);
 	renderBump(pass, sVertexMask);
 }
 
@@ -1349,8 +1349,8 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 					gPipeline.mScreen.bindTarget();
 					
 					LLGLDepthTest depth(GL_FALSE);
-					LLGLDisable cull(GL_CULL_FACE);
-					LLGLDisable blend(GL_BLEND);
+					LLGLDisable<GL_CULL_FACE> cull;
+					LLGLDisable<GL_BLEND> blend;
 					gGL.setColorMask(TRUE, TRUE);
 					gNormalMapGenProgram.bind();
 
@@ -1373,7 +1373,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 					S32 screen_width = gPipeline.mScreen.getWidth();
 					S32 screen_height = gPipeline.mScreen.getHeight();
 
-					glViewport(0, 0, screen_width, screen_height);
+					gGL.setViewport(0, 0, screen_width, screen_height);
 
 					for (S32 left = 0; left < width; left += screen_width)
 					{

@@ -213,8 +213,8 @@ void LLManipScale::render()
 	LLGLSUIDefault gls_ui;
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest gls_depth(GL_TRUE);
-	LLGLEnable gl_blend(GL_BLEND);
-	LLGLEnable gls_alpha_test(GL_ALPHA_TEST);
+	LLGLEnable<GL_BLEND> gl_blend;
+	LLGLEnable<GL_ALPHA_TEST> gls_alpha_test;
 	LLBBox bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
 
 	if( canAffectSelection() )
@@ -293,8 +293,8 @@ void LLManipScale::render()
 
 			
 			{
-				LLGLEnable poly_offset(GL_POLYGON_OFFSET_FILL);
-				glPolygonOffset( -2.f, -2.f);
+				LLGLEnable<GL_POLYGON_OFFSET_FILL> poly_offset;
+				gGL.setPolygonOffset( -2.f, -2.f);
 
 				// JC - Band-aid until edge stretch working similar to side stretch
 				// in non-uniform.
@@ -308,7 +308,7 @@ void LLManipScale::render()
 					renderGuidelinesPart( bbox );
 				}
 
-				glPolygonOffset( 0.f, 0.f);
+				gGL.setPolygonOffset( 0.f, 0.f);
 			}
 		}
 		gGL.popMatrix();
