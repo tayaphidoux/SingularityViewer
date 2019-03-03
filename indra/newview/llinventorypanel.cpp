@@ -73,7 +73,8 @@ class LLInventoryPanelObserver : public LLInventoryObserver
 public:
 	LLInventoryPanelObserver(LLInventoryPanel* ip) : mIP(ip) {}
 	virtual ~LLInventoryPanelObserver() {}
-	virtual void changed(U32 mask)
+
+	void changed(U32 mask) override
 	{
 		mIP->modelChanged(mask);
 	}
@@ -97,7 +98,7 @@ protected:
 class LLInvPanelComplObserver : public LLInventoryCompletionObserver
 {
 public:
-	typedef boost::function<void()> callback_t;
+	typedef std::function<void()> callback_t;
 
 	LLInvPanelComplObserver(callback_t cb)
 	:	mCallback(cb)
@@ -107,7 +108,7 @@ public:
 	void reset();
 
 private:
-	/*virtual*/ void done();
+	/*virtual*/ void done() override;
 
 	/// Called when all the items are complete.
 	callback_t	mCallback;
