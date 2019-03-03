@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater
-  title="MARKETPLACE LISTINGS"
+  title="Marketplace Listings"
   name="floater_marketplace_listings"
   help_topic="floater_marketplace_listings"
   positioning="cascading"
   width="333"
   height="445"
-  min_width="200"
-  min_height="300"
+  min_width="333"
+  min_height="445"
   can_close="true"
   can_resize="true"
   save_rect="true"
   save_visibility="false"
+  rect_control="FloaterMarketplaceListingsRect"
   reuse_instance="true">
   <panel
     name="marketplace_listings_panel"
     follows="all"
     layout="topleft"
     left="0"
-    top="0"
+    bottom="-460"
     height="440"
     width="333">
     <panel
@@ -26,13 +27,13 @@
       left="10"
       height="440"
       width="313"
-      top="0"
+      bottom="-440"
       bg_opaque_color="InventoryBackgroundColor">
       <panel
         name="marketplace_listings_inventory_placeholder_panel"
         follows="all"
         layout="topleft"
-        top="0"
+        bottom="-440"
         left="0"
         width="313"
         height="440"
@@ -42,7 +43,7 @@
           type="string"
           follows="top|left|right"
           layout="topleft"
-          top="10"
+          bottom="-35"
           left="0"
           width="313"
           height="25"
@@ -56,7 +57,7 @@
           type="string"
           follows="top|left|right"
           layout="topleft"
-          top="35"
+          bottom="-165"
           left="0"
           width="313"
           height="130"
@@ -67,7 +68,7 @@
         name="panel_marketplace_listing"
         filename="panel_marketplace_listings.xml"
         class="llpanelmarketplacelistings"
-        top="0"
+        bottom="-440"
         follows="all"/>
       </panel>
     <panel

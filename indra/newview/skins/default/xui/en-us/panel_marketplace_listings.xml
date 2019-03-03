@@ -9,46 +9,41 @@
   <panel
     name="tool_panel"
     follows="left|top|right"
-    layout="topleft"
     height="30"
     width="308"
-    top="0"
+    bottom="-30"
     left="0">
-    <menu_button
+    <button
+      bottom="-30"
       name="sort_btn"
+      label=""
       tool_tip="View/sort options"
-      layout="topleft"
-      follows="top|left"
+      follows="bottom|top|left"
       width="31"
       height="25"
       left="2"
       menu_filename="menu_marketplace_view.xml"
-      image_hover_unselected="Toolbar_Middle_Over"
       image_overlay="Conv_toolbar_sort"
-      image_selected="Toolbar_Middle_Selected"
-      image_unselected="Toolbar_Middle_Off"
       menu_position="bottomleft"/>
     <button
       name="add_btn"
       tool_tip="Create a new listing folder"
-      layout="topleft"
-      follows="top|left"
+      follows="bottom|top|left"
       width="31"
       height="25"
-      left_pad="2"
-      image_hover_unselected="Toolbar_Middle_Over"
-      image_overlay="Conv_toolbar_plus"
-      image_selected="Toolbar_Middle_Selected"
-      image_unselected="Toolbar_Middle_Off"/>
+      bottom_delta="0"
+      left_delta="33"
+      label=""
+      image_overlay="Conv_toolbar_plus"/>
     <button
       name="audit_btn"
       label="Check for Errors"
       tool_tip="Check your marketplace listings"
-      layout="topleft"
-      follows="top|right"
-      width="97"
+      follows="bottom|top|right"
+      width="120"
       height="26"
-      left_pad="143"/>
+      bottom_delta="0"
+      left_delta="153"/>
   </panel>
   <panel
     name="tab_container_panel"
@@ -66,22 +61,25 @@
     left="0"
     max_length_chars="300"
     name="filter_editor"
-    top="0"
+    bottom="-23"
     width="308" />
   <tab_container
     name="marketplace_filter_tabs"
     follows="all"
     layout="topleft"
-    top="30"
+    bottom="-350"
     left="0"
-    top_pad="0"
     width="308"
     height="320"
     halign="center"
     tab_height="30"
     tab_group="1"
     tab_position="top"
-    tab_min_width="50">
+    tab_min_width="10">
+    <inventory_panel label="All" name="All Items" filename="panel_marketplace_listings_inventory.xml"/>
+    <inventory_panel label="Active" name="Active Items" filename="panel_marketplace_listings_listed.xml"/>
+    <inventory_panel label="Inactive" name="Inactive Items" filename="panel_marketplace_listings_unlisted.xml"/>
+    <inventory_panel label="Unassociated" name="Unassociated Items" filename="panel_marketplace_listings_unassociated.xml"/>
   </tab_container>
   </panel>
   <panel
@@ -90,7 +88,8 @@
       follows="bottom|left|right"
       left="2"
       width="306"
-      height="40"
+      bottom_delta="-35"
+      height="35"
       background_visible="true"
       background_opaque="true"
       bg_alpha_image="none"
@@ -103,7 +102,7 @@
           type="string"
           follows="bottom|left|right"
           layout="topleft"
-          top="13"
+          bottom="-30"
           height="20"
           left="2"
           width="306"
@@ -111,7 +110,7 @@
           font="SansSerifMedium"
           font_shadow="hard"
           valign="top">
-          Drop folders here to creat4e new listings
+          Drop folders here to create new listings
       </text>
   </panel>
 </panel>

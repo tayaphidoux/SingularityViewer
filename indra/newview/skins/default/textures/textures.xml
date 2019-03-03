@@ -46,6 +46,9 @@ with the same filename but different name
   <texture name="Cam_Preset_Side_Off" file_name="Cam_Preset_Side_Off.png" preload="false" />
   <texture name="Cam_Preset_Side_On" file_name="Cam_Preset_Side_On.png" preload="false" />
 
+  <texture name="Conv_toolbar_plus" file_name="Conv_toolbar_plus.png" preload="false" />
+  <texture name="Conv_toolbar_sort" file_name="Conv_toolbar_sort.png" preload="false" />
+
   <texture name="icon_group.tga"/>
 
   <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
@@ -62,6 +65,9 @@ with the same filename but different name
   <texture name="ProgressTrack" file_name="progressbar_track.tga" preload="true" scale.left="10" scale.top="7" scale.right="80" scale.bottom="7" />
   <texture name="Refresh_Off" file_name="Refresh_Off.png" preload="true" />
 
+  <texture name="Marketplace_Dropzone_Background" file_name="Marketplace_Dropzone_Background.png" preload="true" />
+  <texture name="MarketplaceBtn_Off" file_name="MarketplaceBtn_Off.png" preload="true" scale.left="30" scale.top="4" scale.right="35" scale.bottom="4" />
+  <texture name="MarketplaceBtn_Selected" file_name="MarketplaceBtn_Selected.png" preload="true" scale.left="30" scale.top="4" scale.right="35" scale.bottom="4" />
   <texture name="NoEntryLines" file_name="world/NoEntryLines.png" use_mips="true" preload="false" />
   <texture name="NoEntryPassLines" file_name="world/NoEntryPassLines.png" use_mips="true" preload="false" />
   <texture name="Rounded_Rect"	file_name="Rounded_Rect.png" preload="true" scale.left="6" scale.top="26" scale.right="58" scale.bottom="6" />
