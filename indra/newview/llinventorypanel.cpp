@@ -820,17 +820,22 @@ LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge
 
 LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
- 	LLInventoryObject const* objectp = gInventory.getObject(id);
+	LLInventoryObject const* objectp = gInventory.getObject(id);
+	LLFolderViewFolder* parent_folder = mFolderRoot.get();
+	LLUUID root_id = parent_folder->getListener()->getUUID();
+	LLFolderViewItem* folder_view_item = nullptr;
 
-	if (!objectp)
+	if (id != root_id && !objectp)
 	{
 		return NULL;
 	}
 
- 	LLFolderViewItem* folder_view_item = getItemByID(id);
+	if (objectp)
+	{
+	folder_view_item = getItemByID(id);
 
 	const LLUUID& parent_id = objectp->getParentUUID();
- 	LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
+	parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
 
 	// Force the creation of an extra root level folder item if required by the inventory panel (default is "false")
 	bool allow_drop = true;
@@ -909,10 +914,12 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 			}
 		}
 	}
+	}
 
 	// If this is a folder, add the children of the folder and recursively add any 
 	// child folders.
-	if (folder_view_item && objectp->getType() == LLAssetType::AT_CATEGORY)
+	if (id.isNull()
+		|| (folder_view_item && objectp->getType() == LLAssetType::AT_CATEGORY))
 	{
 		LLViewerInventoryCategory::cat_array_t* categories;
 		LLViewerInventoryItem::item_array_t* items;
