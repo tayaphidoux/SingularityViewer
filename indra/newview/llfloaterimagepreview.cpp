@@ -252,7 +252,7 @@ void LLFloaterImagePreview::draw()
 		if (selected <= 0)
 		{
 			gl_rect_2d_checkerboard( calcScreenRect(), mPreviewRect);
-			LLGLDisable gls_alpha(GL_ALPHA_TEST);
+			LLGLDisable<GL_ALPHA_TEST> gls_alpha;
 
 			if(mImagep.notNull())
 			{
@@ -757,13 +757,14 @@ BOOL LLImagePreviewAvatar::render()
 	{
 		LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
 		// make sure alpha=0 shows avatar material color
-		LLGLDisable no_blend(GL_BLEND);
+		LLGLDisable<GL_BLEND> no_blend;
 
 		LLFace* face = avatarp->mDrawable->getFace(0);
 		if (face)
 		{
 			LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)face->getPool();
-			gPipeline.enableLightsPreview();
+			LLGLState<GL_LIGHTING> light_state;
+			gPipeline.enableLightsPreview(light_state);
 			avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 		}
 	}
@@ -900,8 +901,8 @@ BOOL LLImagePreviewSculpted::render()
 {
 	mNeedsUpdate = FALSE;
 	LLGLSUIDefault def;
-	LLGLDisable no_blend(GL_BLEND);
-	LLGLEnable cull(GL_CULL_FACE);
+	LLGLDisable<GL_BLEND> no_blend;
+	LLGLEnable<GL_CULL_FACE> cull;
 	LLGLDepthTest depth(GL_TRUE);
 
 	gGL.matrixMode(LLRender::MM_PROJECTION);
@@ -928,6 +929,7 @@ BOOL LLImagePreviewSculpted::render()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 
+	gGL.syncContextState();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	
 	LLVector3 target_pos(0, 0, 0);
@@ -950,13 +952,14 @@ BOOL LLImagePreviewSculpted::render()
 	const LLVolumeFace &vf = mVolume->getVolumeFace(0);
 	U32 num_indices = vf.mNumIndices;
 	
-	gPipeline.enableLightsAvatar();
+	LLGLState<GL_LIGHTING> light_state;
+	gPipeline.enableLightsAvatar(light_state);
 
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		gObjectPreviewProgram.bind();
 	}
-	gPipeline.enableLightsPreview();
+	gPipeline.enableLightsPreview(light_state);
 
 	gGL.pushMatrix();
 	const F32 SCALE = 1.25f;

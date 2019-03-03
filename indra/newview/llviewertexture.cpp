@@ -93,7 +93,7 @@ S64Bytes LLViewerTexture::sTotalTextureMemory;
 S32Megabytes LLViewerTexture::sMaxBoundTextureMemory;
 S32Megabytes LLViewerTexture::sMaxTotalTextureMem;
 S64Bytes LLViewerTexture::sMaxDesiredTextureMem;
-S8  LLViewerTexture::sCameraMovingDiscardBias = 0;
+S32 LLViewerTexture::sCameraMovingDiscardBias = 0;
 F32 LLViewerTexture::sCameraMovingBias = 0.0f;
 S32 LLViewerTexture::sMaxSculptRez = 128; //max sculpt image size
 const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
@@ -562,7 +562,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	F32 camera_moving_speed = LLViewerCamera::getInstance()->getAverageSpeed();
 	F32 camera_angular_speed = LLViewerCamera::getInstance()->getAverageAngularSpeed();
 	sCameraMovingBias = llmax(0.2f * camera_moving_speed, 2.0f * camera_angular_speed - 1);
-	sCameraMovingDiscardBias = (S8)(sCameraMovingBias);
+	sCameraMovingDiscardBias = sCameraMovingBias;
 
 	LLViewerTexture::sFreezeImageScalingDown = (sBoundTextureMemory < 0.75f * sMaxBoundTextureMemory * texmem_middle_bound_scale) &&
 				(sTotalTextureMemory < 0.75f * sMaxTotalTextureMem * texmem_middle_bound_scale);
@@ -1018,6 +1018,8 @@ LLViewerFetchedTexture::LLViewerFetchedTexture(const std::string& url, FTType f_
 	init(TRUE);
 	mFTType = f_type;
 	generateGLTexture();
+	if (f_type == FTT_LOCAL_FILE)
+		mGLTexturep->setAllowCompression(false);
 	mGLTexturep->setNeedsAlphaAndPickMask(TRUE);
 }
 
@@ -1297,7 +1299,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
 	if(isForSculptOnly())
 	{
 		//just update some variables, not to create a real GL texture.
-		createGLTexture(mRawDiscardLevel, mRawImage, 0, FALSE);
+		createGLTexture(mRawDiscardLevel, mRawImage, nullptr, FALSE);
 		mNeedsCreateTexture = FALSE;
 		destroyRawImage();
 	}
@@ -1360,7 +1362,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
 }
 
 // ONLY called from LLViewerTextureList
-BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
+BOOL LLViewerFetchedTexture::createTexture(LLImageGL::GLTextureName* usename)
 {
 	if (!mNeedsCreateTexture)
 	{
@@ -1370,8 +1372,7 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 	mNeedsCreateTexture = FALSE;
 	if (mRawImage.isNull())
 	{
-		LL_ERRS() << "LLViewerTexture trying to create texture with no Raw Image" << LL_ENDL;
-
+		LL_WARNS() << "LLViewerTexture trying to create texture with no Raw Image" << LL_ENDL;
 	}
 // 	LL_INFOS() << llformat("IMAGE Creating (%d) [%d x %d] Bytes: %d ",
 // 						mRawDiscardLevel, 

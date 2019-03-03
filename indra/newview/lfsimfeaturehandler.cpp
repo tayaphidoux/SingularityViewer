@@ -92,6 +92,7 @@ void LFSimFeatureHandler::setSupportedFeatures()
 					mGridName = gHippoGridManager->getConnectedGrid()->getGridName() != grid_name ? grid_name : LLStringUtil::null;
 				}
 			}
+			has_feature_or_default(mEventsURL, extras, "EventsURL");
 			has_feature_or_default(mSayRange, extras, "say-range");
 			has_feature_or_default(mShoutRange, extras, "shout-range");
 			has_feature_or_default(mWhisperRange, extras, "whisper-range");
@@ -105,6 +106,7 @@ void LFSimFeatureHandler::setSupportedFeatures()
 				mMapServerURL = LLStringUtil::null;
 				mSearchURL.reset();
 				mGridName.reset();
+				mEventsURL.reset();
 			}
 			mSayRange.reset();
 			mShoutRange.reset();

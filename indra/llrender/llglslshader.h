@@ -82,6 +82,7 @@ public:
 
 	static GLhandleARB sCurBoundShader;
 	static LLGLSLShader* sCurBoundShaderPtr;
+
 	static S32 sIndexedTextureChannels;
 	static bool sNoFixedFunction;
 
@@ -145,6 +146,7 @@ public:
 		F32 val = x;
 		if (updateUniform<LLVector4, 1>(mValueVec4, getUniformFromIndex(index), &val))
 		{
+			gGL.syncShaders();
 			glUniform1iARB(mUniform[index], x);
 		}
 	}
@@ -152,6 +154,7 @@ public:
 	{
 		if (updateUniform<LLVector4, 1>(mValueVec4, getUniformFromIndex(index), &x))
 		{
+			gGL.syncShaders();
 			glUniform1fARB(mUniform[index], x);
 		}
 	}
@@ -160,6 +163,7 @@ public:
 		F32 val[] = { x, y };
 		if (updateUniform<LLVector4, 2>(mValueVec4, getUniformFromIndex(index), val))
 		{
+			gGL.syncShaders();
 			glUniform2fARB(mUniform[index], x, y);
 		}
 	}
@@ -168,6 +172,7 @@ public:
 		F32 val[] = { x, y, z };
 		if (updateUniform<LLVector4, 3>(mValueVec4, getUniformFromIndex(index), val))
 		{
+			gGL.syncShaders();
 			glUniform3fARB(mUniform[index], x, y, z);
 		}
 	}
@@ -176,6 +181,7 @@ public:
 		F32 val[] = { x, y, z, w };
 		if (updateUniform<LLVector4, 4>(mValueVec4, getUniformFromIndex(index), val))
 		{
+			gGL.syncShaders();
 			glUniform4fARB(mUniform[index], x, y, z, w);
 		}
 	}
@@ -184,6 +190,7 @@ public:
 		F32 val[] = { static_cast<const F32>(v[0]) };
 		if (updateUniform<LLVector4, 1>(mValueVec4, getUniformFromIndex(index), val) || count > 1)
 		{
+			gGL.syncShaders();
 			glUniform1ivARB(mUniform[index], count, v);
 		}
 	}
@@ -191,6 +198,7 @@ public:
 	{
 		if (updateUniform<LLVector4, 1>(mValueVec4, getUniformFromIndex(index), v) || count > 1)
 		{
+			gGL.syncShaders();
 			glUniform1fvARB(mUniform[index], count, v);
 		}
 	}
@@ -198,6 +206,7 @@ public:
 	{
 		if (updateUniform<LLVector4, 2>(mValueVec4, getUniformFromIndex(index), v) || count > 1)
 		{
+			gGL.syncShaders();
 			glUniform2fvARB(mUniform[index], count, v);
 		}
 	}
@@ -205,6 +214,7 @@ public:
 	{
 		if (updateUniform<LLVector4, 3>(mValueVec4, getUniformFromIndex(index), v) || count > 1)
 		{
+			gGL.syncShaders();
 			glUniform3fvARB(mUniform[index], count, v);
 		}
 	}
@@ -212,6 +222,7 @@ public:
 	{
 		if (updateUniform<LLVector4, 4>(mValueVec4, getUniformFromIndex(index), v) || count > 1)
 		{
+			gGL.syncShaders();
 			glUniform4fvARB(mUniform[index], count, v);
 		}
 	}
@@ -219,6 +230,7 @@ public:
 	{
 		if (updateUniform<LLMatrix3, 9>(mValueMat3, getUniformFromIndex(index), v) || count > 1)
 		{
+			gGL.syncShaders();
 			glUniformMatrix3fvARB(mUniform[index], count, transpose, v);
 		}
 	}
@@ -226,6 +238,7 @@ public:
 	{
 		if (updateUniform<LLMatrix4, 12>(mValueMat4, getUniformFromIndex(index), v) || count > 1)
 		{
+			gGL.syncShaders();
 			glUniformMatrix3x4fv(mUniform[index], count, transpose, v);
 		}
 	}
@@ -233,6 +246,7 @@ public:
 	{
 		if (updateUniform<LLMatrix4, 16>(mValueMat4, getUniformFromIndex(index), v) || count > 1)
 		{
+			gGL.syncShaders();
 			glUniformMatrix4fvARB(mUniform[index], count, transpose, v);
 		}
 	}
@@ -244,6 +258,7 @@ public:
 		F32 val = i;
 		if (updateUniform<LLVector4, 1>(mValueVec4, getUniformLocation(uniform), &val))
 		{
+			gGL.syncShaders();
 			glUniform1iARB(location, i);
 		}
 	}
@@ -254,6 +269,7 @@ public:
 			return;
 		if (updateUniform<LLVector4, 1>(mValueVec4, location, &v))
 		{
+			gGL.syncShaders();
 			glUniform1fARB(location, v);
 		}
 	}
@@ -265,6 +281,7 @@ public:
 		F32 val[] = { x, y };
 		if (updateUniform<LLVector4, 2>(mValueVec4, location, val))
 		{
+			gGL.syncShaders();
 			glUniform2fARB(location, x, y);
 		}
 	}
@@ -276,6 +293,7 @@ public:
 		F32 val[] = { x, y, z };
 		if (updateUniform<LLVector4, 3>(mValueVec4, location, val))
 		{
+			gGL.syncShaders();
 			glUniform3fARB(location, x, y, z);
 		}
 	}
@@ -286,6 +304,7 @@ public:
 			return;
 		if (updateUniform<LLVector4, 1>(mValueVec4, location, v))
 		{
+			gGL.syncShaders();
 			glUniform1fvARB(location, count, v);
 		}
 	}
@@ -296,6 +315,7 @@ public:
 			return;
 		if (updateUniform<LLVector4, 2>(mValueVec4, location, v))
 		{
+			gGL.syncShaders();
 			glUniform2fvARB(location, count, v);
 		}
 	}
@@ -306,6 +326,7 @@ public:
 			return;
 		if (updateUniform<LLVector4, 3>(mValueVec4, location, v))
 		{
+			gGL.syncShaders();
 			glUniform3fvARB(location, count, v);
 		}
 	}
@@ -316,6 +337,7 @@ public:
 			return;
 		if (updateUniform<LLVector4, 4>(mValueVec4, location, v))
 		{
+			gGL.syncShaders();
 			glUniform4fvARB(location, count, v);
 		}
 	}
@@ -326,6 +348,7 @@ public:
 			return;
 		if (updateUniform<LLMatrix4, 16>(mValueMat4, location, v))
 		{
+			gGL.syncShaders();
 			glUniformMatrix4fvARB(location, count, transpose, v);
 		}
 	}
@@ -344,6 +367,7 @@ public:
 			{
 				if (gDebugGL)
 				{
+					gGL.syncShaders();
 					stop_glerror();
 					if (iter->second != glGetUniformLocationARB(mProgramObject, uniform.String().c_str()))
 					{

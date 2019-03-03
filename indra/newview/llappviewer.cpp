@@ -476,7 +476,7 @@ static void settings_to_globals()
 
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 	
-	LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLCoreProfile");
+	LLRender::sGLCoreProfile = LLGLSLShader::sNoFixedFunction = gSavedSettings.getBOOL("RenderGLCoreProfile");
 
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
 	LLImageGL::sCompressTextures		= gSavedSettings.getBOOL("RenderCompressTextures");
@@ -1612,6 +1612,9 @@ bool LLAppViewer::cleanup()
 	// Clean up before GL is shut down because we might be holding on to objects with texture references
 	LLSelectMgr::cleanupGlobals();
 	
+	// Clean up before shutdownGL.
+	LLPostProcess::cleanupClass();
+
 	LL_INFOS() << "Shutting down OpenGL" << LL_ENDL;
 
 	// Shut down OpenGL
@@ -1639,10 +1642,6 @@ bool LLAppViewer::cleanup()
 	LLViewerObject::cleanupVOClasses();
 
 	LLAvatarAppearance::cleanupClass();
-	
-	LLAvatarAppearance::cleanupClass();
-	
-	LLPostProcess::cleanupClass();
 
 	LLTracker::cleanupInstance();
 	
@@ -2587,6 +2586,8 @@ bool LLAppViewer::initWindow()
 		gPipeline.init();
 		LL_INFOS("AppInit") << "gPipeline Initialized" << LL_ENDL;
 		stop_glerror();
+
+		gGL.restoreVertexBuffers();
 		gViewerWindow->initGLDefaults();
 
 		gSavedSettings.setBOOL("RenderInitError", FALSE);

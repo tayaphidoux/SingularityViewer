@@ -397,7 +397,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 	// clear buffer area to ensure we don't pick up UI elements
 	{
 		gGL.flush();
-		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		LLGLDisable<GL_ALPHA_TEST> no_alpha;
 		if (use_shaders)
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.0f);
@@ -437,7 +437,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		gGL.flush();
 
 		gGL.setSceneBlendType(LLRender::BT_REPLACE);
-		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		LLGLDisable<GL_ALPHA_TEST> no_alpha;
 		if (use_shaders)
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.f);
@@ -568,7 +568,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 	{
 		// Set the alpha channel to one (clean up after previous blending)
 		gGL.flush();
-		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		LLGLDisable<GL_ALPHA_TEST> no_alpha;
 		if (use_shaders)
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.f);
@@ -1123,14 +1123,11 @@ void LLTexLayer::calculateTexLayerColor(const param_color_list_t &param_list, LL
 
 BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 {
-	LLGLEnable color_mat(GL_COLOR_MATERIAL);
+	LLGLEnable<GL_COLOR_MATERIAL> color_mat;
 	// *TODO: Is this correct?
 	//gPipeline.disableLights();
 	stop_glerror();
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		glDisable(GL_LIGHTING);
-	}
+	LLGLDisable<GL_LIGHTING> no_lighting(!LLGLSLShader::sNoFixedFunction);
 	stop_glerror();
 
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
@@ -1217,7 +1214,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 				if( tex )
 				{
 					bool no_alpha_test = getInfo()->mWriteAllChannels;
-					LLGLDisable alpha_test(no_alpha_test ? GL_ALPHA_TEST : 0);
+					LLGLDisable<GL_ALPHA_TEST> alpha_test(no_alpha_test);
 					if (no_alpha_test)
 					{
 						if (use_shaders)
@@ -1273,7 +1270,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 		getInfo()->mStaticImageFileName.empty() &&
 		color_specified )
 	{
-		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		LLGLDisable<GL_ALPHA_TEST> no_alpha;
 		if (use_shaders)
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.000f);
@@ -1456,7 +1453,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	// Note: if the first param is a mulitply, multiply against the current buffer's alpha
 	if( !first_param || !first_param->getMultiplyBlend() )
 	{
-		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		LLGLDisable<GL_ALPHA_TEST> no_alpha;
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
 		// Clear the alpha
@@ -1528,7 +1525,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	// Note: we're still using gGL.blendFunc( GL_DST_ALPHA, GL_ZERO );
 	if ( !is_approx_equal(layer_color.mV[VW], 1.f) )
 	{
-		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		LLGLDisable<GL_ALPHA_TEST> no_alpha;
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4fv(layer_color.mV);
 		gl_rect_2d_simple( width, height );
@@ -1993,7 +1990,7 @@ LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name,
 
 				image_raw->copyUnscaledAlphaMask(alpha_image_raw, LLColor4U::black);
 			}
-			tex->createGLTexture(0, image_raw, 0, TRUE, LLGLTexture::LOCAL);
+			tex->createGLTexture(0, image_raw, nullptr, TRUE, LLGLTexture::LOCAL);
 
 			gGL.getTexUnit(0)->bind(tex);
 			tex->setAddressMode(LLTexUnit::TAM_CLAMP);

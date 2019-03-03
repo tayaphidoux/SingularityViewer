@@ -351,6 +351,7 @@ void LLViewerTextureList::dump()
 
 void LLViewerTextureList::destroyGL(BOOL save_state)
 {
+	clearFetchingRequests();
 	LLImageGL::destroyGL(save_state);
 }
 

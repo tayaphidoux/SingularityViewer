@@ -4,7 +4,6 @@
      For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
-	
 	<string name="hippo_label_free">libre</string>
 	<string name="hippo_label_week">semana</string>
 	<string name="TeleportOfferMaturity">[NAME] te ofrece un TP a [DESTINATION]</string>
@@ -101,11 +100,11 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="TooltipLand">Terreno:</string>
 	<string name="TooltipMustSingleDrop">Sólo un único item puede ser arrastrado aquí</string>
 	
-	<string name="TooltipOutboxDragToWorld">No puedes soltar ítems en tu Merchant Outbox</string>
+	<string name="TooltipOutboxDragToWorld">No puedes soltar ítems en tu buzón de Comerciante</string>
 	<string name="TooltipOutboxNoTransfer">Uno o más de estos objetos no pueden ser vendidos o transferidos.</string>
-	<string name="TooltipOutboxNotInInventory">Tu Merchant Outbox solo puede aceptar ítems de tu inventario</string>
-	<string name="TooltipOutboxWorn">No puedes colocar ítems que tienes vestidos en tu Merchant Outbox</string>
-	<string name="TooltipOutboxCallingCard">No puedes colocar Tarjetas de LLamada en tu Merchant OutBox</string>
+	<string name="TooltipOutboxNotInInventory">Tu Buzón de Comerciante solo puede aceptar ítems de tu inventario</string>
+	<string name="TooltipOutboxWorn">No puedes colocar ítems vestidos en tu Buzón de Comerciante</string>
+	<string name="TooltipOutboxCallingCard">No puedes colocar Tarjetas de LLamada en tu Buzón de Comerciante</string>
 	<string name="TooltipOutboxFolderLevels">La profundidad de carpetas anidades es superior a 3</string>
 	<string name="TooltipOutboxTooManyFolders">El recuento de subcarpetas en el nivel superior supera las 20</string>
 	<string name="TooltipOutboxTooManyObjects">El recuento de items en la carpeta de nivel superior supera los 200</string>
@@ -117,7 +116,7 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="TooltipHttpUrl">Pulsa para ver esta página web</string>
 	<string name="TooltipSLURL">Pulsa para ver la información de esta ubicación</string>
 	<string name="TooltipAgentUrl">Pulsa para ver el perfil de este Residente</string>
-	<string name="TooltipAgentInspect">Conoce mas a este Residente</string>
+	<string name="TooltipAgentInspect">Conoce mas de este Residente</string>
 	<string name="TooltipAgentMute">Pulsa para ignorar a este Residente</string>
 	<string name="TooltipAgentUnmute">Pulsa para dejar de ignorar a este Residente</string>
 	<string name="TooltipAgentIM">Pulsa para enviar un MI a este Residente</string>
@@ -133,9 +132,7 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="TooltipMapUrl">Pulsa para ver esta ubicación en el mapa</string>
 	<string name="TooltipSLAPP">Pulsa para ejecutar el comando secondlife://</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
-	<string name="TooltipEmail">
-		Haz clic para redactar un correo electrónico
-	</string>
+	<string name="TooltipEmail">Haz clic para redactar un correo electrónico</string>
 
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleportar a</string>
@@ -148,33 +145,18 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="SLappAgentPay">Pagar</string>
 	<string name="SLappAgentOfferTeleport">Ofrecer Teleporte a</string>
 	<string name="SLappAgentRequestFriend">Ofrecer Amistad</string>
-	<string name="SLappAgentRemoveFriend">
-		Eliminación de amigos
-	</string>
-	<string name="BUTTON_CLOSE_DARWIN">
-		Cerrar (⌘W)
-	</string>
-	<string name="BUTTON_CLOSE_WIN">
-		Cerrar (Ctrl+W)
-	</string>
-	<string name="BUTTON_CLOSE_CHROME">
-		Cerrar
-	</string>
-	<string name="BUTTON_RESTORE">
-		Maximizar
-	</string>
-	<string name="BUTTON_MINIMIZE">
-		Minimizar
-	</string>
-	<string name="BUTTON_TEAR_OFF">
-		Separar la ventana
-	</string>
-	<string name="BUTTON_DOCK">
-		Fijar
-	</string>
-	<string name="BUTTON_HELP">
-		Ver la Ayuda
-	</string>
+	<string name="SLappAgentRemoveFriend">Eliminación de amigos</string>
+	
+	<!-- ButtonToolTips, llfloater.cpp -->
+	<string name="BUTTON_CLOSE_DARWIN">Cerrar (⌘W)</string>
+	<string name="BUTTON_CLOSE_WIN">Cerrar (Ctrl+W)</string>
+	<string name="BUTTON_CLOSE_CHROME">Cerrar</string>
+	<string name="BUTTON_RESTORE">Maximizar</string>
+	<string name="BUTTON_MINIMIZE">Minimizar</string>
+	<string name="BUTTON_TEAR_OFF">Separar la ventana</string>
+	<string name="BUTTON_DOCK">Fijar</string>
+	<string name="BUTTON_HELP">Ver la Ayuda</string>
+	<string name="BUTTON_EDIT">Editar</string>
 	
 	<!-- searching - generic -->
 	<string name="Searching">Buscando...</string>
@@ -351,8 +333,8 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="Ok">OK</string>
 	
 	<!-- Chat -->
-	<string name="whisper">Susurra:</string>
-	<string name="shout">Grita:</string>
+	<string name="whisper">Susurros:</string>
+	<string name="shout">Gritos:</string>
 	<string name="ringing">Conectando al Chat de Voz...</string>
 	<string name="connected">Conectado</string>
 	<string name="unavailable">Chat de Voz no disponible en esta ubicación</string>
@@ -372,6 +354,8 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="TrackYourCamera">Seguir tu cámara</string>
 	<string name="ControlYourCamera">Controlar tu cámara</string>
 	<string name="TeleportYourAgent">Teleportarte</string>	
+	<string name="ManageEstateSilently">Gestiona tus propiedades en silencio</string>
+	<string name="ChangeYourDefaultAnimations">Cambiar tus animaciones por defecto</string>
 	<string name="JoinAnExperience">Unirse a una experiencia</string> <!-- not used -->
 	<string name="SilentlyManageEstateAccess">Suprimir alertas cuando administras listas de acceso del Estado</string>
 	<string name="OverrideYourAnimations">Reemplazar tus animaciones predeterminadas</string>
@@ -410,6 +394,10 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="load_file_verb">Cargar</string>
 	<string name="targa_image_files">Imágenes Targa</string>
 	<string name="bitmap_image_files">Imágenes de Mapa de Bits</string>
+	<string name="png_image_files">Imágenes PNG</string>
+	<string name="jpg_image_files">Imáenes JPEG</string>
+	<string name="j2c_image_files">Imágenes Jpeg2000</string>
+	<string name="save_texture_image_files">Imágenes Targa, PNG, JPEG, Jpeg2000, o Bitmap</string>
 	<string name="avi_movie_file">Película AVI</string>
 	<string name="xaf_animation_file">Animación XAF</string>
 	<string name="xml_file">Archivo XML</string>
@@ -417,7 +405,9 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="compressed_image_files">Imágenes Comprimidas</string>
 	<string name="load_files">Cargar Archivos</string>
 	<string name="choose_the_directory">Seleccionar Directorio</string>
-	
+	<string name="script_files">Scripts</string>
+	<string name="dictionary_files">Diccionarios</string>
+    <string name="zip_files">Archivos Zip</string>
 	<string name="Sound: ">Sonido: </string>
 	
   <!-- LSL Usage Hover Tips -->
@@ -3062,12 +3052,15 @@ Where tag = tag string to match.  Removes bot's matching the tag.
     <string name="ScriptCountObject">Contados [SCRIPTS] scripts en [OBJECTS] objetos. ([RUNNING] ejecutándose, [MONO] mono.)</string>
     <string name="ScriptDeleteObject">Borrados [SCRIPTS] scripts en [OBJECTS] objetos.</string>
     <string name="took_a_snapshot">ha tomado una fotografía</string>
+	
     <!-- Radar Alert Strings -->
     <string name="radar_alert_template">[NAME] [ACTION] [RANGE].</string>
     <!-- [ACTION] -->
     <string name="has_triggered_your_avatar_age_alert">ha disparado el Alerta de Edad de Avatar</string>
     <string name="has_entered">ha entrado en</string>
+	<string name="has_entered_flood">detectado en</string>
     <string name="has_left">se ha retirado de</string>
+	<string name="has_left_flood">fuera del radar para</string>
     <!-- [RANGE] -->
     <string name="the_sim">este sim</string>
     <string name="draw_distance">la distancia de dibujo</string>
@@ -3099,6 +3092,8 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="BodyPartsLeftLeg">Pierna Izqquierda</string>
 	<string name="BodyPartsTorso">Torso</string>
 	<string name="BodyPartsRightLeg">Pierna Derecha</string>
+	<string name="BodyPartsEnhancedSkeleton">Esqueleto mejorado</string>
+	<string name="BodyPartsWaist">Cintura</string>
 
 	<!-- mouselook -->
 	<string name="LeaveMouselook">Pulsa ESC para regresar a la vista del mundo</string>
@@ -3126,7 +3121,7 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="InventoryOutboxInitializing">Estamos accediendo a tu cuenta en</string>
 	<string name="InventoryOutboxInitializingSubs">Tienda en el Mercado en Línea</string>
 	<string name="InventoryOutboxInitializing2">.</string>
-	<string name="InventoryOutboxErrorTitle">Error del Mercado en Línea.</string>
+	<string name="InventoryOutboxErrorTitle">Errores del Mercado en Línea.</string>
 	<string name="InventoryOutboxErrorTooltip"></string>
 	<string name="InventoryOutboxError">La</string>
 	<string name="InventoryOutboxErrorSubs">Tienda de Mercado en Línea</string>
@@ -3229,7 +3224,25 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="Right Pec">Pectoral Derecho</string>
     <string name="Neck">Cuello</string>
     <string name="Avatar Center">Base</string>
+    <string name="Left Ring Finger">Anillo dedo Izquierdo</string>
+    <string name="Right Ring Finger">Anillo dedo Derecho</string>
+    <string name="Tail Base">Base de la cola</string>
+    <string name="Tail Tip">Punta de la cola</string>
+    <string name="Left Wing">Ala Izquierda</string>
+    <string name="Right Wing">Ala Derecha</string>
+    <string name="Jaw">Mandíbula</string>
+    <string name="Alt Left Ear">Oreja Izquierda Alterna</string>
+    <string name="Alt Right Ear">Oreja Derecha Alterna</string>
+    <string name="Alt Left Eye">Ojo Izquierda Alterno</string>
+    <string name="Alt Right Eye">Ojo Derecho Alterno</string>
+    <string name="Tongue">Lengua</string>
+    <string name="Groin">Pelvis</string>
+    <string name="Left Hind Foot">Pata trasera Izquierda</string>
+    <string name="Right Hind Foot">Pata trasera Derecha</string>
     <string name="Invalid Attachment">Punto de anexión inválido</string>
+	<string name="ATTACHMENT_MISSING_ITEM">Error: ítem desaparecido</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">Error: ítem base desaparecido</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">Error: el objeto está en el vestuario actual pero anexado</string>
 
   <!-- Account types, see LLAvatarPropertiesProcessor -->
 	<string name="AcctTypeResident">Residente</string>
@@ -3367,6 +3380,21 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Inferior Derecho</string>
 	<string name="ATTACH_NECK">Cuello</string>
 	<string name="ATTACH_AVATAR_CENTER">Base</string>
+    <string name="ATTACH_LHAND_RING1">Anillo Dedo Izquierdo</string>
+    <string name="ATTACH_RHAND_RING1">Anillo Dedo Derechoa</string>
+    <string name="ATTACH_TAIL_BASE">Base de la Cola</string>
+    <string name="ATTACH_TAIL_TIP">Punta de la Cola</string>
+    <string name="ATTACH_LWING">Ala Izquierda</string>
+    <string name="ATTACH_RWING">Ala DerechaRight </string>
+    <string name="ATTACH_FACE_JAW">Mandíbula</string>
+    <string name="ATTACH_FACE_LEAR">Oreja Izquierda Alterna</string>
+    <string name="ATTACH_FACE_REAR">Oreja Derecha Alterna</string>
+    <string name="ATTACH_FACE_LEYE">Ojo Izquierdo Alterno</string>
+    <string name="ATTACH_FACE_REYE">Ojo Derecho Alterno</string>
+    <string name="ATTACH_FACE_TONGUE">Lengua</string>
+    <string name="ATTACH_GROIN">Ingle</string>
+    <string name="ATTACH_HIND_LFOOT">Pata Trasera Izquierda</string>
+    <string name="ATTACH_HIND_RFOOT">Pata Trasera Derecha</string>
 
 	<!-- panel contents -->
 	<string name="PanelContentsNewScript">Nuevo Script</string>
@@ -3438,6 +3466,10 @@ Se espera .wav, .tga, .bmp, .jpg, .jpeg, o .bvh
 	<string name="accel-win-control">Ctrl-</string>
 	<string name="accel-win-alt">Alt-</string>
 	<string name="accel-win-shift">Mayús</string>
+	
+	<!-- Tab Containers -->
+	<string name="tab_tooltip_prev">[ALT]Flecha Izq. para pestaña previa</string>
+	<string name="tab_tooltip_next">[ALT]Flecha Der. para pestaña siguiente</string>
 
 	<!-- Previews -->
 	<string name="FileSaved">Archivo Guardado</string>
@@ -4108,6 +4140,7 @@ Si continuas recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="Unnamed">(Sin nombre)</string>
 	<string name="inventory_item_offered_to">Ofrecido ítem de inventario a</string>	
 	<string name="Saved_message">(Guardado [LONG_TIMESTAMP]) </string>
+	<string name="IM_unblock_only_groups_friends">Para ver ese mensaje debes desmarcar&apos;Aceptar MIs solo de los amigos&apos; en Preferencias/Chat Avanzado/Chat-MI.</string>
 	<string name="StartPointSet">Definir Punto Inicial</string>
 	<string name="EndPointSet">Definir Punto Final</string>
 	<string name="MeasuredDistance">Distancia: [DIST]</string>	
@@ -4136,7 +4169,7 @@ Si continuas recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="only_user_message">eres el único usuario en esta sesión.</string>
 	<string name="offline_message">[NAME] está desconectado.</string>
 	<string name="invite_message">Pulsa el Botón [BUTTON NAME] para aceptar/conectar a este chat de voz.</string>
-	<string name="muted_message">Tiene Ignorado a este residente. Enviándole un mensaje hará que dejes de ignorarlo automáticamente.</string>
+	<string name="muted_message">Tienes Ignorado a este residente. Enviándole un mensaje hará que dejes de ignorarlo automáticamente.</string>
   <!--Sometimes string name is gotten from the body of server response.
   For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post.
   In case of the EXT-3115 issue 'generic' is passed into the gIMMgr::showSessionStartError as a string name.
@@ -4234,7 +4267,7 @@ Denuncia</string>
 	<string name="Contents">Contenido</string>
 	<string name="Gesture">Gesto</string>
 	<string name="Male Gestures">Gestos Masculinos</string>
-	<string name="Female Gestures">Gestos FemeninosFemale Gestures</string>
+	<string name="Female Gestures">Gestos Femeninos</string>
 	<string name="Other Gestures">Otros Gestos</string>
 	<string name="Speech Gestures">Gestos orales</string>
 	<string name="Common Gestures">Gestos comunes</string>

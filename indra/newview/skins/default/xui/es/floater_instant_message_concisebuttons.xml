@@ -30,7 +30,7 @@
 	<string name="inventory_item_offered">
 		Ofrecido un Ítem de Inventario
 	</string>
-	<flyout_button label="Perfil" name="instant_message_flyout" left="200" width="90">
+	<flyout_button label="Perfil" name="instant_message_flyout" left="200" width="190">
 		<flyout_button_item label="Perfil" name="profile_item"/>
 		<flyout_button_item label="Historial" name="history_btn"/>
 		<flyout_button_item label="Ofrecer Teleporte" name="profile_tele_btn"/>
@@ -38,6 +38,7 @@
 		<flyout_button_item label="Pagar" name="pay_item"/>
 		<flyout_button_item label="Invitar a Grupo" name="group_invite_item"/>
 		<flyout_button_item label="Copiar SLURL" name="copy_slurl_item"/>
+		<flyout_button_item label="Añadir a la Conferencia" name="conference"/>
 	</flyout_button>
 	<string name="find on map" value="Ubicar en el Mapa"/>
 	<string name="ding on" value="Timbre en Nuevos Mensajes (Encendido)"/>

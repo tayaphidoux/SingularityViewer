@@ -40,14 +40,14 @@ template <typename Type, typename Key, int BlockSize = 32>
 class LLIndexedVector
 {
 public:
-	typedef typename std::vector<Type>::iterator iterator;
-	typedef typename std::vector<Type>::const_iterator const_iterator;
-	typedef typename std::vector<Type>::reverse_iterator reverse_iterator;
-	typedef typename std::vector<Type>::const_reverse_iterator const_reverse_iterator;
-	typedef typename std::vector<Type>::size_type size_type;
+	typedef typename std::vector<std::pair<Key, Type> > vec_type_t;
+	typedef typename vec_type_t::iterator iterator;
+	typedef typename vec_type_t::const_iterator const_iterator;
+	typedef typename vec_type_t::reverse_iterator reverse_iterator;
+	typedef typename vec_type_t::const_reverse_iterator const_reverse_iterator;
+	typedef typename vec_type_t::size_type size_type;
 protected:
-	std::vector<Type> mVector;
-	std::map<Key, U32> mIndexMap;
+	std::vector<std::pair<Key, Type> > mVector;
 	
 public:
 	LLIndexedVector() { mVector.reserve(BlockSize); }
@@ -62,38 +62,18 @@ public:
 	reverse_iterator rend() { return mVector.rend(); }
 	const_reverse_iterator rend() const { return mVector.rend(); }
 
-	void reset() { mVector.resize(0); mIndexMap.resize(0); }
+	void reset() { mVector.resize(0); }
 	bool empty() const { return mVector.empty(); }
 	size_type size() const { return mVector.size(); }
 	
 	Type& operator[](const Key& k)
 	{
-		typename std::map<Key, U32>::const_iterator iter = mIndexMap.find(k);
-		if (iter == mIndexMap.end())
-		{
-			U32 n = mVector.size();
-			mIndexMap[k] = n;
-			mVector.push_back(Type());
-			llassert(mVector.size() == mIndexMap.size());
-			return mVector[n];
-		}
-		else
-		{
-			return mVector[iter->second];
-		}
+		return get_val_in_pair_vec(mVector, k);
 	}
 
 	const_iterator find(const Key& k) const
 	{
-		typename std::map<Key, U32>::const_iterator iter = mIndexMap.find(k);
-		if(iter == mIndexMap.end())
-		{
-			return mVector.end();
-		}
-		else
-		{
-			return mVector.begin() + iter->second;
-		}
+		return std::find_if(mVector.begin(), mVector.end(), [&k](const typename vec_type_t::value_type& e) { return e.first == k; });
 	}
 };
 

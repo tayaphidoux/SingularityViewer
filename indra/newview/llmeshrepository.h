@@ -274,10 +274,10 @@ public:
 	std::queue<LLModel::Decomposition*> mDecompositionQ;
 
 	//queue of requested headers
-	std::queue<std::pair<std::shared_ptr<MeshRequest>, F32> > mHeaderReqQ;
+	std::deque<std::pair<std::shared_ptr<MeshRequest>, F32> > mHeaderReqQ;
 
 	//queue of requested LODs
-	std::queue<std::pair<std::shared_ptr<MeshRequest>, F32> > mLODReqQ;
+	std::deque<std::pair<std::shared_ptr<MeshRequest>, F32> > mLODReqQ;
 
 	//queue of unavailable LODs (either asset doesn't exist or asset doesn't have desired LOD)
 	std::queue<LODRequest> mUnavailableQ;
@@ -294,19 +294,19 @@ public:
 	LLMeshRepoThread();
 	~LLMeshRepoThread();
 
-	void runQuery(std::queue<std::pair<std::shared_ptr<MeshRequest>, F32> >& query, U32& count, S32& active_requests);
+	void runQueue(std::deque<std::pair<std::shared_ptr<MeshRequest>, F32> >& queue, U32& count, S32& active_requests);
 	void runSet(std::set<LLUUID>& set, std::function<bool (const LLUUID& mesh_id)> fn);
 	void pushHeaderRequest(const LLVolumeParams& mesh_params, F32 delay = 0)
 	{
 		std::shared_ptr<LLMeshRepoThread::MeshRequest> req;
 		req.reset(new LLMeshRepoThread::HeaderRequest(mesh_params));
-		mHeaderReqQ.push(std::make_pair(req, delay));
+		mHeaderReqQ.push_back(std::make_pair(req, delay));
 	}
 	void pushLODRequest(const LLVolumeParams& mesh_params, S32 lod, F32 delay = 0)
 	{
 		std::shared_ptr<LLMeshRepoThread::MeshRequest> req;
 		req.reset(new LLMeshRepoThread::LODRequest(mesh_params, lod));
-		mLODReqQ.push(std::make_pair(req, delay));
+		mLODReqQ.push_back(std::make_pair(req, delay));
 	}
 	virtual void run();
 

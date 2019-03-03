@@ -66,7 +66,6 @@ set(cmake_SOURCE_FILES
     LLPlugin.cmake
     LLPrimitive.cmake
     LLPhysicsExtensions.cmake
-    LLSharedLibs.cmake
     LLRender.cmake
     LLSharedLibs.cmake
     LLUI.cmake

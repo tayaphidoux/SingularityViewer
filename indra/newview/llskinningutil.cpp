@@ -199,9 +199,9 @@ void LLSkinningUtil::getPerVertexSkinMatrix(
 	{
 		F32 w = weights[k];
 
-		idx[k] = (S32) floorf(w);
+		idx[k] = (S32) w;
 
-		wght[k] = w - floorf(w);
+		wght[k] = w - idx[k];
 		scale += wght[k];
 	}
 	if (handle_bad_scale && scale <= 0.f)

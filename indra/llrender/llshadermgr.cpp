@@ -498,27 +498,28 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 //============================================================================
 // Load Shader
 
-static std::string get_object_log(GLhandleARB ret)
+static std::string get_object_log(GLhandleARB ret, bool isProgram)
 {
 	std::string res;
 	
 	//get log length 
 	GLint length;
-	glGetObjectParameterivARB(ret, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
+	(isProgram ? glGetProgramiv : glGetShaderiv)(ret, GL_INFO_LOG_LENGTH, &length);
+
 	if (length > 0)
 	{
 		//the log could be any size, so allocate appropriately
 		GLcharARB* log = new GLcharARB[length];
-		glGetInfoLogARB(ret, length, &length, log);
+		(isProgram ? glGetProgramInfoLog : glGetShaderInfoLog)(ret, length, &length, log);
 		res = std::string((char *)log);
 		delete[] log;
 	}
 	return res;
 }
 
-void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns) 
+void LLShaderMgr::dumpObjectLog(GLhandleARB ret, bool isProgram, bool warns)
 {
-	std::string log = get_object_log(ret);
+	std::string log = get_object_log(ret, isProgram);
 	if ( log.length() > 0 )
 	{
 		if (warns)
@@ -555,7 +556,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		}
 	}
 
-	LL_DEBUGS("ShaderLoading") << "Loading shader file: " << filename << " class " << shader_level << LL_ENDL;
+	LL_INFOS("ShaderLoading") << "Loading shader file: " << filename << " class " << shader_level << LL_ENDL;
 
 	if (filename.empty()) 
 	{
@@ -811,7 +812,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		if (error != GL_NO_ERROR)
 		{
 			LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << LL_ENDL;
-			glDeleteObjectARB(ret); //no longer need handle
+			glDeleteShader(ret); //no longer need handle
 			ret=0;
 		}
 	}
@@ -827,7 +828,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			if (error != GL_NO_ERROR)
 			{
 				LL_WARNS("ShaderLoading") << "GL ERROR in glShaderSourceARB: " << error << LL_ENDL;
-				glDeleteObjectARB(ret); //no longer need handle
+				glDeleteShader(ret); //no longer need handle
 				ret=0;
 			}
 		}
@@ -844,7 +845,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			if (error != GL_NO_ERROR)
 			{
 				LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShaderARB: " << error << LL_ENDL;
-				glDeleteObjectARB(ret); //no longer need handle
+				glDeleteShader(ret); //no longer need handle
 				ret=0;
 			}
 		}
@@ -856,7 +857,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	{
 		//check for errors
 		GLint success = GL_TRUE;
-		glGetObjectParameterivARB(ret, GL_OBJECT_COMPILE_STATUS_ARB, &success);
+		glGetShaderiv(ret, GL_COMPILE_STATUS, &success);
 		if (gDebugGL || success == GL_FALSE)
 		{
 			error = glGetError();
@@ -864,8 +865,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			{
 				//an error occured, print log
 				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
-				dumpObjectLog(ret);
-				error_str = get_object_log(ret);
+				dumpObjectLog(ret, false);
+				error_str = get_object_log(ret, false);
 
 				std::stringstream ostr;
 				//dump shader source for debugging
@@ -884,12 +885,12 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				}
 
 				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << LL_ENDL;
-				glDeleteObjectARB(ret); //no longer need handle
+				glDeleteShader(ret); //no longer need handle
 				ret = 0;
 			}	
 		}
 		if(ret)
-			dumpObjectLog(ret,false);
+			dumpObjectLog(ret, false, false);
 	}
 
 	static const LLCachedControl<bool> dump_raw_shaders("ShyotlDumpRawShaders",false);
@@ -961,7 +962,7 @@ void LLShaderMgr::unloadShaderObjects()
 	std::multimap<std::string, LLShaderMgr::CachedObjectInfo >::iterator it = mShaderObjects.begin();
 	for (; it != mShaderObjects.end(); ++it)
 		if (it->second.mHandle)
-			glDeleteObjectARB(it->second.mHandle);
+			glDeleteShader(it->second.mHandle);
 	mShaderObjects.clear();
 	cleanupShaderSources();
 }
@@ -1007,7 +1008,7 @@ BOOL LLShaderMgr::linkProgramObject(GLhandleARB obj, BOOL suppress_errors)
 	//check for errors
 	glLinkProgramARB(obj);
 	GLint success = GL_TRUE;
-	glGetObjectParameterivARB(obj, GL_OBJECT_LINK_STATUS_ARB, &success);
+	glGetProgramiv(obj, GL_LINK_STATUS, &success);
 	if (!suppress_errors && success == GL_FALSE) 
 	{
 		//an error occured, print log
@@ -1051,7 +1052,7 @@ BOOL LLShaderMgr::linkProgramObject(GLhandleARB obj, BOOL suppress_errors)
 	}
 
 #else
-	std::string log = get_object_log(obj);
+	std::string log = get_object_log(obj, true);
 	LLStringUtil::toLower(log);
 	if (log.find("software") != std::string::npos)
 	{
@@ -1062,7 +1063,7 @@ BOOL LLShaderMgr::linkProgramObject(GLhandleARB obj, BOOL suppress_errors)
 #endif
 	if (!suppress_errors)
 	{
-        dumpObjectLog(obj, !success);
+        dumpObjectLog(obj, true, !success);
 	}
 
 	return success;
@@ -1073,15 +1074,15 @@ BOOL LLShaderMgr::validateProgramObject(GLhandleARB obj)
 	//check program validity against current GL
 	glValidateProgramARB(obj);
 	GLint success = GL_TRUE;
-	glGetObjectParameterivARB(obj, GL_OBJECT_VALIDATE_STATUS_ARB, &success);
+	glGetProgramiv(obj, GL_VALIDATE_STATUS, &success);
 	if (success == GL_FALSE)
 	{
 		LL_WARNS("ShaderLoading") << "GLSL program not valid: " << LL_ENDL;
-		dumpObjectLog(obj);
+		dumpObjectLog(obj, true);
 	}
 	else
 	{
-		dumpObjectLog(obj, FALSE);
+		dumpObjectLog(obj, true, false);
 	}
 
 	return success;

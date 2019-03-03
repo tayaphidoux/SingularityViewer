@@ -130,6 +130,7 @@ BOOL HippoPanelGridsImpl::postBuild()
 	requires<LLLineEditor>("website");
 	requires<LLLineEditor>("support");
 	requires<LLLineEditor>("register");
+	requires<LLLineEditor>("partner");
 	requires<LLLineEditor>("password");
 	requires<LLLineEditor>("search");
 	requires<LLButton>("btn_delete");
@@ -244,6 +245,7 @@ void HippoPanelGridsImpl::loadCurGrid()
 		childSetText("support", gridInfo->getSupportUrl());
 		childSetText("search", gridInfo->getSearchUrl());
 		childSetText("register", gridInfo->getRegisterUrl());
+		childSetText("partner", gridInfo->getPartnerUrl());
 		childSetText("password", gridInfo->getPasswordUrl());
 		childSetValue("render_compat", gridInfo->isRenderCompat());
 		enableEditing(!gridInfo->getLocked());
@@ -259,6 +261,7 @@ void HippoPanelGridsImpl::loadCurGrid()
 		childSetText("support", empty);
 		childSetText("search", empty);
 		childSetText("register", empty);
+		childSetText("partner", empty);
 		childSetText("password", empty);
 		childSetValue("render_compat", true);
 		enableEditing(true);
@@ -361,6 +364,7 @@ bool HippoPanelGridsImpl::saveCurGrid()
 	gridInfo->setWebSite(childGetValue("website"));
 	gridInfo->setSupportUrl(childGetValue("support"));
 	gridInfo->setRegisterUrl(childGetValue("register"));
+	gridInfo->setPartnerUrl(childGetValue("partner"));
 	gridInfo->setPasswordUrl(childGetValue("password"));
 	gridInfo->setSearchUrl(childGetValue("search"));
 	gridInfo->setRenderCompat(childGetValue("render_compat"));
@@ -419,6 +423,7 @@ void HippoPanelGridsImpl::retrieveGridInfo()
 		if (grid->getWebSite() != "") childSetText("website", grid->getWebSite());
 		if (grid->getSupportUrl() != "") childSetText("support", grid->getSupportUrl());
 		if (grid->getRegisterUrl() != "") childSetText("register", grid->getRegisterUrl());
+		if (grid->getPartnerUrl() != "") childSetText("partner", grid->getPartnerUrl());
 		if (grid->getPasswordUrl() != "") childSetText("password", grid->getPasswordUrl());
 		if (grid->getSearchUrl() != "") childSetText("search", grid->getSearchUrl());
 		if (grid->getGridMessage() != "") childSetText("gridmessage", grid->getGridMessage());
@@ -532,6 +537,8 @@ void HippoPanelGridsImpl::onClickAdvanced(void *data)
 		self->childSetVisible("support", false);
 		self->childSetVisible("register_label", false);
 		self->childSetVisible("register", false);
+		self->childSetVisible("partner_label", false);
+		self->childSetVisible("partner", false);
 		self->childSetVisible("password_label", false);
 		self->childSetVisible("password", false);
 		self->childSetVisible("search_label", false);
@@ -551,6 +558,8 @@ void HippoPanelGridsImpl::onClickAdvanced(void *data)
 		self->childSetVisible("support", true);
 		self->childSetVisible("register_label", true);
 		self->childSetVisible("register", true);
+		self->childSetVisible("partner_label", true);
+		self->childSetVisible("partner", true);
 		self->childSetVisible("password_label", true);
 		self->childSetVisible("password", true);
 		self->childSetVisible("search_label", true);
@@ -578,6 +587,7 @@ void HippoPanelGridsImpl::enableEditing(bool b)
 		"website",
 		"support",
 		"register",
+		"partner",
 		"password",
 		"search",
 		"btn_delete",

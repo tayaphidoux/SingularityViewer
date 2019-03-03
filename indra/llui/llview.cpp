@@ -1221,7 +1221,16 @@ void LLView::drawChildren()
 	}*/
 	if (!mChildList.empty())
 	{
-		LLView* rootp = LLUI::getRootView();		
+		LLRect clip_rect = LLUI::getRootView()->getRect();
+		if (LLGLState<GL_SCISSOR_TEST>::isEnabled())
+		{
+			LLRect scissor = gGL.getScissor();
+			scissor.mLeft /= LLUI::getScaleFactor().mV[VX];
+			scissor.mTop /= LLUI::getScaleFactor().mV[VY];
+			scissor.mRight /= LLUI::getScaleFactor().mV[VX];
+			scissor.mBottom /= LLUI::getScaleFactor().mV[VY];
+			clip_rect.intersectWith(scissor);
+		}
 		++sDepth;
 
 		for (child_list_const_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend(); ++child_iter)
@@ -1235,10 +1244,13 @@ void LLView::drawChildren()
 			if (viewp->getVisible() && /*viewp != focus_view && */viewp->getRect().isValid())
 			{
 				// Only draw views that are within the root view
-				LLRect screen_rect = viewp->calcScreenRect();
-				if ( rootp->getRect().overlaps(screen_rect) )
+				// LLView::calcScreenRect not used due to scrolllist cells containing views that aren't inserted into the view heirarchy.
+				// Render-time offset is stored in LLFontGL::sCurOrigin, which is valid during the draw call chain (which this method is part of)
+				// Bonus: Reading LLFontGL::sCurOrigin is way (way way way) faster than calling LLView::calcScreenRect.
+				LLRect screen_rect = viewp->getRect();
+				screen_rect.translate(LLFontGL::sCurOrigin.mX, LLFontGL::sCurOrigin.mY);
+				if ( clip_rect.overlaps(screen_rect) )
 				{
-					//gGL.matrixMode(LLRender::MM_MODELVIEW);
 					LLUI::pushMatrix();
 					{
 						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom, 0.f);
@@ -1263,7 +1275,6 @@ void LLView::drawChildren()
 					LLUI::popMatrix();
 				}
 			}
-
 		}
 		--sDepth;
 	}

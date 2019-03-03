@@ -5852,7 +5852,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 
 	gGL.getTexUnit(0)->bind(mSilhouetteImagep);
 	LLGLSPipelineSelection gls_select;
-	LLGLEnable blend(GL_BLEND);
+	LLGLEnable<GL_BLEND> blend;
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
 	if (isAgentAvatarValid() && for_hud)
@@ -6386,7 +6386,7 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 		gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);		
 	}
 	
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 	
 	//Singu Note: Diverges from v3. If sRenderHiddenSelections set, draw non-z-culled wireframe, else draw occluded 'thick' wireframe to create an outline.
 	if (LLSelectMgr::sRenderHiddenSelections) // && gFloaterTools && gFloaterTools->getVisible())
@@ -6402,7 +6402,7 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 		{
 			if (!LLGLSLShader::sNoFixedFunction)
 			{
-				LLGLEnable fog(GL_FOG);
+				LLGLEnable<GL_FOG> fog;
 				glFogi(GL_FOG_MODE, GL_LINEAR);
 				float d = (LLViewerCamera::getInstance()->getPointOfInterest() - LLViewerCamera::getInstance()->getOrigin()).magVec();
 				LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal() - gAgentCamera.getCameraPositionGlobal()).magVec() / (LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec() * 4), 0.0, 1.0);
@@ -6421,19 +6421,19 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 	}
 	else
 	{
-		LLGLEnable cull_face(GL_CULL_FACE);
-		LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
+		LLGLEnable<GL_CULL_FACE> cull_face;
+		LLGLEnable<GL_POLYGON_OFFSET_LINE> offset;
 
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 		gGL.diffuseColor4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
-		glPolygonOffset(3.f, 3.f);
-		glLineWidth(3.f);
+		gGL.setPolygonOffset(3.f, 3.f);
+		gGL.setLineWidth(3.f);
 		pushWireframe(drawable);
-		glLineWidth(1.f);
+		gGL.setLineWidth(1.f);
 	}
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 	gGL.popMatrix();
 
 	if (shader)
@@ -6528,7 +6528,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 			gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
 			if (!LLGLSLShader::sNoFixedFunction)
 			{
-				LLGLEnable fog(GL_FOG);
+				LLGLEnable<GL_FOG> fog;
 				glFogi(GL_FOG_MODE, GL_LINEAR);
 				float d = (LLViewerCamera::getInstance()->getPointOfInterest() - LLViewerCamera::getInstance()->getOrigin()).magVec();
 				LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal() - gAgentCamera.getCameraPositionGlobal()).magVec() / (LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec() * 4), 0.0, 1.0);

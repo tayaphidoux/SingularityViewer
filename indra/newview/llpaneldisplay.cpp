@@ -754,14 +754,14 @@ void LLPanelDisplay::apply()
 		bool logged_in = (LLStartUp::getStartupState() >= STATE_STARTED);
 		LLCoordScreen size;
 		window->getSize(&size);
-		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
+		LLGLStateValidator::checkStates();
+		LLGLStateValidator::checkTextureChannels();
 		gViewerWindow->changeDisplaySettings(window->getFullscreen(),
 												size,
 												vsync_value,
 												logged_in);
-		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
+		LLGLStateValidator::checkStates();
+		LLGLStateValidator::checkTextureChannels();
 	}
 }
 

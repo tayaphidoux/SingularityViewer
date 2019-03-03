@@ -670,7 +670,7 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 
 	LLGLSUIDefault gls_ui;
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-	LLGLDisable cull(GL_CULL_FACE);
+	LLGLDisable<GL_CULL_FACE> cull;
 	
 	if (mCollisionBanned == BA_BANNED ||
 		regionp->getRegionFlag(REGION_FLAGS_BLOCK_FLYOVER))
@@ -846,8 +846,7 @@ void LLViewerObjectList::renderObjectBeacons()
 			S32 line_width = debug_beacon.mLineWidth;
 			if (line_width != last_line_width)
 			{
-				gGL.flush();
-				glLineWidth( (F32)line_width );
+				gGL.setLineWidth(line_width);
 				last_line_width = line_width;
 			}
 
@@ -882,8 +881,7 @@ void LLViewerObjectList::renderObjectBeacons()
 			S32 line_width = debug_beacon.mLineWidth;
 			if (line_width != last_line_width)
 			{
-				gGL.flush();
-				glLineWidth( (F32)line_width );
+				gGL.setLineWidth(line_width);
 				last_line_width = line_width;
 			}
 
@@ -902,8 +900,7 @@ void LLViewerObjectList::renderObjectBeacons()
 			gGL.end();
 		}
 		
-		gGL.flush();
-		glLineWidth(1.f);
+		gGL.setLineWidth(1.f);
 
 		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
 		{

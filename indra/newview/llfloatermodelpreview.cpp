@@ -3647,10 +3647,10 @@ BOOL LLModelPreview::render()
 	S32 height = getHeight();
 
 	LLGLSUIDefault def;
-	LLGLDisable no_blend(GL_BLEND);
-	LLGLEnable cull(GL_CULL_FACE);
+	LLGLDisable<GL_BLEND> no_blend;
+	LLGLEnable<GL_CULL_FACE> cull;
 	LLGLDepthTest depth(GL_TRUE);
-	LLGLDisable fog(GL_FOG);
+	LLGLDisable<GL_FOG> fog;
 
 	{
 		if (use_shaders)
@@ -3752,6 +3752,7 @@ BOOL LLModelPreview::render()
 
 	F32 explode = mFMP->childGetValue("physics_explode").asReal();
 
+	gGL.syncContextState();
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	LLRect preview_rect;
@@ -3787,7 +3788,8 @@ BOOL LLModelPreview::render()
 	}
 
 	gGL.loadIdentity();
-	gPipeline.enableLightsPreview();
+	LLGLState<GL_LIGHTING> light_state;
+	gPipeline.enableLightsPreview(light_state);
 
 	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) *
 	LLQuaternion(mCameraYaw, LLVector3::z_axis);
@@ -3811,7 +3813,7 @@ BOOL LLModelPreview::render()
 
 	const U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
 
-	LLGLEnable normalize(GL_NORMALIZE);
+	LLGLEnable<GL_NORMALIZE> normalize;
 
 	if (!mBaseModel.empty() && mVertexBuffer[5].empty())
 	{
@@ -3906,11 +3908,11 @@ BOOL LLModelPreview::render()
 
 					if (edges)
 					{
-						glLineWidth(3.f);
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						gGL.setLineWidth(3.f);
+						gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 						buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						glLineWidth(1.f);
+						gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
+						gGL.setLineWidth(1.f);
 					}
 				}
 				gGL.popMatrix();
@@ -3918,6 +3920,7 @@ BOOL LLModelPreview::render()
 
 			if (physics)
 			{
+				gGL.syncContextState();
 				glClear(GL_DEPTH_BUFFER_BIT);
 
 				for (U32 i = 0; i < 2; i++)
@@ -3932,7 +3935,7 @@ BOOL LLModelPreview::render()
 					}
 
 					//enable alpha blending on second pass but not first pass
-					LLGLState blend(GL_BLEND, i); 
+					LLGLState<GL_BLEND> blend(i);
 
 					gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 
@@ -4025,24 +4028,25 @@ BOOL LLModelPreview::render()
 
 								gGL.diffuseColor3f(1.f, 1.f, 0.f);
 
-								glLineWidth(2.f);
-								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+								gGL.setLineWidth(2.f);
+								gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 								buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 
-								glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-								glLineWidth(1.f);
+								gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
+								gGL.setLineWidth(1.f);
 							}
 						}
 
 						gGL.popMatrix();
 					}
 
-					glLineWidth(3.f);
-					glPointSize(8.f);
-					gPipeline.enableLightsFullbright(LLColor4::white);
+					gGL.setLineWidth(3.f);
+					gGL.setPointSize(8.f);
+					LLGLState<GL_LIGHTING> light_state;
+					gPipeline.enableLightsFullbright(light_state);
 					//show degenerate triangles
 					LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
-					LLGLDisable cull(GL_CULL_FACE);
+					LLGLDisable<GL_CULL_FACE> cull;
 					gGL.diffuseColor4f(1.f,0.f,0.f,1.f);
 					const LLVector4a scale(0.5f);
 
@@ -4109,9 +4113,8 @@ BOOL LLModelPreview::render()
 
 						gGL.popMatrix();
 					}
-					glLineWidth(1.f);
-					glPointSize(1.f);
-					gPipeline.enableLightsPreview();
+					gGL.setLineWidth(1.f);
+					gGL.setPointSize(1.f);
 					gGL.setSceneBlendType(LLRender::BT_ALPHA);
 				}
 			}
@@ -4163,11 +4166,11 @@ BOOL LLModelPreview::render()
 
 							if (edges)
 							{
-								glLineWidth(3.f);
-								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+								gGL.setLineWidth(3.f);
+								gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 								buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
-								glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-								glLineWidth(1.f);
+								gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
+								gGL.setLineWidth(1.f);
 							}
 						}
 					}

@@ -109,7 +109,7 @@ void LLViewerDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum
 	}
 	if(fill_color)
 		raw_image->fill(*fill_color);
-	createGLTexture(0, raw_image, 0, TRUE, LLViewerTexture::DYNAMIC_TEX);
+	createGLTexture(0, raw_image, nullptr, TRUE, LLViewerTexture::DYNAMIC_TEX);
 	setAddressMode((mClamp) ? LLTexUnit::TAM_CLAMP : LLTexUnit::TAM_WRAP);
 	mGLTexturep->setGLTextureCreated(false);
 }
@@ -161,9 +161,10 @@ void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 	mCamera.setView(camera->getView());
 	mCamera.setNear(camera->getNear());
 
-	glViewport(mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
+	gGL.setViewport(mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
 	if (clear_depth)
 	{
+		gGL.syncContextState();
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
 }
@@ -226,7 +227,6 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 	}
 
 	LLGLSLShader::bindNoShader();
-	LLVertexBuffer::unbind();
 	
 	BOOL result = FALSE;
 	BOOL ret = FALSE ;
@@ -237,7 +237,8 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 		{
 			LLViewerDynamicTexture *dynamicTexture = *iter;
 			if (dynamicTexture->needsRender())
-			{				
+			{
+				gGL.syncContextState();
 				glClear(GL_DEPTH_BUFFER_BIT);
 				gDepthDirty = TRUE;
 								

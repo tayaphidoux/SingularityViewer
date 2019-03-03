@@ -32,6 +32,8 @@
 #include "llstl.h"
 #include "llindexedvector.h"
 
+extern U32 sMsgDataAllocSize;
+extern U32 sMsgdataAllocCount;
 class LLMsgVarData
 {
 public:
@@ -86,7 +88,7 @@ public:
 		for (msg_var_data_map_t::iterator iter = mMemberVarData.begin();
 			 iter != mMemberVarData.end(); iter++)
 		{
-			iter->deleteData();
+			iter->second.deleteData();
 		}
 	}
 
@@ -119,7 +121,6 @@ public:
 	~LLMsgData()
 	{
 		for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePairedPointer());
-		mMemberBlocks.clear();
 	}
 
 	void addBlock(LLMsgBlkData *blockp)
@@ -130,7 +131,7 @@ public:
 	void addDataFast(char *blockname, char *varname, const void *data, S32 size, EMsgVariableType type, S32 data_size = -1);
 
 public:
-	typedef std::map<char*, LLMsgBlkData*> msg_blk_data_map_t;
+	typedef LLIndexedVector<LLMsgBlkData*, char*> msg_blk_data_map_t;
 	msg_blk_data_map_t					mMemberBlocks;
 	char								*mName;
 	S32									mTotalSize;
@@ -187,7 +188,7 @@ public:
 
 	~LLMessageBlock()
 	{
-		for_each(mMemberVariables.begin(), mMemberVariables.end(), DeletePointer());
+		for_each(mMemberVariables.begin(), mMemberVariables.end(), DeletePairedPointer());
 	}
 
 	void addVariable(char *name, const EMsgVariableType type, const S32 size)
@@ -222,7 +223,7 @@ public:
 	const LLMessageVariable* getVariable(char* name) const
 	{
 		message_variable_map_t::const_iterator iter = mMemberVariables.find(name);
-		return iter != mMemberVariables.end()? *iter : NULL;
+		return iter != mMemberVariables.end()? iter->second : NULL;
 	}
 
 	friend std::ostream&	 operator<<(std::ostream& s, LLMessageBlock &msg);
@@ -294,7 +295,7 @@ public:
 
 	~LLMessageTemplate()
 	{
-		for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePointer());
+		for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePairedPointer());
 	}
 
 	void addBlock(LLMessageBlock *blockp)
@@ -388,7 +389,7 @@ public:
 	const LLMessageBlock* getBlock(char* name) const
 	{
 		message_block_map_t::const_iterator iter = mMemberBlocks.find(name);
-		return iter != mMemberBlocks.end()? *iter : NULL;
+		return iter != mMemberBlocks.end() ? iter->second : NULL;
 	}
 
 public:

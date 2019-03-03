@@ -36,7 +36,12 @@ void cmdline_printchat(const std::string& message);
 namespace
 {
 	bool sSwimming = false;
-	bool is_underwater() { return gAgentAvatarp && gAgentAvatarp->mBelowWater; }
+	bool enable_swim()
+	{
+		static const LLCachedControl<bool> swim(gSavedSettings, "AOSwimEnabled", false);
+		return swim;
+	}
+	bool is_underwater() { return enable_swim() && gAgentAvatarp && gAgentAvatarp->mBelowWater; }
 }
 
 class AONotecardCallback : public LLInventoryCallback
@@ -642,10 +647,9 @@ void LLFloaterAO::ChangeStand()
 
 void LLFloaterAO::toggleSwim(bool underwater)
 {
-	const LLCachedControl<bool> enabled(gSavedSettings, "AOEnabled", false);
-	const LLCachedControl<bool> swim(gSavedSettings, "AOSwimEnabled", false);
+	static const LLCachedControl<bool> enabled(gSavedSettings, "AOEnabled", false);
 
-	sSwimming = underwater && swim;
+	sSwimming = underwater && enable_swim();
 
 	// Don't send requests if we have the AO disabled.
 	if (enabled)
@@ -653,10 +657,15 @@ void LLFloaterAO::toggleSwim(bool underwater)
 		AOState state = getAnimationState();
 		if (state != STATE_AGENT_IDLE && state != STATE_AGENT_STAND) // Don't bother if we're just standing or idle (Who pushed us?!)
 		{
-			// Stop flying/swimming
-			gAgent.sendAnimationRequest(GetAnimIDFromState(sSwimming ? swimToFlyState(state) : flyToSwimState(state)), ANIM_REQUEST_STOP);
-			// Start swimming/flying
-			gAgent.sendAnimationRequest(GetAnimIDFromState(state), ANIM_REQUEST_START);
+			// Stop all of the previous states
+			constexpr std::array<AOState, 4> swim_states = { STATE_AGENT_FLOAT, STATE_AGENT_SWIM, STATE_AGENT_SWIM_UP, STATE_AGENT_SWIM_DOWN };
+			constexpr std::array<AOState, 4> fly_states = { STATE_AGENT_HOVER, STATE_AGENT_FLY, STATE_AGENT_HOVER_UP, STATE_AGENT_HOVER_DOWN };
+			uuid_vec_t vec;
+			for (const auto& state : sSwimming ? fly_states : swim_states)
+				vec.push_back(GetAnimIDFromState(state));
+			gAgent.sendAnimationRequests(vec, ANIM_REQUEST_STOP);
+			// Process new animations
+			gAgentAvatarp->processAnimationStateChanges();
 		}
 	}
 }

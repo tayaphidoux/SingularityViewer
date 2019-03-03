@@ -1558,17 +1558,15 @@ void renderOctree(LLSpatialGroup* group)
 		if (group->mBufferUsage != GL_STATIC_DRAW_ARB)
 		{
 			LLGLDepthTest gl_depth(FALSE, FALSE);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 
 			gGL.diffuseColor4f(1,0,0,group->mBuilt);
-			gGL.flush();
-			glLineWidth(5.f);
+			gGL.setLineWidth(5.f);
 
 			const LLVector4a* bounds = group->getObjectBounds();
 			drawBoxOutline(bounds[0], bounds[1]);
-			gGL.flush();
-			glLineWidth(1.f);
-			gGL.flush();
+			gGL.setLineWidth(1.f);
+
 			OctreeGuard guard(group->getOctreeNode());
 			for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 			{
@@ -1614,7 +1612,7 @@ void renderOctree(LLSpatialGroup* group)
 					gGL.popMatrix();
 				}
 			}
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 			gGL.diffuseColor4f(1,1,1,1);
 		}
 	}
@@ -1685,10 +1683,10 @@ void renderOctree(LLSpatialGroup* group)
 
 void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 {
-	LLGLEnable blend(GL_BLEND);
+	LLGLEnable<GL_BLEND> blend;
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	LLGLEnable cull(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	LLGLEnable<GL_CULL_FACE> cull;
+	gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 
 	BOOL render_objects = (!LLPipeline::sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED)) && group->isVisible() &&
 							!group->isEmpty();
@@ -1709,7 +1707,7 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
 		}
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 
 		if (render_objects)
 		{
@@ -1723,11 +1721,11 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 
 			gGL.diffuseColor4f(1.0f, 0.f, 0.f, 0.5f);
 			glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8, GL_UNSIGNED_BYTE, get_box_fan_indices(camera, group->mBounds[0]));
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 			
 			gGL.diffuseColor4f(1.0f, 1.f, 1.f, 1.0f);
 			glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8, GL_UNSIGNED_BYTE, get_box_fan_indices(camera, group->mBounds[0]));
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 		}*/
 	}
 }
@@ -1754,7 +1752,7 @@ void renderUpdateType(LLDrawable* drawablep)
 	{
 		return;
 	}
-	LLGLEnable blend(GL_BLEND);
+	LLGLEnable<GL_BLEND> blend;
 	switch (vobj->getLastUpdateType())
 	{
 	case OUT_FULL:
@@ -1847,7 +1845,7 @@ void renderComplexityDisplay(LLDrawable* drawablep)
 	// cap cost ratio at 1.0f in case cost_max is at a low threshold
 	cost_ratio = cost_ratio > 1.0f ? 1.0f : cost_ratio;
 	
-	LLGLEnable blend(GL_BLEND);
+	LLGLEnable<GL_BLEND> blend;
 
 	LLColor4 color;
 	const LLColor4 color_min = gSavedSettings.getColor4("RenderComplexityColorMin");
@@ -1985,13 +1983,11 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 	LLViewerObject* vobj = drawable->getVObj();
 	if (vobj && vobj->onActiveList())
 	{
-		gGL.flush();
-		glLineWidth(llmax(4.f*sinf(gFrameTimeSeconds*2.f)+1.f, 1.f));
+		gGL.setLineWidth(llmax(4.f*sinf(gFrameTimeSeconds*2.f)+1.f, 1.f));
 		//glLineWidth(4.f*(sinf(gFrameTimeSeconds*2.f)*0.25f+0.75f));
 		stop_glerror();
 		drawBoxOutline(pos,size);
-		gGL.flush();
-		glLineWidth(1.f);
+		gGL.setLineWidth(1.f);
 	}
 	else
 	{
@@ -2104,14 +2100,14 @@ void render_hull(LLModel::PhysicsMesh& mesh, const LLColor4& color, const LLColo
 		return;
 	gGL.diffuseColor4fv(color.mV);
 	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions, mesh.mNormals);
-	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glPolygonOffset(3.f, 3.f);
-	glLineWidth(3.f);
+	LLGLEnable<GL_POLYGON_OFFSET_LINE> offset;
+	gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
+	gGL.setPolygonOffset(3.f, 3.f);
+	gGL.setLineWidth(3.f);
 	gGL.diffuseColor4fv(line_color.mV);
 	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions, mesh.mNormals);
-	glLineWidth(1.f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	gGL.setLineWidth(1.f);
+	gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 }
 
 void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
@@ -2194,10 +2190,10 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				gGL.diffuseColor4fv(color.mV);
 				LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions, decomp->mPhysicsShapeMesh.mNormals);
 								
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 				gGL.diffuseColor4fv(line_color.mV);
 				LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions, decomp->mPhysicsShapeMesh.mNormals);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 			}
 			else
 			{ //no mesh or decomposition, render base hull
@@ -2318,7 +2314,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			{
 				//render hull
 			
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 				
 				gGL.diffuseColor4fv(line_color.mV);
 				LLVertexBuffer::unbind();
@@ -2328,7 +2324,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mNumHullPoints phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
 				
 				gGL.diffuseColor4fv(color.mV);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 				LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mNumHullPoints phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
 				
 			}
@@ -2385,13 +2381,13 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		S32 detail = get_physics_detail(volume_params, volume->getScale());
 
 		LLVolume* phys_volume = LLPrimitive::getVolumeManager()->refVolume(volume_params, detail);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 		
 		gGL.diffuseColor4fv(line_color.mV);
 		pushVerts(phys_volume);
 		
 		gGL.diffuseColor4fv(color.mV);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 		pushVerts(phys_volume);
 		LLPrimitive::getVolumeManager()->unrefVolume(phys_volume);
 	}
@@ -2404,11 +2400,11 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 
 		if (phys_volume->mHullPoints && phys_volume->mHullIndices)
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 			gGL.diffuseColor4fv(line_color.mV);
 			LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mNumHullPoints, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
 
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 			gGL.diffuseColor4fv(color.mV);
 			LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mNumHullPoints, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
 		}
@@ -2489,14 +2485,14 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 							LLVertexBuffer* buff = face->getVertexBuffer();
 							if (buff)
 							{
-								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+								gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 
 								buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 								gGL.diffuseColor3f(0.2f, 0.5f, 0.3f);
 								buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
 									
 								gGL.diffuseColor3f(0.2f, 1.f, 0.3f);
-								glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+								gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 								buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
 							}
 						}
@@ -2520,7 +2516,7 @@ void renderTexturePriority(LLDrawable* drawable)
 		LLVector4 boost_cold(0,0,0,0);
 		LLVector4 boost_hot(0,1,0,1);
 		
-		LLGLDisable blend(GL_BLEND);
+		LLGLDisable<GL_BLEND> blend;
 		
 		//LLViewerTexture* imagep = facep->getTexture();
 		//if (imagep)
@@ -2594,22 +2590,22 @@ void renderTextureAnim(LLDrawInfo* params)
 		return;
 	}
 	
-	LLGLEnable blend(GL_BLEND);
+	LLGLEnable<GL_BLEND> blend;
 	gGL.diffuseColor4f(1,1,0,0.5f);
 	pushVerts(params, LLVertexBuffer::MAP_VERTEX);
 }
 
 void renderBatchSize(LLDrawInfo* params)
 {
-	LLGLEnable offset(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(-1.f, 1.f);
+	LLGLEnable<GL_POLYGON_OFFSET_FILL> offset;
+	gGL.setPolygonOffset(-1.f, 1.f);
 	gGL.diffuseColor4ubv((GLubyte*) &(params->mDebugColor));
 	pushVerts(params, LLVertexBuffer::MAP_VERTEX);
 }
 
 void renderShadowFrusta(LLDrawInfo* params)
 {
-	LLGLEnable blend(GL_BLEND);
+	LLGLEnable<GL_BLEND> blend;
 	gGL.setSceneBlendType(LLRender::BT_ADD);
 
 	LLVector4a center;
@@ -2653,7 +2649,7 @@ void renderLights(LLDrawable* drawablep)
 
 	if (drawablep->getNumFaces())
 	{
-		LLGLEnable blend(GL_BLEND);
+		LLGLEnable<GL_BLEND> blend;
 		gGL.diffuseColor4f(0,1,1,0.5f);
 
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
@@ -2736,8 +2732,7 @@ public:
 			
 			if (i == 1)
 			{
-				gGL.flush();
-				glLineWidth(3.f);
+				gGL.setLineWidth(3.f);
 			}
 
 			gGL.begin(LLRender::TRIANGLES);
@@ -2755,8 +2750,7 @@ public:
 
 			if (i == 1)
 			{
-				gGL.flush();
-				glLineWidth(1.f);
+				gGL.setLineWidth(1.f);
 			}
 		}
 	}
@@ -2766,14 +2760,14 @@ void renderRaycast(LLDrawable* drawablep)
 {
 	if (drawablep->getNumFaces())
 	{
-		LLGLEnable blend(GL_BLEND);
+		LLGLEnable<GL_BLEND> blend;
 		gGL.diffuseColor4f(0,1,1,0.5f);
 
 		if (drawablep->getVOVolume())
 		{
-			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			//gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);
 			//pushVerts(drawablep->getFace(gDebugRaycastFaceHit), LLVertexBuffer::MAP_VERTEX);
-			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 
 			LLVOVolume* vobj = drawablep->getVOVolume();
 			LLVolume* volume = vobj->getVolume();
@@ -2819,7 +2813,7 @@ void renderRaycast(LLDrawable* drawablep)
 					dir.setSub(end, start);
 
 					gGL.flush();
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);				
+					gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_LINE);				
 
 					{
 						//render face positions
@@ -2842,7 +2836,7 @@ void renderRaycast(LLDrawable* drawablep)
 					}
 
 					gGL.popMatrix();		
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					gGL.setPolygonMode(LLRender::PF_FRONT_AND_BACK, LLRender::PM_FILL);
 				}
 			}
 		}
@@ -2989,7 +2983,7 @@ public:
 			return;
 		}
 
-		LLGLDisable stencil(GL_STENCIL_TEST);
+		LLGLDisable<GL_STENCIL_TEST> stencil;
 
 		group->rebuildGeom();
 		group->rebuildMesh();
@@ -3304,13 +3298,11 @@ void LLSpatialPartition::renderPhysicsShapes()
 		camera = NULL;
 	}
 
-	gGL.flush();
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	glLineWidth(3.f);
+	gGL.setLineWidth(3.f);
 	LLOctreeRenderPhysicsShapes render_physics(camera);
 	render_physics.traverse(mOctree);
-	gGL.flush();
-	glLineWidth(1.f);
+	gGL.setLineWidth(1.f);
 }
 
 void LLSpatialPartition::renderDebug()
@@ -3348,11 +3340,12 @@ void LLSpatialPartition::renderDebug()
 		sCurMaxTexPriority = 0.f;
 	}
 
-	LLGLDisable cullface(GL_CULL_FACE);
-	LLGLEnable blend(GL_BLEND);
+	LLGLDisable<GL_CULL_FACE> cullface;
+	LLGLEnable<GL_BLEND> blend;
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	gPipeline.disableLights();
+	LLGLState<GL_LIGHTING> light_state;
+	gPipeline.disableLights(light_state);
 
 	LLSpatialBridge* bridge = asBridge();
 	LLCamera* camera = LLViewerCamera::getInstance();

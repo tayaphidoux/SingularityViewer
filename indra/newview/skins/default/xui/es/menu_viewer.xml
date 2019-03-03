@@ -221,8 +221,12 @@
 			<menu_item_call label="Wiki de QA..." name="QA Wiki..."/>
 			<menu_item_call label="Informar Fallos..." name="Report Bug..."/>
 			<menu_item_call label="Informar Fallos de [SHORT_APP_NAME]..." name="Report [SHORT_APP_NAME] Bug..."/>
-			<menu_item_call label="Solicitar Nueva Característica..." name="Request New Feature..."/>			
+			<menu_item_call label="Solicitar Nueva Característica..." name="Request New Feature..."/>
 		</menu>
+		<menu_item_call label="[SHORT_APP_NAME] Group" name="viewer group">
+			<on_click function="URLAction" userdata="secondlife:///app/group/ce736e80-376b-e057-1722-431d1daa363e/about"/>
+			<on_visible function="VisibleSecondLife"/>
+		</menu_item_call>
 		<menu_item_call label="Acerca de [APP_NAME]..." name="About Second Life..."/>
 	</menu>
 	<!-- ============================= -->

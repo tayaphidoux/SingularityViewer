@@ -388,7 +388,11 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 			// put a EOS at the end
 			buffer[file_length] = 0;
 
-			
+			// Singu Note: Set Enabled first, it determines whether or not our text will be linked
+			const LLInventoryItem* item = preview->getItem();
+			BOOL modifiable = item && gAgent.allowOperation(PERM_MODIFY,
+								item->getPermissions(), GP_OBJECT_MANIPULATE);
+			preview->setEnabled(modifiable);
 			if (LLViewerTextEditor* previewEditor = preview->findChild<LLViewerTextEditor>("Notecard Editor"))
 			{
 				if ((file_length > 19) && !strncmp(buffer, "Linden text version", 19))
@@ -406,11 +410,6 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 
 				previewEditor->makePristine();
 			}
-
-			const LLInventoryItem* item = preview->getItem();
-			BOOL modifiable = item && gAgent.allowOperation(PERM_MODIFY,
-								item->getPermissions(), GP_OBJECT_MANIPULATE);
-			preview->setEnabled(modifiable);
 			delete[] buffer;
 			preview->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}

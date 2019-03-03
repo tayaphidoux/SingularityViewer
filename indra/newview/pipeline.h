@@ -117,6 +117,7 @@ public:
 	void resetVertexBuffers();
 	void doResetVertexBuffers();
 	void resizeScreenTexture();
+	void releaseVertexBuffers();
 	void releaseGLBuffers();
 	void releaseLUTBuffers();
 	void releaseScreenBuffers();
@@ -227,11 +228,8 @@ public:
 
 	void		enableShadows(const BOOL enable_shadows);
 
-// 	void		setLocalLighting(const BOOL local_lighting);
-// 	BOOL		isLocalLightingEnabled() const;
-	S32			setLightingDetail(S32 level);
-	S32			getLightingDetail() const { return mLightingDetail; }
-	S32			getMaxLightingDetail() const;
+	void		updateLocalLightingEnabled();
+	bool		isLocalLightingEnabled() const { return mLightingEnabled; }
 		
 	BOOL		canUseWindLightShaders() const;
 	BOOL		canUseWindLightShadersOnObjects() const;
@@ -251,7 +249,7 @@ public:
 	void createObjects(F32 max_dtime);
 	void createObject(LLViewerObject* vobj);
 	void processPartitionQ();
-	void updateGeom(F32 max_dtime);
+	void updateGeom(F32 max_dtime, LLCamera& camera);
 	void updateGL();
 	void rebuildPriorityGroups();
 	void rebuildGroups();
@@ -311,16 +309,18 @@ public:
 
 	void resetLocalLights();		//Default all gl light parameters. Used upon restoreGL. Fixes light brightness problems on fullscren toggle
 	void calcNearbyLights(LLCamera& camera);
-	void setupHWLights(LLDrawPool* pool);
-	void setupAvatarLights(BOOL for_edit = FALSE);
-	void enableLights(U32 mask);
-	void enableLightsStatic();
-	void enableLightsDynamic();
-	void enableLightsAvatar();
-	void enableLightsPreview();
-	void enableLightsAvatarEdit(const LLColor4& color);
-	void enableLightsFullbright(const LLColor4& color);
-	void disableLights();
+	void gatherLocalLights();
+	void setupHWLights();
+	void updateHWLightMode(U8 mode);
+	U8 setupFeatureLights(U8 cur_count);
+	void enableLights(U32 mask, LLGLState<GL_LIGHTING>& light_state, const LLColor4* color = nullptr);
+	void enableLightsStatic(LLGLState<GL_LIGHTING>& light_state);
+	void enableLightsDynamic(LLGLState<GL_LIGHTING>& light_state);
+	void enableLightsAvatar(LLGLState<GL_LIGHTING>& light_state);
+	void enableLightsPreview(LLGLState<GL_LIGHTING>& light_state);
+	void enableLightsAvatarEdit(LLGLState<GL_LIGHTING>& light_state, const LLColor4& color);
+	void enableLightsFullbright(LLGLState<GL_LIGHTING>& light_state);
+	void disableLights(LLGLState<GL_LIGHTING>& light_state);
 
 	void shiftObjects(const LLVector3 &offset);
 
@@ -358,6 +358,14 @@ public:
 
 	void pushRenderDebugFeatureMask();
 	void popRenderDebugFeatureMask();
+
+	template <LLGLenum T>
+	LLGLStateIface* pushRenderPassState(U8 newState = LLGLStateIface::CURRENT_STATE) {
+		llassert_always(mInRenderPass);
+		LLGLStateIface* stateObject = new LLGLState<T>(newState);
+		mRenderPassStates.emplace_back(stateObject);
+		return stateObject;
+	}
 
 	static void toggleRenderType(U32 type);
 
@@ -429,6 +437,13 @@ private:
 	void unhideDrawable( LLDrawable *pDrawable );
 
 	void drawFullScreenRect();
+
+	void clearRenderPassStates() {
+		while (!mRenderPassStates.empty()) {
+			mRenderPassStates.pop_back();
+		}
+		mInRenderPass = false;
+	}
 public:
 	enum {GPU_CLASS_MAX = 3 };
 
@@ -637,8 +652,8 @@ private:
 	LLRenderTarget				mGlow[2];
 
 	//noise map
-	U32					mNoiseMap;
-	U32					mLightFunc;
+	LLImageGL::GLTextureName	mNoiseMap;
+	LLImageGL::GLTextureName	mLightFunc;
 
 	LLColor4				mSunDiffuse;
 	LLVector3				mSunDir;
@@ -696,7 +711,6 @@ private:
 	
 	LLDrawable::drawable_set_t		mLights;
 	light_set_t						mNearbyLights; // lights near camera
-	LLColor4						mHWLightColors[8];
 	
 	/////////////////////////////////////////////
 	//
@@ -722,6 +736,9 @@ private:
 	LLViewerObject::vobj_list_t		mCreateQ;
 		
 	LLDrawable::drawable_set_t		mRetexturedList;
+
+	bool mInRenderPass;
+	std::vector< std::unique_ptr<LLGLStateIface> > mRenderPassStates;
 
 	//////////////////////////////////////////////////
 	//
@@ -793,9 +810,11 @@ protected:
 
 	LLPointer<LLViewerFetchedTexture>	mFaceSelectImagep;
 	
+	std::vector<LLLightStateData>		mLocalLights;
+	U8						mHWLightCount;
+	U8						mLightMode;
 	U32						mLightMask;
-	U32						mLightMovingMask;
-	S32						mLightingDetail;
+	bool					mLightingEnabled;
 		
 	static BOOL				sRenderPhysicalBeacons;
 	static BOOL				sRenderMOAPBeacons;

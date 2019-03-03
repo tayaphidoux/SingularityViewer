@@ -134,9 +134,9 @@ void LLHUDText::renderText()
 		return;
 	}
 
-		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-	LLGLState gls_blend(GL_BLEND, TRUE);
-	LLGLState gls_alpha(GL_ALPHA_TEST, TRUE);
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+	LLGLEnable<GL_BLEND> gls_blend;
+	LLGLEnable<GL_ALPHA_TEST> gls_alpha;
 	
 	LLColor4 shadow_color(0.f, 0.f, 0.f, 1.f);
 	F32 alpha_factor = 1.f;
@@ -613,12 +613,12 @@ void LLHUDText::markDead()
 
 void LLHUDText::renderAllHUD()
 {
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
+	LLGLStateValidator::checkStates();
+	LLGLStateValidator::checkTextureChannels();
+	LLGLStateValidator::checkClientArrays();
 
 	{
-		LLGLEnable color_mat(GL_COLOR_MATERIAL);
+		LLGLEnable<GL_COLOR_MATERIAL> color_mat;
 		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 		
 		VisibleTextObjectIterator text_it;
@@ -633,9 +633,9 @@ void LLHUDText::renderAllHUD()
 
     LLVertexBuffer::unbind();
 
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
+	LLGLStateValidator::checkStates();
+	LLGLStateValidator::checkTextureChannels();
+	LLGLStateValidator::checkClientArrays();
 }
 
 void LLHUDText::shiftAll(const LLVector3& offset)

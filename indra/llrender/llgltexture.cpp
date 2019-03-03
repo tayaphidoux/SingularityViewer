@@ -167,7 +167,7 @@ BOOL LLGLTexture::createGLTexture()
 	return mGLTexturep->createGLTexture() ;
 }
 
-BOOL LLGLTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename, BOOL to_create, S32 category)
+BOOL LLGLTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, LLImageGL::GLTextureName* usename, BOOL to_create, S32 category)
 {
 	llassert(mGLTexturep.notNull()) ;	
 
