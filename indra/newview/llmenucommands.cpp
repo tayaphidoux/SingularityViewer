@@ -82,7 +82,6 @@
 #include "llfloatermessagelog.h"
 #include "llfloatermute.h"
 #include "llfloaternotificationsconsole.h"
-#include "llfloateroutbox.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterperms.h"
@@ -234,7 +233,6 @@ struct MenuFloaterDict : public LLSingleton<MenuFloaterDict>
 		registerFloater<LLFloaterMove>					("movement controls");
 		registerFloater<LLFloaterMute>					("mute list");
 		registerFloater<LLFloaterNotificationConsole>	("notifications console");
-		registerFloater<LLFloaterOutbox>				("outbox");
 		registerFloater<LLFloaterPathfindingCharacters>	("pathfinding_characters");
 		registerFloater<LLFloaterPathfindingLinksets>	("pathfinding_linksets");
 		registerFloater<LLFloaterPermsDefault>			("perm prefs");

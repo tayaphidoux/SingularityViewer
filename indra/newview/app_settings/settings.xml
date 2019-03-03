@@ -8084,10 +8084,10 @@ This should be as low as possible, but too low may break functionality</string>
         <integer>0</integer>
       </array>
     </map>
-    <key>FloaterOutboxRect</key>
+    <key>FloaterMarketplaceListingsRect</key>
     <map>
       <key>Comment</key>
-      <string>Rectangle for merchant outbox window</string>
+      <string>Rectangle for Marketplace Listings window</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

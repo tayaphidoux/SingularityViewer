@@ -245,7 +245,6 @@ set(viewer_SOURCE_FILES
     llfloaterobjectiminfo.cpp
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
-    llfloateroutbox.cpp
     llfloaterparcel.cpp
     llfloaterpathfindingcharacters.cpp
     llfloaterpathfindinglinksets.cpp
@@ -781,7 +780,6 @@ set(viewer_HEADER_FILES
     llfloaterobjectiminfo.h
     llfloaterobjectweights.h
     llfloateropenobject.h
-    llfloateroutbox.h
     llfloaterparcel.h
     llfloaterpathfindingcharacters.h
     llfloaterpathfindinglinksets.h

@@ -611,12 +611,6 @@
             <on_click function="ShowFloater" userdata="marketplace_listings" />
             <on_check function="FloaterVisible" userdata="marketplace_listings" />
         </menu_item_check>
-        <menu_item_check
-         label="Merchant Outbox..."
-         name="MerchantOutbox">
-            <on_click function="ShowFloater" userdata="outbox" />
-            <on_check function="FloaterVisible" userdata="outbox" />
-        </menu_item_check>
 		<menu_item_call bottom="-286" enabled="true" height="19" label="Buy [CURRENCY]..." left="0"
 		     mouse_opaque="true" name="Buy and Sell L$..." width="166">
 			<on_click function="ShowFloater" userdata="buy currency" />

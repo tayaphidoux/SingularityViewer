@@ -72,7 +72,6 @@ public:
 
 	bool canShare() const;
 	bool canListOnMarketplace() const;
-	bool canListOnOutboxNow() const;
 	bool canListOnMarketplaceNow() const;
 
 	//--------------------------------------------------------------------
@@ -139,9 +138,6 @@ protected:
 	virtual void addDeleteContextMenuOptions(menuentry_vec_t &items,
 											 menuentry_vec_t &disabled_items);
 	virtual void addOpenRightClickMenuOption(menuentry_vec_t &items);
-	virtual void addOutboxContextMenuOptions(U32 flags,
-											 menuentry_vec_t &items,
-											 menuentry_vec_t &disabled_items);
 	virtual void addMarketplaceContextMenuOptions(U32 flags,
 											 menuentry_vec_t &items,
 											 menuentry_vec_t &disabled_items);
@@ -158,9 +154,7 @@ protected:
 	BOOL isCOFFolder() const;       // true if COF or descendant of
 	BOOL isInboxFolder() const;     // true if COF or descendant of   marketplace inbox
 
-	BOOL isOutboxFolderDirectParent() const;
 	BOOL isMarketplaceListingsFolder() const;     // true if descendant of Marketplace listings folder
-	const LLUUID getOutboxFolder() const;
 
 	virtual BOOL isItemPermissive() const;
 	static void changeItemParent(LLInventoryModel* model,
@@ -176,9 +170,6 @@ public:
 
 	BOOL callback_cutToClipboard(const LLSD& notification, const LLSD& response);
 	BOOL perform_cutToClipboard();
-
-public:
-	BOOL isOutboxFolder() const;    // true if COF or descendant of   marketplace outbox
 
 protected:
 	LLHandle<LLInventoryPanel> mInventoryPanel;
@@ -722,7 +713,5 @@ public:
 // Helper functions to classify actions.
 bool isAddAction(const std::string& action);
 bool isRemoveAction(const std::string& action);
-bool isMarketplaceCopyAction(const std::string& action);
-bool isMarketplaceSendAction(const std::string& action);
 
 #endif // LL_LLINVENTORYBRIDGE_H
