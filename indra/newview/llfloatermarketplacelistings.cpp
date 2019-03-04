@@ -400,6 +400,7 @@ BOOL LLFloaterMarketplaceListings::postBuild()
 
 void LLFloaterMarketplaceListings::onClose(bool app_quitting)
 {
+	LLFloater::onClose(app_quitting);
 }
 
 void LLFloaterMarketplaceListings::onOpen(/*const LLSD& key*/)
