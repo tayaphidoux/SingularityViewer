@@ -59,10 +59,23 @@ LLPanelMarketplaceListings::LLPanelMarketplaceListings()
 	mEnableCallbackRegistrar.add("Marketplace.ViewSort.CheckItem",	boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemCheck,	this, _2));
 }
 
+LLPanelMarketplaceListings::~LLPanelMarketplaceListings() { delete mMenu; }
+
+void showMenu(LLView* button, LLMenuGL* menu)
+{
+	menu->buildDrawLabels();
+	menu->updateParent(LLMenuGL::sMenuContainer);
+	const auto& rect = button->getRect();
+	LLMenuGL::showPopup(button, menu, rect.mLeft, rect.mBottom);
+}
+
 BOOL LLPanelMarketplaceListings::postBuild()
 {
 	childSetAction("add_btn", boost::bind(&LLPanelMarketplaceListings::onAddButtonClicked, this));
 	childSetAction("audit_btn", boost::bind(&LLPanelMarketplaceListings::onAuditButtonClicked, this));
+	mMenu = LLUICtrlFactory::instance().buildMenu("menu_marketplace_view.xml", LLMenuGL::sMenuContainer);
+	auto sort = getChild<LLUICtrl>("sort_btn");
+	sort->setCommitCallback(boost::bind(showMenu, _1, mMenu));
 
 	mFilterEditor = getChild<LLFilterEditor>("filter_editor");
 	mFilterEditor->setCommitCallback(boost::bind(&LLPanelMarketplaceListings::onFilterEdit, this, _2));

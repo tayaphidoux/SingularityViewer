@@ -51,6 +51,7 @@ class LLPanelMarketplaceListings : public LLPanel
 {
 public:
 	LLPanelMarketplaceListings();
+	~LLPanelMarketplaceListings();
 	BOOL postBuild();
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 						   EDragAndDropType cargo_type,
@@ -79,6 +80,7 @@ private:
 
 	LLFolderView*     mRootFolder;
 	LLButton*         mAuditBtn;
+	class LLMenuGL*         mMenu;
 	LLFilterEditor*	  mFilterEditor;
 	std::string		  mFilterSubString;
 	bool              mFilterListingFoldersOnly;
