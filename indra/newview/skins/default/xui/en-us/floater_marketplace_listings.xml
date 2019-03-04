@@ -76,6 +76,7 @@
       layout="topleft"
       left="10"
       width="313"
+      mouse_opaque="false"
       height="20">
       <text
         name="marketplace_status"
