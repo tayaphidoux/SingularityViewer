@@ -105,7 +105,7 @@ LocalBitmap::Params::Params(const std::string& path)
 
 LocalBitmap::LocalBitmap(const Params& p)
 {
-	llassert(!p.fullpath.empty());
+	llassert(!p.fullpath().empty());
 	valid = false;
 	if ( gDirUtilp->fileExists(p.fullpath) )
 	{
