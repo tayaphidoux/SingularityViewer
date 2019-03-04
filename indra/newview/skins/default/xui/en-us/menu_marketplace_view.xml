@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<toggleable_menu
+<menu
  name="menu_marketplace_sort"
  left="0" bottom="0" visible="false"
  mouse_opaque="false">
@@ -45,4 +45,4 @@
         function="Marketplace.ViewSort.CheckItem"
         parameter="show_only_listing_folders"/>
     </menu_item_check>
-</toggleable_menu>
+</menu>
