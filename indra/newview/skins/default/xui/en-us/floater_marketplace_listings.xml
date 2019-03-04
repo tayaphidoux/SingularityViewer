@@ -67,7 +67,7 @@
       <panel
         name="panel_marketplace_listing"
         filename="panel_marketplace_listings.xml"
-        bottom="-5"
+        bottom="-435"
         follows="all"/>
       </panel>
     <panel

@@ -5,7 +5,6 @@
   follows="all"
   layout="topleft"
   width="308"
-  class="llpanelmarketplacelistings"
   height="440">
   <panel
     name="tool_panel"

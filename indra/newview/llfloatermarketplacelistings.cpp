@@ -358,7 +358,8 @@ LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 , mPanelListingsSet(false)
 {
 	//buildFromFile("floater_marketplace_listings.xml");
-	LLUICtrlFactory::instance().buildFloater(this, "floater_marketplace_listings.xml");
+	mFactoryMap["panel_marketplace_listing"] = LLCallbackMap([&](void*) { return mPanelListings = new LLPanelMarketplaceListings; });
+	LLUICtrlFactory::instance().buildFloater(this, "floater_marketplace_listings.xml", &getFactoryMap());
 }
 
 LLFloaterMarketplaceListings::~LLFloaterMarketplaceListings()
@@ -383,8 +384,6 @@ BOOL LLFloaterMarketplaceListings::postBuild()
 	mInventoryPlaceholder = getChild<LLView>("marketplace_listings_inventory_placeholder_panel");
 	mInventoryText = mInventoryPlaceholder->getChild<LLTextBox>("marketplace_listings_inventory_placeholder_text");
 	mInventoryTitle = mInventoryPlaceholder->getChild<LLTextBox>("marketplace_listings_inventory_placeholder_title");
-
-	mPanelListings = static_cast<LLPanelMarketplaceListings*>(getChild<LLUICtrl>("panel_marketplace_listing"));
 
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLFloaterMarketplaceListings::onFocusReceived, this));
 
