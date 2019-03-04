@@ -125,9 +125,9 @@ void LLPanelMarketplaceListings::buildAllPanels()
 
 LLInventoryPanel* LLPanelMarketplaceListings::buildInventoryPanel(const std::string& childname, const std::string& filename)
 {
-	//LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
 	// Singu Note: These should already be built!!
-	LLInventoryPanel* panel = getChild<LLInventoryPanel>(childname);
+	LLInventoryPanel* panel = tabs_panel->getChild<LLInventoryPanel>(childname, false, false);
 	llassert(panel != NULL);
 	
 	// Set sort order and callbacks
