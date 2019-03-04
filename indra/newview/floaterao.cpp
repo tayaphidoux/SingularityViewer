@@ -416,9 +416,10 @@ void LLFloaterAO::run()
 {
 	setAnimationState(STATE_AGENT_IDLE); // reset state
 	AOState state = getAnimationState(); // check if sitting or hovering
+	bool enabled = gSavedSettings.getBOOL("AOEnabled");
 	if (state == STATE_AGENT_IDLE || state == STATE_AGENT_STAND)
 	{
-		if (gSavedSettings.getBOOL("AOEnabled"))
+		if (enabled)
 		{
 			if (mAOStandTimer)
 			{
@@ -448,8 +449,10 @@ void LLFloaterAO::run()
 			break;
 		default: break;
 		}
-		gAgent.sendAnimationRequest(GetAnimIDFromState(state), (gSavedSettings.getBOOL("AOEnabled") &&  (!sit || gSavedSettings.getBOOL("AOSitsEnabled"))) ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
+		gAgent.sendAnimationRequest(GetAnimIDFromState(state), (enabled &&  (!sit || gSavedSettings.getBOOL("AOSitsEnabled"))) ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
 	}
+	if (!enabled) // Stop typing AO the moment we turn off AO
+		gAgent.sendAnimationRequest(GetAnimIDFromState(STATE_AGENT_TYPING), ANIM_REQUEST_STOP);
 }
 
 void LLFloaterAO::typing(bool start)
