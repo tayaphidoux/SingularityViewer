@@ -45,7 +45,6 @@
 #include "llscrollcontainer.h"
 #include "llviewerassettype.h"
 #include "llpanelmaininventory.h"
-#include "llpanelmarketplaceoutboxinventory.h"
 
 #include "llsdserialize.h"
 
@@ -335,10 +334,6 @@ LLView* LLInventoryPanel::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 
 	if(name == "Recent Items")
 		panel = new LLInventoryRecentItemsPanel(name, sort_order, start_folder,
-								 rect, &gInventory,
-								 allow_multi_select, parent);
-	else if(name == "panel_outbox_inventory")
-		panel = new LLOutboxInventoryPanel(name, sort_order, start_folder,
 								 rect, &gInventory,
 								 allow_multi_select, parent);
 	else
