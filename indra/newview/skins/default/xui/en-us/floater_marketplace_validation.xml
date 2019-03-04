@@ -14,6 +14,7 @@
     can_resize="true"
     can_minimize="true"
     save_rect="true"
+    rect_control="FloaterMarketplaceValidationRect"
     reuse_instance="true"
     save_visibility="false">
     <button
