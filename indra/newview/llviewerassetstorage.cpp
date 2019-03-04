@@ -369,7 +369,7 @@ void LLViewerAssetStorage::queueRequestUDP(
 	{
 		const auto region = gAgent.getRegion();
 		// Fallback on UDP if we have no cap or haven't received caps. This means missing some UDP-only region assets before caps received, but that's better for HTTP only.
-		bool with_http = !region || !region->capabilitiesReceived() || region->getViewerAssetUrl().empty();
+		bool with_http = !region || !region->capabilitiesReceived() || !region->getViewerAssetUrl().empty();
 		LLViewerAssetRequest *req = new LLViewerAssetRequest(uuid, atype, with_http);
 		req->mDownCallback = callback;
 		req->mUserData = user_data;
