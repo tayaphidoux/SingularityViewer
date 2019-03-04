@@ -131,7 +131,7 @@ void LLInvPanelComplObserver::done()
 
 LLInventoryPanel::LLInventoryPanel(const std::string& name,
 								    const std::string& sort_order_setting,
-									const std::string& start_folder,
+									const LLSD& start_folder,
 									const LLRect& rect,
 									LLInventoryModel* inventory,
 									BOOL allow_multi_select,
@@ -159,32 +159,12 @@ LLInventoryPanel::LLInventoryPanel(const std::string& name,
 	setBackgroundOpaque(TRUE);
 }
 
-LLUUID getStartFolder(const std::string& start_folder)
-{
-	if ("LIBRARY" == start_folder)
-		return gInventory.getLibraryRootFolderID();
-	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(start_folder);
-
-	return (preferred_type != LLFolderType::FT_NONE)
-			? gInventory.findCategoryUUIDForType(preferred_type, false)
-			: gInventory.getCategory(static_cast<LLUUID>(start_folder)) ? static_cast<LLUUID>(start_folder) // Singu Note: if start folder is an id of a folder, use it
-			: LLUUID::null;
-}
-
 void LLInventoryPanel::buildFolderView()
 {
 	// Determine the root folder in case specified, and
 	// build the views starting with that folder.
-
-	//std::string start_folder_name(params.start_folder());
-
-	LLUUID root_id = getStartFolder(mStartFolder);
-
-	if ((root_id == LLUUID::null) && !mStartFolder.empty())
-	{
-		LL_WARNS() << "No category found that matches start_folder: " << mStartFolder << LL_ENDL;
-		root_id = LLUUID::generateNewID();
-	}
+	LLUUID root_id = getRootFolderID();
+	mStartFolder["id"] = root_id; // Cache this, so we don't waste time on future getRootFolderID calls
 
 	LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
 													(mUseMarketplaceFolders/*mParams.use_marketplace_folders*/ ? LLAssetType::AT_MARKETPLACE_FOLDER : LLAssetType::AT_CATEGORY),
@@ -343,8 +323,14 @@ LLView* LLInventoryPanel::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 	std::string sort_order(INHERIT_SORT_ORDER);
 	node->getAttributeString("sort_order", sort_order);
 
-	std::string start_folder;
-	node->getAttributeString("start_folder", start_folder);
+	LLSD start_folder;
+	std::string start;
+	if (node->getAttributeString("start_folder.name", start))
+		start_folder["name"] = start;
+	if (node->getAttributeString("start_folder.id", start))
+		start_folder["id"] = LLUUID(start);
+	if (node->getAttributeString("start_folder.type", start))
+		start_folder["type"] = start;
 
 	if(name == "Recent Items")
 		panel = new LLInventoryRecentItemsPanel(name, sort_order, start_folder,
@@ -707,11 +693,32 @@ const LLUUID LLInventoryPanel::getRootFolderID() const
 	}
 	else
 	{
-		root_id = getStartFolder(mStartFolder);
-		if (root_id.isNull())
+		if (mStartFolder.has("id"))
 		{
-			LL_WARNS() << "Could not find folder of type " << mStartFolder << LL_ENDL;
-			root_id.generateNewID();
+			root_id = mStartFolder["id"];
+		}
+		else
+		{
+			LLStringExplicit label(mStartFolder["name"]);
+			const LLFolderType::EType preferred_type = mStartFolder.has("type")
+				? LLFolderType::lookup(mStartFolder["type"])
+				: LLViewerFolderType::lookupTypeFromNewCategoryName(label);
+
+			if ("LIBRARY" == label)
+			{
+				root_id = gInventory.getLibraryRootFolderID();
+			}
+			else if (preferred_type != LLFolderType::FT_NONE)
+			{
+				//setLabel(label);
+
+				root_id = gInventory.findCategoryUUIDForType(preferred_type, false);
+				if (root_id.isNull())
+				{
+					LL_WARNS() << "Could not find folder for " << mStartFolder << LL_ENDL;
+					root_id.generateNewID();
+				}
+			}
 		}
 	}
 	return root_id;

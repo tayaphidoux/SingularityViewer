@@ -95,7 +95,7 @@ protected:
 	friend class LFFloaterInvPanel;
 	LLInventoryPanel(const std::string& name,
 			const std::string& sort_order_setting,
-			const std::string& start_folder,
+			const LLSD& start_folder,
 			const LLRect& rect,
 			LLInventoryModel* inventory,
 			BOOL allow_multi_select,
@@ -236,7 +236,7 @@ public:
 	void requestSort();
 
 private:
-	const std::string			mStartFolder;
+	LLSD					mStartFolder;
 	bool					mShowRootFolder;
 	bool					mAllowDropOnRoot;
 	bool					mAllowWear;

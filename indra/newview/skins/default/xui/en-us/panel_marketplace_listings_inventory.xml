@@ -9,7 +9,7 @@
     height="370"
     top="16"
     left="0"
-    start_folder="Marketplace listings"
+    start_folder.name="Marketplace listings"
     show_empty_message="true"
     show_root_folder="false"
     use_marketplace_folders="true"
