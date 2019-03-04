@@ -131,8 +131,7 @@ LLInventoryPanel* LLPanelMarketplaceListings::buildInventoryPanel(const std::str
 	llassert(panel != NULL);
 	
 	// Set sort order and callbacks
-	panel = getChild<LLInventoryPanel>(childname);
-	//panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME); // Singu TODO: Do this at some point, not really important.
+	panel->getRootFolder()->setSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME);
 	panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
 
 	return panel;
