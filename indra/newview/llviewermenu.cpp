@@ -594,7 +594,7 @@ void set_merchant_SLM_menu()
 	// tools so that all merchants can try out the UI, even if not migrated.
 	// *TODO : Keep SLM UI hidden for non migrated merchant in released viewer
 	gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(TRUE);
-	gToolBar->getChild<LLView>("marketplace_listings_btn")->setEnabled(false);
+	gToolBar->getChild<LLView>("marketplace_listings_btn")->setEnabled(true);
 }
 
 void check_merchant_status()
