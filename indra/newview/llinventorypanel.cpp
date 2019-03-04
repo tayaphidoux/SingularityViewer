@@ -164,7 +164,8 @@ void LLInventoryPanel::buildFolderView()
 	// Determine the root folder in case specified, and
 	// build the views starting with that folder.
 	LLUUID root_id = getRootFolderID();
-	mStartFolder["id"] = root_id; // Cache this, so we don't waste time on future getRootFolderID calls
+	if (!mStartFolder.has("id"))
+		mStartFolder["id"] = root_id; // Cache this, so we don't waste time on future getRootFolderID calls
 
 	LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
 													(mUseMarketplaceFolders/*mParams.use_marketplace_folders*/ ? LLAssetType::AT_MARKETPLACE_FOLDER : LLAssetType::AT_CATEGORY),
