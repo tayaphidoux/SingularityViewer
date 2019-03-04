@@ -859,6 +859,7 @@ void LLFloaterMarketplaceValidation::onOpen(/*const LLSD& key*/)
 			{
 				// Errors are printed in bold, other messages in normal font
 				LLStyleSP style(new LLStyle);
+				style->setColor(mEditor->getReadOnlyFgColor());
 				style->mBold = mCurrentLine->mErrorLevel == LLError::LEVEL_ERROR;
 				mEditor->appendText(mCurrentLine->mMessage, false, new_line, style);
 				new_line = true;
