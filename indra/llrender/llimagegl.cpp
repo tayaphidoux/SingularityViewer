@@ -447,29 +447,29 @@ BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, B
 
 //----------------------------------------------------------------------------
 
-LLImageGL::LLImageGL(BOOL usemipmaps)
+LLImageGL::LLImageGL(BOOL usemipmaps, bool allow_compression)
 	: mSaveData(0), mSaveDiscardLevel(-1), mIsCompressed(false)
 {
-	init(usemipmaps);
+	init(usemipmaps, allow_compression);
 	setSize(0, 0, 0);
 	sImageList.insert(this);
 	sCount++;
 }
 
-LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
+LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps, bool allow_compression)
 	: mSaveData(0), mSaveDiscardLevel(-1)
 {
 	llassert( components <= 4 );
-	init(usemipmaps);
+	init(usemipmaps, allow_compression);
 	setSize(width, height, components);
 	sImageList.insert(this);
 	sCount++;
 }
 
-LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps)
+LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps, bool allow_compression)
 	: mSaveData(0), mSaveDiscardLevel(-1)
 {
-	init(usemipmaps);
+	init(usemipmaps, allow_compression);
 	setSize(0, 0, 0);
 	sImageList.insert(this);
 	sCount++;
@@ -488,7 +488,7 @@ LLImageGL::~LLImageGL()
 
 const S8 INVALID_OFFSET = -99 ;
 
-void LLImageGL::init(BOOL usemipmaps)
+void LLImageGL::init(BOOL usemipmaps, bool allow_compression)
 {
 	// keep these members in the same order as declared in llimagehl.h
 	// so that it is obvious by visual inspection if we forgot to
@@ -501,6 +501,7 @@ void LLImageGL::init(BOOL usemipmaps)
 	mPickMaskWidth = 0;
 	mPickMaskHeight = 0;
 	mUseMipMaps = usemipmaps;
+	mAllowCompression = allow_compression;
 	mHasExplicitFormat = FALSE;
 	mAutoGenMips = FALSE;
 
@@ -517,9 +518,6 @@ void LLImageGL::init(BOOL usemipmaps)
 	mWidth = 0;
 	mHeight	= 0;
 	mCurrentDiscardLevel = -1;	
-
-
-	mAllowCompression = true;
 	
 	mTarget = GL_TEXTURE_2D;
 	mBindTarget = LLTexUnit::TT_TEXTURE;

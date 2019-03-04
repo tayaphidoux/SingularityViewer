@@ -135,9 +135,9 @@ public:
 	static BOOL create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, BOOL usemipmaps = TRUE);
 		
 public:
-	LLImageGL(BOOL usemipmaps = TRUE);
-	LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps = TRUE);
-	LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps = TRUE);
+	LLImageGL(BOOL usemipmaps = TRUE, bool allow_compression = true);
+	LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps = TRUE, bool allow_compression = true);
+	LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps = TRUE, bool allow_compression = true);
 	
 protected:
 	virtual ~LLImageGL();
@@ -221,7 +221,7 @@ public:
 	LLTexUnit::eTextureFilterOptions getFilteringOption(void) const { return mFilterOption; }
 
 		LLGLenum getTexTarget()const { return mTarget ;}
-	void init(BOOL usemipmaps);
+	void init(BOOL usemipmaps, bool allow_compression);
 	virtual void cleanup(); // Clean up the LLImageGL so it can be reinitialized.  Be careful when using this in derived class destructors
 
 	void setNeedsAlphaAndPickMask(BOOL need_mask);

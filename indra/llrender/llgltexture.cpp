@@ -46,28 +46,25 @@ S32 LLGLTexture::getCategoryFromIndex(S32 index)
 	return (index < BOOST_HIGH) ? index : index + (BOOST_HIGH - BOOST_SCULPTED) - 1 ;
 }
 
-LLGLTexture::LLGLTexture(BOOL usemipmaps)
+LLGLTexture::LLGLTexture(BOOL usemipmaps, bool allow_compresssion)
 {
-	init();
-	mUseMipMaps = usemipmaps;
+	init(usemipmaps, allow_compresssion);
 }
 
-LLGLTexture::LLGLTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps)
+LLGLTexture::LLGLTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, bool allow_compresssion)
 {
-	init();
+	init(usemipmaps, allow_compresssion);
 	mFullWidth = width ;
 	mFullHeight = height ;
-	mUseMipMaps = usemipmaps ;
 	mComponents = components ;
 	setTexelsPerImage();
 }
 
-LLGLTexture::LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps)
+LLGLTexture::LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps, bool allow_compresssion)
 {
-	init();
-	mUseMipMaps = usemipmaps ;
+	init(usemipmaps, allow_compresssion);
 	// Create an empty image of the specified size and width
-	mGLTexturep = new LLImageGL(raw, usemipmaps) ;
+	mGLTexturep = new LLImageGL(raw, usemipmaps, mAllowCompression) ;
 }
 
 LLGLTexture::~LLGLTexture()
@@ -75,14 +72,15 @@ LLGLTexture::~LLGLTexture()
 	cleanup();
 }
 
-void LLGLTexture::init()
+void LLGLTexture::init(bool use_mipmaps, bool allow_compression)
 {
 	mBoostLevel = LLGLTexture::BOOST_NONE;
 
+	mUseMipMaps = use_mipmaps;
+	mAllowCompression = allow_compression;
 	mFullWidth = 0;
 	mFullHeight = 0;
 	mTexelsPerImage = 0 ;
-	mUseMipMaps = FALSE ;
 	mComponents = 0 ;
 
 	mTextureState = NO_DELETE ;
@@ -146,7 +144,7 @@ void LLGLTexture::generateGLTexture()
 {	
 	if(mGLTexturep.isNull())
 	{
-		mGLTexturep = new LLImageGL(mFullWidth, mFullHeight, mComponents, mUseMipMaps) ;
+		mGLTexturep = new LLImageGL(mFullWidth, mFullHeight, mComponents, mUseMipMaps, mAllowCompression) ;
 	}
 }
 
