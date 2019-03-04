@@ -545,7 +545,7 @@ void LLFloaterMarketplaceListings::updateView()
 	{
 		// Just show the loading indicator in that case and fetch the data (fetch will be skipped if it's already loading)
 		mInventoryInitializationInProgress->setVisible(true);
-		if (mPanelListings) mPanelListings->setVisible(FALSE);
+		mPanelListings->setVisible(FALSE);
 		fetchContents();
 		return;
 	}
@@ -562,12 +562,12 @@ void LLFloaterMarketplaceListings::updateView()
 			// We need to rebuild the tabs cleanly the first time we make them visible
 			setPanels();
 		}
-		if (mPanelListings) mPanelListings->setVisible(TRUE);
+		mPanelListings->setVisible(TRUE);
 		mInventoryPlaceholder->setVisible(FALSE);
 	}
 	else
 	{
-		if (mPanelListings) mPanelListings->setVisible(FALSE);
+		mPanelListings->setVisible(FALSE);
 		mInventoryPlaceholder->setVisible(TRUE);
 
 		std::string text;
