@@ -2015,10 +2015,10 @@ void LLAgent::startTyping()
 //-----------------------------------------------------------------------------
 void LLAgent::stopTyping()
 {
+	LLFloaterAO::typing(false); // Singu Note: Typing anims handled by AO/settings.
 	if (mRenderState & AGENT_STATE_TYPING)
 	{
 		clearRenderState(AGENT_STATE_TYPING);
-		LLFloaterAO::typing(false); // Singu Note: Typing anims handled by AO/settings.
 		gChatBar->
 				sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
