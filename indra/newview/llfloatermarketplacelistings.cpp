@@ -55,8 +55,6 @@ LLPanelMarketplaceListings::LLPanelMarketplaceListings()
 , mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME)
 , mFilterListingFoldersOnly(false)
 {
-	mCommitCallbackRegistrar.add("Marketplace.ViewSort.Action",  boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemClicked,  this, _2));
-	mEnableCallbackRegistrar.add("Marketplace.ViewSort.CheckItem",	boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemCheck,	this, _2));
 }
 
 LLPanelMarketplaceListings::~LLPanelMarketplaceListings() { delete mMenu; }
@@ -68,12 +66,31 @@ void showMenu(LLView* button, LLMenuGL* menu)
 	const auto& rect = button->getRect();
 	LLMenuGL::showPopup(button, menu, rect.mLeft, rect.mBottom);
 }
+struct MarketplaceViewSortAction : public LLMemberListener<LLPanelMarketplaceListings>
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+	{
+		mPtr->onViewSortMenuItemClicked(userdata["data"]);
+		return true;
+	}
+};
+
+struct MarketplaceViewSortCheckItem : public LLMemberListener<LLPanelMarketplaceListings>
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+	{
+		LLMenuGL::sMenuContainer->findControl(userdata["control"].asString())->setValue(mPtr->onViewSortMenuItemCheck(userdata["data"]));
+		return true;
+	}
+};
 
 BOOL LLPanelMarketplaceListings::postBuild()
 {
 	childSetAction("add_btn", boost::bind(&LLPanelMarketplaceListings::onAddButtonClicked, this));
 	childSetAction("audit_btn", boost::bind(&LLPanelMarketplaceListings::onAuditButtonClicked, this));
 	mMenu = LLUICtrlFactory::instance().buildMenu("menu_marketplace_view.xml", LLMenuGL::sMenuContainer);
+	(new MarketplaceViewSortAction)->registerListener(this, "Marketplace.ViewSort.Action");
+	(new MarketplaceViewSortCheckItem)->registerListener(this, "Marketplace.ViewSort.CheckItem");
 	auto sort = getChild<LLUICtrl>("sort_btn");
 	sort->setCommitCallback(boost::bind(showMenu, _1, mMenu));
 

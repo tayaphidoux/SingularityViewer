@@ -65,6 +65,9 @@ public:
 	void buildAllPanels();
 
 private:
+	friend struct MarketplaceViewSortAction;
+	friend struct MarketplaceViewSortCheckItem;
+
 	LLInventoryPanel* buildInventoryPanel(const std::string& childname, const std::string& filename);
 
 	// UI callbacks
