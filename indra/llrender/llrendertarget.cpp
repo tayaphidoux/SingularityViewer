@@ -85,7 +85,7 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
 	for (U32 i = 0; i < mTex.size(); ++i)
 	{ //resize color attachments
 		gGL.getTexUnit(0)->bindManual(mUsage, mTex[i]);
-		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, mInternalFormat[i], mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
+		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, mInternalFormat[i], mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE);
 		sBytesAllocated += pix_diff*4;
 	}
 
@@ -103,9 +103,9 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
 			gGL.getTexUnit(0)->bindManual(mUsage, mDepth);
 			U32 internal_type = LLTexUnit::getInternalType(mUsage);
 			if(!mStencil)
-				LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
+				LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT);
 			else
-				LLImageGL::setManualImage(internal_type, 0, GL_DEPTH24_STENCIL8, mResX, mResY, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, false);
+				LLImageGL::setManualImage(internal_type, 0, GL_DEPTH24_STENCIL8, mResX, mResY, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
 		}
 
 		sBytesAllocated += pix_diff*4;
@@ -204,7 +204,7 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 
 	{
 		clear_glerror();
-		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
+		LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE);
 		if (glGetError() != GL_NO_ERROR)
 		{
 			LL_WARNS() << "Could not allocate color buffer for render target." << LL_ENDL;
@@ -281,9 +281,9 @@ bool LLRenderTarget::allocateDepth()
 		stop_glerror();
 		clear_glerror();
 		if(!mStencil)
-			LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
+			LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT);
 		else
-			LLImageGL::setManualImage(internal_type, 0, GL_DEPTH24_STENCIL8, mResX, mResY, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL, false);
+			LLImageGL::setManualImage(internal_type, 0, GL_DEPTH24_STENCIL8, mResX, mResY, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
 		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 	}
 

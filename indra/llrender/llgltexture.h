@@ -97,9 +97,9 @@ protected:
 	LOG_CLASS(LLGLTexture);
 
 public:
-	LLGLTexture(BOOL usemipmaps = TRUE, bool allow_compresssion=true);
-	LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps, bool allow_compresssion=true) ;
-	LLGLTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, bool allow_compresssion=true) ;
+	LLGLTexture(BOOL usemipmaps = TRUE, bool allow_compresssion=false);
+	LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps, bool allow_compresssion=false) ;
+	LLGLTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, bool allow_compresssion=false) ;
 
 	virtual void dump();	// debug info to llinfos
 

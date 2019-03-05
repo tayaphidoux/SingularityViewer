@@ -774,7 +774,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						stop_glerror();
 					}
 						
-					LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in, mAllowCompression);
+					mIsCompressed = LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in, mAllowCompression);
 					if (gl_level == 0)
 					{
 						analyzeAlpha(data_in, w, h);
@@ -819,7 +819,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
 					}
 					
-					LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
+					mIsCompressed = LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
 								 w, h, 
 								 mFormatPrimary, mFormatType,
 								 data_in, mAllowCompression);
@@ -890,7 +890,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 							stop_glerror();
 						}
 
-						LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data, mAllowCompression);
+						mIsCompressed = LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data, mAllowCompression);
 						if (m == 0)
 						{
 							analyzeAlpha(data_in, w, h);
@@ -947,7 +947,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 				stop_glerror();
 			}
 
-			LLImageGL::setManualImage(mTarget, 0, mFormatInternal, w, h,
+			mIsCompressed = LLImageGL::setManualImage(mTarget, 0, mFormatInternal, w, h,
 						 mFormatPrimary, mFormatType, (GLvoid *)data_in, mAllowCompression);
 			analyzeAlpha(data_in, w, h);
 			
@@ -1198,9 +1198,10 @@ void LLImageGL::texMemoryDeallocated(const AllocationInfo& entry)
 
 // static
 static LLTrace::BlockTimerStatHandle FTM_SET_MANUAL_IMAGE("setManualImage");
-void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression)
+bool LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SET_MANUAL_IMAGE);
+	bool compressed = false;
 	std::vector<U32> scratch;
 	if (LLRender::sGLCoreProfile)
 	{
@@ -1296,6 +1297,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 	}
 	if (LLImageGL::sCompressTextures && allow_compression)
 	{
+		compressed = true;
 		switch (intformat)
 		{
 			case GL_RED: 
@@ -1327,6 +1329,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 				intformat = GL_COMPRESSED_ALPHA;
 				break;
 			default:
+				compressed = false;
 				LL_WARNS() << "Could not compress format: " << std::hex << intformat << std::dec << LL_ENDL;
 				break;
 		}
@@ -1335,6 +1338,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 	stop_glerror();
 	glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, pixels);
 	stop_glerror();
+	return compressed;
 }
 
 //create an empty GL texture: just create a texture name

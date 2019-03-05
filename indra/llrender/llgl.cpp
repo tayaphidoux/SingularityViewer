@@ -505,10 +505,6 @@ LLGLManager::LLGLManager() :
 }
 
 std::set<std::string> sGLExtensions;
-bool ExtensionExists(std::string ext)
-{
-	return sGLExtensions.find(ext) != sGLExtensions.end();
-}
 void registerExtension(std::string ext)
 {
 	sGLExtensions.emplace(ext);
@@ -520,21 +516,29 @@ void loadExtensionStrings()
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep(" ");
 
-	for (auto& extension : tokenizer(std::string((const char*)glGetString(GL_EXTENSIONS)), sep))
+	std::string extensions((const char*)glGetString(GL_EXTENSIONS));
+	for (auto& extension : tokenizer(extensions, sep))
 	{
 		registerExtension(extension);
 	}
 
 #if LL_WINDOWS
-	PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsString");
+	PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
 	if (wglGetExtensionsStringARB)
 	{
-		for (auto& extension : tokenizer(std::string((const char*)wglGetExtensionsStringARB(wglGetCurrentDC())), sep))
+		extensions = std::string(wglGetExtensionsStringARB(wglGetCurrentDC()));
+		for (auto& extension : tokenizer(extensions, sep))
 		{
 			registerExtension(extension);
 		}
 	}
 #endif
+}
+bool ExtensionExists(std::string ext)
+{
+	if (sGLExtensions.empty())
+		loadExtensionStrings();
+	return sGLExtensions.find(ext) != sGLExtensions.end();
 }
 
 //---------------------------------------------------------------------
@@ -615,15 +619,6 @@ bool LLGLManager::initGL()
 			mGLSLVersionMinor = 20;
 		}
 #endif
-	}
-
-	if (mGLVersion >= 2.1f && mHasCompressedTextures && LLImageGL::sCompressTextures)
-	{ //use texture compression
-		glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
-	}
-	else
-	{ //GL version is < 3.0, always disable texture compression
-		LLImageGL::sCompressTextures = false;
 	}
 	
 	// Trailing space necessary to keep "nVidia Corpor_ati_on" cards
@@ -713,9 +708,17 @@ bool LLGLManager::initGL()
 	}
 	
 	stop_glerror();
-	// This is called here because it depends on the setting of mIsGF2or4MX, and sets up mHasMultitexture.
 	initExtensions();
 	stop_glerror();
+
+	if (mGLVersion >= 2.1f && mHasCompressedTextures && LLImageGL::sCompressTextures)
+	{ //use texture compression
+		glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
+	}
+	else
+	{ //GL version is < 3.0, always disable texture compression
+		LLImageGL::sCompressTextures = false;
+	}
 
 	S32 old_vram = mVRAM;
 
@@ -967,7 +970,7 @@ void LLGLManager::initExtensions()
 	mHasMultitexture = mGLVersion >= 1.3f || ExtensionExists("GL_ARB_multitexture");
 	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo");
 	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info");
-	mHasCompressedTextures = mGLVersion >= 1.3 || ExtensionExists("GL_ARB_multitexture");
+	mHasCompressedTextures = mGLVersion >= 1.3 || ExtensionExists("GL_ARB_texture_compression");
 	mHasAnisotropic = mGLVersion >= 4.6f || ExtensionExists("GL_EXT_texture_filter_anisotropic");
 	mHasCubeMap = mGLVersion >= 1.3f || ExtensionExists("GL_ARB_texture_cube_map");
 	mHasARBEnvCombine = mGLVersion >= 2.1f || ExtensionExists("GL_ARB_texture_env_combine");
