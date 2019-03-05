@@ -5210,6 +5210,7 @@ LLXMLNodePtr LLTextEditor::getXML(bool save_children) const
 	node->createChild("font", TRUE)->setStringValue(LLFontGL::nameFromFont(mGLFont));
 	node->createChild("word_wrap", TRUE)->setBoolValue(mWordWrap);
 	node->createChild("hide_scrollbar", TRUE)->setBoolValue(mHideScrollbarForShortDocs);
+	node->createChild("hide_border", TRUE)->setBoolValue(!mBorder->getVisible());
 
 	addColorXML(node, mCursorColor, "cursor_color", "TextCursorColor");
 	addColorXML(node, mFgColor, "text_color", "TextFgColor");
