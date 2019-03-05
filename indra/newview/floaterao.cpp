@@ -195,6 +195,12 @@ LLFloaterAO::LLFloaterAO(const LLSD&) : LLFloater("floater_ao")
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_ao.xml", nullptr, false);
 	init();
 	gSavedSettings.getControl("AOEnabled")->getSignal()->connect(boost::bind(&LLFloaterAO::run));
+	gSavedSettings.getControl("AOEnabled")->getSignal()->connect(std::bind([](const LLSD& enabled)
+	{
+		// Toggle typing AO the moment we toggle AO
+		const bool typing = gAgent.getRenderState() & AGENT_STATE_TYPING;
+		gAgent.sendAnimationRequest(GetAnimIDFromState(STATE_AGENT_TYPING), enabled && typing ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
+	}, std::placeholders::_2));
 	gSavedSettings.getControl("AOSitsEnabled")->getSignal()->connect(boost::bind(&LLFloaterAO::run));
 	sSwimming = is_underwater();
 	gSavedSettings.getControl("AOSwimEnabled")->getSignal()->connect(boost::bind(&LLFloaterAO::toggleSwim, boost::bind(is_underwater)));
@@ -451,8 +457,6 @@ void LLFloaterAO::run()
 		}
 		gAgent.sendAnimationRequest(GetAnimIDFromState(state), (enabled &&  (!sit || gSavedSettings.getBOOL("AOSitsEnabled"))) ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
 	}
-	if (!enabled) // Stop typing AO the moment we turn off AO
-		gAgent.sendAnimationRequest(GetAnimIDFromState(STATE_AGENT_TYPING), ANIM_REQUEST_STOP);
 }
 
 void LLFloaterAO::typing(bool start)
@@ -461,7 +465,7 @@ void LLFloaterAO::typing(bool start)
 	// If we're stopping, stop regardless, just in case the setting was toggled during (e.g.: keyboard shortcut)
 	if (!start || gSavedSettings.getBOOL("PlayTypingAnim")) // Linden typing
 		anims.push_back(ANIM_AGENT_TYPE);
-	if (!start || gSavedSettings.getBOOL("AOEnabled")) // Typing override
+	if (gSavedSettings.getBOOL("AOEnabled")) // Typing override
 		anims.push_back(GetAnimIDFromState(STATE_AGENT_TYPING));
 	gAgent.sendAnimationRequests(anims, start ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
 }
