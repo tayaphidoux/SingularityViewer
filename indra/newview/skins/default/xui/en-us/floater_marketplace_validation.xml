@@ -36,6 +36,8 @@
      max_length="65536"
      layout="topleft"
      follows="all"
+     bg_readonly_color="ChatHistoryBgColor"
+     hide_border="true"
      hide_scrollbar="true"
      bottom_delta="25"
      height="435"
