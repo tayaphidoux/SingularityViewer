@@ -135,7 +135,7 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 
 	bool boxes_invisible = !gSavedSettings.getBOOL("InventoryOutboxMakeVisible");
 	addEntry(LLFolderType::FT_INBOX, 				new ViewerFolderEntry("Received Items",			"inv_folder_inbox.tga",				"inv_folder_inbox.tga",			FALSE,		false));
-	addEntry(LLFolderType::FT_OUTBOX, 				new ViewerFolderEntry("Merchant Outbox",		"inv_folder_outbox.tga",			"inv_folder_outbox.tga",		FALSE,		boxes_invisible));
+	addEntry(LLFolderType::FT_OUTBOX, 				new ViewerFolderEntry("Merchant Outbox",		"inv_folder_outbox.tga",			"inv_folder_outbox.tga",		FALSE,		true));
 
 	addEntry(LLFolderType::FT_BASIC_ROOT, 			new ViewerFolderEntry("Basic Root",				"inv_folder_plain_open.tga",		"inv_folder_plain_closed.tga",	FALSE,		false));
 
