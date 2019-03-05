@@ -299,7 +299,7 @@ class LLInventoryRecentItemsPanel : public LLInventoryPanel
 public:
 	LLInventoryRecentItemsPanel(const std::string& name,
 								    const std::string& sort_order_setting,
-								    const std::string& start_folder,
+								    const LLSD& start_folder,
 									const LLRect& rect,
 									LLInventoryModel* inventory,
 									BOOL allow_multi_select,
@@ -332,7 +332,7 @@ LLView* LLInventoryPanel::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 	if (node->getAttributeString("start_folder.type", start))
 		start_folder["type"] = start;
 
-	if(name == "Recent Items")
+	if (name == "Recent Items")
 		panel = new LLInventoryRecentItemsPanel(name, sort_order, start_folder,
 								 rect, &gInventory,
 								 allow_multi_select, parent);
@@ -1382,12 +1382,12 @@ static const LLRecentInventoryBridgeBuilder RECENT_ITEMS_BUILDER;
 
 LLInventoryRecentItemsPanel:: LLInventoryRecentItemsPanel(const std::string& name,
 						    		const std::string& sort_order_setting,
-									const std::string& start_folder,
+									const LLSD& start_folder,
 									const LLRect& rect,
 									LLInventoryModel* inventory,
 									BOOL allow_multi_select,
 									LLView *parent_view) :
-									LLInventoryPanel(name, sort_order_setting, start_folder,rect,inventory,allow_multi_select,parent_view)
+									LLInventoryPanel(name, sort_order_setting,start_folder,rect,inventory,allow_multi_select,parent_view)
 {
 	// replace bridge builder to have necessary View bridges.
 	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;	
