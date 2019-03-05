@@ -140,7 +140,7 @@ private:
 	LLTextBox *		mInventoryStatus;
 	LLView *		mInventoryInitializationInProgress;
 	LLView *		mInventoryPlaceholder;
-	LLTextBox *		mInventoryText;
+	LLTextEditor *		mInventoryText;
 	LLTextBox *		mInventoryTitle;
 
 	LLUUID			mRootFolderId;

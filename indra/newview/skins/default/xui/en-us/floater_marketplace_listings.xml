@@ -52,8 +52,12 @@
           font="SansSerifBold">
             Loading...
         </text>
-        <text
+        <text_editor
           name="marketplace_listings_inventory_placeholder_text"
+          bg_readonly_color="ChatHistoryBgColor"
+          enabled="false"
+          hide_border="true"
+          hide_scrollbar="true"
           type="string"
           follows="top|left|right"
           layout="topleft"

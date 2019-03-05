@@ -412,7 +412,7 @@ BOOL LLFloaterMarketplaceListings::postBuild()
 	mInventoryStatus = getChild<LLTextBox>("marketplace_status");
 	mInventoryInitializationInProgress = getChild<LLView>("initialization_progress_indicator");
 	mInventoryPlaceholder = getChild<LLView>("marketplace_listings_inventory_placeholder_panel");
-	mInventoryText = mInventoryPlaceholder->getChild<LLTextBox>("marketplace_listings_inventory_placeholder_text");
+	mInventoryText = mInventoryPlaceholder->getChild<LLTextEditor>("marketplace_listings_inventory_placeholder_text");
 	mInventoryTitle = mInventoryPlaceholder->getChild<LLTextBox>("marketplace_listings_inventory_placeholder_title");
 
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLFloaterMarketplaceListings::onFocusReceived, this));
