@@ -309,6 +309,14 @@ public:
 
 LLView* LLInventoryPanel::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
+	std::string filename;
+	if (node->getAttributeString("filename", filename) && !filename.empty())
+	{
+		LLXMLNodePtr node;
+		if (LLUICtrlFactory::getLayeredXMLNode(filename, node))
+			return factory->createCtrlWidget(static_cast<LLPanel*>(parent), node);
+	}
+
 	LLInventoryPanel* panel;
 
 	std::string name("inventory_panel");
