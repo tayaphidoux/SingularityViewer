@@ -76,10 +76,10 @@
     tab_group="1"
     tab_position="top"
     tab_min_width="10">
-    <inventory_panel filename="panel_marketplace_listings_inventory.xml"/>
-    <inventory_panel filename="panel_marketplace_listings_listed.xml"/>
-    <inventory_panel filename="panel_marketplace_listings_unlisted.xml"/>
-    <inventory_panel filename="panel_marketplace_listings_unassociated.xml"/>
+    <inventory_panel label="All" name="All Items" filename="panel_marketplace_listings_inventory.xml"/>
+    <inventory_panel label="Active" name="Active Items" filename="panel_marketplace_listings_listed.xml"/>
+    <inventory_panel label="Inactive" name="Inactive Items" filename="panel_marketplace_listings_unlisted.xml"/>
+    <inventory_panel label="Unassociated" name="Unassociated Items" filename="panel_marketplace_listings_unassociated.xml"/>
   </tab_container>
   </panel>
   <panel
