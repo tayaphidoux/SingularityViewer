@@ -1791,16 +1791,22 @@ ERlvCmdRet RlvHandler::onForceRemAttach(const RlvCommand& rlvCmd) const
 	// @remattach=force         - force detach all attachments points
 	else if ( (rlvCmdOption.isAttachmentPointGroup()) || (rlvCmdOption.isEmpty()) )
 	{
-		for (LLVOAvatar::attachment_map_t::const_iterator itAttach = gAgentAvatarp->mAttachmentPoints.begin(); 
-				itAttach != gAgentAvatarp->mAttachmentPoints.end(); ++itAttach)
+		for (const auto& entryAttachPt : gAgentAvatarp->mAttachmentPoints)
 		{
-			const LLViewerJointAttachment* pAttachPt = itAttach->second;
-			if ( (pAttachPt) && (pAttachPt->getNumObjects()) &&
-				 ((rlvCmdOption.isEmpty()) || (rlvAttachGroupFromIndex(pAttachPt->getGroup()) == rlvCmdOption.getAttachmentPointGroup())) )
+			const LLViewerJointAttachment* pAttachPt = entryAttachPt.second;
+			if ( (pAttachPt) && (pAttachPt->getNumObjects()) && ((rlvCmdOption.isEmpty()) || (rlvAttachGroupFromIndex(pAttachPt->getGroup()) == rlvCmdOption.getAttachmentPointGroup())) )
 			{
 				RlvForceWear::instance().forceDetach(pAttachPt);
 			}
 		}
+		return RLV_RET_SUCCESS;
+	}
+	// @remattach:<uuid>=force - force detach a specific attachment
+	else if (rlvCmdOption.isUUID())
+	{
+		const LLViewerObject* pAttachObj = gObjectList.findObject(rlvCmdOption.getUUID());
+		if ( (pAttachObj) && (pAttachObj->isAttachment()) && (pAttachObj->permYouOwner()) )
+			RlvForceWear::instance().forceDetach(pAttachObj);
 		return RLV_RET_SUCCESS;
 	}
 	return RLV_RET_FAILED_OPTION;
