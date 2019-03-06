@@ -333,11 +333,8 @@ const LLUUID LLViewerWearable::getDefaultTextureImageID(ETextureIndex index) con
 //virtual
 void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 {
-	LLVOAvatarSelf* viewer_avatar = dynamic_cast<LLVOAvatarSelf*>(avatarp);
-
-	if (!avatarp || !viewer_avatar) return;
-
-	if (!viewer_avatar->isValid()) return;
+	if (!avatarp || !avatarp->isSelf() || !avatarp->isValid()) return;
+	LLVOAvatarSelf* viewer_avatar = static_cast<LLVOAvatarSelf*>(avatarp);
 
 #if 0
 	// FIXME DRANO - kludgy way to avoid overwriting avatar state from wearables.
