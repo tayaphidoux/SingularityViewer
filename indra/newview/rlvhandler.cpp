@@ -1836,16 +1836,30 @@ ERlvCmdRet RlvHandler::onForceGroup(const RlvCommand& rlvCmd) const
 	}
 
 	LLUUID idGroup; bool fValid = false;
-	if (idGroup.set(rlvCmd.getOption()))
+	if ("none" == rlvCmd.getOption())
+	{
+		idGroup.setNull();
+		fValid = true;
+	}
+	else if (idGroup.set(rlvCmd.getOption()))
 	{
 		fValid = (idGroup.isNull()) || (gAgent.isInGroup(idGroup, true));
 	}
 	else
 	{
-		for (S32 idxGroup = 0, cntGroup = gAgent.mGroups.size(); (idxGroup < cntGroup) && (idGroup.isNull()); idxGroup++)
-			if (boost::iequals(gAgent.mGroups[idxGroup].mName, rlvCmd.getOption()))
-				idGroup = gAgent.mGroups[idxGroup].mID;
-		fValid = (idGroup.notNull()) || ("none" == rlvCmd.getOption());
+		bool fExactMatch = false;
+		for (const auto& groupData : gAgent.mGroups)
+		{
+			// NOTE: exact matches take precedence over partial matches; in case of partial matches the last match wins
+			if (boost::istarts_with(groupData.mName, rlvCmd.getOption()))
+			{
+				idGroup = groupData.mID;
+				fExactMatch = groupData.mName.length() == rlvCmd.getOption().length();
+				if (fExactMatch)
+					break;
+			}
+		}
+		fValid = idGroup.notNull();
 	}
 
 	if (fValid)
