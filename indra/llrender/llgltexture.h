@@ -97,9 +97,9 @@ protected:
 	LOG_CLASS(LLGLTexture);
 
 public:
-	LLGLTexture(BOOL usemipmaps = TRUE);
-	LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps) ;
-	LLGLTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps) ;
+	LLGLTexture(BOOL usemipmaps = TRUE, bool allow_compresssion=false);
+	LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps, bool allow_compresssion=false) ;
+	LLGLTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, bool allow_compresssion=false) ;
 
 	virtual void dump();	// debug info to llinfos
 
@@ -167,7 +167,7 @@ public:
 
 private:
 	void cleanup();
-	void init();
+	void init(bool use_mipmaps, bool allow_compression);
 
 protected:
 	void setTexelsPerImage();
@@ -186,7 +186,8 @@ protected:
 
 	//GL texture
 	LLPointer<LLImageGL> mGLTexturep ;
-	S8 mDontDiscard;			// Keep full res version of this image (for UI, etc)
+	bool mDontDiscard;			// Keep full res version of this image (for UI, etc)
+	bool mAllowCompression;
 
 protected:
 	LLGLTextureState  mTextureState ;

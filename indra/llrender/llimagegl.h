@@ -135,9 +135,9 @@ public:
 	static BOOL create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, BOOL usemipmaps = TRUE);
 		
 public:
-	LLImageGL(BOOL usemipmaps = TRUE);
-	LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps = TRUE);
-	LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps = TRUE);
+	LLImageGL(BOOL usemipmaps = TRUE, bool allow_compression = false);
+	LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps = TRUE, bool allow_compression = false);
+	LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps = TRUE, bool allow_compression = false);
 	
 protected:
 	virtual ~LLImageGL();
@@ -152,7 +152,7 @@ public:
 	void setComponents(S32 ncomponents) { mComponents = (S8)ncomponents ;}
 	void setAllowCompression(bool allow) { mAllowCompression = allow; }
 
-	static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression = true);
+	static bool setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels = nullptr, bool allow_compression = false);
 
 	BOOL createGLTexture() ;
 	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, GLTextureName* usename = nullptr, BOOL to_create = TRUE,
@@ -221,7 +221,7 @@ public:
 	LLTexUnit::eTextureFilterOptions getFilteringOption(void) const { return mFilterOption; }
 
 		LLGLenum getTexTarget()const { return mTarget ;}
-	void init(BOOL usemipmaps);
+	void init(BOOL usemipmaps, bool allow_compression);
 	virtual void cleanup(); // Clean up the LLImageGL so it can be reinitialized.  Be careful when using this in derived class destructors
 
 	void setNeedsAlphaAndPickMask(BOOL need_mask);

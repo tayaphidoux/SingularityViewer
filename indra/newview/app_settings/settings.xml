@@ -12743,7 +12743,7 @@ This should be as low as possible, but too low may break functionality</string>
   <key>RenderCompressTextures</key>
   <map>
     <key>Comment</key>
-    <string>Enable texture compression on OpenGL 3.0 and later implementations (EXPERIMENTAL, requires restart)</string>
+    <string>Enable texture compression on OpenGL 2.1 and later implementations (requires restart)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

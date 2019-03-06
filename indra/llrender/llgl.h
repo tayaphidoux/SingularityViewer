@@ -94,7 +94,6 @@ public:
 	BOOL mHasSync;
 	BOOL mHasMapBufferRange;
 	BOOL mHasFlushBufferRange;
-	BOOL mHasPBuffer;
 	BOOL mHasShaderObjects;
 	BOOL mHasVertexShader;
 	BOOL mHasFragmentShader;
@@ -354,6 +353,20 @@ private:
 	template <> \
     LLGLStateStaticData LLGLState<state>::staticData = {#state, state, value, 0, nullptr, disabler_ptr}; \
 	bool registered_##state = LLGLStateValidator::registerStateData(LLGLState<state>::staticData);
+
+template <>
+class LLGLState<0> : public LLGLStateIface
+{
+	LLGLState(S8 newState = CURRENT_STATE) { }
+	virtual ~LLGLState() { }
+	virtual void enable() { }
+	virtual void disable() { }
+	static bool isEnabled() { return false; }
+	// For assertions. If feature is on or unsupported, return true.
+	static bool checkEnabled() { return true; }
+	// For assertions. If feature is off or unsupported, return true.
+	static bool checkDisabled() { return true; }
+};
 
 template <LLGLenum state>
 struct LLGLEnable : public LLGLState<state>
