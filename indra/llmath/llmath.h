@@ -395,7 +395,7 @@ inline U32 get_lower_power_two(U32 val, U32 max_power_two)
 {
 	if(!max_power_two)
 	{
-		max_power_two = 1 << 31 ;
+		max_power_two = 1U << 31 ;
 	}
 	if(max_power_two & (max_power_two - 1))
 	{
@@ -417,7 +417,7 @@ inline U32 get_next_power_two(U32 val, U32 max_power_two)
 {
 	if(!max_power_two)
 	{
-		max_power_two = 1 << 31 ;
+		max_power_two = 1U << 31 ;
 	}
 
 	if(val >= max_power_two)
