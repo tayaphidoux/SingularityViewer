@@ -4801,6 +4801,7 @@ void LLTextEditor::createDefaultSegment()
 
 void LLTextEditor::clearSegments()
 {
+	mLineStartList.clear();
 	mSegments.clear();
 	createDefaultSegment();
 }
