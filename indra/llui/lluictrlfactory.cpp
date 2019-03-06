@@ -496,7 +496,7 @@ void LLUICtrlFactory::rebuild()
 		panelp->setFocus(FALSE);
 		panelp->deleteAllChildren();
 
-		buildPanel(panelp, filename.c_str(), &panelp->getFactoryMap());
+		buildPanel(panelp, filename, &panelp->getFactoryMap());
 		panelp->setVisible(visible);
 	}
 
