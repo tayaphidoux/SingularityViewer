@@ -30,10 +30,7 @@
 
 
 #include <llsd.h>
-#ifndef BOOST_FUNCTION_HPP_INCLUDED
 #include <boost/function.hpp>
-#define BOOST_FUNCTION_HPP_INCLUDED
-#endif
 #include <boost/signals2.hpp>
 
 #include "llsingleton.h"
@@ -41,26 +38,24 @@
 #include "llhttpstatuscodes.h"
 
 
-LLSD getMarketplaceStringSubstitutions();
-
 
 namespace MarketplaceErrorCodes
 {
 	enum eCode
 	{
-		IMPORT_DONE = HTTP_OK,
-		IMPORT_PROCESSING = HTTP_ACCEPTED,
-		IMPORT_REDIRECT = HTTP_FOUND,
-		IMPORT_BAD_REQUEST = HTTP_BAD_REQUEST,
-		IMPORT_AUTHENTICATION_ERROR = HTTP_UNAUTHORIZED,
-		IMPORT_FORBIDDEN = HTTP_FORBIDDEN,
-		IMPORT_NOT_FOUND = HTTP_NOT_FOUND,
-		IMPORT_DONE_WITH_ERRORS = HTTP_CONFLICT,
-		IMPORT_JOB_FAILED = HTTP_GONE,
+		IMPORT_DONE = 200,
+		IMPORT_PROCESSING = 202,
+		IMPORT_REDIRECT = 302,
+		IMPORT_BAD_REQUEST = 400,
+		IMPORT_AUTHENTICATION_ERROR = 401,
+		IMPORT_FORBIDDEN = 403,
+		IMPORT_NOT_FOUND = 404,
+		IMPORT_DONE_WITH_ERRORS = 409,
+		IMPORT_JOB_FAILED = 410,
 		IMPORT_JOB_LOW_SPEED = HTTP_INTERNAL_ERROR_LOW_SPEED,
-		IMPORT_JOB_TIMEOUT = HTTP_INTERNAL_ERROR_CURL_TIMEOUT,
-		IMPORT_SERVER_SITE_DOWN = HTTP_INTERNAL_SERVER_ERROR,
-		IMPORT_SERVER_API_DISABLED = HTTP_SERVICE_UNAVAILABLE,
+		IMPORT_JOB_TIMEOUT = 499,
+		IMPORT_SERVER_SITE_DOWN = 500,
+		IMPORT_SERVER_API_DISABLED = 503,
 	};
 }
 
@@ -167,8 +162,8 @@ private:
 	std::string mEditURL;
 };
 // Notes:
-// * The mListingFolderId is used as a key to this map. It could therefore be taken off the LLMarketplaceTuple object themselves.
-// * The SLM DB however uses the mListingId as its primary key and it shows in its API. In the viewer though, the mListingFolderId is what we use to grab an inventory record.
+// * The mListingFolderId is used as a key to this map. It could therefore be taken off the LLMarketplaceTuple objects themselves.
+// * The SLM DB however uses mListingId as its primary key and it shows in its API. In the viewer though, the mListingFolderId is what we use to grab an inventory record.
 typedef std::map<LLUUID, LLMarketplaceTuple> marketplace_items_list_t;
 typedef std::map<LLUUID, LLUUID> version_folders_list_t;
 
@@ -197,6 +192,7 @@ public:
 	friend class LLSLMAssociateListingsResponder;
 	friend class LLSLMDeleteListingsResponder;
 
+    static LLSD getMarketplaceStringSubstitutions();
 	LLMarketplaceData();
 	virtual ~LLMarketplaceData();
 
@@ -230,7 +226,7 @@ public:
 	LLUUID getActiveFolder(const LLUUID& obj_id, S32 depth = -1); // returns the UUID of the active version folder obj_id is in
 	bool isUpdating(const LLUUID& folder_id, S32 depth = -1); // returns true if we're waiting from SLM incoming data for folder_id
 
-	// Access MArketplace data set : each method returns a default value if the argument can't be found
+    // Access Marketplace data set : each method returns a default value if the argument can't be found
 	bool getActivationState(const LLUUID& folder_id);
 	S32 getListingID(const LLUUID& folder_id);
 	LLUUID getVersionFolder(const LLUUID& folder_id);
@@ -238,7 +234,7 @@ public:
 	LLUUID getListingFolder(S32 listing_id);
 	S32 getCountOnHand(const LLUUID& folder_id);
 
-	// Used to flag if stock count values for Marketplace have to updated
+    // Used to flag if stock count values for Marketplace have to be updated
 	bool checkDirtyCount() { if (mDirtyCount) { mDirtyCount = false; return true; } else { return false; } }
 	void setDirtyCount() { mDirtyCount = true; }
 	void setUpdating(const LLUUID& folder_id, bool isUpdating);
