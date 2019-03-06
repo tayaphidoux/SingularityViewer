@@ -985,7 +985,7 @@ void LLShaderMgr::cleanupShaderSources()
 					for (GLsizei i = 0; i < count; ++i)
 					{
 						std::multimap<std::string, LLShaderMgr::CachedObjectInfo>::iterator it = mShaderObjects.begin();
-						for (; it != LLShaderMgr::instance()->mShaderObjects.end(); it++)
+						for (; it != mShaderObjects.end(); it++)
 						{
 							if ((*it).second.mHandle == shaders[i])
 							{
