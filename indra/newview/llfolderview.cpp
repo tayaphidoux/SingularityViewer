@@ -957,12 +957,7 @@ void LLFolderView::draw()
 		}
 		else
 		{
-		//	if(getFilter())
-		//	{
-		//		LLStringUtil::format_map_t args;
-		//		args["[SEARCH_TERM]"] = LLURI::escape(getFilter().getFilterSubStringOrig());
-				mStatusText = LLTrans::getString("InventoryNoMatchingItems"); //, args);
-		//	}
+			mStatusText = LLTrans::getString("InventoryNoMatchingItems"); //, args);
 		}
 		mStatusTextBox->setWrappedText(mStatusText);
 		mStatusTextBox->setVisible( TRUE );

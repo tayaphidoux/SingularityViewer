@@ -104,6 +104,9 @@ public:
 	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
 	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 	void setAllowMultiSelect(BOOL allow) { mAllowMultiSelect = allow; }
+	void setShowEmptyMessage(bool show) { mShowEmptyMessage = show; }
+	/*void setShowItemLinkOverlays(bool show) { mShowItemLinkOverlays = show; }
+	void setAllowDropOnRoot(bool show) { mAllowDropOnRoot = show; }*/
 
 	LLInventoryFilter& getFilter() { return mFilter; }
 	const std::string getFilterSubString(BOOL trim = FALSE);

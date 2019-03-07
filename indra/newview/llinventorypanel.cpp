@@ -142,6 +142,8 @@ LLInventoryPanel::LLInventoryPanel(const std::string& name,
 	mSortOrderSetting(sort_order_setting),
 	mStartFolder(start_folder),
 	mShowRootFolder(false),
+	mShowEmptyMessage(true),
+	//mShowItemLinkOverlays(false),
 	mAllowDropOnRoot(true),
 	mAllowWear(true),
 	mUseMarketplaceFolders(false),
@@ -351,6 +353,8 @@ LLView* LLInventoryPanel::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 
 	// Singu TODO: Turn these into mParams like upstream.
 	node->getAttribute_bool("show_root_folder", panel->mShowRootFolder);
+	node->getAttribute_bool("show_empty_message", panel->mShowEmptyMessage);
+	//node->getAttribute_bool("show_item_link_overlays", panel->mShowItemLinkOverlays);
 	node->getAttribute_bool("allow_drop_on_root", panel->mAllowDropOnRoot);
 	node->getAttribute_bool("allow_wear", panel->mAllowWear);
 	node->getAttribute_bool("use_marketplace_folders", panel->mUseMarketplaceFolders);
@@ -803,6 +807,9 @@ LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool u
 	bridge,
 	mGroupedItemBridge);
 	ret->setAllowMultiSelect(mAllowMultiSelect);
+	ret->setShowEmptyMessage(mShowEmptyMessage);
+	/*ret->setShowItemLinkOverlays(mShowItemLinkOverlays);
+	ret->setAllowDropOnRoot(mAllowDropOnRoot);*/
 	return ret;
 }
 

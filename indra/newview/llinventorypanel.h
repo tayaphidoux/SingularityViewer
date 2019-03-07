@@ -238,6 +238,8 @@ public:
 private:
 	LLSD					mStartFolder;
 	bool					mShowRootFolder;
+	bool					mShowEmptyMessage;
+	//bool					mShowItemLinkOverlays;
 	bool					mAllowDropOnRoot;
 	bool					mAllowWear;
 	bool					mUseMarketplaceFolders;
