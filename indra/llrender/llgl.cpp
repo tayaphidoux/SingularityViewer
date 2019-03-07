@@ -1166,6 +1166,7 @@ void LLGLManager::initExtensions()
 	
 #if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
 	LL_DEBUGS("RenderInit") << "GL Probe: Getting symbols" << LL_ENDL;
+#if LL_WINDOWS
 	if (mHasMultitexture)
 	{
 		glMultiTexCoord1dARB = (PFNGLMULTITEXCOORD1DARBPROC)GLH_EXT_GET_PROC_ADDRESS_CORE(1.3, "glMultiTexCoord1d");
@@ -1203,6 +1204,7 @@ void LLGLManager::initExtensions()
 		glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)GLH_EXT_GET_PROC_ADDRESS_CORE(1.3, "glActiveTexture");
 		glClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC)GLH_EXT_GET_PROC_ADDRESS_CORE(1.3, "glClientActiveTexture");
 	}
+#endif
 	if (mHasCompressedTextures)
 	{
 		glCompressedTexImage3DARB = (PFNGLCOMPRESSEDTEXIMAGE3DARBPROC)GLH_EXT_GET_PROC_ADDRESS_CORE(1.3, "glCompressedTexImage3D");
