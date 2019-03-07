@@ -3047,7 +3047,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		}
 		return;
 	}
-	else if ("marketplace_active" == action)
+	else if ("marketplace_activate" == action)
 	{
 		if (depth_nesting_in_marketplace(mUUID) == 2)
 		{
@@ -3150,7 +3150,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
 		if (!cat) return;
 		const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-		move_folder_to_marketplacelistings(cat, marketplacelistings_id, ("copy_to_marketplace_listings" == action), (("copy_or_move_to_marketplace_listings" == action)));
+        move_folder_to_marketplacelistings(cat, marketplacelistings_id, ("move_to_marketplace_listings" != action), (("copy_or_move_to_marketplace_listings" == action)));
 	}
 }
 
@@ -3349,7 +3349,25 @@ void LLFolderBridge::pasteFromClipboard(bool only_copies)
 		const LLUUID& marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 		const BOOL paste_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
 
-		if (paste_into_marketplacelistings && !LLMarketplaceData::instance().isListed(mUUID) && LLMarketplaceData::instance().isInActiveFolder(mUUID))
+        BOOL cut_from_marketplacelistings = FALSE;
+		const auto& clipboard(LLInventoryClipboard::instance());
+        if (clipboard.isCutMode())
+        {
+            //Items are not removed from folder on "cut", so we need update listing folder on "paste" operation
+            std::vector<LLUUID> objects;
+            clipboard.retrieve(objects);
+            for (std::vector<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
+            {
+                const LLUUID& item_id = (*iter);
+                if(gInventory.isObjectDescendentOf(item_id, marketplacelistings_id) && (LLMarketplaceData::instance().isInActiveFolder(item_id) ||
+                    LLMarketplaceData::instance().isListedAndActive(item_id)))
+                {
+                    cut_from_marketplacelistings = TRUE;
+                    break;
+                }
+            }
+        }
+        if (cut_from_marketplacelistings || (paste_into_marketplacelistings && !LLMarketplaceData::instance().isListed(mUUID) && LLMarketplaceData::instance().isInActiveFolder(mUUID)))
 		{
 			// Prompt the user if pasting in a marketplace active version listing (note that pasting right under the listing folder root doesn't need a prompt)
 			LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_pasteFromClipboard, this, _1, _2, only_copies));
@@ -3378,8 +3396,8 @@ void LLFolderBridge::perform_pasteFromClipboard(bool only_copies)
 	if (model && isClipboardPasteable())
 	{
 		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
-		const LLUUID &my_outifts_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
 		const LLUUID& marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+		const LLUUID &my_outifts_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
 
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 		const BOOL move_is_into_my_outfits = (mUUID == my_outifts_id) || model->isObjectDescendentOf(mUUID, my_outifts_id);
@@ -3579,8 +3597,8 @@ void LLFolderBridge::pasteLinkFromClipboard()
 	if(model)
 	{
 		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
-		const LLUUID &my_outifts_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
 		const LLUUID& marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+		const LLUUID &my_outifts_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
 
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 		const BOOL move_is_into_my_outfits = (mUUID == my_outifts_id) || model->isObjectDescendentOf(mUUID, my_outifts_id);
@@ -3654,7 +3672,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	const LLUUID& trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	const LLUUID& lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 	const LLUUID& marketplace_listings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-
 
 	if (lost_and_found_id == mUUID)
 	{
@@ -3794,9 +3811,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 			disabled_items.push_back(std::string("Share"));
 		}
 	}
+
 	// Add menu items that are dependent on the contents of the folder.
 	LLViewerInventoryCategory* category = (LLViewerInventoryCategory *) model->getCategory(mUUID);
-	if (category)
+	if (category && (marketplace_listings_id != mUUID))
 	{
 		uuid_vec_t folders;
 		folders.push_back(category->getUUID());
@@ -5601,7 +5619,7 @@ void LLGestureBridge::performAction(LLInventoryModel* model, std::string action)
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
 	}
-	else if (isRemoveAction(action))
+	else if ("deactivate" == action || isRemoveAction(action))
 	{
 		LLGestureMgr::instance().deactivateGesture(mUUID);
 
@@ -5781,9 +5799,7 @@ void LLAnimationBridge::performAction(LLInventoryModel* model, std::string actio
 	if ((action == "playworld") || (action == "playlocal"))
 	{
 		// See if we can bring an existing preview to the front
-		if (LLPreview::show(mUUID))
-			return;
-
+		if (LLPreview::show(mUUID)) return;
 		if (getItem())
 		{
 			LLPreviewAnim::e_activation_type activate = LLPreviewAnim::NONE;
@@ -5921,7 +5937,6 @@ std::string LLObjectBridge::getLabelSuffix() const
 		std::string attachment_point_name;
 		if (gAgentAvatarp->getAttachedPointName(mUUID, attachment_point_name))
 		{
-
 			// e.g. "(worn on ...)" / "(attached to ...)"
 			LLStringUtil::format_map_t args;
 			args["[ATTACHMENT_POINT]"] =  LLTrans::getString(attachment_point_name);
