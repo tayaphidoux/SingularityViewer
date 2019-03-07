@@ -34,7 +34,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"
-#include "llsdserialize.h"
+#include "llsdjson.h"
 #include "lltimer.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -264,18 +264,10 @@ public:
 			return;
 		}
 
-		std::istringstream strstrm(body);
-		LLSD result;
-		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
-		{
-			log_SLM_warning("Get /listings", getStatus(), "Json parsing failed", LLStringUtil::null, body);
-			LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
-			update_marketplace_category(folderId, false);
-			gInventory.notifyObservers();
-			return;
-		}
-
 		log_SLM_infos("Get /listings", getStatus(), body);
+
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);;
 
 		// Extract the info from the results
 		for (LLSD::array_iterator it = result["listings"].beginArray();
@@ -336,16 +328,10 @@ public:
 			return;
 		}
 
-		LLSD result;
-		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
-		{
-			log_SLM_warning("Post /listings", getStatus(), "Json parsing failed", LLStringUtil::null, body);
-			update_marketplace_category(folderId, false);
-			gInventory.notifyObservers();
-			return;
-		}
-
 		log_SLM_infos("Post /listings", getStatus(), body);
+
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);;
 
 		// Extract the info from the Json string
 		auto it = result["listings"].beginArray();
@@ -410,18 +396,10 @@ public:
 			return;
 		}
 
-		std::istringstream strstrm(body);
-		LLSD result;
-		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
-		{
-			log_SLM_warning("Get /listing", getStatus(), "Json parsing failed", LLStringUtil::null, body);
-			update_marketplace_category(folderId, false);
-			gInventory.notifyObservers();
-			return;
-		}
-
 		log_SLM_infos("Get /listing", getStatus(), body);
 
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);;
 
 		// Extract the info from the results
 		for (LLSD::array_iterator it = result["listings"].beginArray();
@@ -444,7 +422,7 @@ public:
 			LLMarketplaceData::instance().
 			setActivationState(folderUuid, isListed, false);
 			LLMarketplaceData::instance().
-	        setListingURL(folderUuid, editUrl, false);
+				setListingURL(folderUuid, editUrl, false);
 			LLMarketplaceData::instance().
 			setCountOnHand(folderUuid, count, false);
 			update_marketplace_category(folderUuid, false);
@@ -485,17 +463,10 @@ public:
 			return;
 		}
 
-		std::istringstream strstrm(body);
-		LLSD result;
-		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
-		{
-			log_SLM_warning("Put /listing", getStatus(), "Json parsing failed", LLStringUtil::null, body);
-			update_marketplace_category(folderId, false);
-			gInventory.notifyObservers();
-			return;
-		}
-
 		log_SLM_infos("Put /listing", getStatus(), body);
+
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);;
 
 		// Extract the info from the Json string
 		for (LLSD::array_iterator it = result["listings"].beginArray();
@@ -570,18 +541,10 @@ public:
 			return;
 		}
 
-		std::istringstream strstrm(body);
-		LLSD result;
-		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
-		{
-			log_SLM_warning("Put /associate_inventory", getStatus(), "Json parsing failed", LLStringUtil::null, body);
-			update_marketplace_category(folderId, false);
-			update_marketplace_category(sourceFolderId, false);
-			gInventory.notifyObservers();
-			return;
-		}
-
 		log_SLM_infos("Put /associate_inventory", getStatus(), body);
+
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);;
 
 		for (LLSD::array_iterator it = result["listings"].beginArray();
 				it != result["listings"].endArray(); ++it)
@@ -650,17 +613,10 @@ public:
 			return;
 		}
 
-		std::istringstream strstrm(body);
-		LLSD result;
-		if (LLSDSerialize::fromNotation(result, strstrm, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
-		{
-			log_SLM_warning("Delete /listing", getStatus(), "Json parsing failed", LLStringUtil::null, body);
-			update_marketplace_category(folderId, false);
-			gInventory.notifyObservers();
-			return;
-		}
-
 		log_SLM_infos("Delete /listing", getStatus(), body);
+
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);;
 
 		for (LLSD::array_iterator it = result["listings"].beginArray();
 				it != result["listings"].endArray(); ++it)
@@ -1344,9 +1300,8 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folderId, const LLUUID& v
 	LLSD postData;
 	postData["listing"] = listing;
 
-	std::stringstream json;
-	LLSDSerialize::toPrettyNotation(postData, json);
-	auto json_str = json.str();
+	auto json = LlsdToJson(postData);
+	auto json_str = json.dump();
 
 	// postRaw() takes ownership of the buffer and releases it later.
 	size_t size = json_str.length();
@@ -1384,9 +1339,8 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folderId, S32 listingId, 
 	LLSD postData;
 	postData["listing"] = listing;
 
-	std::stringstream json;
-	LLSDSerialize::toPrettyNotation(postData, json);
-	auto json_str = json.str();
+	auto json = LlsdToJson(postData);
+	auto json_str = json.dump();
 
 	// postRaw() takes ownership of the buffer and releases it later.
 	size_t size = json_str.size();
@@ -1414,9 +1368,8 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folderId, S32 listingI
 	LLSD postData;
 	postData["listing"] = listing;
 
-	std::stringstream json;
-	LLSDSerialize::toPrettyNotation(postData, json);
-	auto json_str = json.str();
+	auto json = LlsdToJson(postData);
+	auto json_str = json.dump();
 
 	// postRaw() takes ownership of the buffer and releases it later.
 	size_t size = json_str.size();
