@@ -1340,16 +1340,16 @@ void LLGLManager::initExtensions()
 	}
 	if (mHasShaderObjects)
 	{
-		glDeleteShader = (PFNGLDELETEOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glDeleteShader", "glDeleteObject");
-		glDeleteProgram = (PFNGLDELETEOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glDeleteProgram", "glDeleteObject");
-		glDetachObjectARB = (PFNGLDETACHOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glDetachShader", "glDetachObject");
-		glCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glCreateShader", "glCreateShaderObject");
+		glDeleteShader = (PFNGLDELETEOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glDeleteShader", "glDeleteObjectARB");
+		glDeleteProgram = (PFNGLDELETEOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glDeleteProgram", "glDeleteObjectARB");
+		glDetachObjectARB = (PFNGLDETACHOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glDetachShader", "glDetachObjectARB");
+		glCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glCreateShader", "glCreateShaderObjectARB");
 		glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glShaderSource");
 		glCompileShaderARB = (PFNGLCOMPILESHADERARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glCompileShader");
-		glCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glCreateProgram", "glCreateProgramObject");
-		glAttachObjectARB = (PFNGLATTACHOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glAttachShader", "glAttachObject");
+		glCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glCreateProgram", "glCreateProgramObjectARB");
+		glAttachObjectARB = (PFNGLATTACHOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glAttachShader", "glAttachObjectARB");
 		glLinkProgramARB = (PFNGLLINKPROGRAMARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glLinkProgram");
-		glUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC)GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glUseProgram", "glUseProgramObject");
+		glUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC)GLH_EXT_GET_PROC_ADDRESS_CORE_OR_ARB(2.0, "glUseProgram", "glUseProgramObjectARB");
 		glValidateProgramARB = (PFNGLVALIDATEPROGRAMARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glValidateProgram");
 		glUniform1fARB = (PFNGLUNIFORM1FARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glUniform1f");
 		glUniform2fARB = (PFNGLUNIFORM2FARBPROC) GLH_EXT_GET_PROC_ADDRESS_CORE(2.0, "glUniform2f");

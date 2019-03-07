@@ -263,10 +263,11 @@ public:
 
 	inline void setMul(const LLMatrix4a& m, const F32 s)
 	{
-		mMatrix[0].setMul(m.mMatrix[0], s);
-		mMatrix[1].setMul(m.mMatrix[1], s);
-		mMatrix[2].setMul(m.mMatrix[2], s);
-		mMatrix[3].setMul(m.mMatrix[3], s);
+		const LLVector4a ssss(s);
+		mMatrix[0].setMul(m.mMatrix[0], ssss);
+		mMatrix[1].setMul(m.mMatrix[1], ssss);
+		mMatrix[2].setMul(m.mMatrix[2], ssss);
+		mMatrix[3].setMul(m.mMatrix[3], ssss);
 	}
 
 	inline void setMul(const LLMatrix4a& m0, const LLMatrix4a& m1)
@@ -287,10 +288,11 @@ public:
 
 		// this = a + d*w
 		
-		d0.mul(w);
-		d1.mul(w);
-		d2.mul(w);
-		d3.mul(w);
+		const LLVector4a wwww(w);
+		d0.mul(wwww);
+		d1.mul(wwww);
+		d2.mul(wwww);
+		d3.mul(wwww);
 
 		mMatrix[0].setAdd(a.mMatrix[0],d0);
 		mMatrix[1].setAdd(a.mMatrix[1],d1);
