@@ -61,6 +61,8 @@ extern LLUUID gAgentID;
 
 using namespace LLOldEvents;
 
+bool contains_nocopy_items(const LLUUID& id);
+
 namespace LLInventoryAction
 {
 	void callback_doToSelected(const LLSD& notification, const LLSD& response, LLFolderView* folder, const std::string& action);
@@ -176,7 +178,6 @@ bool LLInventoryAction::doToSelected(LLFolderView* root, std::string action, BOO
 	if (("copy_to_marketplace_listings" == action))
 	{
 		std::set<LLUUID>::iterator set_iter = selected_items.begin();
-		bool contains_nocopy_items(const LLUUID& id);
 		if (contains_nocopy_items(*set_iter))
 		{
 			LLNotificationsUtil::add("ConfirmCopyToMarketplace", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_copySelected, _1, _2, root, action));
