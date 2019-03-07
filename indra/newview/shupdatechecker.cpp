@@ -16,8 +16,7 @@
 #include "llbufferstream.h"
 #include "llweb.h"
 
-
-#include <jsoncpp/reader.h>
+#include <nlohmann/json.hpp>
 
 extern AIHTTPTimeoutPolicy getUpdateInfoResponder_timeout;
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,20 +56,14 @@ public:
 			return;
 		}
 
-		Json::Value root;
-		Json::Reader reader;
-		if (!reader.parse(body, root))
-		{
-			LL_WARNS() << "Failed to parse update info: " << reader.getFormattedErrorMessages() << LL_ENDL;
-			return;
-		}
+		auto root = nlohmann::json::parse(body);
 
 		std::string viewer_version = llformat("%s (%i)", LLVersionInfo::getShortVersion().c_str(), LLVersionInfo::getBuild());
 
-		const Json::Value data = root[mType];
+		const auto data = root[mType];
 #if LL_WINDOWS
-		std::string recommended_version = data["recommended"]["windows"].asString();
-		std::string minimum_version = data["minimum"]["windows"].asString();
+		std::string recommended_version = data["recommended"]["windows"];
+		std::string minimum_version = data["minimum"]["windows"];
 #elif LL_LINUX
 		std::string recommended_version = data["recommended"]["linux"].asString();
 		std::string minimum_version = data["minimum"]["linux"].asString();
@@ -88,7 +81,7 @@ public:
 		args["CURRENT_VER"] = viewer_version;
 		args["RECOMMENDED_VER"] = recommended_version;
 		args["MINIMUM_VER"] = minimum_version;
-		args["URL"] = data["url"].asString();
+		args["URL"] = data["url"].get<std::string>();
 		args["TYPE"] = mType == "release" ? "Viewer" : "Alpha";
 
 		static LLCachedControl<S32> sLastKnownReleaseBuild("SinguLastKnownReleaseBuild", 0);
@@ -123,7 +116,7 @@ public:
 			}
 			if (!notificaiton.empty())
 			{
-				LLNotificationsUtil::add(notificaiton, args, LLSD(), boost::bind(&GetUpdateInfoResponder::onNotifyButtonPress, this, _1, _2, notificaiton, data["url"].asString()));
+				LLNotificationsUtil::add(notificaiton, args, LLSD(), boost::bind(&GetUpdateInfoResponder::onNotifyButtonPress, this, _1, _2, notificaiton, data["url"]));
 			}
 		}	
 	}

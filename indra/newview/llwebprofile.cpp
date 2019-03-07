@@ -38,8 +38,7 @@
 #include "llpanelprofile.h"		// <edit>getProfileURL (this is the original location LL put it).</edit>
 #include "llviewermedia.h" // FIXME: don't use LLViewerMedia internals
 
-// third-party JSONCPP
-#include <jsoncpp/reader.h>	// JSONCPP
+#include "llsdjson.h"
 
 /*
  * Workflow:
@@ -78,39 +77,25 @@ public:
 
 		if (mStatus != HTTP_OK)
 		{
-			LL_WARNS() << "Failed to get upload config (" << mStatus << ")" << LL_ENDL;
+			LL_WARNS() << "Failed to get upload config (" << mStatus << ')' << LL_ENDL;
 			LLWebProfile::reportImageUploadStatus(false);
 			return;
 		}
 
-		Json::Value root;
-		Json::Reader reader;
-		if (!reader.parse(body, root))
-		{
-			LL_WARNS() << "Failed to parse upload config: " << reader.getFormattedErrorMessages() << LL_ENDL;
-			LLWebProfile::reportImageUploadStatus(false);
-			return;
-		}
+		auto root = LlsdFromJson(nlohmann::json::parse(body));
 
 		// *TODO: 404 = not supported by the grid
 		// *TODO: increase timeout or handle HTTP_INTERNAL_ERROR_* time errors.
 
 		// Convert config to LLSD.
-		const Json::Value data = root["data"];
+		const auto data = root["data"];
 		const std::string upload_url = root["url"].asString();
-		LLSD config;
-		config["acl"]						= data["acl"].asString();
-		config["AWSAccessKeyId"]			= data["AWSAccessKeyId"].asString();
-		config["Content-Type"]				= data["Content-Type"].asString();
-		config["key"]						= data["key"].asString();
-		config["policy"]					= data["policy"].asString();
-		config["success_action_redirect"]	= data["success_action_redirect"].asString();
-		config["signature"]					= data["signature"].asString();
-		config["add_loc"]					= data.get("add_loc", "0").asString();
-		config["caption"]					= data.get("caption", "").asString();
+		LLSD config = data;
+		if (!data.has("add_loc")) config["add_loc"] = "0";
+		if (!data.has("caption")) config["caption"] = LLStringUtil::null;
 
 		// Do the actual image upload using the configuration.
-		LL_DEBUGS("Snapshots") << "Got upload config, POSTing image to " << upload_url << ", config=[" << config << "]" << LL_ENDL;
+		LL_DEBUGS("Snapshots") << "Got upload config, POSTing image to " << upload_url << ", config=[" << config << ']' << LL_ENDL;
 		LLWebProfile::post(mImagep, config, upload_url);
 	}
 
@@ -133,7 +118,7 @@ public:
 	{
 		if (mStatus != HTTP_OK)
 		{
-			LL_WARNS() << "Failed to upload image: " << mStatus << " " << mReason << LL_ENDL;
+			LL_WARNS() << "Failed to upload image: " << mStatus << ' ' << mReason << LL_ENDL;
 			LLWebProfile::reportImageUploadStatus(false);
 			return;
 		}
@@ -143,7 +128,7 @@ public:
 		strstrm << istr.rdbuf();
 		const std::string body = strstrm.str();
 		LL_INFOS() << "Image uploaded." << LL_ENDL;
-		LL_DEBUGS("Snapshots") << "Uploading image succeeded. Response: [" << body << "]" << LL_ENDL;
+		LL_DEBUGS("Snapshots") << "Uploading image succeeded. Response: [" << body << ']' << LL_ENDL;
 		LLWebProfile::reportImageUploadStatus(true);
 	}
 
@@ -184,8 +169,8 @@ public:
 		}
 		else
 		{
-			LL_WARNS() << "Unexpected POST status: " << mStatus << " " << mReason << LL_ENDL;
-			LL_DEBUGS("Snapshots") << "received_headers: [" << mReceivedHeaders << "]" << LL_ENDL;
+			LL_WARNS() << "Unexpected POST status: " << mStatus << ' ' << mReason << LL_ENDL;
+			LL_DEBUGS("Snapshots") << "received_headers: [" << mReceivedHeaders << ']' << LL_ENDL;
 			LLWebProfile::reportImageUploadStatus(false);
 		}
 	}

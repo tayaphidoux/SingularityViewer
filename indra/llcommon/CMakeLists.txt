@@ -10,6 +10,7 @@ include(Linking)
 include(Boost)
 include(OpenSSL)
 include(LLSharedLibs)
+include(Json)
 include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
 include(ZLIB)
@@ -19,6 +20,7 @@ include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIRS}
+    ${JSON_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIRS}
     ${BREAKPAD_INCLUDE_DIRECTORIES}
     )
@@ -85,6 +87,7 @@ set(llcommon_SOURCE_FILES
     llrun.cpp
     llscopedvolatileaprpool.h
     llsd.cpp
+    llsdjson.cpp
     llsdparam.cpp
     llsdserialize.cpp
     llsdserialize_xml.cpp
@@ -210,6 +213,7 @@ set(llcommon_HEADER_FILES
     llrun.h
     llsafehandle.h
     llsd.h
+    llsdjson.h
     llsdparam.h
     llsdserialize.h
     llsdserialize_xml.h

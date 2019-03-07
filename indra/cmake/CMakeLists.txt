@@ -36,7 +36,6 @@ set(cmake_SOURCE_FILES
     FindGoogleBreakpad.cmake
     FindGooglePerfTools.cmake
     FindHunSpell.cmake
-    FindJsonCpp.cmake
     FindNDOF.cmake
     FindOpenJPEG.cmake
     FindTut.cmake
@@ -51,7 +50,7 @@ set(cmake_SOURCE_FILES
     GooglePerfTools.cmake
     Hunspell.cmake
     JPEG.cmake
-    JsonCpp.cmake
+    Json.cmake
     LLAddBuildTest.cmake
     LLAppearance.cmake
     LLAudio.cmake

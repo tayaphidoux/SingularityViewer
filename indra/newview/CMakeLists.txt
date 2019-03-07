@@ -13,7 +13,7 @@ include(FMODSTUDIO)
 include(GLOD)
 include(FindOpenGL)
 include(Hunspell)
-include(JsonCpp)
+include(Json)
 include(LLAddBuildTest)
 include(LLAppearance)
 include(LLAudio)
@@ -53,7 +53,7 @@ include_directories(
     ${STATEMACHINE_INCLUDE_DIRS}
     ${DBUSGLIB_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
-    ${JSONCPP_INCLUDE_DIR}
+    ${JSON_INCLUDE_DIR}
     ${GLOD_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
@@ -1652,7 +1652,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${GLOD_LIBRARIES}
     ${APRUTIL_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${JSONCPP_LIBRARIES}
     ${SDL_LIBRARY}
     ${SMARTHEAP_LIBRARY}
     ${UI_LIBRARIES}
