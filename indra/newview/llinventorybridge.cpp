@@ -1031,6 +1031,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
 			{
 				disabled_items.push_back(std::string("Marketplace Create Listing"));
 				disabled_items.push_back(std::string("Marketplace Associate Listing"));
+				items.push_back(std::string("Marketplace Copy ID"));
 				if (LLMarketplaceData::instance().getVersionFolder(mUUID).isNull())
 				{
 					disabled_items.push_back(std::string("Marketplace List"));
@@ -3130,6 +3131,11 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 			LLUrlAction::openURL(url);
 		}
 		return;
+	}
+	else if ("marketplace_copy_id")
+	{
+		auto id = LLMarketplaceData::instance().getListingID(mUUID);
+		gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(std::to_string(id)));
 	}
 	// <singu> Move displaced inventory to lost and found
 	else if ("move_to_lost_and_found" == action)

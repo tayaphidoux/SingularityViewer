@@ -46,6 +46,9 @@
       name="Marketplace Deactivate">
        <on_click function="Inventory.DoToSelected" userdata="marketplace_deactivate"/>
      </menu_item_call>
+     <menu_item_call label="Copy Listing ID" name="Marketplace Copy ID">
+       <on_click function="Inventory.DoToSelected" userdata="marketplace_copy_id"/>
+     </menu_item_call>
      <menu_item_separator name="Marketplace Listings Separator"/>
 	<menu_item_call bottom_delta="-18" height="18" label="Buy" left="0" mouse_opaque="true"
 	     name="Task Buy" width="128">
