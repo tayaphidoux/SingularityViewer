@@ -148,11 +148,13 @@ LLUUID getVersionFolderIfUnique(const LLUUID& folder_id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// SLM Responders
-void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
+    // SLM Reporters
+void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const LLSD& content)
 {
-	LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
-	if ((status == 422) && (description == "[\"You must have an English description to list the product\", \"You must choose a category for your product before it can be listed\", \"Listing could not change state.\", \"Price can't be blank\"]"))
+	LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << ll_pretty_print_sd(content) << LL_ENDL;
+	if ((status == 422) &&
+		content.isArray() &&
+		content.size() > 4)
 	{
 		// Unprocessable Entity : Special case that error as it is a frequent answer when trying to list an incomplete listing
 		LLNotificationsUtil::add("MerchantUnprocessableEntity");
@@ -161,9 +163,34 @@ void log_SLM_warning(const std::string& request, U32 status, const std::string& 
 	{
 		// Prompt the user with the warning (so they know why things are failing)
 		LLSD subs;
-		subs["[ERROR_REASON]"] = reason;
 		// We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
-		subs["[ERROR_DESCRIPTION]"] = (description.length() <= 512 ? description : LLStringUtil::null);
+            std::string description;
+            {
+                if (content.isArray())
+                {
+                    for (auto it = content.beginArray(); it != content.endArray(); ++it)
+                    {
+                        if (!description.empty())
+                            description += '\n';
+                        description += (*it).asString();
+                    }
+                }
+                else
+                {
+                    description = content.asString();
+                }
+            }
+            std::string reason_lc = reason;
+            LLStringUtil::toLower(reason_lc);
+            if (!description.empty() && reason_lc.find("unknown") != std::string::npos)
+            {
+                subs["[ERROR_REASON]"] = LLStringUtil::null;
+            }
+            else
+            {
+                subs["[ERROR_REASON]"] = '\'' + reason +"'\n";
+            }
+            subs["[ERROR_DESCRIPTION]"] = description;
 		LLNotificationsUtil::add("MerchantTransactionFailed", subs);
 	}
 }
@@ -220,7 +247,7 @@ protected:
 		}
 		else
 		{
-			log_SLM_warning("Get /merchant", httpCode, getReason(), getContent().get("error_code"), getContent().get("error_description"));
+			log_SLM_warning("Get /merchant", httpCode, getReason(), LLStringUtil::null, getContent());
 			LLMarketplaceData::instance().
 			setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
 		}
@@ -254,9 +281,12 @@ public:
 		std::string body;
 		decode_raw_body(channels, buffer, body);
 
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);;
+
 		if (!isGoodStatus(mStatus))
 		{
-			log_SLM_warning("Get /listings", getStatus(), getReason(), "", body);
+			log_SLM_warning("Get /listings", getStatus(), getReason(), LLStringUtil::null, result);
 			LLMarketplaceData::instance().
 			setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
 			update_marketplace_category(folderId, false);
@@ -265,9 +295,6 @@ public:
 		}
 
 		log_SLM_infos("Get /listings", getStatus(), body);
-
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);;
 
 		// Extract the info from the results
 		for (LLSD::array_iterator it = result["listings"].beginArray();
@@ -315,23 +342,21 @@ public:
 	{
 		LLMarketplaceData::instance().setUpdating(folderId, false);
 
-		LLBufferStream istr(channels, buffer.get());
-		std::stringstream strstrm;
-		strstrm << istr.rdbuf();
-		const std::string body = strstrm.str();
+		std::string body;
+		decode_raw_body(channels, buffer, body);
+
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);;
 
 		if (!isGoodStatus(mStatus))
 		{
-			log_SLM_warning("Post /listings", getStatus(), getReason(), "", body);
+			log_SLM_warning("Post /listings", getStatus(), getReason(), LLStringUtil::null, result);
 			update_marketplace_category(folderId, false);
 			gInventory.notifyObservers();
 			return;
 		}
 
 		log_SLM_infos("Post /listings", getStatus(), body);
-
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);;
 
 		// Extract the info from the Json string
 		auto it = result["listings"].beginArray();
@@ -379,6 +404,9 @@ public:
 		std::string body;
 		decode_raw_body(channels, buffer, body);
 
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);
+
 		if (!isGoodStatus(mStatus))
 		{
 			if (getStatus() == HTTP_NOT_FOUND)
@@ -389,7 +417,7 @@ public:
 			}
 			else
 			{
-				log_SLM_warning("Get /listing", getStatus(), getReason(), "", body);
+				log_SLM_warning("Get /listing", getStatus(), getReason(), LLStringUtil::null, result);
 			}
 			update_marketplace_category(folderId, false);
 			gInventory.notifyObservers();
@@ -397,9 +425,6 @@ public:
 		}
 
 		log_SLM_infos("Get /listing", getStatus(), body);
-
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);;
 
 		// Extract the info from the results
 		for (LLSD::array_iterator it = result["listings"].beginArray();
@@ -455,18 +480,18 @@ public:
 		std::string body;
 		decode_raw_body(channels, buffer, body);
 
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);
+
 		if (!isGoodStatus(mStatus))
 		{
-			log_SLM_warning("Put /listing", getStatus(), getReason(), "", body);
+			log_SLM_warning("Put /listing", getStatus(), getReason(), LLStringUtil::null, result);
 			update_marketplace_category(folderId, false);
 			gInventory.notifyObservers();
 			return;
 		}
 
 		log_SLM_infos("Put /listing", getStatus(), body);
-
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);;
 
 		// Extract the info from the Json string
 		for (LLSD::array_iterator it = result["listings"].beginArray();
@@ -532,9 +557,12 @@ public:
 		std::string body;
 		decode_raw_body(channels, buffer, body);
 
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);
+
 		if (!isGoodStatus(mStatus))
 		{
-			log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), "", body);
+			log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), LLStringUtil::null, result);
 			update_marketplace_category(folderId, false);
 			update_marketplace_category(sourceFolderId, false);
 			gInventory.notifyObservers();
@@ -542,9 +570,6 @@ public:
 		}
 
 		log_SLM_infos("Put /associate_inventory", getStatus(), body);
-
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);;
 
 		for (LLSD::array_iterator it = result["listings"].beginArray();
 				it != result["listings"].endArray(); ++it)
@@ -604,19 +629,18 @@ public:
 
 		std::string body;
 		decode_raw_body(channels, buffer, body);
+		auto json = nlohmann::json::parse(body);
+		LLSD result = LlsdFromJson(json);
 
 		if (!isGoodStatus(mStatus))
 		{
-			log_SLM_warning("Delete /listing", getStatus(), getReason(), "", body);
+			log_SLM_warning("Delete /listing", getStatus(), getReason(), LLStringUtil::null, result);
 			update_marketplace_category(folderId, false);
 			gInventory.notifyObservers();
 			return;
 		}
 
 		log_SLM_infos("Delete /listing", getStatus(), body);
-
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);;
 
 		for (LLSD::array_iterator it = result["listings"].beginArray();
 				it != result["listings"].endArray(); ++it)

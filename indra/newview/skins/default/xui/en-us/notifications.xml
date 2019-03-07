@@ -363,7 +363,7 @@ There is no marketplace on the region you've moved to.
     <notification
    icon="OutboxStatus_Error"
    name="StockPasteFailed"
-   type="outbox">
+        type="alert">
 Copy or move to Stock Folder failed with error :
 
 &apos;[ERROR_CODE]&apos;
@@ -375,7 +375,7 @@ Copy or move to Stock Folder failed with error :
     <notification
    icon="OutboxStatus_Error"
    name="MerchantPasteFailed"
-   type="outbox">
+        type="alert">
 Copy or move to Marketplace Listings failed with error :
 
 &apos;[ERROR_CODE]&apos;
@@ -387,11 +387,10 @@ Copy or move to Marketplace Listings failed with error :
     <notification
    icon="OutboxStatus_Error"
    name="MerchantTransactionFailed"
-   type="outbox">
+        type="alert">
 The transaction with the Marketplace failed with the following error :
 
-Reason : &apos;[ERROR_REASON]&apos;
-[ERROR_DESCRIPTION]
+        [ERROR_REASON][ERROR_DESCRIPTION]
         <usetemplate
         name="okbutton"
         yestext="OK"/>
@@ -400,7 +399,7 @@ Reason : &apos;[ERROR_REASON]&apos;
     <notification
    icon="OutboxStatus_Error"
    name="MerchantUnprocessableEntity"
-   type="outbox">
+        type="alert">
 We are unable to list this product or activate the version folder. Usually this is caused by missing information in the listing description form, but it may be due to errors in the folder structure. Either edit the listing or check the listing folder for errors.
         <usetemplate
         name="okbutton"
@@ -410,10 +409,24 @@ We are unable to list this product or activate the version folder. Usually this 
     <notification
    icon="OutboxStatus_Error"
    name="MerchantListingFailed"
-   type="outbox">
+        type="alert">
 Listing to Marketplace failed with error :
 
 &apos;[ERROR_CODE]&apos;
+
+        <usetemplate
+        name="okbutton"
+        yestext="OK"/>
+    </notification>
+
+    <notification
+        icon="OutboxStatus_Error"
+        name="MerchantFolderActivationFailed"
+        type="alert">
+        Activating this version folder failed with error :
+
+        &apos;[ERROR_CODE]&apos;
+
         <usetemplate
         name="okbutton"
         yestext="OK"/>
@@ -483,7 +496,7 @@ You don't have permission to copy one or more of these items to the Marketplace.
          ignoretext="Confirm before I try to copy a selection containing no copy items to the marketplace"
          name="yesnocancelbuttons"
          yestext="Move item(s)"
-         notext="Dont move item(s)"
+        notext="Don't move item(s)"
          canceltext="Cancel"/>
     </notification>
 
@@ -504,7 +517,7 @@ This action will unlist this listing. Do you want to continue?
    icon="alertmodal.tga"
    name="ConfirmMerchantClearVersion"
    type="alertmodal">
-This action will deactivate the version folder of this listing. Do you want to continue?
+        This action will deactivate the version folder of the current listing. Do you want to continue?
         <tag>confirm</tag>
         <usetemplate
          ignoretext="Confirm before I deactivate the version folder of a listing on the marketplace"
@@ -518,7 +531,7 @@ This action will deactivate the version folder of this listing. Do you want to c
    name="AlertMerchantListingNotUpdated"
    type="alertmodal">
 This listing could not be updated.
-[URL] Click to edit it on the Marketplace.
+[[URL] Click here] to edit it on the Marketplace.
         <usetemplate
          name="okbutton"
          yestext="OK"/>
