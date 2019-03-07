@@ -42,6 +42,8 @@
 // wrapper for vsnprintf to be called from llformatXXX functions.
 static void va_format(std::string& out, const char *fmt, va_list& va)
 {
+	if (!fmt || !fmt[0]) return; // Don't bother if null or empty c_str
+
 	typedef typename std::vector<char, boost::alignment::aligned_allocator<char, 1>> vec_t;
 	static thread_local vec_t charvector(1024); // Evolves into charveleon
 	#define vsnprintf(va) std::vsnprintf(charvector.data(), charvector.capacity(), fmt, va)
