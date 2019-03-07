@@ -467,6 +467,7 @@ void LLFloaterAO::typing(bool start)
 		anims.push_back(ANIM_AGENT_TYPE);
 	if (gSavedSettings.getBOOL("AOEnabled")) // Typing override
 		anims.push_back(GetAnimIDFromState(STATE_AGENT_TYPING));
+	if (anims.empty()) return;
 	gAgent.sendAnimationRequests(anims, start ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
 }
 
