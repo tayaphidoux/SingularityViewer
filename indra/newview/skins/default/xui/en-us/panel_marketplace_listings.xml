@@ -84,7 +84,6 @@
   </tab_container>
   </panel>
   <panel
-      visibility_control="LiruEnableWIPUI"
       name="marketplace_drop_zone"
       mouse_opaque="false"
       follows="bottom|left|right"
