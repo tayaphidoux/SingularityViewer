@@ -158,7 +158,7 @@ public:
 	virtual BOOL postBuild();
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
-	static bool visible(LLFloaterAssociateListing* floater, const LLSD& key) { floater && !floater->isMinimized() && floater->isInVisibleChain(); }
+	static bool visible(LLFloaterAssociateListing* floater, const LLSD& key) { return floater && !floater->isMinimized() && floater->isInVisibleChain(); }
 	static void show(LLFloaterAssociateListing* floater, const LLSD& folder_id);
 	static void hide(LLFloaterAssociateListing* floater, const LLSD& key) { if (floater) floater->close(); }
 
