@@ -918,6 +918,17 @@ RIP Latif Khalifa.</string>
 			<key>Value</key>
 			<boolean>1</boolean>
 		</map>
+		<key>SinguPostProcessDefault</key>
+		<map>
+			<key>Comment</key>
+			<string>Default post process preset, changing this will change your active preset</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>String</string>
+			<key>Value</key>
+			<boolean>Default</boolean>
+		</map>
 		<key>SinguReplaceLinks</key>
 		<map>
 			<key>Comment</key>

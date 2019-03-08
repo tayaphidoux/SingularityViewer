@@ -35,6 +35,7 @@
 #include "llpostprocess.h"
 
 #include "lldir.h"
+#include "llcontrol.h"
 #include "llfasttimer.h"
 #include "llgl.h"
 #include "llglslshader.h"
@@ -369,11 +370,13 @@ LLPostProcess::LLPostProcess(void) :
 	load_effects(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
 	load_effects(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "windlight", XML_FILENAME));
 
-	// Singu TODO: Make this configurable via settings
-	if (!mAllEffectInfo.has("Default"))
-		mAllEffectInfo["Default"] = LLSD::emptyMap();
+	auto setting = gSavedSettings.getControl("SinguPostProcessDefault");
+	setting->getSignal()->connect(std::bind(&LLPostProcess::setSelectedEffect, this, std::bind(&LLSD::asStringRef, std::placeholders::_2)));
+	const auto& str = setting->get().asStringRef();
+	if (!mAllEffectInfo.has(str))
+		mAllEffectInfo[str] = LLSD::emptyMap();
 
-	LLSD& defaults = mAllEffectInfo["Default"];
+	LLSD& defaults = mAllEffectInfo[str];
 
 	// Add defaults for all missing effects
 	for(auto& shader : mShaders)
@@ -385,11 +388,12 @@ LLPostProcess::LLPostProcess(void) :
 				defaults[it2->first]=it2->second;
 		}
 	}
-	setSelectedEffect("Default");
+	setSelectedEffect(str);
 }
 
 LLPostProcess::~LLPostProcess(void)
 {
+	gSavedSettings.setString("SinguPostProcessDefault", mSelectedEffectName);
 	destroyGL() ;
 }
 
