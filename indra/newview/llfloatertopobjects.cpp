@@ -541,7 +541,7 @@ void LLFloaterTopObjects::onCamToObject()
 	LLVector3d pos_global = getSelectedPosition();
 	if (pos_global.isExactlyZero()) return;
 	const LLUUID& id = getChild<LLScrollListCtrl>("objects_list")->getFirstSelected()->getUUID();
-	gAgentCamera.setFocusGlobal(pos_global, id);
+	gAgentCamera.setCameraPosAndFocusGlobal(pos_global + LLVector3d(3.5,1.35,0.75), pos_global, id);
 }
 
 void LLFloaterTopObjects::onKick()
