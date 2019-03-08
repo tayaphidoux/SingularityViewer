@@ -355,17 +355,19 @@ LLPostProcess::LLPostProcess(void) :
 	mShaders.push_back(new LLPosterizeShader());
 
 	/*  Do nothing.  Needs to be updated to use our current shader system, and to work with the move into llrender.*/
-	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
-	LL_DEBUGS("AppInit", "Shaders") << "Loading PostProcess Effects settings from " << pathName << LL_ENDL;
-
-	llifstream effectsXML(pathName);
-
-	if (effectsXML)
+	auto load_effects = [&](const std::string& pathName)
 	{
-		LLPointer<LLSDParser> parser = new LLSDXMLParser();
+		LL_DEBUGS("AppInit", "Shaders") << "Loading PostProcess Effects settings from " << pathName << LL_ENDL;
+		llifstream effectsXML(pathName);
 
-		parser->parse(effectsXML, mAllEffectInfo, LLSDSerialize::SIZE_UNLIMITED);
-	}
+		if (effectsXML)
+		{
+			LLPointer<LLSDParser> parser = new LLSDXMLParser();
+			parser->parse(effectsXML, mAllEffectInfo, LLSDSerialize::SIZE_UNLIMITED);
+		}
+	};
+	load_effects(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
+	load_effects(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "windlight", XML_FILENAME));
 
 	// Singu TODO: Make this configurable via settings
 	if (!mAllEffectInfo.has("Default"))
@@ -705,7 +707,7 @@ void LLPostProcess::saveEffectAs(std::string const & effectName)
 	mAllEffectInfo[effectName] = mSelectedEffectInfo;
 	mSelectedEffectChanged(mSelectedEffectName); // Might've changed, either way update the lists
 
-	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
+	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "windlight", XML_FILENAME));
 	//LL_INFOS() << "Saving PostProcess Effects settings to " << pathName << LL_ENDL;
 
 	llofstream effectsXML(pathName);
