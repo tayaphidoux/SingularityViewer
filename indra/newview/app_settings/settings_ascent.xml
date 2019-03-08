@@ -873,6 +873,28 @@
 			<key>Value</key>
 			<real>0</real>
 		</map>
+		<key>SinguLastKnownReleaseBuild</key>
+		<map>
+			<key>Comment</key>
+			<string>Latest known available verson.</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>S32</string>
+			<key>Value</key>
+			<boolean>0</boolean>
+		</map>
+		<key>SinguLastKnownAlphaBuild</key>
+		<map>
+			<key>Comment</key>
+			<string>Latest known available verson.</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>S32</string>
+			<key>Value</key>
+			<boolean>0</boolean>
+		</map>
 		<key>SinguMotionResetsCamera</key>
 		<map>
 			<key>Comment</key>
@@ -895,28 +917,6 @@ RIP Latif Khalifa.</string>
 			<string>Boolean</string>
 			<key>Value</key>
 			<boolean>1</boolean>
-		</map>
-		<key>SinguLastKnownReleaseBuild</key>
-		<map>
-			<key>Comment</key>
-			<string>Latest known available verson.</string>
-			<key>Persist</key>
-			<integer>1</integer>
-			<key>Type</key>
-			<string>S32</string>
-			<key>Value</key>
-			<boolean>0</boolean>
-		</map>
-		<key>SinguLastKnownAlphaBuild</key>
-		<map>
-			<key>Comment</key>
-			<string>Latest known available verson.</string>
-			<key>Persist</key>
-			<integer>1</integer>
-			<key>Type</key>
-			<string>S32</string>
-			<key>Value</key>
-			<boolean>0</boolean>
 		</map>
 		<key>SinguReplaceLinks</key>
 		<map>
