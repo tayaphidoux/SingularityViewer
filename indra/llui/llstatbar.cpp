@@ -175,17 +175,15 @@ void LLStatBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(mLabel, 0, 0, getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, 1.f),
 							LLFontGL::LEFT, LLFontGL::TOP);
 
-	std::string value_format;
+
 	std::string value_str;
 	if (!mUnitLabel.empty())
 	{
-		value_format = llformat( "%%.%df%%s", mPrecision);
-		value_str = llformat( value_format.c_str(), mValue, mUnitLabel.c_str());
+		value_str = llformat( "%.*f%s", mPrecision, mValue, mUnitLabel.c_str());
 	}
 	else
 	{
-		value_format = llformat( "%%.%df", mPrecision);
-		value_str = llformat( value_format.c_str(), mValue);
+		value_str = llformat("%.*f", mPrecision, mValue);
 	}
 
 	// Draw the value.
@@ -193,11 +191,8 @@ void LLStatBar::draw()
 		LLColor4(1.f, 1.f, 1.f, 0.5f),
 		LLFontGL::RIGHT, LLFontGL::TOP);
 
-	value_format = llformat( "%%.%df", mPrecision);
 	if (mDisplayBar)
 	{
-		std::string tick_label;
-
 		// Draw the tick marks.
 		F32 tick_value;
 		top = bar_top;
@@ -220,9 +215,8 @@ void LLStatBar::draw()
 			right = left + tick_width;
 			gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 1.f, 1.f, 0.25f));
 
-			tick_label = llformat( value_format.c_str(), tick_value);
 			// draw labels for the tick marks
-			LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, left - 1, bar_top - bar_height - tick_height,
+			LLFontGL::getFontMonospace()->renderUTF8(llformat("%.*f", mPrecision, tick_value), 0, left - 1, bar_top - bar_height - tick_height,
 											 LLColor4(1.f, 1.f, 1.f, 0.5f),
 											 LLFontGL::LEFT, LLFontGL::TOP);
 		}
