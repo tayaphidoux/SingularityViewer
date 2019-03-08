@@ -62,15 +62,14 @@ public:
 
 		const auto data = root[mType];
 #if LL_WINDOWS
-		std::string recommended_version = data["recommended"]["windows"];
-		std::string minimum_version = data["minimum"]["windows"];
+		constexpr auto platform = "windows";
 #elif LL_LINUX
-		std::string recommended_version = data["recommended"]["linux"].asString();
-		std::string minimum_version = data["minimum"]["linux"].asString();
+		constexpr auto platform = "linux";
 #elif LL_DARWIN
-		std::string recommended_version = data["recommended"]["apple"].asString();
-		std::string minimum_version = data["minimum"]["apple"].asString();
+		constexpr auto platform = "apple";
 #endif
+		std::string recommended_version = data["recommended"][platform];
+		std::string minimum_version = data["minimum"][platform];
 		
 		S32 minimum_build, recommended_build;
 		sscanf(recommended_version.c_str(), "%*i.%*i.%*i (%i)", &recommended_build);
