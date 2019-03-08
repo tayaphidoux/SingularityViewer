@@ -1054,6 +1054,17 @@ Changing this setting only affects new text.</string>
       <key>Value</key>
       <integer>20</integer>
     </map>
+    <key>LiruEnableWIPUI</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to enable UI components that probably don't work yet.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>LiruFlashWhenMinimized</key>
     <map>
       <key>Comment</key>
