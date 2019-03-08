@@ -64,23 +64,15 @@ void showMenu(LLView* button, LLMenuGL* menu)
 	menu->buildDrawLabels();
 	menu->updateParent(LLMenuGL::sMenuContainer);
 	const auto& rect = button->getRect();
-	LLMenuGL::showPopup(button, menu, rect.mLeft, rect.mBottom);
+	LLMenuGL::showPopup(button->getParent(), menu, rect.mLeft, rect.mBottom);
 }
 
 BOOL LLPanelMarketplaceListings::postBuild()
 {
 	childSetAction("add_btn", boost::bind(&LLPanelMarketplaceListings::onAddButtonClicked, this));
 	childSetAction("audit_btn", boost::bind(&LLPanelMarketplaceListings::onAuditButtonClicked, this));
-	mMenu = LLUICtrlFactory::instance().buildMenu("menu_marketplace_view.xml", this);
+	mMenu = LLUICtrlFactory::instance().buildMenu("menu_marketplace_view.xml", LLMenuGL::sMenuContainer);
 	auto sort = getChild<LLUICtrl>("sort_btn");
-	new LLBindMemberListener(this, "Marketplace.ViewSort.Action", [this](LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
-	{
-		LLMenuGL::sMenuContainer->findControl(userdata["control"].asString())->setValue(onViewSortMenuItemCheck(userdata["data"]));
-	});
-	new LLBindMemberListener(this, "Marketplace.ViewSort.CheckItem", [this](LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
-	{
-		onViewSortMenuItemClicked(userdata["data"]);
-	});
 	sort->setCommitCallback(boost::bind(showMenu, _1, mMenu));
 
 	mFilterEditor = getChild<LLFilterEditor>("filter_editor");

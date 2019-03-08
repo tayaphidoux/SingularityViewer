@@ -132,6 +132,8 @@ protected:
 	void updateView();
 
 private:
+	friend MarketplaceViewSortAction;
+	friend MarketplaceViewSortCheckItem;
 	S32 getFolderCount();
 
 	LLInventoryCategoriesObserver *		mCategoriesObserver;

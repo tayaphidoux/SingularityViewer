@@ -75,6 +75,7 @@
 #include "llfloatergodtools.h"
 #include "llfloaterhtmlcurrency.h"
 #include "llfloaterland.h"
+#include "llfloatermarketplacelistings.h"
 #include "llfloatermute.h"
 #include "llfloateropenobject.h"
 #include "llfloaterpathfindingcharacters.h"
@@ -9318,6 +9319,25 @@ class ListToggleMute : public view_listener_t
 	}
 };
 
+struct MarketplaceViewSortAction : view_listener_t
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+	{
+		LLFloaterMarketplaceListings::findInstance()->mPanelListings->onViewSortMenuItemClicked(userdata);
+		return true;
+	}
+};
+
+struct MarketplaceViewSortCheckItem : view_listener_t
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+	{
+		LLMenuGL::sMenuContainer->findControl(userdata["control"].asString())
+			->setValue(LLFloaterMarketplaceListings::findInstance()->mPanelListings->onViewSortMenuItemCheck(userdata["data"]));
+		return true;
+	}
+};
+
 void addMenu(view_listener_t *menu, const std::string& name)
 {
 	sMenus.push_back(menu);
@@ -9648,6 +9668,9 @@ void initialize_menus()
 	LLTextEditor::setIsObjectBlockedCallback(boost::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
 	LLTextEditor::setIsFriendCallback(LLAvatarActions::isFriend);
 	LLTextEditor::addMenuListeners();
+
+	addMenu(new MarketplaceViewSortAction, "Marketplace.ViewSort.Action");
+	addMenu(new MarketplaceViewSortCheckItem, "Marketplace.ViewSort.CheckItem");
 
 	class LLViewBuildMode : public view_listener_t
 	{
