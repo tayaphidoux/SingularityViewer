@@ -375,18 +375,15 @@ LLPostProcess::LLPostProcess(void) :
 
 	LLSD& defaults = mAllEffectInfo["Default"];
 
-	for(std::list<LLPointer<LLPostProcessShader> >::iterator it=mShaders.begin();it!=mShaders.end();++it)
+	// Add defaults for all missing effects
+	for(auto& shader : mShaders)
 	{
-		LLSD shader_defaults = (*it)->getDefaults();
+		const LLSD shader_defaults = shader->getDefaults();
 		for (LLSD::map_const_iterator it2 = defaults.beginMap();it2 != defaults.endMap();++it2)
 		{
 			if(!defaults.has(it2->first))
 				defaults[it2->first]=it2->second;
 		}
-	}
-	for(std::list<LLPointer<LLPostProcessShader> >::iterator it=mShaders.begin();it!=mShaders.end();++it)
-	{
-		(*it)->loadSettings(defaults);
 	}
 	setSelectedEffect("Default");
 }
