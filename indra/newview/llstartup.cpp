@@ -1590,9 +1590,9 @@ bool idle_startup()
 				if (!secondlife ||
 					!boost::algorithm::iequals(lastname, "Resident"))
 				{
-					name += " " + lastname;
+					name += ' ' + lastname;
 				}
-				if (gSavedSettings.getBOOL("LiruGridInTitle")) gWindowTitle += "- " + gHippoGridManager->getCurrentGrid()->getGridName() + " ";
+				if (gSavedSettings.getBOOL("LiruGridInTitle")) gWindowTitle += "- " + gHippoGridManager->getCurrentGrid()->getGridName() + ' ';
 				gViewerWindow->getWindow()->setTitle(gWindowTitle += "- " + name);
 
 				if (!secondlife)
