@@ -9332,7 +9332,7 @@ struct MarketplaceViewSortCheckItem : view_listener_t
 {
 	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 	{
-		LLMenuGL::sMenuContainer->findControl(userdata["control"].asString())
+		gMenuHolder->findControl(userdata["control"].asString())
 			->setValue(LLFloaterMarketplaceListings::findInstance()->mPanelListings->onViewSortMenuItemCheck(userdata["data"]));
 		return true;
 	}
