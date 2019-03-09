@@ -1163,18 +1163,18 @@ bool LLAppViewer::mainLoop()
 	BOOL restore_rendering_masks = FALSE;
 
 	// Handle messages
-	while (!LLApp::isExiting())
+	try
 	{
-		LLFastTimer::nextFrame(); // Should be outside of any timer instances
-
-		//clear call stack records
-		LL_CLEAR_CALLSTACKS();
-
-		//check memory availability information
-		checkMemory() ;
-		
-		try
+		while (!LLApp::isExiting())
 		{
+			LLFastTimer::nextFrame(); // Should be outside of any timer instances
+
+			//clear call stack records
+			LL_CLEAR_CALLSTACKS();
+
+			//check memory availability information
+			checkMemory() ;
+		
 			// Check if we need to restore rendering masks.
 			if (restore_rendering_masks)
 			{
@@ -1227,12 +1227,10 @@ bool LLAppViewer::mainLoop()
 			
 #endif
 			//memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance =
-				LLFloaterMemLeak::getInstance();
-			if(mem_leak_instance)
+			if (auto mem_leak_instance = LLFloaterMemLeak::getInstance())
 			{
-				mem_leak_instance->idle() ;				
-			}			
+				mem_leak_instance->idle();
+			}
 
 			// canonical per-frame event
 			mainloop.post(newFrame);
@@ -1414,54 +1412,29 @@ bool LLAppViewer::mainLoop()
 					// LLAppViewer::getTextureFetch()->pause(); // Don't pause the fetch (IO) thread
 				}
 				//LLVFSThread::sLocal->pause(); // Prevent the VFS thread from running while rendering.
-				//LLLFSThread::sLocal->pause(); // Prevent the LFS thread from running while rendering.
 
 				resumeMainloopTimeout();
 	
 				pingMainloopTimeout("Main:End");
 			}
 		}
-		catch(std::bad_alloc)
-		{			
-			LLMemory::logMemoryInfo(TRUE) ;
 
-			//stop memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance =
-				LLFloaterMemLeak::getInstance();
-			if(mem_leak_instance)
-			{
-				mem_leak_instance->stop() ;				
-				LL_WARNS() << "Bad memory allocation in LLAppViewer::mainLoop()!" << LL_ENDL ;
-			}
-			else
-			{
-				//output possible call stacks to log file.
-				LLError::LLCallStacks::print() ;
-
-				LL_ERRS() << "Bad memory allocation in LLAppViewer::mainLoop()!" << LL_ENDL ;
-			}
-		}
-	}
-
-	// Save snapshot for next time, if we made it through initialization
-	if (STATE_STARTED == LLStartUp::getStartupState())
-	{
-		try
-		{
+		// Save snapshot for next time, if we made it through initialization
+		if (STATE_STARTED == LLStartUp::getStartupState())
 			saveFinalSnapshot();
-		}
-		catch(std::bad_alloc)
-		{
-			LL_WARNS() << "Bad memory allocation when saveFinalSnapshot() is called!" << LL_ENDL ;
+	}
+	catch(std::bad_alloc)
+	{
+		LLMemory::logMemoryInfo(TRUE);
 
-			//stop memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance =
-				LLFloaterMemLeak::getInstance();
-			if(mem_leak_instance)
-			{
-				mem_leak_instance->stop() ;				
-			}	
-		}
+		//stop memory leaking simulation
+		if (auto mem_leak_instance = LLFloaterMemLeak::getInstance())
+			mem_leak_instance->stop();
+
+		//output possible call stacks to log file.
+		LLError::LLCallStacks::print();
+
+		LL_ERRS() << "Bad memory allocation in LLAppViewer::mainLoop()!" << LL_ENDL;
 	}
 	
 	delete gServicePump;
