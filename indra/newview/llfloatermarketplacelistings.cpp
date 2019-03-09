@@ -106,22 +106,22 @@ void LLPanelMarketplaceListings::buildAllPanels()
 	// Build the All panel first
 	LLInventoryPanel* panel_all_items;
 	panel_all_items = buildInventoryPanel("All Items", "panel_marketplace_listings_inventory.xml");
-	//panel_all_items->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
+	panel_all_items->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel_all_items->getFilter().markDefault();
 
 	// Build the other panels
 	LLInventoryPanel* panel;
 	panel = buildInventoryPanel("Active Items", "panel_marketplace_listings_listed.xml");
 	panel->getFilter().setFilterMarketplaceActiveFolders();
-	//panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
+	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
 	panel = buildInventoryPanel("Inactive Items", "panel_marketplace_listings_unlisted.xml");
 	panel->getFilter().setFilterMarketplaceInactiveFolders();
-	//panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
+	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
 	panel = buildInventoryPanel("Unassociated Items", "panel_marketplace_listings_unassociated.xml");
 	panel->getFilter().setFilterMarketplaceUnassociatedFolders();
-	//panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
+	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
 
 	// Set the tab panel

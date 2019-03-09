@@ -957,7 +957,7 @@ void LLFolderView::draw()
 		}
 		else
 		{
-			mStatusText = LLTrans::getString("InventoryNoMatchingItems"); //, args);
+			mStatusText = getFilter().getEmptyLookupMessage();
 		}
 		mStatusTextBox->setWrappedText(mStatusText);
 		mStatusTextBox->setVisible( TRUE );

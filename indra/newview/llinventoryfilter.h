@@ -240,6 +240,9 @@ public:
 	void 				setShowFolderState( EFolderShow state);
 	EFolderShow 		getShowFolderState() const;
 
+	void 				setEmptyLookupMessage(const std::string& message);
+	std::string			getEmptyLookupMessage() const;
+
 	void 				setSortOrder(U32 order);
 	U32 				getSortOrder() const;
 

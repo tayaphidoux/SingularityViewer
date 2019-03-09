@@ -73,6 +73,7 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	mFilterSubString(p.substring),
 	mName(p.name),
 	mFilterModified(FILTER_NONE),
+	mEmptyLookupMessage("InventoryNoMatchingItems"),
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
 	mFirstSuccessGeneration(0)
@@ -1288,6 +1289,20 @@ S32 LLInventoryFilter::getFirstSuccessGeneration() const
 S32 LLInventoryFilter::getFirstRequiredGeneration() const 
 { 
 	return mFirstRequiredGeneration; 
+}
+
+void LLInventoryFilter::setEmptyLookupMessage(const std::string& message)
+{
+	mEmptyLookupMessage = message;
+}
+
+std::string LLInventoryFilter::getEmptyLookupMessage() const
+{
+	LLStringUtil::format_map_t args;
+	args["[SEARCH_TERM]"] = LLURI::escape(getFilterSubStringOrig());
+
+	return LLTrans::getString(mEmptyLookupMessage, args);
+
 }
 
 bool LLInventoryFilter::areDateLimitsSet()
