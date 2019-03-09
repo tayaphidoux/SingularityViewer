@@ -140,13 +140,6 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder) const
 
 bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 {
-	// when applying a filter, matching folders get their contents downloaded first
-	if (isNotDefault()
-		&& !gInventory.isCategoryComplete(folder_id))
-	{
-		LLInventoryModelBackgroundFetch::instance().start(folder_id);
-	}
-
 	// Always check against the clipboard
 	const BOOL passed_clipboard = checkAgainstClipboard(folder_id);
 
