@@ -41,6 +41,7 @@
 #include "llfolderview.h"
 #include "llinventorybridge.h"
 #include "llviewerfoldertype.h"
+#include "llstartup.h"
 #include "llagentwearables.h"
 #include "llvoavatarself.h"
 
@@ -266,15 +267,10 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 	// Pass if this item is the target UUID or if it links to the target UUID
 	if (filterTypes & FILTERTYPE_UUID)
 	{
-		if (!object)
-		{
-			return FALSE;
-		}
+		if (!object) return FALSE;
 
 		if (object->getLinkedUUID() != mFilterOps.mFilterUUID)
-		{
 			return FALSE;
-		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -316,9 +312,7 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 		LLWearableType::EType type = listener->getWearableType();
 		if ((0x1LL << type & mFilterOps.mFilterWearableTypes) == 0)
 		{
-			{
-				return FALSE;
-			}
+			return FALSE;
 		}
 	}
 
@@ -333,7 +327,11 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 			if (is_hidden_if_empty)
 			{
 				// Force the fetching of those folders so they are hidden if they really are empty...
-				gInventory.fetchDescendentsOf(object_id);
+				// But don't interfere with startup download
+				if (LLStartUp::getStartupState() > STATE_WEARABLES_WAIT)
+				{
+					gInventory.fetchDescendentsOf(object_id);
+				}
 
 				LLInventoryModel::cat_array_t* cat_array = NULL;
 				LLInventoryModel::item_array_t* item_array = NULL;

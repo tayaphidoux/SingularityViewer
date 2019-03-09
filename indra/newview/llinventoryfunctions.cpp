@@ -249,6 +249,7 @@ void update_marketplace_folder_hierarchy(const LLUUID cat_id)
 		LLInventoryCategory* category = *iter;
 		update_marketplace_folder_hierarchy(category->getUUID());
 	}
+    return;
 }
 
 void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistency_enforcement)
@@ -262,7 +263,9 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
 	// is limited to 4.
 	// We also take care of degenerated cases so we don't update all folders in the inventory by mistake.
 
-	if (cur_uuid.isNull())
+    if (cur_uuid.isNull()
+        || gInventory.getCategory(cur_uuid) == NULL
+        || gInventory.getCategory(cur_uuid)->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
 	{
 		return;
 	}
@@ -273,9 +276,13 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
 	{
 		// Retrieve the listing uuid this object is in
 		LLUUID listing_uuid = nested_parent_id(cur_uuid, depth);
+        LLViewerInventoryCategory* listing_cat = gInventory.getCategory(listing_uuid);
+        bool listing_cat_loaded = listing_cat != NULL && listing_cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN;
 
 		// Verify marketplace data consistency for this listing
-		if (perform_consistency_enforcement && LLMarketplaceData::instance().isListed(listing_uuid))
+        if (perform_consistency_enforcement
+            && listing_cat_loaded
+            && LLMarketplaceData::instance().isListed(listing_uuid))
 		{
 			LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolder(listing_uuid);
 			S32 version_depth = depth_nesting_in_marketplace(version_folder_uuid);
@@ -284,7 +291,11 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
 				LL_INFOS("SLM") << "Unlist and clear version folder as the version folder is not at the right place anymore!!" << LL_ENDL;
 				LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null,1);
 			}
-			else if (version_folder_uuid.notNull() && LLMarketplaceData::instance().getActivationState(version_folder_uuid) && (count_descendants_items(version_folder_uuid) == 0) && !LLMarketplaceData::instance().isUpdating(version_folder_uuid,version_depth))
+            else if (version_folder_uuid.notNull()
+                     && gInventory.isCategoryComplete(version_folder_uuid)
+                     && LLMarketplaceData::instance().getActivationState(version_folder_uuid)
+                     && (count_descendants_items(version_folder_uuid) == 0)
+                     && !LLMarketplaceData::instance().isUpdating(version_folder_uuid,version_depth))
 			{
 				LL_INFOS("SLM") << "Unlist as the version folder is empty of any item!!" << LL_ENDL;
 				LLNotificationsUtil::add("AlertMerchantVersionFolderEmpty");
@@ -293,7 +304,9 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
 		}
 
 		// Check if the count on hand needs to be updated on SLM
-		if (perform_consistency_enforcement && (compute_stock_count(listing_uuid) != LLMarketplaceData::instance().getCountOnHand(listing_uuid)))
+        if (perform_consistency_enforcement
+            && listing_cat_loaded
+            && (compute_stock_count(listing_uuid) != LLMarketplaceData::instance().getCountOnHand(listing_uuid)))
 		{
 			LLMarketplaceData::instance().updateCountOnHand(listing_uuid,1);
 		}
@@ -322,6 +335,8 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
 			update_marketplace_folder_hierarchy(cur_uuid);
 		}
 	}
+
+    return;
 }
 
 // Iterate through the marketplace and flag for label change all categories that countain a stock folder (i.e. stock folders and embedding folders up the hierarchy)
@@ -967,6 +982,7 @@ int get_folder_levels(LLInventoryCategory* inv_cat)
 	gInventory.getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
 
 	int max_child_levels = 0;
+
 	for (U32 i = 0; i < cats->size(); ++i)
 	{
 		LLInventoryCategory* category = cats->at(i);
@@ -1134,7 +1150,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
 	int incoming_folder_depth = get_folder_levels(inv_cat);
 	// Compute the nested folders level we're inserting ourselves in
 	// Note: add 1 when inserting under a listing folder as we need to take the root listing folder in the count
-	int insertion_point_folder_depth = (root_folder ? get_folder_path_length(root_folder->getUUID(), dest_folder->getUUID()) + 1 : 0);
+    int insertion_point_folder_depth = (root_folder ? get_folder_path_length(root_folder->getUUID(), dest_folder->getUUID()) + 1 : 1);
 
 	// Get the version folder: that's where the folders and items counts start from
 	const LLViewerInventoryCategory* version_folder = (insertion_point_folder_depth >= 2 ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
