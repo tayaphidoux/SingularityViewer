@@ -56,6 +56,7 @@
 #include "llpathfindingnavmeshstatus.h"
 #include "llimview.h"
 #include "lltextbox.h"
+#include "lltrans.h"
 #include "llui.h"
 #include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
@@ -674,6 +675,8 @@ void LLStatusBar::setUPC(S32 upc)
 // static
 void LLStatusBar::sendMoneyBalanceRequest()
 {
+	void cmdline_printchat(const std::string& message);
+	cmdline_printchat(LLTrans::getString("refreshing balance"));
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_MoneyBalanceRequest);
 	msg->nextBlockFast(_PREHASH_AgentData);

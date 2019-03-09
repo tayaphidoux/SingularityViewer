@@ -3071,6 +3071,7 @@ Where tag = tag string to match.  Removes bot's matching the tag.
     <string name="ScriptCountObject">Counted [SCRIPTS] scripts in [OBJECTS] objects. ([RUNNING] running, [MONO] mono.)</string>
     <string name="ScriptDeleteObject">Deleted [SCRIPTS] scripts in [OBJECTS] objects.</string>
     <string name="took_a_snapshot">took a snapshot</string>
+    <string name="refreshing balance">Refreshing [CURRENCY] balance</string>
 
     <!-- Radar Alert Strings -->
     <string name="radar_alert_template">[NAME] [ACTION] [RANGE].</string>
