@@ -80,7 +80,7 @@
   <check_box label="Hacer Vestuario" name="make_outfit_btn"/>
   <check_box label="Vestuarios" name="outfits_btn"/>
   <check_box label="Favoritos" name="favs_btn"/>
-  <check_box label="Buzón de Salida" name="outbox_btn"/>
+  <check_box label="Artículos del Mercado" name="marketplace_listings_btn"/>
   <check_box label="Preferencias" name="preferences_btn"/>
   <check_box label="Configuración Joystick" name="joystick_btn"/>
   <check_box label="Reemplazo Automático" name="auto_replace_btn"/>

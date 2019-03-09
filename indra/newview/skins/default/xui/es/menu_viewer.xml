@@ -126,7 +126,7 @@
 		<menu_item_call label="Liberar Teclas" name="Release Keys"/>
 		<menu_item_call label="Historial de la Cuenta..." name="Account History..."/>
 		<menu_item_call label="Administrar mi Cuenta..." name="Manage My Account..."/>
-        <menu_item_check label="Buzón de Salida de Comerciante..." name="MerchantOutbox"/>
+        <menu_item_check label="Artículos del Mercado..." name="MarketplaceListings"/>
 		<menu_item_call label="Comprar [CURRENCY]..." name="Buy and Sell L$..."/>
         <menu_item_call label="Mis Vestuarios" name="My Outfits"/>
         <menu_item_call label="Favoritos" name="Favorites"/>
