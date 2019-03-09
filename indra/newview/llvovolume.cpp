@@ -1193,7 +1193,7 @@ void LLVOVolume::sculpt()
 					   
 			sculpt_data = raw_image->getData();
 		}
-		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level);
+		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level, mSculptTexture->isMissingAsset());
 
 		//notify rebuild any other VOVolumes that reference this sculpty volume
 		for (S32 i = 0; i < mSculptTexture->getNumVolumes(); ++i)
@@ -4111,6 +4111,9 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);
 	LLSkinningUtil::initSkinningMatrixPalette(mat, maxJoints, skin, avatar, true);
 
+	LLMatrix4a bind_shape_matrix;
+	bind_shape_matrix.loadu(skin->mBindShapeMatrix);
+
 	LLVector4a av_pos;
 	av_pos.load3(avatar->getPosition().mV);
 
@@ -4127,8 +4130,6 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 			continue;
 		}
 		LLSkinningUtil::checkSkinWeights(weight, dst_face.mNumVertices, skin);
-		LLMatrix4a bind_shape_matrix;
-		bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 
 		LLVector4a* pos = dst_face.mPositions;
 
@@ -4143,11 +4144,9 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 				LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
 				
 				LLVector4a& v = vol_face.mPositions[j];
-				LLVector4a t;
-				LLVector4a dst;
-				bind_shape_matrix.affineTransform(v, t);
-				final_mat.affineTransform(t, dst);
-				pos[j] = dst;
+
+				final_mat.mul(bind_shape_matrix);
+				final_mat.affineTransform(v, pos[j]);
 
 				pos[j].add(av_pos);
 			}
@@ -6166,7 +6165,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 
 				if (material_pass)
 				{
-					U32 pass[] = 
+					static const U32 pass[] = 
 					{
 						LLRenderPass::PASS_MATERIAL,
 						LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_MATERIAL_ALPHA,

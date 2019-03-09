@@ -57,6 +57,7 @@ public:
 	float mPelvisOffset;
 	bool mLockScaleIfJointPosition;
 	bool mInvalidJointsScrubbed;
+	bool mJointNumsInitialized;
 };
 
 class LLModel : public LLVolume
@@ -158,9 +159,6 @@ public:
 	EModelStatus getStatus() const {return mStatus;}
 	static std::string getStatusString(U32 status) ;
 
-	void appendFaces(LLModel* model, LLMatrix4& transform, LLMatrix4& normal_transform);
-	void appendFace(const LLVolumeFace& src_face, std::string src_material, LLMatrix4& mat, LLMatrix4& norm_mat);
-
 	void setNumVolumeFaces(S32 count);
 	void setVolumeFaceData(
 		S32 f, 
@@ -177,7 +175,7 @@ public:
 
 	void sortVolumeFacesByMaterialName();
 	void normalizeVolumeFaces();
-	void trimVolumeFacesToSize(S32 new_count = LL_SCULPT_MESH_MAX_FACES, LLVolume::face_list_t* remainder = NULL);
+	void trimVolumeFacesToSize(U32 new_count = LL_SCULPT_MESH_MAX_FACES, LLVolume::face_list_t* remainder = NULL);
 	void optimizeVolumeFaces();
 	void offsetMesh( const LLVector3& pivotPoint );
 	void getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out);

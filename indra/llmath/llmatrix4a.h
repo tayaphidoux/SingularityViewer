@@ -700,4 +700,12 @@ public:
 	}
 } LL_ALIGN_POSTFIX(16);
 
+
+inline std::ostream& operator<<(std::ostream& s, const LLMatrix4a& m)
+{
+    s << "[" << m.getF32ptr()[0] << ", " << m.getF32ptr()[1] << ", " << m.getF32ptr()[2] << ", " << m.getF32ptr()[3] << "]";
+    return s;
+} 
+
+void matMulBoundBox(const LLMatrix4a &a, const LLVector4a *in_extents, LLVector4a *out_extents);
 #endif

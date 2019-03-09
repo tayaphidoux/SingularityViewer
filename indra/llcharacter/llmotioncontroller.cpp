@@ -126,22 +126,22 @@ LLMotion* LLMotionRegistry::createMotion(LLUUID const& id, LLMotionController* c
 // Class Constructor
 //-----------------------------------------------------------------------------
 LLMotionController::LLMotionController()
-	: mIsSelf(FALSE),
-	  mTimeFactor(sCurrentTimeFactor),
+	: mTimeFactor(sCurrentTimeFactor),
 	  mCharacter(NULL),
+	  mAnimTime(0.f),
 	  mActiveMask(0),
 	  mDisableSyncing(0),
 	  mHidden(false),
 	  mHaveVisibleSyncedMotions(false),
 	  mPrevTimerElapsed(0.f),
-	  mAnimTime(0.f),
 	  mLastTime(0.0f),
 	  mHasRunOnce(FALSE),
 	  mPaused(FALSE),
-	  mPauseTime(0.f),
+	  mPausedFrame(0),
 	  mTimeStep(0.f),
 	  mTimeStepCount(0),
-	  mLastInterp(0.f)
+	  mLastInterp(0.f),
+	  mIsSelf(FALSE)
 {
 }
 
@@ -467,7 +467,7 @@ BOOL LLMotionController::stopMotionLocally(const LLUUID &id, BOOL stop_immediate
 {
 	// if already inactive, return false
 	LLMotion *motion = findMotion(id);
-	return stopMotionInstance(motion, stop_immediate);
+	return stopMotionInstance(motion, stop_immediate||mPaused);
 }
 
 BOOL LLMotionController::stopMotionInstance(LLMotion* motion, BOOL stop_immediate)
@@ -1312,6 +1312,7 @@ void LLMotionController::pauseAllMotions()
 	{
 		//LL_INFOS() << "Pausing animations..." << LL_ENDL;
 		mPaused = TRUE;
+        mPausedFrame = LLFrameTimer::getFrameCount();
 	}
 	
 }

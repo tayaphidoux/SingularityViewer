@@ -352,7 +352,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 		// pass animation data through memory buffer
 		loaderp->serialize(dp);
 		dp.reset();
-				success = motionp && motionp->deserialize(dp);
+				success = motionp && motionp->deserialize(dp, mMotionID);
 			}
 			else
 			{
@@ -411,7 +411,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 				motionp = (LLKeyframeMotion*)mAnimPreview->getDummyAvatar()->createMotion(mMotionID);
 				LLDataPackerBinaryBuffer dp((U8*)file_buffer, file_size);
 				dp.reset();
-				success = motionp && motionp->deserialize(dp);
+				success = motionp && motionp->deserialize(dp, mMotionID);
 			}
 
 			raw_animatn.close();

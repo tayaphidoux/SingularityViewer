@@ -110,9 +110,9 @@ void LLModel::optimizeVolumeFaces()
 {
 	for (U32 i = 0; i < (U32)getNumVolumeFaces(); ++i)
 	{
-		validate_face(mVolumeFaces[i]);
+		//validate_face(mVolumeFaces[i]);
 		mVolumeFaces[i].optimize();
-		validate_face(mVolumeFaces[i]);
+		//validate_face(mVolumeFaces[i]);
 	}
 }
 
@@ -161,11 +161,11 @@ void LLModel::sortVolumeFacesByMaterialName()
 	mVolumeFaces = new_faces;	
 }
 
-void LLModel::trimVolumeFacesToSize(S32 new_count, LLVolume::face_list_t* remainder)
+void LLModel::trimVolumeFacesToSize(U32 new_count, LLVolume::face_list_t* remainder)
 {
 	llassert(new_count <= LL_SCULPT_MESH_MAX_FACES);
 
-	if (new_count && (getNumVolumeFaces() > new_count))
+	if (new_count && ((U32)getNumVolumeFaces() > new_count))
 	{
 		// Copy out remaining volume faces for alternative handling, if provided
 		//
@@ -407,40 +407,6 @@ void LLModel::setVolumeFaceData(
 	LLVector4a::memcpyNonAliased16((F32*) face.mIndices, (F32*) ind.get(), size);
 }
 
-void LLModel::appendFaces(LLModel *model, LLMatrix4 &transform, LLMatrix4& norm_mat)
-{
-	if (mVolumeFaces.empty())
-	{
-		setNumVolumeFaces(1);
-	}
-
-	LLVolumeFace& face = mVolumeFaces[mVolumeFaces.size()-1];
-
-
-	for (S32 i = 0; i < model->getNumFaces(); ++i)
-	{
-		face.appendFace(model->getVolumeFace(i), transform, norm_mat);
-	}
-
-}
-
-void LLModel::appendFace(const LLVolumeFace& src_face, std::string src_material, LLMatrix4& mat, LLMatrix4& norm_mat)
-{
-	S32 rindex = getNumVolumeFaces()-1; 
-	if (rindex == -1 || 
-		mVolumeFaces[rindex].mNumVertices + src_face.mNumVertices >= 65536)
-	{ //empty or overflow will occur, append new face
-		LLVolumeFace cur_face;
-		cur_face.appendFace(src_face, mat, norm_mat);
-		addFace(cur_face);
-		mMaterialList.push_back(src_material);
-	}
-	else
-	{ //append to existing end face
-		mVolumeFaces.rbegin()->appendFace(src_face, mat, norm_mat);
-	}
-}
-
 void LLModel::addFace(const LLVolumeFace& face)
 {
 	if (face.mNumVertices == 0)
@@ -523,9 +489,9 @@ void LLModel::generateNormals(F32 angle_cutoff)
 		}
 
 		//weld vertices in temporary face, respecting angle_cutoff (step 2)
-		validate_face(faceted);
+		//validate_face(faceted);
 		faceted.optimize(angle_cutoff);
-		validate_face(faceted);
+		//validate_face(faceted);
 
 		//generate normals for welded face based on new topology (step 3)
 
@@ -657,9 +623,9 @@ void LLModel::generateNormals(F32 angle_cutoff)
 		}
 		
 		//remove redundant vertices from new face (step 6)
-		validate_face(new_face);
+		//validate_face(new_face);
 		new_face.optimize();
-		validate_face(new_face);
+		//validate_face(new_face);
 
 		mVolumeFaces[j] = new_face;
 	}
@@ -1043,12 +1009,14 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	{  //no exact match found, get closest point
 		const F32 epsilon = 1e-5f;
 		weight_map::iterator iter_up = mSkinWeights.lower_bound(pos);
-		weight_map::iterator iter_down = ++iter_up;
-
+		weight_map::iterator iter_down = iter_up;
+		if (iter_up != mSkinWeights.end())
+		{
+			iter_down = ++iter_up;
+		}
 		weight_map::iterator best = iter_up;
 
-		// iter == mSkinWeights.end()...
-		F32 min_dist = (iter_up->first - pos).magVec();
+		F32 min_dist = (iter->first - pos).magVec();
 
 		bool done = false;
 		while (!done)
@@ -1399,14 +1367,16 @@ bool LLModel::loadDecomposition(LLSD& header, std::istream& is)
 LLMeshSkinInfo::LLMeshSkinInfo():
     mPelvisOffset(0.0),
     mLockScaleIfJointPosition(false),
-    mInvalidJointsScrubbed(false)
+    mInvalidJointsScrubbed(false),
+    mJointNumsInitialized(false)
 {
 }
 
 LLMeshSkinInfo::LLMeshSkinInfo(LLSD& skin):
     mPelvisOffset(0.0),
     mLockScaleIfJointPosition(false),
-    mInvalidJointsScrubbed(false)
+    mInvalidJointsScrubbed(false),
+    mJointNumsInitialized(false)
 {
 	fromLLSD(skin);
 }
