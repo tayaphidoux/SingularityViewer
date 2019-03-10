@@ -1240,6 +1240,18 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 		// set last arrange generation first, in case children are animating
 		// and need to be arranged again
 		mLastArrangeGeneration = getRoot()->getArrangeGeneration();
+
+		// Hide marketplaces top level folders that don't match the filter for this view
+		if (!mHasVisibleChildren && filtered && mListener)
+		{
+			if (depth_nesting_in_marketplace(mListener->getUUID()) == 1)
+			{
+				setVisible(false);
+				// Setting mItemHeight to 0 here fixes the stutter when opening other folders, but it breaks the overall display
+				/*mItemHeight =*/ mCurHeight = target_height = 0;
+			}
+		}
+
 		if (mIsOpen)
 		{
 			// Add sizes of children
