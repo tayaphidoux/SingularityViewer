@@ -97,7 +97,7 @@ bool LLInventoryFilter::check(LLFolderViewItem* item)
 	const bool passed_clipboard = listener && item_id.notNull() ? checkAgainstClipboard(item_id) : true;
 
 	// If it's a folder and we're showing all folders, return automatically.
-	const BOOL is_folder = (dynamic_cast<const LLFolderViewFolder*>(item) != NULL);
+	const BOOL is_folder = listener->getInventoryType() == LLInventoryType::IT_CATEGORY;
 	if (is_folder && (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS))
 	{
 		return passed_clipboard;
@@ -151,8 +151,10 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	}
 
 	// when applying a filter, matching folders get their contents downloaded first
+	// but make sure we are not interfering with pre-download
 	if (isNotDefault()
-		&& !gInventory.isCategoryComplete(folder_id))
+		&& !gInventory.isCategoryComplete(folder_id)
+		&& LLStartUp::getStartupState() > STATE_WEARABLES_WAIT)
 	{
 		LLInventoryModelBackgroundFetch::instance().start(folder_id);
 	}
