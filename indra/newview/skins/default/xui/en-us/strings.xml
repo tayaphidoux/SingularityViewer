@@ -3156,7 +3156,8 @@ The
 	<string name="InventoryOutboxErrorSubs">Marketplace store</string>
 	<string name="InventoryOutboxError2">is returning errors.</string>
 	<string name="InventoryMarketplaceError">
-This feature is currently in Beta. Please add your name to this [http://goo.gl/forms/FCQ7UXkakz Google form] if you would like to participate.
+An error occurred while opening Marketplace Listings.
+If you continue to receive this message, please contact Second Life support for assistance at http://support.secondlife.com
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">Your Marketplace Listings folder is empty.</string>
 	<string name="InventoryMarketplaceListingsNoItemsTooltip"></string>
@@ -3166,7 +3167,7 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 
 	<string name="Marketplace Validation Log"></string>
 	<string name="Marketplace Validation Warning Stock">stock folder must be contained by a version folder</string>
-	<string name="Marketplace Validation Warning Stock">stock folder must be contained by a version folder</string>
+	<string name="Marketplace Validation Error Mixed Stock">: Error: all items in a stock folder must be no-copy and of the same type</string>
 	<string name="Marketplace Validation Error Subfolder In Stock">: Error: stock folder cannot contain subfolders</string>
 	<string name="Marketplace Validation Warning Empty">: Warning: folder doesn't contain any items</string>
 	<string name="Marketplace Validation Warning Create Stock">: Warning: creating stock folder</string>
