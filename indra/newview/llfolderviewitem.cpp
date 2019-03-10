@@ -1190,7 +1190,8 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 		mNeedsSort = false;
 	}
 
-	mHasVisibleChildren = hasFilteredDescendants(filter_generation);
+	bool filtered = !getFilteredFolder(filter_generation);
+	mHasVisibleChildren = !filtered && hasFilteredDescendants(filter_generation);
 	if (mHasVisibleChildren)
 	{
 		// We have to verify that there's at least one child that's not filtered out
