@@ -211,7 +211,7 @@ void log_SLM_infos(const std::string& request, const std::string& url, const std
 	}
 }
 
-class LLSLMGetMerchantResponder : public LLHTTPClient::ResponderWithResult
+class LLSLMGetMerchantResponder : public LLHTTPClient::ResponderWithCompleted
 {
 	LOG_CLASS(LLSLMGetMerchantResponder);
 public:
@@ -219,43 +219,43 @@ public:
 	LLSLMGetMerchantResponder() {}
 
 protected:
-	void httpFailure() override
+	void completedRaw(const LLChannelDescriptors& channels, const LLIOPipe::buffer_ptr_t& buffer) override
 	{
 		S32 httpCode = getStatus();
 
-		if (httpCode == HTTP_NOT_FOUND)
+		if (!isGoodStatus(mStatus))
 		{
-			log_SLM_infos("Get /merchant", httpCode, std::string("User is not a merchant"));
-			LLMarketplaceData::instance().
-				setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
+			if (httpCode == HTTP_NOT_FOUND)
+			{
+				log_SLM_infos("Get /merchant", httpCode, std::string("User is not a merchant"));
+				LLMarketplaceData::instance().
+					setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
+			}
+			else if (httpCode == HTTP_SERVICE_UNAVAILABLE)
+			{
+				log_SLM_infos("Get /merchant", httpCode, std::string("Merchant is not migrated"));
+				LLMarketplaceData::instance().
+					setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
+			}
+			else if (httpCode == 499)
+			{
+				const auto& content(getContent());
+				// 499 includes timeout and ssl error - marketplace is down or having issues, we do not show it in this request according to MAINT-5938
+				LL_WARNS("SLM") << "SLM Merchant Request failed with status: " << httpCode
+					<< ", reason : " << getReason()
+					<< ", code : " << content.get("error_code")
+					<< ", description : " << content.get("error_description") << LL_ENDL;
+				LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
+			}
+			else
+			{
+				log_SLM_warning("Get /merchant", httpCode, getReason(), LLStringUtil::null, getContent());
+				LLMarketplaceData::instance().
+					setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
+			}
+			return;
 		}
-		else if (httpCode == HTTP_SERVICE_UNAVAILABLE)
-		{
-			log_SLM_infos("Get /merchant", httpCode, std::string("Merchant is not migrated"));
-			LLMarketplaceData::instance().
-				setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
-		}
-		else if (httpCode == 499)
-		{
-			const auto& content(getContent());
-			// 499 includes timeout and ssl error - marketplace is down or having issues, we do not show it in this request according to MAINT-5938
-			LL_WARNS("SLM") << "SLM Merchant Request failed with status: " << httpCode
-				<< ", reason : " << getReason()
-				<< ", code : " << content.get("error_code")
-				<< ", description : " << content.get("error_description") << LL_ENDL;
-			LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
-		}
-		else
-		{
-			log_SLM_warning("Get /merchant", httpCode, getReason(), LLStringUtil::null, getContent());
-			LLMarketplaceData::instance().
-			setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
-		}
-		return;
-	}
 
-	void httpSuccess() override
-	{
 		log_SLM_infos("Get /merchant", getStatus(), "User is a merchant");
 		LLMarketplaceData::instance().
 			setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
