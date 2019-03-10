@@ -9773,8 +9773,9 @@ void LLVOAvatar::updateSoftwareSkinnedVertices(const LLMeshSkinInfo* skin, const
 
 		LLVector4a& v = vol_face.mPositions[j];
 
-		final_mat.mul(bind_shape_matrix);
-		final_mat.affineTransform(v, pos[j]);
+		LLVector4a t;
+		bind_shape_matrix.affineTransform(v, t);
+		final_mat.affineTransform(t, pos[j]);
 
 		pos[j].add(av_pos);
 
