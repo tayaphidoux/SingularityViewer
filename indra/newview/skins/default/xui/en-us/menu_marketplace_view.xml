@@ -8,30 +8,30 @@
         name="sort_by_name">
         <menu_item_check.on_click
         function="Marketplace.ViewSort.Action"
-        parameter="sort_by_name" />
+        userdata="sort_by_name" />
         <menu_item_check.on_check
         function="Marketplace.ViewSort.CheckItem"
-        parameter="sort_by_name" />
+        userdata="sort_by_name" />
     </menu_item_check>
     <menu_item_check
         label="Sort by most recent"
         name="sort_by_recent">
         <menu_item_check.on_click
         function="Marketplace.ViewSort.Action"
-        parameter="sort_by_recent" />
+        userdata="sort_by_recent" />
         <menu_item_check.on_check
         function="Marketplace.ViewSort.CheckItem"
-        parameter="sort_by_recent" />
+        userdata="sort_by_recent" />
     </menu_item_check>
     <menu_item_check
         label="Sort by stock amount (low to high)"
         name="sort_by_stock_amount">
         <menu_item_check.on_click
         function="Marketplace.ViewSort.Action"
-        parameter="sort_by_stock_amount"/>
+        userdata="sort_by_stock_amount"/>
         <menu_item_check.on_check
         function="Marketplace.ViewSort.CheckItem"
-        parameter="sort_by_stock_amount"/>
+        userdata="sort_by_stock_amount"/>
     </menu_item_check>
     <menu_item_separator
     layout="topleft" />
@@ -40,9 +40,9 @@
         name="show_only_listing_folders">
         <menu_item_check.on_click
         function="Marketplace.ViewSort.Action"
-        parameter="show_only_listing_folders"/>
+        userdata="show_only_listing_folders"/>
         <menu_item_check.on_check
         function="Marketplace.ViewSort.CheckItem"
-        parameter="show_only_listing_folders"/>
+        userdata="show_only_listing_folders"/>
     </menu_item_check>
 </menu>
