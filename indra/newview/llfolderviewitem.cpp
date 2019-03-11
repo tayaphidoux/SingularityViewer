@@ -1594,6 +1594,8 @@ void LLFolderViewFolder::dirtyFilter()
 {
 	// we're a folder, so invalidate our completed generation
 	setCompletedFilterGeneration(-1, FALSE);
+	for (auto folder : mFolders) // Dirty our children's filters too, so they get updated.
+		folder->dirtyFilter();
 	LLFolderViewItem::dirtyFilter();
 }
 
