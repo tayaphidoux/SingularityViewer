@@ -888,7 +888,6 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFolderViewItem::draw()
 {
-	if (!getFiltered()) return;
 	static LLCachedControl<LLColor4> sFgColor(gColors, "MenuItemEnabledColor", LLColor4::white );
 	static LLCachedControl<LLColor4> sHighlightBgColor(gColors, "MenuItemHighlightBgColor", LLColor4::white );
 	static LLCachedControl<LLColor4> sHighlightFgColor(gColors, "MenuItemHighlightFgColor", LLColor4::white );
@@ -2572,7 +2571,6 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 
 void LLFolderViewFolder::draw()
 {
-	if (!getFiltered()) return;
 	if (mAutoOpenCountdown != 0.f)
 	{
 		mControlLabelRotation = mAutoOpenCountdown * -90.f;
