@@ -1192,37 +1192,6 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 	}
 
 	bool filtered = !getFilteredFolder(filter_generation);
-	mHasVisibleChildren = !filtered && hasFilteredDescendants(filter_generation);
-	if (mHasVisibleChildren)
-	{
-		// We have to verify that there's at least one child that's not filtered out
-		bool found = false;
-		// Try the items first
-		for (items_t::iterator iit = mItems.begin(); iit != mItems.end(); ++iit)
-		{
-			LLFolderViewItem* itemp = (*iit);
-			found = itemp->getFiltered(filter_generation);
-			if (found)
-				break;
-		}
-		if (!found)
-		{
-			// If no item found, try the folders
-			for (folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
-			{
-				LLFolderViewFolder* folderp = (*fit);
-				found = folderp->getListener()
-					&& (folderp->getFiltered(filter_generation)
-						|| (folderp->getFilteredFolder(filter_generation)
-							&& folderp->hasFilteredDescendants(filter_generation)));
-				if (found)
-					break;
-			}
-		}
-
-		mHasVisibleChildren = found;
-	}
-
 
 	// calculate height as a single item (without any children), and reshapes rectangle to match
 	LLFolderViewItem::arrange( width, height, filter_generation );
@@ -1243,6 +1212,37 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 		// set last arrange generation first, in case children are animating
 		// and need to be arranged again
 		mLastArrangeGeneration = getRoot()->getArrangeGeneration();
+
+		mHasVisibleChildren = !filtered && hasFilteredDescendants(filter_generation);
+		if (mHasVisibleChildren)
+		{
+			// We have to verify that there's at least one child that's not filtered out
+			bool found = false;
+			// Try the items first
+			for (items_t::iterator iit = mItems.begin(); iit != mItems.end(); ++iit)
+			{
+				LLFolderViewItem* itemp = (*iit);
+				found = itemp->getFiltered(filter_generation);
+				if (found)
+					break;
+			}
+			if (!found)
+			{
+				// If no item found, try the folders
+				for (folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
+				{
+					LLFolderViewFolder* folderp = (*fit);
+					found = folderp->getListener()
+						&& (folderp->getFiltered(filter_generation)
+							|| (folderp->getFilteredFolder(filter_generation)
+								&& folderp->hasFilteredDescendants(filter_generation)));
+					if (found)
+						break;
+				}
+			}
+
+			mHasVisibleChildren = found;
+		}
 
 		// Hide marketplaces top level folders that don't match the filter for this view
 		if (marketplace_top)
