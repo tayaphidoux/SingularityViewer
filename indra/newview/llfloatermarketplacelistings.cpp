@@ -221,7 +221,8 @@ void LLPanelMarketplaceListings::onTabChange()
 		// Show/hide the drop zone and resize the inventory tabs panel accordingly
 		LLPanel* drop_zone = (LLPanel*)getChild<LLPanel>("marketplace_drop_zone");
 		bool drop_zone_visible = drop_zone->getVisible();
-		if (drop_zone_visible != panel->getAllowDropOnRoot())
+		bool allow_drop_on_root = panel->getAllowDropOnRoot() && gSavedSettings.getBOOL("LiruEnableWIPUI");
+		if (drop_zone_visible != allow_drop_on_root)
 		{
 			LLPanel* tabs = (LLPanel*)getChild<LLPanel>("tab_container_panel");
 			S32 delta_height = drop_zone->getRect().getHeight();
@@ -229,7 +230,7 @@ void LLPanelMarketplaceListings::onTabChange()
 			tabs->reshape(tabs->getRect().getWidth(),tabs->getRect().getHeight() + delta_height);
 			tabs->translate(0,-delta_height);
 		}
-		drop_zone->setVisible(panel->getAllowDropOnRoot());
+		drop_zone->setVisible(allow_drop_on_root);
 	}
 }
 
