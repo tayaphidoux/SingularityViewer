@@ -130,7 +130,6 @@ private:
 
 void check_for_updates()
 {
-#if LL_WINDOWS | LL_LINUX | LL_DARWIN
 	// Hard-code the update url for now.
 	std::string url = "http://singularity-viewer.github.io/pages/api/get_update_info.json";//gSavedSettings.getString("SHUpdateCheckURL");
 	if (!url.empty())
@@ -151,5 +150,4 @@ void check_for_updates()
 		}
 		LLHTTPClient::get(url, new GetUpdateInfoResponder(type));
 	}
-#endif
 }
