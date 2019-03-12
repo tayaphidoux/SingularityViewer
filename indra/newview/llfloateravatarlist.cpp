@@ -159,37 +159,39 @@ LLAvatarListEntry::~LLAvatarListEntry()
 // virtual
 void LLAvatarListEntry::processProperties(void* data, EAvatarProcessorType type)
 {
-	if (type == APT_PROPERTIES)
+	// If one wanted more information that gets displayed on profiles to be displayed, here would be the place to do it.
+	switch(type)
 	{
-		LLAvatarPropertiesProcessor& inst(LLAvatarPropertiesProcessor::instance());
-		inst.removeObserver(mID, this);
-		const LLAvatarData* pAvatarData = static_cast<const LLAvatarData*>(data);
-		if (pAvatarData && (pAvatarData->avatar_id != LLUUID::null))
-		{
-			using namespace boost::gregorian;
-			int year, month, day;
-			sscanf(pAvatarData->born_on.c_str(),"%d/%d/%d",&month,&day,&year);
-			try
+		case APT_PROPERTIES:
+			if (mAge == -1)
 			{
-				mAge = (day_clock::local_day() - date(year, month, day)).days();
-			}
-			catch(const std::exception&)
-			{
-				LL_WARNS() << "Failed to extract age from APT_PROPERTIES for " << mID << ", received \"" << pAvatarData->born_on << "\". Requesting properties again." << LL_ENDL;
-				inst.addObserver(mID, this);
-				inst.sendAvatarPropertiesRequest(mID);
-				return;
-			}
-			if (!mStats[STAT_TYPE_AGE] && mAge >= 0) //Only announce age once per entry.
-			{
-				static const LLCachedControl<U32> sAvatarAgeAlertDays(gSavedSettings, "AvatarAgeAlertDays");
-				if ((U32)mAge < sAvatarAgeAlertDays)
+				LLAvatarPropertiesProcessor& inst(LLAvatarPropertiesProcessor::instance());
+				const LLAvatarData* pAvatarData = static_cast<const LLAvatarData*>(data);
+				if (pAvatarData && (pAvatarData->avatar_id.notNull()))
 				{
-					chat_avatar_status(mName, mID, STAT_TYPE_AGE, mStats[STAT_TYPE_AGE] = true, (mPosition - gAgent.getPositionGlobal()).magVec());
+					using namespace boost::gregorian;
+					int year, month, day;
+					if (sscanf(pAvatarData->born_on.c_str(),"%d/%d/%d",&month,&day,&year) == 3)
+					try
+					{
+						mAge = (day_clock::local_day() - date(year, month, day)).days();
+					}
+					catch(const std::out_of_range&) {} // date throws this, so we didn't assign
+
+					if (mAge >= 0)
+					{
+						static const LLCachedControl<U32> sAvatarAgeAlertDays(gSavedSettings, "AvatarAgeAlertDays");
+						if (!mStats[STAT_TYPE_AGE] && (U32)mAge < sAvatarAgeAlertDays) //Only announce age once per entry.
+							chat_avatar_status(mName, mID, STAT_TYPE_AGE, mStats[STAT_TYPE_AGE] = true, (mPosition - gAgent.getPositionGlobal()).magVec());
+					}
+					else // Something failed, resend request
+					{
+						LL_WARNS() << "Failed to extract age from APT_PROPERTIES for " << mID << ", received \"" << pAvatarData->born_on << "\". Requesting properties again." << LL_ENDL;
+						inst.sendAvatarPropertiesRequest(mID);
+					}
 				}
 			}
-			// If one wanted more information that gets displayed on profiles to be displayed, here would be the place to do it.
-		}
+			break;
 	}
 }
 
