@@ -1463,7 +1463,9 @@ void LLPanelAvatar::sendAvatarNotesUpdate()
 		notes == mLastNotes) // Avatar notes unchanged
 		return;
 
-	LLAvatarPropertiesProcessor::instance().sendNotes(mAvatarID, notes);
+	auto& inst(LLAvatarPropertiesProcessor::instance());
+	inst.sendNotes(mAvatarID, notes);
+	inst.sendAvatarNotesRequest(mAvatarID); // Rerequest notes to update anyone that might be listening, also to be sure we match the server.
 }
 
 // virtual

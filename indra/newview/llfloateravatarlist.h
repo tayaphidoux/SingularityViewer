@@ -143,6 +143,7 @@ private:
 	bool mMarked;
 	bool mFocused;
 	bool mIsInList;
+	bool mNotes = false;
 	int mAge;
 
 	/**

@@ -143,6 +143,7 @@ LLAvatarListEntry::LLAvatarListEntry(const LLUUID& id, const std::string& name, 
 	LLAvatarPropertiesProcessor& inst(LLAvatarPropertiesProcessor::instance());
 	inst.addObserver(mID, this);
 	inst.sendAvatarPropertiesRequest(mID);
+	inst.sendAvatarNotesRequest(mID);
 }
 
 LLAvatarListEntry::~LLAvatarListEntry()
@@ -192,6 +193,10 @@ void LLAvatarListEntry::processProperties(void* data, EAvatarProcessorType type)
 				}
 			}
 			break;
+		case APT_NOTES:
+			if (const LLAvatarNotes* pAvatarNotes = static_cast<const LLAvatarNotes*>(data))
+				mNotes = !pAvatarNotes->notes.empty();
+		break;
 	}
 }
 
@@ -413,6 +418,7 @@ BOOL LLFloaterAvatarList::postBuild()
 	gSavedSettings.getControl("RadarColumnAltitudeHidden")->getSignal()->connect(boost::bind(&LLFloaterAvatarList::assessColumns, this));
 	gSavedSettings.getControl("RadarColumnActivityHidden")->getSignal()->connect(boost::bind(&LLFloaterAvatarList::assessColumns, this));
 	gSavedSettings.getControl("RadarColumnVoiceHidden")->getSignal()->connect(boost::bind(&LLFloaterAvatarList::assessColumns, this));
+	gSavedSettings.getControl("RadarColumnNotesHidden")->getSignal()->connect(boost::bind(&LLFloaterAvatarList::assessColumns, this));
 	gSavedSettings.getControl("RadarColumnAgeHidden")->getSignal()->connect(boost::bind(&LLFloaterAvatarList::assessColumns, this));
 	gSavedSettings.getControl("RadarColumnTimeHidden")->getSignal()->connect(boost::bind(&LLFloaterAvatarList::assessColumns, this));
 
@@ -466,6 +472,7 @@ enum AVATARS_COLUMN_ORDER
 	LIST_ALTITUDE,
 	LIST_ACTIVITY,
 	LIST_VOICE,
+	LIST_NOTES,
 	LIST_AGE,
 	LIST_TIME,
 	LIST_CLIENT,
@@ -485,6 +492,7 @@ void LLFloaterAvatarList::assessColumns()
 	BIND_COLUMN_TO_SETTINGS(LIST_ALTITUDE,Altitude);
 	BIND_COLUMN_TO_SETTINGS(LIST_ACTIVITY,Activity);
 	BIND_COLUMN_TO_SETTINGS(LIST_VOICE,Voice);
+	BIND_COLUMN_TO_SETTINGS(LIST_NOTES,Notes);
 	BIND_COLUMN_TO_SETTINGS(LIST_AGE,Age);
 	BIND_COLUMN_TO_SETTINGS(LIST_TIME,Time);
 
@@ -927,6 +935,12 @@ void LLFloaterAvatarList::refreshAvatarList()
 				}
 			}
 			element.columns.add(voice);
+		}
+
+		static const LLCachedControl<bool> hide_notes("RadarColumnNotesHidden");
+		if (!hide_notes)
+		{
+			element.columns.add(LLScrollListCell::Params().column("notes").type("checkbox").enabled(false).value(entry->mNotes));
 		}
 
 		static const LLCachedControl<bool> hide_age("RadarColumnAgeHidden");
