@@ -904,6 +904,9 @@ void LLFolderViewItem::draw()
 	const BOOL in_inventory = id && gInventory.isObjectDescendentOf(*id, gInventory.getRootFolderID());
 	const BOOL in_library = id && !in_inventory && gInventory.isObjectDescendentOf(*id, gInventory.getLibraryRootFolderID());
 
+	// Don't draw filtered top level marketplace folders
+	if (in_inventory && !getFiltered() && depth_nesting_in_marketplace(*id) == 1) return;
+
 	//--------------------------------------------------------------------------------//
 	// Draw open folder arrow
 	//
