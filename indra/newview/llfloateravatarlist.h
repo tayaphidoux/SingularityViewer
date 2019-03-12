@@ -239,20 +239,6 @@ public:
 	// when a line editor loses keyboard focus, it is committed.
 	// commit callbacks are named onCommitWidgetName by convention.
 	//void onCommitBaz(LLUICtrl* ctrl, void *userdata);
-	
-	enum AVATARS_COLUMN_ORDER
-	{
-		LIST_MARK,
-		LIST_AVATAR_NAME,
-		LIST_DISTANCE,
-		LIST_POSITION,
-		LIST_ALTITUDE,
-		LIST_ACTIVITY,
-		LIST_VOICE,
-		LIST_AGE,
-		LIST_TIME,
-		LIST_CLIENT,
-	};
 
 	typedef boost::function<void (LLAvatarListEntry*)> avlist_command_t;
 

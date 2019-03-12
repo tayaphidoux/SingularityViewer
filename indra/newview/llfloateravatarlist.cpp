@@ -457,6 +457,20 @@ void col_helper(const bool hide, LLCachedControl<S32> &setting, LLScrollListColu
 	}
 }
 
+enum AVATARS_COLUMN_ORDER
+{
+	LIST_MARK,
+	LIST_AVATAR_NAME,
+	LIST_DISTANCE,
+	LIST_POSITION,
+	LIST_ALTITUDE,
+	LIST_ACTIVITY,
+	LIST_VOICE,
+	LIST_AGE,
+	LIST_TIME,
+	LIST_CLIENT,
+};
+
 //Macro to reduce redundant lines. Preprocessor concatenation and stringizing avoids bloat that
 //wrapping in a class would create.
 #define BIND_COLUMN_TO_SETTINGS(col, name)\
