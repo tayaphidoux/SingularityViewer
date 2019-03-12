@@ -888,7 +888,6 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFolderViewItem::draw()
 {
-	if (!getFiltered()) return;
 	static LLCachedControl<LLColor4> sFgColor(gColors, "MenuItemEnabledColor", LLColor4::white );
 	static LLCachedControl<LLColor4> sHighlightBgColor(gColors, "MenuItemHighlightBgColor", LLColor4::white );
 	static LLCachedControl<LLColor4> sHighlightFgColor(gColors, "MenuItemHighlightFgColor", LLColor4::white );
@@ -901,8 +900,12 @@ void LLFolderViewItem::draw()
 	const S32 FOCUS_LEFT = 1;
 	const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
 
-	const BOOL in_inventory = getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(), gInventory.getRootFolderID());
-	const BOOL in_library = getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(), gInventory.getLibraryRootFolderID());
+	const LLUUID* id = getListener() ? &getListener()->getUUID() : nullptr;
+	const BOOL in_inventory = id && gInventory.isObjectDescendentOf(*id, gInventory.getRootFolderID());
+	const BOOL in_library = id && !in_inventory && gInventory.isObjectDescendentOf(*id, gInventory.getLibraryRootFolderID());
+
+	// Don't draw filtered top level marketplace folders
+	if (in_inventory && !getFiltered() && depth_nesting_in_marketplace(*id) == 1) return;
 
 	//--------------------------------------------------------------------------------//
 	// Draw open folder arrow
@@ -2572,7 +2575,6 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 
 void LLFolderViewFolder::draw()
 {
-	if (!getFiltered()) return;
 	if (mAutoOpenCountdown != 0.f)
 	{
 		mControlLabelRotation = mAutoOpenCountdown * -90.f;

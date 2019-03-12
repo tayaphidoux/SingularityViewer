@@ -84,7 +84,7 @@ void LLInventoryAction::callback_doToSelected(const LLSD& notification, const LL
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0) // YES
 	{
-		doToSelected(folder, action);
+		doToSelected(folder, action, false);
 	}
 }
 
@@ -93,11 +93,11 @@ void LLInventoryAction::callback_copySelected(const LLSD& notification, const LL
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0) // YES, Move no copy item(s)
 	{
-		doToSelected(root, "copy_or_move_to_marketplace_listings");
+		doToSelected(root, "copy_or_move_to_marketplace_listings", false);
 	}
 	else if (option == 1) // NO, Don't move no copy item(s) (leave them behind)
 	{
-		doToSelected(root, "copy_to_marketplace_listings");
+		doToSelected(root, "copy_to_marketplace_listings", false);
 	}
 }
 
