@@ -4533,7 +4533,7 @@ No se puede aplicar esta textura en forma inmediata ya que es no copiable y/o no
 			<ignore name="ignore" text="Habilitar todas las ventanas emergentes"/>
 			<button name="open" text="Abrir Ventana Emergente"/>
 		</form>
-	</notification
+	</notification>
 	
 		<notification name="SOCKS_NOT_PERMITTED">
 		El Proxy Socks5 "[HOST]:[PORT]" rechazó la conexión, no permitido por el conjunto de reglas.
