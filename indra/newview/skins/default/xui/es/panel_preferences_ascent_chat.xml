@@ -126,27 +126,38 @@ Puedes usar los siguientes comodines para personalizar tus respuestas: #n para n
 #d para su nombre mostrado, #r para SLURL a tu ubicación, #i para tu tiempo ausente, en minutos.
 			</text>
 			<check_box name="AscentInstantMessageResponseRepeat" label="Responder cada vez que recibas un mensaje para el cual tienes habilitada la respuesta automática"/>
-			<check_box name="AutoresponseAnyone" label="Enviar respuesta básica" tool_tip="Envía el mensaje de la caja inferior a las personas que no tienes ignoradas."/>
-			<check_box name="AutoresponseAnyoneFriendsOnly" label="Sólo a Amigos" tool_tip="Evita que esta respuesta sea enviada a desconocidos"/>
-			<check_box name="AutoresponseAnyoneItem" label="Enviar ítem"/>
-			<check_box name="AutoresponseAnyoneShow" label="Mostrar respuesta enviada"/>
-			<text_editor name="AutoresponseAnyoneMessage"/>
-			<drop_target name="AutoresponseAnyoneItemID" tool_tip="Arrastra un ítem del Inventario hasta aquí para entregarlo junto con tu respuesta automática."/>
-			<check_box name="AutoresponseNonFriends" label="Responder a desconocidos" tool_tip="Envía el mensaje de la caja inferior a personas que no están en tu lista de amigos"/>
-			<check_box name="AutoresponseNonFriendsItem" label="Enviar ítem"/>
-			<check_box name="AutoresponseNonFriendsShow" label="Mostrar respuesta enviada"/>
-			<text_editor name="AutoresponseNonFriendsMessage"/>
-			<drop_target name="AutoresponseNonFriendsItemID" tool_tip="Arrastra un ítem del Inventario hasta aquí para entregarlo junto con tu respuesta automática."/>
-			<check_box name="AutoresponseMuted" label="Responder a personas que has ignorado" tool_tip="Envía el mensaje de la caja inferior a personas a quienes has ignorado."/>
-			<check_box name="AutoresponseMutedItem" label="Enviar ítem"/>
-			<check_box name="AutoresponseMutedShow" label="Mostrar respuesta enviada"/>
-			<text_editor name="AutoresponseMutedMessage"/>
-			<drop_target name="AutoresponseMutedItemID" tool_tip="Arrastra un ítem del Inventario hasta aquí para entregarlo junto con tu respuesta automática."/>
-			<text name="BusyModeResponseText" tool_tip="Envía el mensaje de la caja inferior a quienes te envían un mensaje estando tu ocupado.">Respuesta en Modo Ocupado:</text>
-			<check_box name="BusyModeResponseItem" label="Enviar ítem"/>
-			<check_box name="BusyModeResponseShow" label="Mostrar respueta enviada"/>
-			<text_editor name="BusyModeResponse"/>
-			<drop_target name="BusyModeResponseItemID" tool_tip="Arrastra un ítem del Inventario hasta aquí para entregarlo junto con tu respuesta automática."/>
+			<check_box name="AutoresponseOnlyIfAway" label="Enviar respuesta automática solo al estar ausente"/>
+			<tab_container name="Autoresponses">
+				<panel label="Básico" name="Basic">
+					<check_box name="AutoresponseAnyone" label="Enviar respuesta básica" tool_tip="Envía el mensaje de la caja inferior a las personas que no tienes ignoradas."/>
+					<check_box name="AutoresponseAnyoneFriendsOnly" label="Sólo a Amigos" tool_tip="Evita que esta respuesta sea enviada a desconocidos"/>
+					<check_box name="AutoresponseAnyoneItem" label="Enviar ítem"/>
+					<check_box name="AutoresponseAnyoneShow" label="Mostrar respuesta enviada"/>
+					<text_editor name="AutoresponseAnyoneMessage"/>
+					<drop_target name="AutoresponseAnyoneItemID" tool_tip="Arrastra un ítem del Inventario hasta aquí para entregarlo junto con tu respuesta automática."/>
+				</panel>
+				<panel label="No amigos" name="Nonfriends">
+					<check_box name="AutoresponseNonFriends" label="Responder a desconocidos" tool_tip="Envía el mensaje de la caja inferior a personas que no están en tu lista de amigos"/>
+					<check_box name="AutoresponseNonFriendsItem" label="Enviar ítem"/>
+					<check_box name="AutoresponseNonFriendsShow" label="Mostrar respuesta enviada"/>
+					<text_editor name="AutoresponseNonFriendsMessage"/>
+					<drop_target name="AutoresponseNonFriendsItemID" tool_tip="Arrastra un ítem del Inventario hasta aquí para entregarlo junto con tu respuesta automática."/>
+				</panel>
+				<panel height="208" width="500" label="Ignorados" name="Muted">
+					<check_box name="AutoresponseMuted" label="Responder a personas que has ignorado" tool_tip="Envía el mensaje de la caja inferior a personas a quienes has ignorado."/>
+					<check_box name="AutoresponseMutedItem" label="Enviar ítem"/>
+					<check_box name="AutoresponseMutedShow" label="Mostrar respuesta enviada"/>
+					<text_editor name="AutoresponseMutedMessage"/>
+					<drop_target name="AutoresponseMutedItemID" tool_tip="Arrastra un ítem del Inventario hasta aquí para entregarlo junto con tu respuesta automática."/>
+				</panel>
+				<panel height="208" width="500" label="Modo Ocupado" name="Busy Mode" tool_tip="Enviar el mensaje de la caja inferior a quienes te contactan cuando estás ocupado">
+					<text name="BusyModeResponseText" tool_tip="Envía el mensaje de la caja inferior a quienes te envían un mensaje estando tu ocupado.">Respuesta en Modo Ocupado:</text>
+					<check_box name="BusyModeResponseItem" label="Enviar ítem"/>
+					<check_box name="BusyModeResponseShow" label="Mostrar respueta enviada"/>
+					<text_editor name="BusyModeResponse"/>
+					<drop_target name="BusyModeResponseItemID" tool_tip="Arrastra un ítem del Inventario hasta aquí para entregarlo junto con tu respuesta automática."/>
+				</panel>
+			</tab_container>
 		</panel>	 
 		<!-- =========================== -->
 		<panel label="Spam" name="Spam">
@@ -172,6 +183,7 @@ Puedes usar los siguientes comodines para personalizar tus respuestas: #n para n
 			<check_box label="Ofertas de Teleporte" name="Teleport Offers"/>
 			<check_box label="Avisos de Grupos" name="Group Notices"/>
 			<check_box label="Solicitudes de Teleporte" name="Teleport Requests"/>
+			<check_box label="Oferta de LMs" name="LM Offers"/>
 			<text name="Except those from:" >Excepto de :</text>
 			<check_box label="Mis objetos" name="My objects"/>
 			<check_box label="Mis amigos" name="My friends"/>
