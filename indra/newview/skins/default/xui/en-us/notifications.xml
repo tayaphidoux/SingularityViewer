@@ -53,6 +53,20 @@
     </form>
   </template>
 
+  <template name="okcancelbuttonscanceldefault">
+    <form>
+      <button
+       index="0"
+       name="OK"
+       text="$yestext"/>
+      <button
+       default="true"
+       index="1"
+       name="Cancel"
+       text="$notext"/>
+    </form>
+  </template>
+
   <template name="okcancelignore">
     <form>
       <button
