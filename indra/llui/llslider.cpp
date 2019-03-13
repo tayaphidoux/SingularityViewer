@@ -54,7 +54,6 @@ LLSlider::LLSlider(
 	F32 min_value,
 	F32 max_value,
 	F32 increment,
-	BOOL volume,
 	const std::string& control_name)
 	:
 	LLUICtrl( name, rect, TRUE,	commit_callback, 
@@ -64,7 +63,6 @@ LLSlider::LLSlider(
 	mMinValue( min_value ),
 	mMaxValue( max_value ),
 	mIncrement( increment ),
-	mVolumeSlider( volume ),
 	mMouseOffset( 0 ),
 	mTrackColor(		LLUI::sColorsGroup->getColor( "SliderTrackColor" ) ),
 	mThumbOutlineColor(	LLUI::sColorsGroup->getColor( "SliderThumbOutlineColor" ) ),
@@ -317,20 +315,11 @@ LLXMLNodePtr LLSlider::getXML(bool save_children) const
 {
 	LLXMLNodePtr node = LLUICtrl::getXML();
 
-	if (mVolumeSlider)
-	{
-		node->setName(LL_VOLUME_SLIDER_CTRL_TAG);
-	}
-	else
-	{
-		node->setName(LL_SLIDER_TAG);
-	}
-
+	node->setName(LL_SLIDER_TAG);
 	node->createChild("initial_val", TRUE)->setFloatValue(getInitialValue());
 	node->createChild("min_val", TRUE)->setFloatValue(getMinValue());
 	node->createChild("max_val", TRUE)->setFloatValue(getMaxValue());
 	node->createChild("increment", TRUE)->setFloatValue(getIncrement());
-	node->createChild("volume", TRUE)->setBoolValue(mVolumeSlider);
 
 	return node;
 }
@@ -365,17 +354,13 @@ LLView* LLSlider::fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFacto
 	F32 increment = 0.1f;
 	node->getAttributeF32("increment", increment);
 
-	BOOL volume = node->hasName("volume_slider") ? TRUE : FALSE;
-	node->getAttributeBOOL("volume", volume);
-
 	LLSlider* slider = new LLSlider("slider_bar",
 							rect,
 							NULL,
 							initial_value,
 							min_value,
 							max_value,
-							increment,
-							volume);
+							increment);
 
 	slider->initFromXML(node, parent);
 

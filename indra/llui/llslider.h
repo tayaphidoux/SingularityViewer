@@ -48,7 +48,6 @@ public:
 		F32 min_value,
 		F32 max_value,
 		F32 increment,
-		BOOL volume, //TODO: create a "volume" slider sub-class or just use image art, no?  -MG
 		const std::string& control_name = LLStringUtil::null );
 
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
@@ -92,7 +91,6 @@ private:
 	F32				mMaxValue;
 	F32				mIncrement;
 
-	BOOL			mVolumeSlider;
 	S32				mMouseOffset;
 	LLRect			mDragStartThumbRect;
 
