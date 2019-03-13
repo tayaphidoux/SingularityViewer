@@ -2643,6 +2643,8 @@ void LLAppViewer::cleanupSavedSettings()
 	{
 		gSavedSettings.setF32("RenderFarClip", gAgentCamera.mDrawDistance);
 	}
+
+	LLSpeakerVolumeStorage::deleteSingleton();
 }
 
 void LLAppViewer::removeCacheFiles(const std::string& file_mask)
