@@ -100,10 +100,16 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	<string name="TooltipLand">Terreno:</string>
 	<string name="TooltipMustSingleDrop">Sólo un único item puede ser arrastrado aquí</string>
 	
-	<string name="TooltipOutboxDragToWorld">No puedes soltar ítems en tu buzón de Comerciante</string>
+	<string name="TooltipOutboxDragToWorld">No puedes soltar ítems de tu carpeta Artículos del Mercado</string>
+	<string name="TooltipOutboxWorn">Los artículos que tienes vestidos no se pueden colocar en la carpeta Artículos del mercado</string>
+	<string name="TooltipOutboxFolderLevels">La profundidad de carpetas anidadas excede de [AMOUNT]. Disminuye la profundidad de las carpetas anidadas; si es necesario, agrupa los artículos.</string>
+	<string name="TooltipOutboxTooManyFolders">La cantidad de subcarpetas excede de [AMOUNT]. Disminuye la cantidad de carpetas de tu lista de artículos; si es necesario, agrupa los artículos.</string>
+	<string name="TooltipOutboxTooManyObjects">La cantidad de artículos excede de [AMOUNT]. 
+Para vender más de [AMOUNT] artículos en la misma lista, debes agrupar algunos.</string>
+	<string name="TooltipOutboxTooManyStockItems">La cantidad de artículos en stock excede de [AMOUNT].</string>
+	<string name="TooltipOutboxCannotDropOnRoot">Solo se pueden soltar artículos o carpetas en las pestañas TODOS o SIN ASOCIAR. Selecciona una de estas pestañas y mueve otra vez los artículos o carpetas.</string>
 	<string name="TooltipOutboxNoTransfer">Uno o más de estos objetos no pueden ser vendidos o transferidos.</string>
 	<string name="TooltipOutboxNotInInventory">Tu Buzón de Comerciante solo puede aceptar ítems de tu inventario</string>
-	<string name="TooltipOutboxWorn">No puedes colocar ítems vestidos en tu Buzón de Comerciante</string>
 	<string name="TooltipOutboxCallingCard">No puedes colocar Tarjetas de LLamada en tu Buzón de Comerciante</string>
 	<string name="TooltipOutboxFolderLevels">La profundidad de carpetas anidades es superior a 3</string>
 	<string name="TooltipOutboxTooManyFolders">El recuento de subcarpetas en el nivel superior supera las 20</string>
@@ -3100,6 +3106,7 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">Elementos no hallados en el inventario.</string>
+	<string name="MarketplaceNoMatchingItems">No se han encontrado artículos. Comprueba si has escrito correctamente la cadena de búsqueda y vuelve a intentarlo.</string>
 	<string name="InventoryNoTexture">No tienes en tu inventario una copia de esta textura</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
 	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3</string>
@@ -3125,7 +3132,47 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="InventoryOutboxErrorTooltip"></string>
 	<string name="InventoryOutboxError">La</string>
 	<string name="InventoryOutboxErrorSubs">Tienda de Mercado en Línea</string>
-	<string name="InventoryOutboxError2">está devolviendo errores.</string>	 
+	<string name="InventoryOutboxError2">está devolviendo errores.</string>
+	<string name="InventoryMarketplaceError">
+		Se ha producido un error al abrir Artículos del Mercado.
+Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia de Second Life en http://support.secondlife.com
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">Tu carpeta Artículos del mercado está vacía.</string>
+	<string name="InventoryMarketplaceListingsNoItemsTooltip"></string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		Arrastra carpetas a esta sección para incluirlas en la lista de venta del [[MARKETPLACE_DASHBOARD_URL] Mercado].
+	</string>
+
+	<string name="Marketplace Validation Log"></string>
+	<string name="Marketplace Validation Warning Stock">La carpeta de stock debe estar contenida en una carpeta de versión</string>
+	<string name="Marketplace Validation Error Mixed Stock">: Error: todos los artículos de una carpeta de stock deben ser del mismo tipo y que no se puedan copiar</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">: Error: la carpeta de stock no puede contener subcarpetas</string>
+	<string name="Marketplace Validation Warning Empty">: Atención: la carpeta no contiene ningún artículo</string>
+	<string name="Marketplace Validation Warning Create Stock">: Atención: creando carpeta de stock</string>
+	<string name="Marketplace Validation Warning Create Version">: Atención: creando la carpeta de versión</string>
+	<string name="Marketplace Validation Warning Move">: Atención: moviendo artículos</string>
+	<string name="Marketplace Validation Warning Delete">: Atención: se ha transferido el contenido de la carpeta a la carpeta de stock, y se eliminará la carpeta vacía</string>
+	<string name="Marketplace Validation Error Stock Item">: Error: los artículos que no se pueden copiar deben estar contenidos en una carpeta de stock</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">: Atención: los artículos deben estar contenidos en una carpeta de versión</string>
+	<string name="Marketplace Validation Error">: Error: </string>
+	<string name="Marketplace Validation Warning">: Atención: </string>
+	<string name="Marketplace Validation Error Empty Version">: Atención: la carpeta de versión debe contener al menos un artículo</string>
+	<string name="Marketplace Validation Error Empty Stock">: Atención: la carpeta de stock debe contener al menos un artículo</string>
+
+	<string name="Marketplace Validation No Error">No se han producido errores ni advertencias</string>
+	<string name="Marketplace Error None">Sin errores</string>
+	<string name="Marketplace Error Prefix">Error: </string>
+	<string name="Marketplace Error Not Merchant">Para poder enviar objetos al mercado, debes registrarte como comerciante (es gratis).</string>
+	<string name="Marketplace Error Not Accepted">No se puede mover el artículo a esa carpeta.</string>
+	<string name="Marketplace Error Unsellable Item">Este artículo no se puede vender en el Mercado.</string>
+
+	<string name="MarketplaceNoID">no Mkt ID</string>
+	<string name="MarketplaceLive">en la lista</string>
+	<string name="MarketplaceActive">activa</string>
+	<string name="MarketplaceMax">máx</string>
+	<string name="MarketplaceStock">stock</string>
+	<string name="MarketplaceNoStock">existencias agotadas</string>
+	<string name="MarketplaceUpdating">actualizando...</string>
 	 
 	<!-- use value="" because they have preceding spaces -->
 	<string name="no_transfer" value=" (no transferible)"/>

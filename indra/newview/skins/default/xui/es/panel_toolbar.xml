@@ -246,8 +246,8 @@
 		<layout_panel name="panelfavs">
 			<button label="Favoritos" name="favs_btn"/>
 		</layout_panel>
-		<layout_panel name="paneloutbox">
-			<button label="Buzón de Salida" name="outbox_btn"/>
+		<layout_panel name="panelmarketplacelistings">
+			<button label="Mercado" name="marketplace_listings_btn"/>
 		</layout_panel>
 		<layout_panel name="panelpreferences">
 			<button label="Preferencias" name="preferences_btn" tool_tip="Ctrl-P"/>
