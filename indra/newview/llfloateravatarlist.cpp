@@ -197,6 +197,7 @@ void LLAvatarListEntry::processProperties(void* data, EAvatarProcessorType type)
 			if (const LLAvatarNotes* pAvatarNotes = static_cast<const LLAvatarNotes*>(data))
 				mNotes = !pAvatarNotes->notes.empty();
 		break;
+		default: break;
 	}
 }
 
