@@ -934,6 +934,10 @@ void LLViewerRegion::dirtyHeights()
 	}
 }
 
+void LLViewerRegion::clearCachedVisibleObjects()
+{
+}
+
 BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 {
 	// did_update returns TRUE if we did at least one significant update
@@ -1446,6 +1450,81 @@ void LLViewerRegion::getInfo(LLSD& info)
 	info["Region"]["Handle"]["y"] = (LLSD::Integer)y;
 }
 
+class BaseFeaturesReceived : public LLHTTPClient::ResponderWithResult
+{
+	LOG_CLASS(BaseFeaturesReceived);
+public:
+	BaseFeaturesReceived(const std::string& retry_url, U64 region_handle, const char* classname, boost::function<void(LLViewerRegion*, const LLSD&)> fn,
+		S32 attempt = 0, S32 max_attempts = MAX_CAP_REQUEST_ATTEMPTS)
+		: mRetryURL(retry_url), mRegionHandle(region_handle), mAttempt(attempt), mMaxAttempts(max_attempts), mClassName(classname), mFunction(fn)
+	{ }
+
+
+	void httpFailure(void)
+	{
+		LL_WARNS("AppInit", mClassName) << dumpResponse() << LL_ENDL;
+		retry();
+	}
+
+	void httpSuccess(void)
+	{
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
+		if (!regionp) //region is removed or responder is not created.
+		{
+			LL_WARNS("AppInit", mClassName)
+				<< "Received results for region that no longer exists!" << LL_ENDL;
+			return;
+		}
+
+		const LLSD& content = getContent();
+		if (!content.isMap())
+		{
+			failureResult(400, "Malformed response contents", content);
+			return;
+		}
+		mFunction(regionp, content);
+	}
+
+	/*virtual*/ AIHTTPTimeoutPolicy const& getHTTPTimeoutPolicy(void) const { return baseFeaturesReceived_timeout; }
+	/*virtual*/ char const* getName(void) const { return mClassName; }
+
+private:
+
+	void retry()
+	{
+		if (mAttempt < mMaxAttempts)
+		{
+			mAttempt++;
+			LL_WARNS("AppInit", mClassName) << "Re-trying '" << mRetryURL << "'.  Retry #" << mAttempt << LL_ENDL;
+			LLHTTPClient::get(mRetryURL, new BaseFeaturesReceived(*this));
+		}
+	}
+
+	std::string mRetryURL;
+	U64 mRegionHandle;
+	S32 mAttempt;
+	S32 mMaxAttempts;
+	const char* mClassName;
+	boost::function<void(LLViewerRegion*, const LLSD&)> mFunction;
+};
+
+void LLViewerRegion::requestSimulatorFeatures()
+{
+	LL_DEBUGS("SimulatorFeatures") << "region " << getName() << " ptr " << this
+								   << " trying to request SimulatorFeatures" << LL_ENDL;
+	// kick off a request for simulator features
+	std::string url = getCapability("SimulatorFeatures");
+	 if (!url.empty())
+	{
+		// kick off a request for simulator features
+		LLHTTPClient::get(url, new BaseFeaturesReceived(url, getHandle(), "SimulatorFeaturesReceived", &LLViewerRegion::setSimulatorFeatures));
+	}
+	else
+	{
+		LL_WARNS("AppInit", "SimulatorFeatures") << "SimulatorFeatures cap not set" << LL_ENDL;
+	}
+}
+
 boost::signals2::connection LLViewerRegion::setSimulatorFeaturesReceivedCallback(const caps_received_signal_t::slot_type& cb)
 {
 	return mSimulatorFeaturesReceivedSignal.connect(cb);
@@ -1476,10 +1555,11 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 	std::stringstream str;
 	
 	LLSDSerialize::toPrettyXML(sim_features, str);
-	LL_DEBUGS("SimFeatures") << "\n" << str.str() << LL_ENDL;
+	LL_INFOS() << "region " << getName() << " "  << str.str() << LL_ENDL;
 	mSimulatorFeatures = sim_features;
 
 	setSimulatorFeaturesReceived(true);
+
 }
 
 void LLViewerRegion::setGamingData(const LLSD& gaming_data)
@@ -1552,6 +1632,14 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLViewerObjec
 
 	mImpl->mCacheMap[local_id] = entry;
 	return result;
+}
+
+void LLViewerRegion::removeFromCreatedList(U32 local_id)
+{
+}
+
+void LLViewerRegion::addToCreatedList(U32 local_id)
+{
 }
 
 // Get data packer for this object, if we have cached data
@@ -2041,64 +2129,6 @@ void LLViewerRegion::failedSeedCapability()
 	}
 }
 
-class BaseFeaturesReceived : public LLHTTPClient::ResponderWithResult
-{
-	LOG_CLASS(BaseFeaturesReceived);
-public:
-	BaseFeaturesReceived(const std::string& retry_url, U64 region_handle, const char* classname, boost::function<void(LLViewerRegion*, const LLSD&)> fn,
-			S32 attempt = 0, S32 max_attempts = MAX_CAP_REQUEST_ATTEMPTS)
-	: mRetryURL(retry_url), mRegionHandle(region_handle), mAttempt(attempt), mMaxAttempts(max_attempts), mClassName(classname), mFunction(fn)
-    { }
-	
-	
-    void httpFailure(void)
-    {
-		LL_WARNS("AppInit", mClassName) << dumpResponse() << LL_ENDL;
-		retry();
-    }
-
-    void httpSuccess(void)
-    {
-		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-		if(!regionp) //region is removed or responder is not created.
-		{
-			LL_WARNS("AppInit", mClassName)
-				<< "Received results for region that no longer exists!" << LL_ENDL;
-			return ;
-		}
-		
-		const LLSD& content = getContent();
-		if (!content.isMap())
-		{
-			failureResult(400, "Malformed response contents", content);
-			return;
-		}
-		mFunction(regionp, content);
-	}
-	
-	/*virtual*/ AIHTTPTimeoutPolicy const& getHTTPTimeoutPolicy(void) const { return baseFeaturesReceived_timeout; }
-	/*virtual*/ char const* getName(void) const { return mClassName; }
-
-private:
-
-	void retry()
-	{
-		if (mAttempt < mMaxAttempts)
-		{
-			mAttempt++;
-			LL_WARNS("AppInit", mClassName) << "Re-trying '" << mRetryURL << "'.  Retry #" << mAttempt << LL_ENDL;
-			LLHTTPClient::get(mRetryURL, new BaseFeaturesReceived(*this));
-		}
-	}
-	
-	std::string mRetryURL;
-	U64 mRegionHandle;
-	S32 mAttempt;
-	S32 mMaxAttempts;
-	const char* mClassName;
-	boost::function<void(LLViewerRegion*, const LLSD&)> mFunction;
-};
-
 void LLViewerRegion::setCapability(const std::string& name, const std::string& url)
 {
 	if(name == "EventQueueGet")
@@ -2114,10 +2144,8 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 	else if (name == "SimulatorFeatures")
 	{
 		// although this is not needed later, add it so we can check if the sim supports it at all later
-		mImpl->mCapabilities[name] = url;
-
-		// kick off a request for simulator features
-		LLHTTPClient::get(url, new BaseFeaturesReceived(url, getHandle(), "SimulatorFeaturesReceived", &LLViewerRegion::setSimulatorFeatures));
+		mImpl->mCapabilities["SimulatorFeatures"] = url;
+		requestSimulatorFeatures();
 	}
 	else if (name == "GamingData")
 	{

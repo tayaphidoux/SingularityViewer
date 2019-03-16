@@ -18,17 +18,18 @@ set(llmath_SOURCE_FILES
     llcoordframe.cpp
     llline.cpp
     llmatrix3a.cpp
+    llmatrix4a.cpp
     llmodularmath.cpp
     llperlin.cpp
     llquaternion.cpp
+    llrigginginfo.cpp
     llrect.cpp
-	llrigginginfo.cpp
-    llsdutil_math.cpp
     llsphere.cpp
     llvector4a.cpp
     llvolume.cpp
     llvolumemgr.cpp
     llvolumeoctree.cpp
+    llsdutil_math.cpp
     m3math.cpp
     m4math.cpp
     raytrace.cpp
@@ -68,8 +69,7 @@ set(llmath_HEADER_FILES
     llquaternion2.h
     llquaternion2.inl
     llrect.h
-	llrigginginfo.h
-    llsdutil_math.h
+    llrigginginfo.h
     llsimdmath.h
     llsimdtypes.h
     llsimdtypes.inl
@@ -81,6 +81,7 @@ set(llmath_HEADER_FILES
     llvolume.h
     llvolumemgr.h
     llvolumeoctree.h
+    llsdutil_math.h
     m3math.h
     m4math.h
     raytrace.h

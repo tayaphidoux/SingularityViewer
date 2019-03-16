@@ -291,7 +291,19 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	// RN: this must be called after we have a drawable 
 	// (from gPipeline.addObject)
 	// so that the drawable parent is set properly
-	findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
+	if(msg != NULL)
+	{
+		findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
+	}
+	else
+	{
+		LLViewerRegion* regionp = objectp->getRegion();
+		if(regionp != NULL)
+		{
+			findOrphans(objectp, regionp->getHost().getAddress(), regionp->getHost().getPort());
+		}
+	}
+
 	
 	if(just_created && objectp &&
 	(gImportTracker.getState() == ImportTracker::WAND /*||
@@ -434,19 +446,15 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		{
 			S32							uncompressed_length = 2048;
 			compressed_dp.reset();
-
-			U32 flags = 0;
-			if (update_type != OUT_TERSE_IMPROVED)
-			{
-				mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
-			}
 			
 			uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
-			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i);
+			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i, 2048);
 			compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
 
 			if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
 			{
+				U32 flags = 0;
+				mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
 				compressed_dp.unpackUUID(fullid, "ID");
 				compressed_dp.unpackU32(local_id, "LocalID");
 				compressed_dp.unpackU8(pcode, "PCode");
@@ -941,14 +949,14 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 
 	// update global timer
 	F32 last_time = gFrameTimeSeconds;
-	U64 time = totalTime();                 // this will become the new gFrameTime when the update is done
+	U64Microseconds time = totalTime();				 // this will become the new gFrameTime when the update is done
 	// Time _can_ go backwards, for example if the user changes the system clock.
 	// It doesn't cause any fatal problems (just some oddness with stats), so we shouldn't assert here.
 //	llassert(time > gFrameTime);
-	F64 time_diff = U64_to_F64(time - gFrameTime)/(F64)SEC_TO_MICROSEC;
-	gFrameTime    = time;
-	F64 time_since_start = U64_to_F64(gFrameTime - gStartTime)/(F64)SEC_TO_MICROSEC;
-	gFrameTimeSeconds = (F32)time_since_start;
+	F64Seconds time_diff = time - gFrameTime;
+	gFrameTime	= time;
+	F64Seconds time_since_start = gFrameTime - gStartTime;
+	gFrameTimeSeconds = time_since_start;
 
 	gFrameIntervalSeconds = gFrameTimeSeconds - last_time;
 	if (gFrameIntervalSeconds < 0.f)
@@ -1033,7 +1041,10 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 		LLVolumeImplFlexible::updateClass();
 
 		//update animated textures
-		LLViewerTextureAnim::updateClass();
+		if (gAnimateTextures)
+		{
+			LLViewerTextureAnim::updateClass();
+		}
 	}
 
 
@@ -1051,7 +1062,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	// don't factor frames that were paused into the stats
 	if (! mWasPaused)
 	{
-		LLViewerStats::getInstance()->updateFrameStats(time_diff);
+		LLViewerStats::getInstance()->updateFrameStats(time_diff.value());
 	}
 
 	/*
@@ -1252,9 +1263,11 @@ void LLViewerObjectList::clearDebugText()
 
 void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 {
+	bool new_dead_object = true;
 	if (mDeadObjects.find(objectp->mID) != mDeadObjects.end())
 	{
 		LL_INFOS() << "Object " << objectp->mID << " already on dead list!" << LL_ENDL;	
+		new_dead_object = false;
 	}
 	else
 	{
@@ -1296,7 +1309,10 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	// Also, not cleaned up
 	removeDrawable(objectp->mDrawable);
 
-	mNumDeadObjects++;
+	if(new_dead_object)
+	{
+		mNumDeadObjects++;
+	}
 }
 
 static LLTrace::BlockTimerStatHandle FTM_REMOVE_DRAWABLE("Remove Drawable");
@@ -2030,6 +2046,10 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
 	{
 // 		LL_WARNS() << "Couldn't create object of type " << LLPrimitive::pCodeToString(pcode) << " id:" << fullid << LL_ENDL;
 		return NULL;
+	}
+	if(regionp)
+	{
+		regionp->addToCreatedList(local_id); 
 	}
 
 	mUUIDObjectMap[fullid] = objectp;

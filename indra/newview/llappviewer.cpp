@@ -255,12 +255,12 @@ LLPumpIO* gServicePump = NULL;
 
 BOOL gPacificDaylightTime = FALSE;
 
-U64 gFrameTime = 0;
-F32 gFrameTimeSeconds = 0.f;
-F32 gFrameIntervalSeconds = 0.f;
+U64MicrosecondsImplicit gFrameTime = 0;
+F32SecondsImplicit gFrameTimeSeconds = 0.f;
+F32SecondsImplicit gFrameIntervalSeconds = 0.f;
 F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
 F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
-U64	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
+U64MicrosecondsImplicit	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
 U32 gFrameStalls = 0;
 const F64 FRAME_STALL_THRESHOLD = 1.0;
 
@@ -1341,7 +1341,8 @@ bool LLAppViewer::mainLoop()
 						|| (!gFocusMgr.getAppHasFocus() && !AIFilePicker::activePicker) )
 				{
 					// Sleep if we're not rendering, or the window is minimized.
-					S32 milliseconds_to_sleep = llclamp(gSavedSettings.getS32("BackgroundYieldTime"), 0, 1000);
+					static LLCachedControl<S32> s_bacground_yeild_time(gSavedSettings, "BackgroundYieldTime", 40);
+					S32 milliseconds_to_sleep = llclamp((S32)s_bacground_yeild_time, 0, 1000);
 					// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads
 					// of equal priority on Windows
 					if (milliseconds_to_sleep > 0)
@@ -1368,7 +1369,7 @@ bool LLAppViewer::mainLoop()
 					ms_sleep(500);
 				}
 
-				const F64 max_idle_time = run_multiple_threads ? 0.0 : llmin(.005*10.0*gFrameIntervalSeconds, 0.005); // 50ms/second, no more than 5ms/frame
+				const F64 max_idle_time = run_multiple_threads ? 0.0 : llmin(.005*10.0*gFrameIntervalSeconds.value(), 0.005); // 50ms/second, no more than 5ms/frame
 				idleTimer.reset();
 				while(1)
 				{

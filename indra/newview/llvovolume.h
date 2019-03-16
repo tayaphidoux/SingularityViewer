@@ -142,6 +142,8 @@ public:
 				void	generateSilhouette(LLSelectNode* nodep, const LLVector3& view_point);
 	/*virtual*/	BOOL	setParent(LLViewerObject* parent);
 				S32		getLOD() const							{ return mLOD; }
+				void	setNoLOD()							{ mLOD = NO_LOD; mLODChanged = TRUE; }
+				bool	isNoLOD() const						{ return NO_LOD == mLOD; }
 	const LLVector3		getPivotPositionAgent() const;
 	const LLMatrix4a&	getRelativeXform() const				{ return mRelativeXform; }
 	const LLMatrix4a&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
@@ -173,8 +175,8 @@ public:
 	/*virtual*/ F32  	getRadius() const						{ return mVObjRadius; };
 				const LLMatrix4a& getWorldMatrix(LLXformMatrix* xform) const;
 
-				void	markForUpdate(BOOL priority)			{ LLViewerObject::markForUpdate(priority); mVolumeChanged = TRUE; }
-				void    faceMappingChanged()                    { mFaceMappingChanged=TRUE; };
+				void	markForUpdate(BOOL priority);
+				void	faceMappingChanged()					{ mFaceMappingChanged=TRUE; };
 
 	/*virtual*/ void	onShift(const LLVector4a &shift_vector); // Called when the drawable shifts
 
@@ -273,13 +275,14 @@ public:
 	virtual BOOL isFlexible() const;
 	virtual BOOL isSculpted() const;
 	virtual BOOL isMesh() const;
+	virtual BOOL isRiggedMesh() const;
 	virtual BOOL hasLightTexture() const;
 
 	BOOL isVolumeGlobal() const;
 	BOOL canBeFlexible() const;
 	BOOL setIsFlexible(BOOL is_flexible);
 
-
+    const LLMeshSkinInfo* getSkinInfo() const;
     // Functions that deal with media, or media navigation
     
     // Update this object's media data with the given media data array
@@ -345,7 +348,7 @@ public:
 	void clearRiggedVolume();
 
 protected:
-	S32	computeLODDetail(F32	distance, F32 radius);
+	S32	computeLODDetail(F32 distance, F32 radius, F32 lod_factor);
 	BOOL calcLOD();
 	LLFace* addFace(S32 face_index);
 	void updateTEData();

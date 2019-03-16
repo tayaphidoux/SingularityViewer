@@ -10576,11 +10576,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	avatar->setImpostorDim(tdim);
 
-	LLVOAvatar::sUseImpostors = TRUE;
+	LLVOAvatar::sUseImpostors = true;
 	sUseOcclusion = occlusion;
-	sReflectionRender = FALSE;
-	sImpostorRender = FALSE;
-	sShadowRender = FALSE;
+	sReflectionRender = false;
+	sImpostorRender = false;
+	sShadowRender = false;
 	popRenderTypeMask();
 
 	gGL.matrixMode(LLRender::MM_PROJECTION);

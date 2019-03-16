@@ -271,6 +271,7 @@ public:
 
 // consts from viewer.h
 const S32 AGENT_UPDATES_PER_SECOND  = 10;
+const S32 AGENT_FORCE_UPDATES_PER_SECOND  = 1;
 
 // Globals with external linkage. From viewer.h
 // *NOTE:Mani - These will be removed as the Viewer App Cleanup project continues.
@@ -303,13 +304,13 @@ extern LLPumpIO* gServicePump;
 // Is the Pacific time zone (aka server time zone)
 // currently in daylight savings time?
 extern BOOL gPacificDaylightTime;
-
-extern U64      gFrameTime;					// The timestamp of the most-recently-processed frame
-extern F32		gFrameTimeSeconds;			// Loses msec precision after ~4.5 hours...
-extern F32		gFrameIntervalSeconds;		// Elapsed time between current and previous gFrameTimeSeconds
+extern U64MicrosecondsImplicit	gStartTime;
+extern U64MicrosecondsImplicit	gFrameTime;					// The timestamp of the most-recently-processed frame
+extern F32SecondsImplicit		gFrameTimeSeconds;			// Loses msec precision after ~4.5 hours...
+extern F32SecondsImplicit		gFrameIntervalSeconds;		// Elapsed time between current and previous gFrameTimeSeconds
 extern F32		gFPSClamped;				// Frames per second, smoothed, weighted toward last frame
 extern F32		gFrameDTClamped;
-extern U64		gStartTime;
+
 extern U32 		gFrameStalls;
 
 extern LLTimer gRenderStartTime;

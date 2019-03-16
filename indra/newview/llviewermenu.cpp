@@ -6053,28 +6053,50 @@ class LLAvatarAddFriend : public view_listener_t
 
 class LLAvatarResetSkeleton: public view_listener_t
 {
-    bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-    {
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = NULL;
+		LLViewerObject *obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if (obj)
+		{
+			avatar = obj->getAvatar();
+		}
 		if(avatar)
-        {
-            avatar->resetSkeleton(false);
-        }
-        return true;
-    }
+		{
+			avatar->resetSkeleton(false);
+		}
+		return true;
+	}
 };
-
 
 class LLAvatarResetSkeletonAndAnimations : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
-		if (avatar)
+		LLVOAvatar* avatar = NULL;
+		LLViewerObject *obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if (obj)
+		{
+			avatar = obj->getAvatar();
+		}
+		if(avatar)
 		{
 			avatar->resetSkeleton(true);
 		}
 		return true;
+	}
+};
+
+class LLAvatarEnableResetSkeleton: public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLViewerObject *obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if (obj && obj->getAvatar())
+		{
+			return true;
+		}
+		return false;
 	}
 };
 
@@ -6869,9 +6891,10 @@ class LLAttachmentEnableDrop : public view_listener_t
 		LLViewerJointAttachment*     attachment     = NULL;
 		LLInventoryItem*             item           = NULL;
 
-		if (object)
+		// Do not enable drop if all faces of object are not enabled
+		if (object && LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
 		{
-    		S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getState());
+			S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getAttachmentState());
 			attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
 
 			if (attachment)
@@ -9451,7 +9474,8 @@ void initialize_menus()
 	addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	addMenu(new LLObjectEnableMute(), "Avatar.EnableMute");
 	addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
-	addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeletonAndAnimations");
+	addMenu(new LLAvatarEnableResetSkeleton(), "Avatar.EnableResetSkeleton");
+	addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
 	addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
 	addMenu(new LLAvatarEnableFreezeEject(), "Avatar.EnableFreezeEject");
 	addMenu(new LLAvatarCopyUUID(), "Avatar.CopyUUID");

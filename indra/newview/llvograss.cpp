@@ -103,7 +103,7 @@ LLVOGrass::~LLVOGrass()
 
 void LLVOGrass::updateSpecies()
 {
-	mSpecies = mState;
+	mSpecies = getAttachmentState();
 	
 	if (!sSpeciesTable.count(mSpecies))
 	{

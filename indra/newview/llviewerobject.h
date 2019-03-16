@@ -112,7 +112,10 @@ struct PotentialReturnableObject
 
 //============================================================================
 
-class LLViewerObject: public LLPrimitive, public LLRefCount, public LLGLUpdate
+class LLViewerObject
+:	public LLPrimitive,
+	public LLRefCount, 
+	public LLGLUpdate
 {
 protected:
 	~LLViewerObject(); // use unref()
@@ -219,6 +222,7 @@ public:
 	LLViewerRegion* getRegion() const				{ return mRegionp; }
 
 	BOOL isSelected() const							{ return mUserSelected; }
+    BOOL isAnySelected() const;
 	void setSelected(BOOL sel);
 
 	const LLUUID &getID() const						{ return mID; }
@@ -230,6 +234,7 @@ public:
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
 	virtual BOOL isMesh() const						{ return FALSE; }
+	virtual BOOL isRiggedMesh() const				{ return FALSE; }
 	virtual BOOL hasLightTexture() const			{ return FALSE; }
 
 	// This method returns true if the object is over land owned by
@@ -254,6 +259,8 @@ public:
 	*/
 
 	virtual BOOL setParent(LLViewerObject* parent);
+    virtual void onReparent(LLViewerObject *old_parent, LLViewerObject *new_parent);
+    virtual void afterReparent();
 	virtual void addChild(LLViewerObject *childp);
 	virtual void removeChild(LLViewerObject *childp);
 	const_child_list_t& getChildren() const { 	return mChildList; }
@@ -378,7 +385,7 @@ public:
 
 //	U8 getState()							{ return mState; }
 // [RLVa:KB] - Checked: 2010-09-26 (RLVa-1.3.0a) | Added: RLVa-1.3.0a
-	U8 getState() const						{ return mState; }
+	U8 getAttachmentState() const						{ return mAttachmentState; }
 // [/RLVa:KB]
 
 	F32 getAppAngle() const					{ return mAppAngle; }
@@ -411,13 +418,16 @@ public:
 	void setCanSelect(BOOL canSelect);
 
 	void setDebugText(const std::string &utf8text);
+	void initHudText();
+
 	// <edit>
 	std::string getDebugText();
 	// </edit>
 	void setIcon(LLViewerTexture* icon_image);
 	void clearIcon();
 
-	void markForUpdate(BOOL priority);
+    void recursiveMarkForUpdate(BOOL priority);
+	virtual void markForUpdate(BOOL priority);
 	void updateVolume(const LLVolumeParams& volume_params);
 	virtual	void updateSpatialExtents(LLVector4a& min, LLVector4a& max);
 	virtual F32 getBinRadius();
@@ -430,6 +440,7 @@ public:
 
 	void setDrawableState(U32 state, BOOL recursive = TRUE);
 	void clearDrawableState(U32 state, BOOL recursive = TRUE);
+	BOOL isDrawableState(U32 state, BOOL recursive = TRUE) const;
 
 	// Called when the drawable shifts
 	virtual void onShift(const LLVector4a &shift_vector)	{ }
@@ -444,7 +455,7 @@ public:
 	// viewer object has the inventory stored locally.
 	void registerInventoryListener(LLVOInventoryListener* listener, void* user_data);
 	void removeInventoryListener(LLVOInventoryListener* listener);
-	BOOL isInventoryPending() { return mInventoryPending; }
+	BOOL isInventoryPending();
 	void clearInventoryListeners();
 	bool hasInventoryListeners();
 	void requestInventory();
@@ -543,6 +554,7 @@ public:
 	virtual void	updateRegion(LLViewerRegion *regionp) {}
 
 	void updateFlags(BOOL physics_changed = FALSE);
+	void loadFlags(U32 flags); //load flags from cache or from message
 	BOOL setFlags(U32 flag, BOOL state);
 	BOOL setFlagsWithoutUpdate(U32 flag, BOOL state);
 	void setPhysicsShapeType(U8 type);
@@ -574,7 +586,7 @@ public:
 
 public:
 	//counter-translation
-	void resetChildrenPosition(const LLVector3& offset, BOOL simplified = FALSE) ;
+	void resetChildrenPosition(const LLVector3& offset, BOOL simplified = FALSE,  BOOL skip_avatar_child = FALSE) ;
 	//counter-rotation
 	void resetChildrenRotationAndPosition(const std::vector<LLQuaternion>& rotations, 
 											const std::vector<LLVector3>& positions) ;
@@ -681,6 +693,9 @@ public:
 
 	static			BOOL		sUseSharedDrawables;
 
+public:
+
+    virtual bool isAnimatedObject() const;
 protected:
 	// delete an item in the inventory, but don't tell the
 	// server. This is used internally by remove, update, and
@@ -757,9 +772,17 @@ protected:
 	callback_list_t mInventoryCallbacks;
 	S16 mInventorySerialNum;
 
+	enum EInventoryRequestState
+	{
+		INVENTORY_REQUEST_STOPPED,
+		INVENTORY_REQUEST_PENDING,
+		INVENTORY_XFER
+	};
+	EInventoryRequestState	mInvRequestState;
+	U64						mInvRequestXFerId;
+	BOOL					mInventoryDirty;
+
 	LLViewerRegion	*mRegionp;					// Region that this object belongs to.
-	BOOL			mInventoryPending;
-	BOOL			mInventoryDirty;
 	BOOL			mDead;
 	BOOL			mOrphaned;					// This is an orphaned child
 	BOOL			mUserSelected;				// Cached user select information
@@ -772,7 +795,7 @@ protected:
 	LLQuaternion	mAngularVelocityRot;		// accumulated rotation from the angular velocity computations
 	LLQuaternion	mPreviousRotation;
 
-	U8				mState;	// legacy
+	U8				mAttachmentState;	// this encodes the attachment id in a somewhat complex way. 0 if not an attachment.
 	LLViewerObjectMedia* mMedia;	// NULL if no media associated
 	U8 mClickAction;
 	F32 mObjectCost; //resource cost of this object or -1 if unknown

@@ -1510,13 +1510,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			continue;
 		}
 
-		LLUUID mesh_id = volume->getParams().getSculptID();
-		if (mesh_id.isNull())
-		{
-			continue;
-		}
-
-		const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id, vobj);
+		const LLMeshSkinInfo* skin = vobj->getSkinInfo();
 		if (!skin)
 		{
 			continue;
@@ -1729,7 +1723,7 @@ void LLDrawPoolAvatar::updateRiggedVertexBuffers(LLVOAvatar* avatar)
 
 			LLVOVolume* vobj = drawable->getVOVolume();
 
-			if (!vobj)
+			if (!vobj || vobj->isNoLOD())
 			{
 				continue;
 			}
@@ -1742,13 +1736,7 @@ void LLDrawPoolAvatar::updateRiggedVertexBuffers(LLVOAvatar* avatar)
 				continue;
 			}
 
-			LLUUID mesh_id = volume->getParams().getSculptID();
-			if (mesh_id.isNull())
-			{
-				continue;
-			}
-
-			const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id, vobj);
+			const LLMeshSkinInfo* skin = vobj->getSkinInfo();
 			if (!skin)
 			{
 				continue;

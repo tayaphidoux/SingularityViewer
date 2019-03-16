@@ -328,6 +328,7 @@ public:
 	bool meshUploadEnabled() const;
 
 	// has region received its simulator features list? Requires an additional query after caps received.
+	void requestSimulatorFeatures();
 	void setSimulatorFeaturesReceived(bool);
 	bool simulatorFeaturesReceived() const;
 	boost::signals2::connection setSimulatorFeaturesReceivedCallback(const caps_received_signal_t::slot_type& cb);
@@ -361,6 +362,7 @@ public:
 	void requestCacheMisses();
 	void addCacheMissFull(const U32 local_id);
 
+	void clearCachedVisibleObjects();
 	void dumpCache();
 
 	void unpackRegionHandshake();
@@ -392,6 +394,9 @@ public:
 	void resetMaterialsCapThrottle();
 	
 	U32 getMaxMaterialsPerTransaction() const;
+
+	void removeFromCreatedList(U32 local_id);
+	void addToCreatedList(U32 local_id);	
 public:
 	struct CompareDistance
 	{

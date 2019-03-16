@@ -248,7 +248,7 @@ public:
 	void					dumpAnimationState();
 
 	virtual LLJoint*		getJoint(const std::string &name);
-	LLJoint*		        getJoint(S32 num);
+	LLJoint*				getJoint(S32 num);
 	
 	void 					addAttachmentOverridesForObject(LLViewerObject *vo);
 	void					resetJointsOnDetach(const LLUUID& mesh_id);
@@ -283,6 +283,7 @@ public:
 public:
 	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
 
+	virtual bool 	isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
 private: //aligned members
 	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
 
@@ -336,13 +337,13 @@ public:
 	static U32		sMaxVisible; //(affected by control "RenderAvatarMaxVisible")
 	static F32		sRenderDistance; //distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
-	static BOOL		sUseImpostors; //use impostors for far away avatars
-	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
-	static BOOL		sVisibleInFirstPerson;
+	static bool		sUseImpostors; //use impostors for far away avatars
+	static bool		sShowFootPlane;	// show foot collision plane reported by server
+	static bool		sVisibleInFirstPerson;
 	static S32		sNumLODChangesThisFrame;
 	static S32		sNumVisibleChatBubbles;
 	static BOOL		sDebugInvisible;
-	static BOOL		sShowAttachmentPoints;
+	static bool		sShowAttachmentPoints;
 	static F32		sLODFactor; // user-settable LOD factor
 	static F32		sPhysicsLODFactor; // user-settable physics LOD factor
 	static BOOL		sJointDebug; // output total number of joints being touched for each avatar
@@ -474,6 +475,8 @@ private:
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
+public:
+    bool mIsUIAvatar;
 	//--------------------------------------------------------------------
 	// Morph masks
 	//--------------------------------------------------------------------
