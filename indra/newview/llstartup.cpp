@@ -4130,7 +4130,7 @@ bool process_login_success_response(std::string& password, U32& first_sim_size_x
 		LLWorldMap::gotMapServerURL(true);
 	}
 
-	bool opensim = gHippoGridManager->getConnectedGrid()->isOpenSimulator();
+	bool opensim = !gHippoGridManager->getConnectedGrid()->isSecondLife();
 	if (opensim)
 	{
 		std::string web_profile_url = response["web_profile_url"];
