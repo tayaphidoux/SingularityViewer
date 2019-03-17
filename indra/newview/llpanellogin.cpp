@@ -105,7 +105,7 @@ static bool nameSplit(const std::string& full, std::string& first, std::string& 
 		return false;
 	first = fragments[0];
 	last = (fragments.size() == 1) ?
-		gHippoGridManager->getCurrentGrid()->isWhiteCore() ? "" : "Resident" :
+		gHippoGridManager->getCurrentGrid()->isWhiteCore() ? LLStringUtil::null : "Resident" :
 		fragments[1];
 	return (fragments.size() <= 2);
 }
@@ -115,9 +115,9 @@ static std::string nameJoin(const std::string& first,const std::string& last, bo
 	if (last.empty() || (strip_resident && boost::algorithm::iequals(last, "Resident")))
 		return first;
 	else if (std::islower(last[0]))
-		return first + "." + last;
+		return first + '.' + last;
 	else
-		return first + " " + last;
+		return first + ' ' + last;
 }
 
 static std::string getDisplayString(const std::string& first, const std::string& last, const std::string& grid, bool is_secondlife)
@@ -126,7 +126,7 @@ static std::string getDisplayString(const std::string& first, const std::string&
 	if (grid == gHippoGridManager->getDefaultGridName())
 		return nameJoin(first, last, is_secondlife);
 	else
-		return nameJoin(first, last, is_secondlife) + " (" + grid + ")";
+		return nameJoin(first, last, is_secondlife) + " (" + grid + ')';
 }
 
 static std::string getDisplayString(const LLSavedLoginEntry& entry)
@@ -277,7 +277,7 @@ LLPanelLogin::LLPanelLogin(const LLRect& rect)
 	{
 		// no, so get the preference setting
 		std::string defaultStartLocation = gSavedSettings.getString("LoginLocation");
-		LL_INFOS("AppInit")<<"default LoginLocation '"<<defaultStartLocation<<"'"<<LL_ENDL;
+		LL_INFOS("AppInit")<<"default LoginLocation '" << defaultStartLocation << '\'' << LL_ENDL;
 		LLSLURL defaultStart(defaultStartLocation);
 		if ( defaultStart.isSpatial() )
 		{
@@ -546,7 +546,7 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 	if ( KEY_F2 == key )
 	{
 		LL_INFOS() << "Spawning floater TOS window" << LL_ENDL;
-		LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,"");
+		LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,LLStringUtil::null);
 		tos_dialog->startModal();
 		return TRUE;
 	}
@@ -1071,7 +1071,7 @@ void LLPanelLogin::onSelectGrid(LLUICtrl *ctrl)
 	LLStringUtil::trim(grid); // Guard against copy paste
 	if (!gHippoGridManager->getGrid(grid)) // We can't get an input grid by name or nick, perhaps a Login URI was entered
 	{
-		HippoGridInfo* info(new HippoGridInfo("")); // Start off with empty grid name, otherwise we don't know what to name
+		HippoGridInfo* info(new HippoGridInfo(LLStringUtil::null)); // Start off with empty grid name, otherwise we don't know what to name
 		info->setLoginUri(grid);
 		try
 		{
