@@ -783,9 +783,9 @@ public:
 	static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
 	/*virtual*/ BOOL	isWearingWearableType(LLWearableType::EType type ) const;
 	LLViewerObject *	findAttachmentByID( const LLUUID & target_id ) const;
+	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 
 protected:
-	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 	void 				lazyAttach();
 	void				rebuildRiggedAttachments( void );
 
@@ -807,11 +807,12 @@ public:
 	BOOL 				hasHUDAttachment() const;
 	LLBBox 				getHUDBBox() const;
 	void 				resetHUDAttachments();
-	BOOL				canAttachMoreObjects() const;
-	BOOL				canAttachMoreObjects(U32 n) const;
+	BOOL				canAttachMoreObjects(U32 n=1) const;
+    U32					getMaxAnimatedObjectAttachments() const;
+    BOOL				canAttachMoreAnimatedObjects(U32 n=1) const;
 protected:
 	U32					getNumAttachments() const; // O(N), not O(1)
-
+	U32					getNumAnimatedObjectAttachments() const; // O(N), not O(1)
 	//--------------------------------------------------------------------
 	// Old/nonstandard/Agent-only functions
 	//--------------------------------------------------------------------

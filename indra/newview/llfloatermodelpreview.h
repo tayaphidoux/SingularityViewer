@@ -91,7 +91,7 @@ public:
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 
 	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
-
+	void setPreviewLOD(S32 lod);
 	void onBrowseLOD(S32 lod);
 
 	static void onReset(void* data);
@@ -110,6 +110,8 @@ public:
 	void setViewOptionEnabled(const std::string& option, bool enabled);
 	void enableViewOption(const std::string& option);
 	void disableViewOption(const std::string& option);
+
+	bool isModelLoading();
 
 	// shows warning message if agent has no permissions to upload model
 	/*virtual*/ void onPermissionsReceived(const LLSD& result);
@@ -302,6 +304,7 @@ public:
 
 	static bool 		sIgnoreLoadedCallback;
     std::vector<S32> mLodsQuery;
+    std::vector<S32> mLodsWithParsingError;
 
 protected:
 

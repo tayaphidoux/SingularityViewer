@@ -500,7 +500,9 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 	mUploadModelUrl.clear();
 
 	gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
-			childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mUploadModelUrl, false,
+						  childGetValue("upload_textures").asBoolean(),
+						  upload_skinweights, upload_joint_positions,
+						  mUploadModelUrl, false,
 						  getWholeModelFeeObserverHandle());
 
 	toggleCalculateButton(false);
@@ -1194,6 +1196,7 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex()
 , mLodsQuery()
+, mLodsWithParsingError()
 , mPelvisZOffset( 0.0f )
 , mLegacyRigValid( false )
 , mRigValidJointUpload( false )
@@ -1258,6 +1261,10 @@ LLModelPreview::~LLModelPreview()
 	// glod.dll!glodShutdown()  + 0x77 bytes	
 	//
 	//glodShutdown();
+	if(mModelLoader)
+	{
+		mModelLoader->shutdown();
+	}
 }
 
 U32 LLModelPreview::calcResourceCost()
@@ -1372,6 +1379,15 @@ void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, 
 	childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", y));
 	childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", z));
 }
+
+void LLFloaterModelPreview::setPreviewLOD(S32 lod)
+{
+	if (mModelPreview)
+	{
+		mModelPreview->setPreviewLOD(lod);
+	}
+}
+
 
 void LLModelPreview::rebuildUploadData()
 {
@@ -1749,16 +1765,24 @@ void LLModelPreview::clearModel(S32 lod)
 
 void LLModelPreview::getJointAliases( JointMap& joint_map)
 {
-    // Get all standard skeleton joints from the preview avatar.
-    LLVOAvatar *av = getPreviewAvatar();
-    
-    //Joint names and aliases come from avatar_skeleton.xml
-    
-    joint_map = av->getJointAliases();
-    for (S32 i = 0; i < av->mCollisionVolumes.size(); i++)
-    {
-        joint_map[av->mCollisionVolumes[i]->getName()] = av->mCollisionVolumes[i]->getName();
-    }
+	// Get all standard skeleton joints from the preview avatar.
+	LLVOAvatar *av = getPreviewAvatar();
+
+	//Joint names and aliases come from avatar_skeleton.xml
+
+	joint_map = av->getJointAliases();
+
+	std::vector<std::string> cv_names, attach_names;
+	av->getSortedJointNames(1, cv_names);
+	av->getSortedJointNames(2, attach_names);
+	for (std::vector<std::string>::iterator it = cv_names.begin(); it != cv_names.end(); ++it)
+	{
+		joint_map[*it] = *it;
+	}
+	for (std::vector<std::string>::iterator it = attach_names.begin(); it != attach_names.end(); ++it)
+	{
+		joint_map[*it] = *it;
+	}
 }
 
 void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable_slm)
@@ -1785,8 +1809,9 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 			// this is the initial file picking. Close the whole floater
 			// if we don't have a base model to show for high LOD.
 			mFMP->close();
-			mLoading = false;
+			
 		}
+		mLoading = false;
 		return;
 	}
 
@@ -1937,7 +1962,14 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 	{
 		mLoading = false;
 		mModelLoader = NULL;
-		return;
+		mLodsWithParsingError.push_back(loaded_lod);
+		return ;
+	}
+
+	mLodsWithParsingError.erase(std::remove(mLodsWithParsingError.begin(), mLodsWithParsingError.end(), loaded_lod), mLodsWithParsingError.end());
+	if(mLodsWithParsingError.empty())
+	{
+		mFMP->childEnable( "calculate_btn" );
 	}
 
 	// Copy determinations about rig so UI will reflect them
@@ -3517,24 +3549,19 @@ LLVector3 LLModelPreview::getTranslationForJointOffset(std::string joint)
 //-----------------------------------------------------------------------------
 // createPreviewAvatar
 //-----------------------------------------------------------------------------
-void LLModelPreview::createPreviewAvatar(void)
+void LLModelPreview::createPreviewAvatar( void )
 {
-	mPreviewAvatar = (LLVOAvatar*)gObjectList.createObjectViewer( LL_PCODE_LEGACY_AVATAR, gAgent.getRegion() );
-	if (mPreviewAvatar)
+	mPreviewAvatar = (LLVOAvatar*)gObjectList.createObjectViewer( LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), LLViewerObject::CO_FLAG_UI_AVATAR );
+	if ( mPreviewAvatar )
 	{
-		mPreviewAvatar->createDrawable(&gPipeline);
-		mPreviewAvatar->mIsDummy = TRUE;
+		mPreviewAvatar->createDrawable( &gPipeline );
 		mPreviewAvatar->mSpecialRenderMode = 1;
-		mPreviewAvatar->setPositionAgent(LLVector3::zero);
-		mPreviewAvatar->slamPosition();
-		mPreviewAvatar->updateJointLODs();
-		mPreviewAvatar->updateGeometry(mPreviewAvatar->mDrawable);
-		mPreviewAvatar->startMotion(ANIM_AGENT_STAND);
+		mPreviewAvatar->startMotion( ANIM_AGENT_STAND );
 		mPreviewAvatar->hideSkirt();
 	}
 	else
 	{
-		LL_INFOS() <<"Failed to create preview avatar for upload model window"<<LL_ENDL;
+		LL_INFOS() << "Failed to create preview avatar for upload model window" << LL_ENDL;
 	}
 }
 
@@ -4334,7 +4361,9 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions);
 
 	gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
-						  mp->childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mp->mUploadModelUrl,
+						  mp->childGetValue("upload_textures").asBoolean(), 
+						  upload_skinweights, upload_joint_positions,
+						  mp->mUploadModelUrl,
 						  true, LLHandle<LLWholeModelFeeObserver>(), mp->getWholeModelUploadObserverHandle());
 }
 
@@ -4614,3 +4643,13 @@ void LLFloaterModelPreview::setPermissonsErrorStatus(U32 status, const std::stri
 
 	LLNotificationsUtil::add("MeshUploadPermError");
 }
+
+bool LLFloaterModelPreview::isModelLoading()
+{
+	if(mModelPreview)
+	{
+		return mModelPreview->mLoading;
+	}
+	return false;
+}
+

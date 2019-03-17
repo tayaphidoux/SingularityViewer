@@ -290,6 +290,8 @@ void glh_set_last_projection(const LLMatrix4a& mat)
 void display_update_camera(bool tiling=false);
 //----------------------------------------
 
+S32		LLPipeline::sCompiles = 0;
+
 BOOL	LLPipeline::sPickAvatar = TRUE;
 BOOL	LLPipeline::sDynamicLOD = TRUE;
 BOOL	LLPipeline::sShowHUDAttachments = TRUE;

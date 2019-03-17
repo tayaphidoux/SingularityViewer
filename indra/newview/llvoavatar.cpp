@@ -1669,7 +1669,7 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	{
 		return getPositionAgent();
 	}
-	else if (isRoot() || !mDrawable->getParent())
+	else if (isRoot()/* || !mDrawable->getParent()*/) // Animesh-
 	{
 		F32 fixup;
 		if ( hasPelvisFixup( fixup) )
@@ -2311,7 +2311,6 @@ void LLVOAvatar::buildCharacter()
     {
         startDefaultMotions();
     }
-	startDefaultMotions();
 
 	//-------------------------------------------------------------------------
 	// restart any currently active motions
@@ -4896,6 +4895,7 @@ void LLVOAvatar::updateVisibility()
 			LL_INFOS() << "WPA: " << wrist_right_pos_agent << LL_ENDL;*/
 
 
+#if SLOW_ATTACHMENT_LIST
 			for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
 				iter != mAttachmentPoints.end();
 				++iter)
@@ -4907,6 +4907,13 @@ void LLVOAvatar::updateVisibility()
 					++attachment_iter)
 				{
 					if (LLViewerObject *attached_object = (*attachment_iter))
+#else
+			for (auto& iter : mAttachedObjectsVector)
+			{{
+					const LLViewerObject *attached_object = iter.first;
+					const LLViewerJointAttachment *attachment = iter.second;
+					if (attachment)
+#endif
 					{
 						if (attached_object && attached_object->mDrawable->isVisible())
 						{
@@ -5911,7 +5918,10 @@ void LLVOAvatar::processAnimationStateChanges()
 	else if (mInAir && !isSitting())
 	{
 		stopMotion(ANIM_AGENT_WALK_ADJUST);
-		startMotion(ANIM_AGENT_FLY_ADJUST);
+        if (mEnableDefaultMotions)
+        {
+            startMotion(ANIM_AGENT_FLY_ADJUST);
+        }
 	}
 	else
 	{
@@ -5921,13 +5931,19 @@ void LLVOAvatar::processAnimationStateChanges()
 
 	if ( isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS) )
 	{
-		startMotion(ANIM_AGENT_TARGET);
+        if (mEnableDefaultMotions)
+        {
+            startMotion(ANIM_AGENT_TARGET);
+        }
 		stopMotion(ANIM_AGENT_BODY_NOISE);
 	}
 	else
 	{
 		stopMotion(ANIM_AGENT_TARGET);
-		startMotion(ANIM_AGENT_BODY_NOISE);
+        if (mEnableDefaultMotions)
+        {
+            startMotion(ANIM_AGENT_BODY_NOISE);
+        }
 	}
 	
 	// clear all current animations
@@ -7332,19 +7348,62 @@ U32 LLVOAvatar::getNumAttachments() const
 
 //-----------------------------------------------------------------------------
 // canAttachMoreObjects()
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatar::canAttachMoreObjects() const
-{
-	return (getNumAttachments() < MAX_AGENT_ATTACHMENTS);
-}
-
-//-----------------------------------------------------------------------------
-// canAttachMoreObjects()
 // Returns true if we can attach <n> more objects.
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::canAttachMoreObjects(U32 n) const
 {
 	return (getNumAttachments() + n) <= MAX_AGENT_ATTACHMENTS;
+}
+
+//-----------------------------------------------------------------------------
+// getNumAnimatedObjectAttachments()
+//-----------------------------------------------------------------------------
+U32 LLVOAvatar::getNumAnimatedObjectAttachments() const
+{
+	U32 num_attachments = 0;
+	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin();
+		 iter != mAttachmentPoints.end();
+		 ++iter)
+	{
+		const LLViewerJointAttachment *attachment_pt = (*iter).second;
+		num_attachments += attachment_pt->getNumAnimatedObjects();
+	}
+	return num_attachments;
+}
+
+//-----------------------------------------------------------------------------
+// getMaxAnimatedObjectAttachments()
+// Gets from simulator feature if available, otherwise 0.
+//-----------------------------------------------------------------------------
+U32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
+{
+    U32 max_attach = 0;
+    if (gSavedSettings.getBOOL("AnimatedObjectsIgnoreLimits"))
+    {
+        max_attach = MAX_AGENT_ATTACHMENTS;
+    }
+    else
+    {
+        if (gAgent.getRegion())
+        {
+            LLSD features;
+            gAgent.getRegion()->getSimulatorFeatures(features);
+            if (features.has("AnimatedObjects"))
+            {
+                max_attach = (U32)llmax(0,features["AnimatedObjects"]["MaxAgentAnimatedObjectAttachments"].asInteger());
+            }
+        }
+    }
+    return max_attach;
+}
+
+//-----------------------------------------------------------------------------
+// canAttachMoreAnimatedObjects()
+// Returns true if we can attach <n> more animated objects.
+//-----------------------------------------------------------------------------
+BOOL LLVOAvatar::canAttachMoreAnimatedObjects(U32 n) const
+{
+	return (getNumAnimatedObjectAttachments() + n) <= getMaxAnimatedObjectAttachments();
 }
 
 //-----------------------------------------------------------------------------
@@ -7830,6 +7889,13 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, bool
 	updateMeshTextures();
 }
 
+
+// FIXME: We have an mVisible member, set in updateVisibility(), but this
+// function doesn't return it! isVisible() and mVisible are used
+// different places for different purposes. mVisible seems to be more
+// related to whether the actual avatar mesh is shown, and isVisible()
+// to whether anything about the avatar is displayed in the scene.
+// Maybe better naming could make this clearer?
 BOOL LLVOAvatar::isVisible() const
 {
 	return mDrawable.notNull()
@@ -9784,7 +9850,12 @@ void LLVOAvatar::updateFreezeCounter(S32 counter)
 
 BOOL LLVOAvatar::updateLOD()
 {
-	if (isImpostor())
+	if (mDrawable.isNull())
+	{
+		return FALSE;
+	}
+
+	if (isImpostor() && 0 != mDrawable->getNumFaces() && mDrawable->getFace(0)->hasGeometry())
 	{
 		return TRUE;
 	}
@@ -9809,7 +9880,7 @@ BOOL LLVOAvatar::updateLOD()
 	return res;
 }
 
-void LLVOAvatar::updateLODRiggedAttachments( void )
+void LLVOAvatar::updateLODRiggedAttachments()
 {
 	updateLOD();
 	rebuildRiggedAttachments();

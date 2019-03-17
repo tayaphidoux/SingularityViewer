@@ -4018,9 +4018,12 @@ bool LLAgent::teleportCore(bool is_local)
 		/*static const LLCachedControl<bool> hide_tp_screen("AscentDisableTeleportScreens",false);
 		if(!hide_tp_screen)
 		{
+			// AscentDisableTeleportScreens TRUE might be broken..*/
+
 			//release geometry from old location
 			gPipeline.resetVertexBuffers();
-		}*/
+			LLSpatialPartition::sTeleportRequested = TRUE;
+		/*}*/
 
 		if (gSavedSettings.getBOOL("SpeedRez"))
 		{

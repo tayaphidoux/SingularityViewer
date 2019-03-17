@@ -661,6 +661,10 @@ bool LLSelectMgr::enableLinkObjects()
 			new_value = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
 		}
 	}
+	if (!LLSelectMgr::getInstance()->getSelection()->checkAnimatedObjectLinkable())
+	{
+		new_value = false;
+	}
 // [RLVa:KB] - Checked: 2011-03-19 (RLVa-1.3.0f) | Modified: RLVa-0.2.0g
 	if ( (new_value) && ((rlv_handler_t::isEnabled()) && (!RlvActions::canStand())) )
 	{
@@ -967,6 +971,10 @@ LLObjectSelectionHandle LLSelectMgr::setHoverObject(LLViewerObject *objectp, S32
 			 iter != objects.end(); ++iter)
 		{
 			LLViewerObject* cur_objectp = *iter;
+			if(!cur_objectp || cur_objectp->isDead())
+			{
+				continue;
+			}
 			LLSelectNode* nodep = new LLSelectNode(cur_objectp, FALSE);
 			nodep->selectTE(face, TRUE);
 			mHoverObjects->addNodeAtEnd(nodep);
@@ -6522,7 +6530,6 @@ void LLSelectMgr::updateSelectionCenter()
 		mSelectionCenterGlobal.clearVec();
 		mShowSelection = FALSE;
 		mSelectionBBox = LLBBox(); 
-		mPauseRequests.clear();
 		resetAgentHUDZoom();
 
 	}
@@ -6530,21 +6537,7 @@ void LLSelectMgr::updateSelectionCenter()
 	{
 		mSelectedObjects->mSelectType = getSelectTypeForObject(object);
 
-		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid())
-		{
-			// Freeze avatars with a selected attachment, and all avatars with synchronized motions, if any.
-			LLVOAvatar* avatar = object->getAvatar();
-			// It is possible that 'avatar' is NULL despite this being an attachment because of some race condition.
-			// In that case just don't freeze the avatar.
-			if (avatar)
-			{
-				avatar->pauseAllSyncedCharacters(mPauseRequests);
-			}
-		}
-		else
-		{
-			mPauseRequests.clear();
-		}
+
 
 		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && isAgentAvatarValid())
 		{
@@ -6621,6 +6614,53 @@ void LLSelectMgr::updateSelectionCenter()
 	if (gEditMenuHandler == this && mSelectedObjects->getObjectCount() == 0)
 	{
 		gEditMenuHandler = NULL;
+	}
+
+	pauseAssociatedAvatars();
+}
+
+//-----------------------------------------------------------------------------
+// pauseAssociatedAvatars
+//
+// If the selection includes an attachment or an animated object, the
+// associated avatars should pause their animations until they are no
+// longer selected.
+//-----------------------------------------------------------------------------
+void LLSelectMgr::pauseAssociatedAvatars()
+{
+	mPauseRequests.clear();
+
+	for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
+		 iter != mSelectedObjects->end(); iter++)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if (!object)
+			continue;
+			
+		mSelectedObjects->mSelectType = getSelectTypeForObject(object);
+
+		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && 
+			isAgentAvatarValid() && object->getParent() != NULL)
+		{
+			if (object->isAnimatedObject())
+			{
+				LLVOAvatar* avatar = object->getAvatar();
+				if (avatar)
+				{
+					avatar->pauseAllSyncedCharacters(mPauseRequests);
+				}
+			}
+			else
+			{
+				// Is a regular attachment. Pause the avatar it's attached to.
+				LLVOAvatar* avatar = object->getAvatar();
+				if (avatar)
+				{
+					avatar->pauseAllSyncedCharacters(mPauseRequests);
+				}
+			}
+		}
 	}
 }
 
@@ -7154,7 +7194,9 @@ U32 LLObjectSelection::getSelectedObjectTriangleCount(S32* vcount)
 		
 		if (object)
 		{
-			count += object->getTriangleCount(vcount);
+			S32 vt = 0;
+			count += object->getTriangleCount(&vt);
+			*vcount += vt;
 		}
 	}
 
@@ -7281,6 +7323,31 @@ bool LLObjectSelection::applyToObjects(LLSelectedObjectFunctor* func)
 		result = result && r;
 	}
 	return result;
+}
+
+bool LLObjectSelection::checkAnimatedObjectEstTris()
+{
+	F32 est_tris = 0;
+	F32 max_tris = 0;
+	S32 anim_count = 0;
+	for (root_iterator iter = root_begin(); iter != root_end(); ++iter)
+	{
+		LLViewerObject* object = (*iter)->getObject();
+		if (!object)
+			continue;
+		if (object->isAnimatedObject())
+		{
+			anim_count++;
+		}
+		est_tris += object->recursiveGetEstTrianglesMax();
+		max_tris = llmax((F32)max_tris,(F32)object->getAnimatedObjectMaxTris());
+	}
+	return anim_count==0 || est_tris <= max_tris;
+}
+
+bool LLObjectSelection::checkAnimatedObjectLinkable()
+{
+	return checkAnimatedObjectEstTris();
 }
 
 bool LLObjectSelection::applyToRootObjects(LLSelectedObjectFunctor* func, bool firstonly)

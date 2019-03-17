@@ -1595,7 +1595,7 @@ static LLTrace::BlockTimerStatHandle FTM_GEN_FLEX("Generate Flexies");
 static LLTrace::BlockTimerStatHandle FTM_UPDATE_PRIMITIVES("Update Primitives");
 static LLTrace::BlockTimerStatHandle FTM_UPDATE_RIGGED_VOLUME("Update Rigged");
 
-bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable)
+bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 {
 	bool regen_faces = false;
 
@@ -1621,6 +1621,7 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable)
 
 		if ((new_lod != old_lod) || mSculptChanged)
 		{
+		compiled = TRUE;
 			sNumLODChanges += new_num_faces ;
 	
 			if((S32)getNumTEs() != getVolume()->getNumFaces())
@@ -1685,6 +1686,8 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		group->dirtyMesh();
 	}
 
+	BOOL compiled = FALSE;
+			
 	updateRelativeXform();
 	
 	if (mDrawable.isNull()) // Not sure why this is happening, but it is...
@@ -1700,12 +1703,13 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 		if (mVolumeChanged)
 		{
-			was_regen_faces = lodOrSculptChanged(drawable);
+			was_regen_faces = lodOrSculptChanged(drawable, compiled);
 			drawable->setState(LLDrawable::REBUILD_VOLUME);
 		}
 		else if (mSculptChanged || mLODChanged)
 		{
-			was_regen_faces = lodOrSculptChanged(drawable);
+			compiled = TRUE;
+			was_regen_faces = lodOrSculptChanged(drawable, compiled);
 		}
 		
 		if (!was_regen_faces) {
@@ -1718,13 +1722,15 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	else if (mLODChanged || mSculptChanged)
 	{
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
-		lodOrSculptChanged(drawable);
+		compiled = TRUE;
+		lodOrSculptChanged(drawable, compiled);
 		genBBoxes(FALSE);
 
 	}
 	// it has its own drawable (it's moved) or it has changed UVs or it has changed xforms from global<->local
 	else
 	{
+		compiled = TRUE;
 		// All it did was move or we changed the texture coordinate offset
 		LL_RECORD_BLOCK_TIME(FTM_GEN_TRIANGLES);
 		genBBoxes(FALSE);
@@ -1732,6 +1738,10 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 	// Update face flags
 	updateFaceFlags();
+	if(compiled)
+	{
+		LLPipeline::sCompiles++;
+	}
 		
 	mVolumeChanged = FALSE;
 	mLODChanged = FALSE;
@@ -4789,7 +4799,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		{
 			LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
 		
-			if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
+			if (!drawablep || drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
 			{
 				continue;
 			}

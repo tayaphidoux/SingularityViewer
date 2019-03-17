@@ -363,7 +363,7 @@ protected:
 	void removeMediaImpl(S32 texture_index) ;
 
 private:
-	bool lodOrSculptChanged(LLDrawable *drawable);
+	bool lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled);
 
 public:
 
