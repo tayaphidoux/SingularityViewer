@@ -24,7 +24,7 @@
 	<combo_box name="WLSkyPresetsCombo" bottom_delta="1" left_delta="20" height="18" width="131" tool_tip="WindLight Presets for your Sky."/>
 	<button bottom_delta="-1" height="19" label="&lt;" left="157" image_overlay="arrow_left.tga" name="WLprev" scale_image="true" width="19"/>
 	<button bottom_delta="0" height="19" label="&gt;" left_delta="18" image_overlay="arrow_right.tga" name="WLnext" width="19"/>
-	<button left="5" height="20" name="EnvAdvancedWaterButton" width="20" image_overlay="Inv_WaterLight.png" label="" tool_tip="Advanced Water"/>
+	<button bottom_delta="-22" left="5" height="20" name="EnvAdvancedWaterButton" width="20" image_overlay="Inv_WaterLight.png" label="" tool_tip="Advanced Water"/>
 	<combo_box name="WLWaterPresetsCombo" bottom_delta="1" left_delta="20" height="18" width="131" tool_tip="WindLight Presets for your Water."/>
 	<button bottom_delta="-1" height="19" label="&lt;" left="157" image_overlay="arrow_left.tga" name="WWprev" width="19"/>
 	<button bottom_delta="0" height="19" label="&gt;" left_delta="18" image_overlay="arrow_right.tga" name="WWnext" width="19"/>
