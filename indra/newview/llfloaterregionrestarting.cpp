@@ -100,12 +100,12 @@ LLFloaterRegionRestarting::LLFloaterRegionRestarting(const LLSD& key) :
 	LLEventTimer(1)
 ,	mRestartSeconds(NULL)
 ,	mSeconds(key["SECONDS"].asInteger())
+,	mName(key.has("NAME") ? key["NAME"].asString() : gAgent.getRegion()->getName()) // <alchemy/>
 ,	mShakeIterations()
 ,	mShakeMagnitude()
 {
 	//buildFromFile("floater_region_restarting.xml");
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_region_restarting.xml");
-	mName = key.has("NAME") ? key["NAME"].asString() : gAgent.getRegion()->getName(); // <alchemy/>
 	center();
 
 }
