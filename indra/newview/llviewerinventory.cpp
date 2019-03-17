@@ -402,28 +402,28 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 			{
 				LL_WARNS(LOG_INV) << "Agent Region is absent" << LL_ENDL;
 			}
+		}
 
-			if (!url.empty())
-			{
-				LLSD body;
-				body["agent_id"] = gAgent.getID();
-				body["items"][0]["owner_id"] = mPermissions.getOwner();
-				body["items"][0]["item_id"] = mUUID;
+		if (!url.empty())
+		{
+			LLSD body;
+			body["agent_id"] = gAgent.getID();
+			body["items"][0]["owner_id"] = mPermissions.getOwner();
+			body["items"][0]["item_id"] = mUUID;
 
-				LLHTTPClient::post(url, body, new LLInventoryModel::FetchItemHttpHandler(body));
-			}
-			else
-			{
-				LLMessageSystem* msg = gMessageSystem;
-				msg->newMessage("FetchInventory");
-				msg->nextBlock("AgentData");
-				msg->addUUID("AgentID", gAgent.getID());
-				msg->addUUID("SessionID", gAgent.getSessionID());
-				msg->nextBlock("InventoryData");
-				msg->addUUID("OwnerID", mPermissions.getOwner());
-				msg->addUUID("ItemID", mUUID);
-				gAgent.sendReliableMessage();
-			}
+			LLHTTPClient::post(url, body, new LLInventoryModel::FetchItemHttpHandler(body));
+		}
+		else
+		{
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessage("FetchInventory");
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID());
+			msg->addUUID("SessionID", gAgent.getSessionID());
+			msg->nextBlock("InventoryData");
+			msg->addUUID("OwnerID", mPermissions.getOwner());
+			msg->addUUID("ItemID", mUUID);
+			gAgent.sendReliableMessage();
 		}
 	}
 }
