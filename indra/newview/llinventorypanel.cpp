@@ -1334,6 +1334,7 @@ void LLInventoryPanel::doToSelected(const LLSD& userdata)
 
 BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
 {
+	/*
 	BOOL handled = FALSE;
 	switch (key)
 	{
@@ -1355,8 +1356,8 @@ BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
 			handled = TRUE;
 		}
 		break;
-	}
-	return handled;
+	}*/
+	return LLPanel::handleKeyHere(key, mask);
 }
 
 bool LLInventoryPanel::isSelectionRemovable()
