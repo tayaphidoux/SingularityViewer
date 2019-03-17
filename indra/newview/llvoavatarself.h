@@ -345,11 +345,14 @@ public:
 	//--------------------------------------------------------------------
 	// Visibility
 	//--------------------------------------------------------------------
+
+	/* virtual */ bool shouldRenderRigged() const;
+
 public:
 	bool			sendAppearanceMessage(LLMessageSystem *mesgsys) const;
 
 	// -- care and feeding of hover height.
-	void 			setHoverIfRegionEnabled();
+	void 			setHoverIfRegionEnabled(bool send_update = true);
 	void			sendHoverHeight() const;
 	/*virtual*/ void setHoverOffset(const LLVector3& hover_offset, bool send_update=true);
 

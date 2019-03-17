@@ -142,6 +142,7 @@ set(viewer_SOURCE_FILES
     llcompilequeue.cpp
     llconfirmationmanager.cpp
     llconsole.cpp
+    llcontrolavatar.cpp
     llcrashlogger.cpp
     llcurrencyuimanager.cpp
     llcylinder.cpp
@@ -677,6 +678,7 @@ set(viewer_HEADER_FILES
     llcompilequeue.h
     llconfirmationmanager.h
     llconsole.h
+    llcontrolavatar.h
     llcrashlogger.h
     llcurrencyuimanager.h
     llcylinder.h

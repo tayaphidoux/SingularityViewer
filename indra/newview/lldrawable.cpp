@@ -50,6 +50,7 @@
 #include "llspatialpartition.h"
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
+#include "llcontrolavatar.h"
 #include "lldrawpoolavatar.h"
 
 const F32 MIN_INTERPOLATE_DISTANCE_SQUARED = 0.001f * 0.001f;
@@ -629,6 +630,9 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		{
 			// snap to final position (only if no target omega is applied)
 			dist_squared = 0.0f;
+			//set target scale here, because of dist_squared = 0.0f remove object from move list
+			mCurrentScale = target_scale; // Animesh+
+
 			if (getVOVolume() && !isRoot())
 			{ //child prim snapping to some position, needs a rebuild
 				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
@@ -647,9 +651,15 @@ F32 LLDrawable::updateXform(BOOL undamped)
 
 	LLVector3 vec = mCurrentScale-target_scale;
 	
+	//It's a very important on each cycle on Drawable::update form(), when object remained in move
+	//, list update the CurrentScale member, because if do not do that, it remained in this list forever 
+	//or when the delta time between two frames a become a sufficiently large (due to interpolation) 
+	//for overcome the MIN_INTERPOLATE_DISTANCE_SQUARED.
+	mCurrentScale = target_scale; // Animesh+
+	
 	if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
 	{ //scale change requires immediate rebuild
-		mCurrentScale = target_scale;
+		//mCurrentScale = target_scale; // Animesh-
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}
 	else if (!isRoot() && 
@@ -680,6 +690,10 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	mXform.setRotation(target_rot);
 	mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
 	mXform.updateMatrix();
+	if (isRoot() && mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
+	{
+		mVObjp->getControlAvatar()->matchVolumeTransform();
+	}
 
 	if (mSpatialBridge)
 	{
@@ -749,7 +763,7 @@ BOOL LLDrawable::updateMoveUndamped()
 
 	if (!isState(LLDrawable::INVISIBLE))
 	{
-		BOOL moved = (dist_squared > 0.001f);	
+		BOOL moved = (dist_squared > 0.001f && dist_squared < 255.99f);	// Animesh added 255.99f cap
 		moveUpdatePipeline(moved);
 		mVObjp->updateText();
 	}
@@ -783,7 +797,7 @@ BOOL LLDrawable::updateMoveDamped()
 
 	if (!isState(LLDrawable::INVISIBLE))
 	{
-		BOOL moved = (dist_squared > 0.001f);
+		BOOL moved = (dist_squared > 0.001f && dist_squared < 128.0f); // Animesh added 128.0f cap
 		moveUpdatePipeline(moved);
 		mVObjp->updateText();
 	}
@@ -850,6 +864,28 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 						facep->mDistance = v * camera.getAtAxis();
 					}
 				}
+			}
+
+			// MAINT-7926 Handle volumes in an animated object as a special case
+			// SL-937: add dynamic box handling for rigged mesh on regular avatars.
+			//if (volume->getAvatar() && volume->getAvatar()->isControlAvatar())
+			if (volume->getAvatar())
+			{
+				const LLVector3* av_box = volume->getAvatar()->getLastAnimExtents();
+				LLVector3d cam_pos = gAgent.getPosGlobalFromAgent(LLViewerCamera::getInstance()->getOrigin());
+				LLVector3 cam_region_pos = LLVector3(cam_pos - volume->getRegion()->getOriginGlobal());
+
+				LLVector3 cam_to_box_offset = point_to_box_offset(cam_region_pos, av_box);
+				mDistanceWRTCamera = llmax(0.01f, ll_round(cam_to_box_offset.magVec(), 0.01f));
+				LL_DEBUGS("DynamicBox") << volume->getAvatar()->getFullname() 
+										<< " pos (ignored) " << pos
+										<< " cam pos " << cam_pos
+										<< " cam region pos " << cam_region_pos
+										<< " box " << av_box[0] << "," << av_box[1] 
+										<< " -> dist " << mDistanceWRTCamera
+										<< LL_ENDL;
+				mVObjp->updateLOD();
+				return;
 			}
 		}
 		else

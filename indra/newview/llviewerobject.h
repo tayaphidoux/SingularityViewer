@@ -55,6 +55,7 @@ class LLAudioSource;
 class LLAudioSourceVO;
 class LLBBox;
 class LLColor4;
+class LLControlAvatar;
 class LLDataPacker;
 class LLDrawable;
 class LLFrameTimer;
@@ -75,6 +76,8 @@ class LLViewerPartSourceScript;
 class LLViewerRegion;
 class LLViewerTexture;
 class LLWorld;
+
+class LLMeshCostData;
 
 typedef enum e_object_update_type
 {
@@ -168,6 +171,7 @@ public:
 		INVALID_UPDATE = 0x80000000 
 	};
 
+	static  U32     extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot);
 	virtual U32		processUpdateMessage(LLMessageSystem *mesgsys,
 										void **user_data,
 										U32 block_num,
@@ -365,10 +369,12 @@ public:
 	
 	virtual void setScale(const LLVector3 &scale, BOOL damped = FALSE);
 
-	virtual F32 getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL, F32* unscaled_value = NULL) const;
     S32 getAnimatedObjectMaxTris() const;
     F32 recursiveGetEstTrianglesMax() const;
     virtual F32 getEstTrianglesMax() const;
+    virtual F32 getEstTrianglesStreamingCost() const;
+	virtual F32 getStreamingCost() const;
+    virtual bool getCostData(LLMeshCostData& costs) const;
 	virtual U32 getTriangleCount(S32* vcount = NULL) const;
 	virtual U32 getHighLODTriangleCount();
     F32 recursiveGetScaledSurfaceArea() const;
@@ -558,7 +564,7 @@ public:
 	bool specialHoverCursor() const;	// does it have a special hover cursor?
 
 	void			setRegion(LLViewerRegion *regionp);
-	virtual void	updateRegion(LLViewerRegion *regionp) {}
+	virtual void	updateRegion(LLViewerRegion *regionp);
 
 	void updateFlags(BOOL physics_changed = FALSE);
 	void loadFlags(U32 flags); //load flags from cache or from message
@@ -592,6 +598,13 @@ public:
 	friend class LLViewerMediaList;
 
 public:
+	static void unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name);
+	static void unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name);
+	static void unpackU32(LLDataPackerBinaryBuffer* dp, U32& value, std::string name);
+	static void unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name);
+	static U32 unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id);
+
+public:
 	//counter-translation
 	void resetChildrenPosition(const LLVector3& offset, BOOL simplified = FALSE,  BOOL skip_avatar_child = FALSE) ;
 	//counter-rotation
@@ -614,10 +627,13 @@ private:
 	// Motion prediction between updates
 	void interpolateLinearMotion(const F64SecondsImplicit & time, const F32SecondsImplicit & dt);
 
+	static void initObjectDataMap();
+
 	// forms task inventory request if none are pending
 	void fetchInventoryFromServer();
 
 public:
+	void print();
 	//
 	// Viewer-side only types - use the LL_PCODE_APP mask.
 	//
@@ -668,6 +684,7 @@ private:
 	// Grabbed from UPDATE_FLAGS
 	U32				mFlags;
 
+	static std::map<std::string, U32> sObjectDataMap;
 public:
 	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
 	U8              mPhysicsShapeType;
@@ -701,11 +718,25 @@ public:
 	static			BOOL		sUseSharedDrawables;
 
 public:
+    // Returns mControlAvatar for the edit root prim of this linkset
+    LLControlAvatar *getControlAvatar();
+    LLControlAvatar *getControlAvatar() const;
+
+    // Create or connect to an existing control av as applicable
+    void linkControlAvatar();
+    // Remove any reference to control av for this prim
+    void unlinkControlAvatar();
+    // Link or unlink as needed
+    void updateControlAvatar();
 
     virtual bool isAnimatedObject() const;
 
     // Flags for createObject
+    static const S32 CO_FLAG_CONTROL_AVATAR = 1 << 0;
     static const S32 CO_FLAG_UI_AVATAR = 1 << 1;
+
+protected:
+    LLPointer<LLControlAvatar> mControlAvatar;
 
 protected:
 	// delete an item in the inventory, but don't tell the
@@ -860,6 +891,11 @@ public:
 	void setLastUpdateType(EObjectUpdateType last_update_type);
 	BOOL getLastUpdateCached() const;
 	void setLastUpdateCached(BOOL last_update_cached);
+
+    virtual void updateRiggingInfo() {}
+
+    LLJointRiggingInfoTab mJointRiggingInfoTab;
+
 private:
 	LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
 	EObjectUpdateType	mLastUpdateType;

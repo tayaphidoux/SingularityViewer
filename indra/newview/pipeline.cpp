@@ -568,6 +568,7 @@ void LLPipeline::destroyGL()
 	unloadShaders();
 	mHighlightFaces.clear();
 	
+	resetDrawOrders();
 
 	releaseVertexBuffers();
 
@@ -1768,6 +1769,8 @@ void LLPipeline::createObject(LLViewerObject* vobj)
 void LLPipeline::resetFrameStats()
 {
 	assertInitialized();
+
+	sCompiles = 0;
 
 	LLViewerStats::getInstance()->mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
 
@@ -7924,6 +7927,12 @@ void LLPipeline::renderDeferredLighting()
 						}
 					}
 
+					const LLViewerObject *vobj = drawablep->getVObj();
+					if(vobj && vobj->getAvatar()
+						&& (vobj->getAvatar()->isTooComplex()))
+					{
+						continue;
+					}
 
 					LLVector4a center;
 					center.load3(drawablep->getPositionAgent().mV);
@@ -10664,6 +10673,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	avatar->mNeedsImpostorUpdate = FALSE;
 	avatar->cacheImpostorValues();
+	avatar->mLastImpostorUpdateFrameTime = gFrameTimeSeconds;
 
 	LLVertexBuffer::unbind();
 	LLGLStateValidator::checkStates();

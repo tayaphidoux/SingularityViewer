@@ -574,7 +574,6 @@ void LLAvatarAppearance::computeBodySize()
 		mBodySize = new_body_size;
 
 		compareJointStateMaps(mLastBodySizeState, mCurrBodySizeState);
-		bodySizeChanged();
 	}
 }
 

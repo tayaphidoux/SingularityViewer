@@ -59,6 +59,7 @@
 #include "llvolumemgr.h"
 #include "llglslshader.h"
 #include "llviewershadermgr.h"
+#include "llcontrolavatar.h"
 
 static LLTrace::BlockTimerStatHandle FTM_FRUSTUM_CULL("Frustum Culling");
 static LLTrace::BlockTimerStatHandle FTM_CULL_REBOUND("Cull Rebound");
@@ -739,19 +740,6 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 		}
 	}
 	
-	//clean up avatar attachment stats
-	LLSpatialBridge* bridge = getSpatialPartition()->asBridge();
-	if (bridge)
-	{
-		if (bridge->mAvatar.notNull())
-		{
-			bridge->mAvatar->mAttachmentGeometryBytes -= mGeometryBytes;
-			bridge->mAvatar->mAttachmentGeometryBytes = llmax(bridge->mAvatar->mAttachmentGeometryBytes, 0);
-			bridge->mAvatar->mAttachmentSurfaceArea -= mSurfaceArea;
-			bridge->mAvatar->mAttachmentSurfaceArea = llmax(bridge->mAvatar->mAttachmentSurfaceArea, 0.f);
-		}
-	}
-
 	clearDrawMap();
 	mVertexBuffer = NULL;
 	mBufferVec.clear();
@@ -1941,7 +1929,24 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 						gGL.diffuseColor4f(0,0.5f,0,1);
 						break;
 				default:
-						gGL.diffuseColor4f(1,0,1,1);
+						LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(drawable->getVObj()->asAvatar());
+						if (cav)
+						{
+							bool has_pos_constraint = (cav->mPositionConstraintFixup != LLVector3());
+							bool has_scale_constraint = (cav->mScaleConstraintFixup != 1.0f);
+							if (has_pos_constraint || has_scale_constraint)
+							{
+								gGL.diffuseColor4f(1,0,0,1); 
+							}
+							else
+							{
+								gGL.diffuseColor4f(0,1,0.5,1); 
+							}
+						}
+						else
+						{
+							gGL.diffuseColor4f(1,0,1,1); // magenta
+						}
 						break;
 			}
 		}

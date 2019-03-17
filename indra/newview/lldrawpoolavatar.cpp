@@ -1505,7 +1505,7 @@ extern int sCurCacheHit;
 
 void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 {
-	if ((avatar->isSelf() && !gAgent.needsRenderAvatar()) || !gMeshRepo.meshRezEnabled())
+	if (!avatar->shouldRenderRigged() || !gMeshRepo.meshRezEnabled())
 	{
 		return;
 	}

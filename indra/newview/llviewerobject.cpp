@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llviewerobject.cpp
  * @brief Base class for viewer objects
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -59,6 +59,7 @@
 #include "llbbox.h"
 #include "llbox.h"
 #include "llcylinder.h"
+#include "llcontrolavatar.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llfloaterproperties.h"
@@ -123,6 +124,7 @@ BOOL		LLViewerObject::sUseSharedDrawables(FALSE); // TRUE
 F64Seconds	LLViewerObject::sMaxUpdateInterpolationTime(3.0);		// For motion interpolation: after X seconds with no updates, don't predict object motion
 F64Seconds	LLViewerObject::sPhaseOutUpdateInterpolationTime(2.0);	// For motion interpolation: after Y seconds with no updates, taper off motion prediction
 
+std::map<std::string, U32> LLViewerObject::sObjectDataMap;
 
 // The maximum size of an object extra parameters binary (packed) block
 #define MAX_OBJECT_PARAMS_SIZE 1024
@@ -165,6 +167,12 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 				}
 			}
 			res = gAgentAvatarp;
+		}
+		else if (flags & CO_FLAG_CONTROL_AVATAR)
+		{
+			LLControlAvatar *control_avatar = new LLControlAvatar(id, pcode, regionp);
+			control_avatar->initInstance();
+			res = control_avatar;
 		}
 		else if (flags & CO_FLAG_UI_AVATAR)
 		{
@@ -244,6 +252,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mText(),
 
 	mHudTextColor(LLColor4::white),
+	mControlAvatar(NULL),
 	mLastInterpUpdateSecs(0.f),
 	mLastMessageUpdateSecs(0.f),
 	mLatestRecvPacketID(0),
@@ -393,16 +402,22 @@ void LLViewerObject::markDead()
 		//</singu>
 
 		// Root object of this hierarchy unlinks itself.
-		LLVOAvatar *av = getAvatarAncestor();
 		if (getParent())
 		{
 			((LLViewerObject *)getParent())->removeChild(this);
 		}
 		LLUUID mesh_id;
-		if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
 		{
-			// This case is needed for indirectly attached mesh objects.
-			av->resetJointsOnDetach(mesh_id);
+			LLVOAvatar *av = getAvatar();
+			if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
+			{
+				// This case is needed for indirectly attached mesh objects.
+				av->updateAttachmentOverrides();
+			}
+		}
+		if (getControlAvatar())
+		{
+			unlinkControlAvatar();
 		}
 
 		// Mark itself as dead
@@ -560,6 +575,8 @@ void LLViewerObject::initVOClasses()
 	LLVOGrass::initClass();
 	LLVOWater::initClass();
 	LLVOVolume::initClass();
+
+	initObjectDataMap();
 }
 
 void LLViewerObject::cleanupVOClasses()
@@ -569,6 +586,118 @@ void LLViewerObject::cleanupVOClasses()
 	LLVOTree::cleanupClass();
 	LLVOAvatar::cleanupClass();
 	LLVOVolume::cleanupClass();
+
+	sObjectDataMap.clear();
+}
+
+//object data map for compressed && !OUT_TERSE_IMPROVED
+//static
+void LLViewerObject::initObjectDataMap()
+{
+	U32 count = 0;
+
+	sObjectDataMap["ID"] = count; //full id //LLUUID
+	count += sizeof(LLUUID);
+
+	sObjectDataMap["LocalID"] = count; //U32
+	count += sizeof(U32);
+
+	sObjectDataMap["PCode"] = count;   //U8
+	count += sizeof(U8);
+
+	sObjectDataMap["State"] = count;   //U8
+	count += sizeof(U8);
+
+	sObjectDataMap["CRC"] = count;     //U32
+	count += sizeof(U32);
+
+	sObjectDataMap["Material"] = count; //U8
+	count += sizeof(U8);
+
+	sObjectDataMap["ClickAction"] = count; //U8
+	count += sizeof(U8);
+
+	sObjectDataMap["Scale"] = count; //LLVector3
+	count += sizeof(LLVector3);
+
+	sObjectDataMap["Pos"] = count;   //LLVector3
+	count += sizeof(LLVector3);
+
+	sObjectDataMap["Rot"] = count;    //LLVector3
+	count += sizeof(LLVector3);
+
+	sObjectDataMap["SpecialCode"] = count; //U32
+	count += sizeof(U32);
+
+	sObjectDataMap["Owner"] = count; //LLUUID
+	count += sizeof(LLUUID);
+
+	sObjectDataMap["Omega"] = count; //LLVector3, when SpecialCode & 0x80 is set
+	count += sizeof(LLVector3);
+
+	//ParentID is after Omega if there is Omega, otherwise is after Owner
+	sObjectDataMap["ParentID"] = count;//U32, when SpecialCode & 0x20 is set
+	count += sizeof(U32);
+
+	//-------
+	//The rest items are not included here
+	//-------
+}
+
+//static
+void LLViewerObject::unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name)
+{
+	dp->shift(sObjectDataMap[name]);
+	dp->unpackVector3(value, name.c_str());
+	dp->reset();
+}
+
+//static
+void LLViewerObject::unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name)
+{
+	dp->shift(sObjectDataMap[name]);
+	dp->unpackUUID(value, name.c_str());
+	dp->reset();
+}
+
+//static
+void LLViewerObject::unpackU32(LLDataPackerBinaryBuffer* dp, U32& value, std::string name)
+{
+	dp->shift(sObjectDataMap[name]);
+	dp->unpackU32(value, name.c_str());
+	dp->reset();
+}
+
+//static
+void LLViewerObject::unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name)
+{
+	dp->shift(sObjectDataMap[name]);
+	dp->unpackU8(value, name.c_str());
+	dp->reset();
+}
+
+//static
+U32 LLViewerObject::unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id)
+{
+	dp->shift(sObjectDataMap["SpecialCode"]);
+	U32 value;
+	dp->unpackU32(value, "SpecialCode");
+
+	parent_id = 0;
+	if(value & 0x20)
+	{
+		S32 offset = sObjectDataMap["ParentID"];
+		if(!(value & 0x80))
+		{
+			offset -= sizeof(LLVector3);
+		}
+
+		dp->shift(offset);
+		dp->unpackU32(parent_id, "ParentID");
+	}
+	dp->reset();
+
+	return parent_id;
 }
 
 // Replaces all name value pairs with data from \n delimited list
@@ -999,6 +1128,24 @@ U32 LLViewerObject::checkMediaURL(const std::string &media_url)
 		}
 	}
 	return retval;
+}
+
+//extract spatial information from object update message
+//return parent_id
+//static
+U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot)
+{
+	U32	parent_id = 0;
+	LLViewerObject::unpackParentID(dp, parent_id);
+
+	LLViewerObject::unpackVector3(dp, scale, "Scale");
+	LLViewerObject::unpackVector3(dp, pos, "Pos");
+
+	LLVector3 vec;
+	LLViewerObject::unpackVector3(dp, vec, "Rot");
+	rot.unpackFromVector3(vec);
+
+	return parent_id;
 }
 
 U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
@@ -2777,6 +2924,231 @@ void LLViewerObject::fetchInventoryFromServer()
 	}
 }
 
+LLControlAvatar *LLViewerObject::getControlAvatar()
+{
+	return getRootEdit()->mControlAvatar.get();
+}
+
+LLControlAvatar *LLViewerObject::getControlAvatar() const
+{
+	return getRootEdit()->mControlAvatar.get();
+}
+
+// Manage the control avatar state of a given object.
+// Any object can be flagged as animated, but for performance reasons
+// we don't want to incur the overhead of managing a control avatar
+// unless this would have some user-visible consequence. That is,
+// there should be at least one rigged mesh in the linkset. Operations
+// that change the state of a linkset, such as linking or unlinking
+// prims, can also mean that a control avatar needs to be added or
+// removed. At the end, if there is a control avatar, we make sure
+// that its animation state is current.
+void LLViewerObject::updateControlAvatar()
+{
+	LLViewerObject *root = getRootEdit();
+	bool is_animated_object = root->isAnimatedObject();
+	bool has_control_avatar = getControlAvatar();
+	if (!is_animated_object && !has_control_avatar)
+	{
+		return;
+	}
+
+	bool should_have_control_avatar = false;
+	if (is_animated_object)
+	{
+		bool any_rigged_mesh = root->isRiggedMesh();
+		LLViewerObject::const_child_list_t& child_list = root->getChildren();
+		for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+			 iter != child_list.end(); ++iter)
+		{
+			const LLViewerObject* child = *iter;
+			any_rigged_mesh = any_rigged_mesh || child->isRiggedMesh();
+		}
+		should_have_control_avatar = is_animated_object && any_rigged_mesh;
+	}
+
+	if (should_have_control_avatar && !has_control_avatar)
+	{
+		std::string vobj_name = llformat("Vol%p", root);
+		LL_DEBUGS("AnimatedObjects") << vobj_name << " calling linkControlAvatar()" << LL_ENDL;
+		root->linkControlAvatar();
+	}
+	if (!should_have_control_avatar && has_control_avatar)
+	{
+		std::string vobj_name = llformat("Vol%p", root);
+		LL_DEBUGS("AnimatedObjects") << vobj_name << " calling unlinkControlAvatar()" << LL_ENDL;
+		root->unlinkControlAvatar();
+	}
+	if (getControlAvatar())
+	{
+		getControlAvatar()->updateAnimations();
+		if (isSelected())
+		{
+			LLSelectMgr::getInstance()->pauseAssociatedAvatars();
+		}
+	}
+}
+
+void LLViewerObject::print()
+{
+	if (!mChildList.size())
+		return;
+	LL_INFOS() << "==============" << LL_ENDL;
+	LL_INFOS() << mID << LL_ENDL;
+	LL_INFOS() << "isAvatar() " << isAvatar() << LL_ENDL;
+	LL_INFOS() << "  mOwnerID " << mOwnerID << LL_ENDL;
+	LL_INFOS() << "  mRegionp " << std::hex << mRegionp << std::dec << LL_ENDL;
+	if (mRegionp)
+	{
+		LL_INFOS() << "    getName() " << mRegionp->getName() << LL_ENDL;
+		LL_INFOS() << "    isAlive() " << mRegionp->isAlive() << LL_ENDL;
+	}
+	LL_INFOS() << "  mDead " << mDead << LL_ENDL;
+	LL_INFOS() << "  mDrawable " << std::hex << mDrawable.get() << std::dec << LL_ENDL;
+	if (mDrawable)
+	{
+		LL_INFOS() << "    isVisible() " << mDrawable->isVisible() << LL_ENDL;
+		LL_INFOS() << "    getRegion() " << std::hex << mDrawable->getRegion() << std::dec << LL_ENDL;
+		if (mDrawable->getRegion())
+		{
+			LL_INFOS() << "      getRegion() " << mDrawable->getRegion()->getName() << LL_ENDL;
+		}
+		LL_INFOS() << "    isRoot() " << mDrawable->isRoot() << LL_ENDL;
+		LL_INFOS() << "    isDead() " << mDrawable->isDead() << LL_ENDL;
+		LL_INFOS() << "    isNew() " << mDrawable->isNew() << LL_ENDL;
+		LL_INFOS() << "    isUnload() " << mDrawable->isUnload() << LL_ENDL;
+		LL_INFOS() << "    isLight() " << mDrawable->isLight() << LL_ENDL;
+		LL_INFOS() << "    getSpatialGroup() " << mDrawable->getSpatialGroup() << LL_ENDL;
+	}
+	LL_INFOS() << "  mOrphaned " << mOrphaned << LL_ENDL;
+	LL_INFOS() << "  isAttachment() " << isAttachment() << LL_ENDL;
+	LL_INFOS() << "  isActive() " << isActive() << LL_ENDL;
+	LL_INFOS() << "  isRiggedMesh() " << isRiggedMesh() << LL_ENDL;
+	LL_INFOS() << "  isHUDAttachment() " << isHUDAttachment() << LL_ENDL;
+	LL_INFOS() << "  isMesh() " << isRiggedMesh() << LL_ENDL;
+	LL_INFOS() << "  isParticleSource() " << isRiggedMesh() << LL_ENDL;
+	LL_INFOS() << "  isTempAttachment() " << isTempAttachment() << LL_ENDL;
+	LL_INFOS() << "  getVObjRadius() " << getVObjRadius() << LL_ENDL;
+	LL_INFOS() << "  getNumVertices() " << getNumVertices() << LL_ENDL;
+	LL_INFOS() << "  getNumIndices() " << getNumIndices() << LL_ENDL;
+	LL_INFOS() << "  isAnySelected() " << isAnySelected() << LL_ENDL;
+	LL_INFOS() << "  isFlexible() " << isFlexible() << LL_ENDL;
+	LL_INFOS() << "  isSculpted() " << isSculpted() << LL_ENDL;
+	LL_INFOS() << "  mTotalCRC " << mTotalCRC << LL_ENDL;
+	LL_INFOS() << "  mListIndex " << mListIndex << LL_ENDL;
+	//LL_INFOS() << "  mTEImages " << mTEImages << LL_ENDL;
+	//LL_INFOS() << "  mTENormalMaps " << mTENormalMaps << LL_ENDL;
+	//LL_INFOS() << "  mTESpecularMaps " << mTESpecularMaps << LL_ENDL;
+	LL_INFOS() << "  mGLName " << mGLName << LL_ENDL;
+	LL_INFOS() << "  mbCanSelect " << mbCanSelect << LL_ENDL;
+	LL_INFOS() << "  mFlags" << mFlags << LL_ENDL;
+	//LL_INFOS() << "  mPhysicsShapeType " << mPhysicsShapeType << LL_ENDL;
+	//LL_INFOS() << "  mPhysicsGravity " << mPhysicsGravity << LL_ENDL;
+	//LL_INFOS() << "  mPhysicsFriction " << mPhysicsFriction << LL_ENDL;
+	//LL_INFOS() << "  mPhysicsDensity " << mPhysicsDensity << LL_ENDL;
+	//LL_INFOS() << "  mPhysicsRestitution " << mPhysicsRestitution << LL_ENDL;
+	//LL_INFOS() << "  mCreateSelected " << mCreateSelected << LL_ENDL;
+	//LL_INFOS() << "  mRenderMedia " << mRenderMedia << LL_ENDL;
+	//LL_INFOS() << "  mBestUpdatePrecision " << mBestUpdatePrecision << LL_ENDL;
+	//LL_INFOS() << "  mText" << std::hex << mText.get() << std::dec << LL_ENDL;
+	//LL_INFOS() << "  mHudTextString " << mHudTextString << LL_ENDL;
+	//LL_INFOS() << "  mHudTextColor " << mHudTextColor << LL_ENDL;
+	//LL_INFOS() << "  mIcon" << std::hex << mIcon.get() << std::dec << LL_ENDL;
+	LL_INFOS() << "  mIsNameAttachment " << mIsNameAttachment << LL_ENDL;
+	LL_INFOS() << "  mControlAvatar " << std::hex << mControlAvatar.get() << std::dec << LL_ENDL;
+	LL_INFOS() << "  mChildList.size() " << mChildList.size() << LL_ENDL;
+	LL_INFOS() << "  mLastInterpUpdateSecs " << mLastInterpUpdateSecs << LL_ENDL;
+	LL_INFOS() << "  mLastMessageUpdateSecs " << mLastMessageUpdateSecs << LL_ENDL;
+	LL_INFOS() << "  mLatestRecvPacketID " << mLatestRecvPacketID << LL_ENDL;
+	//LL_INFOS() << "  mData" << std::hex << mData << std::dec << LL_ENDL;
+	//LL_INFOS() << "  mPartSourcep " << std::hex << mPartSourcep.get() << std::dec << LL_ENDL;
+	//LL_INFOS() << "  mAudioSourcep " << std::hex << mAudioSourcep << std::dec << LL_ENDL;
+	//LL_INFOS() << "  mAudioGain " << mAudioGain << LL_ENDL;
+	LL_INFOS() << "  mAppAngle " << mAppAngle << LL_ENDL;
+	LL_INFOS() << "  mPixelArea " << mPixelArea << LL_ENDL;
+	LL_INFOS() << "  mInventory " << mInventory << LL_ENDL;
+	LL_INFOS() << "  mInventorySerialNum " << mInventorySerialNum << LL_ENDL;
+	LL_INFOS() << "  mInvRequestState " << mInvRequestState << LL_ENDL;
+	LL_INFOS() << "  mInvRequestXFerId " << mInvRequestXFerId << LL_ENDL;
+	LL_INFOS() << "  mInventoryDirty " << mInventoryDirty << LL_ENDL;
+	LL_INFOS() << "  mUserSelected " << mUserSelected << LL_ENDL;
+	LL_INFOS() << "  mOnActiveList " << mOnActiveList << LL_ENDL;
+	LL_INFOS() << "  mOnMap" << mOnMap << LL_ENDL;
+	LL_INFOS() << "  mStatic " << mStatic << LL_ENDL;
+	LL_INFOS() << "  mNumFaces " << mNumFaces << LL_ENDL;
+	LL_INFOS() << "  mRotTime " << mRotTime << LL_ENDL;
+	//LL_INFOS() << "  mAngularVelocityRot " << mAngularVelocityRot << LL_ENDL;
+	//LL_INFOS() << "  mPreviousRotation " << mPreviousRotation << LL_ENDL;
+	LL_INFOS() << "  mAttachmentState " << mAttachmentState << LL_ENDL;
+	LL_INFOS() << "  mClickAction " << mClickAction << LL_ENDL;
+	//LL_INFOS() << "  mObjectCost " << mObjectCost << LL_ENDL;
+	//LL_INFOS() << "  mLinksetCost " << mLinksetCost << LL_ENDL;
+	//LL_INFOS() << "  mPhysicsCost " << mPhysicsCost << LL_ENDL;
+	//LL_INFOS() << "  mLinksetPhysicsCost " << mLinksetPhysicsCost << LL_ENDL;
+	LL_INFOS() << "  mCostStale " << mCostStale << LL_ENDL;
+	LL_INFOS() << "  mPhysicsShapeUnknown " << mPhysicsShapeUnknown << LL_ENDL;
+	LL_INFOS() << "  mPositionRegion " << mPositionRegion << LL_ENDL;
+	LL_INFOS() << "  mPositionAgent " << mPositionAgent << LL_ENDL;
+	LL_INFOS() << "  mAttachmentItemID " << mAttachmentItemID << LL_ENDL;
+	LL_INFOS() << "  mLastUpdateType " << mLastUpdateType << LL_ENDL;
+	LL_INFOS() << "  mLastUpdateCached " << mLastUpdateCached << LL_ENDL;
+	LL_INFOS() << "==============" << LL_ENDL;
+}
+
+void LLViewerObject::linkControlAvatar()
+{
+	if (!getControlAvatar() && isRootEdit())
+	{
+		LLVOVolume *volp = dynamic_cast<LLVOVolume*>(this);
+		if (!volp)
+		{
+			LL_WARNS() << "called with null or non-volume object" << LL_ENDL;
+			return;
+		}
+		mControlAvatar = LLControlAvatar::createControlAvatar(volp);
+		LL_DEBUGS("AnimatedObjects") << volp->getID()
+									 << " created control av for "
+									 << (S32) (1+volp->numChildren()) << " prims" << LL_ENDL;
+	}
+	LLControlAvatar *cav = getControlAvatar();
+	if (cav)
+	{
+		cav->updateAttachmentOverrides();
+		if (!cav->mPlaying)
+		{
+			cav->mPlaying = true;
+			//if (!cav->mRootVolp->isAnySelected())
+			{
+				cav->updateVolumeGeom();
+				cav->mRootVolp->recursiveMarkForUpdate(TRUE);
+			}
+		}
+	}
+	else
+	{
+		LL_WARNS() << "no control avatar found!" << LL_ENDL;
+	}
+}
+
+void LLViewerObject::unlinkControlAvatar()
+{
+	if (getControlAvatar())
+	{
+		getControlAvatar()->updateAttachmentOverrides();
+	}
+	if (isRootEdit())
+	{
+		// This will remove the entire linkset from the control avatar
+		if (mControlAvatar)
+		{
+			mControlAvatar->markForDeath();
+			mControlAvatar = NULL;
+		}
+	}
+	// For non-root prims, removing from the linkset will
+	// automatically remove the control avatar connection.
+}
+
 // virtual
 bool LLViewerObject::isAnimatedObject() const
 {
@@ -3458,6 +3830,24 @@ F32 LLViewerObject::getEstTrianglesMax() const
 	return 0.f;
 }
 
+F32 LLViewerObject::getEstTrianglesStreamingCost() const
+{
+	return 0.f;
+}
+
+// virtual
+F32 LLViewerObject::getStreamingCost() const
+{
+	return 0.f;
+}
+
+// virtual
+bool LLViewerObject::getCostData(LLMeshCostData& costs) const
+{
+	costs = LLMeshCostData();
+	return false;
+}
+
 U32 LLViewerObject::getTriangleCount(S32* vcount) const
 {
 	return 0;
@@ -3851,8 +4241,20 @@ const LLVector3 LLViewerObject::getRenderPosition() const
 {
 	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED))
 	{
+		LLControlAvatar *cav = getControlAvatar();
+		if (isRoot() && cav)
+		{
+			F32 fixup;
+			if ( cav->hasPelvisFixup( fixup) )
+			{
+				//Apply a pelvis fixup (as defined by the avs skin)
+				LLVector3 pos = mDrawable->getPositionAgent();
+				pos[VZ] += fixup;
+				return pos;
+			}
+		}
 		LLVOAvatar* avatar = getAvatar();
-		if (avatar)
+		if ((avatar) && !getControlAvatar())
 		{
 			return avatar->getPositionAgent();
 		}
@@ -5085,7 +5487,13 @@ void LLViewerObject::updateText()
 	if (!isDead())
 	{
 		if (mText.notNull())
-		{		
+		{
+			//LLVOAvatar* avatar = getAvatar();
+			//if (avatar)
+			//{
+			//	mText->setHidden(avatar->isInMuteList());
+			//}
+
 			LLVector3 up_offset(0,0,0);
 			up_offset.mV[2] = getScale().mV[VZ]*0.6f;
 
@@ -5924,9 +6332,28 @@ void LLViewerObject::setRegion(LLViewerRegion *regionp)
 		child->setRegion(regionp);
 	}
 
+	if (mControlAvatar)
+	{
+		mControlAvatar->setRegion(regionp);
+	}
+
 	setChanged(MOVED | SILHOUETTE);
 	updateDrawable(FALSE);
 }
+
+// virtual
+void	LLViewerObject::updateRegion(LLViewerRegion *regionp)
+{
+//	if (regionp)
+//	{
+//		F64 now = LLFrameTimer::getElapsedSeconds();
+//		LL_INFOS() << "Updating to region " << regionp->getName()
+//			<< ", ms since last update message: " << (F32)((now - mLastMessageUpdateSecs) * 1000.0)
+//			<< ", ms since last interpolation: " << (F32)((now - mLastInterpUpdateSecs) * 1000.0)
+//			<< LL_ENDL;
+//	}
+}
+
 
 bool LLViewerObject::specialHoverCursor() const
 {
@@ -6343,6 +6770,10 @@ const LLUUID &LLViewerObject::extractAttachmentItemID()
 //virtual
 LLVOAvatar* LLViewerObject::getAvatar() const
 {
+	if (getControlAvatar())
+	{
+		return getControlAvatar();
+	}
 	if (isAttachment())
 	{
 		LLViewerObject* vobj = (LLViewerObject*) getParent();

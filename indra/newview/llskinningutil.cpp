@@ -238,6 +238,95 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
     }
 }
 
+static LLTrace::BlockTimerStatHandle FTM_FACE_RIGGING_INFO("Face Rigging Info");
+
+// How many copies of the same code do we need, LL?
+void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, LLVolumeFace& vol_face)
+{
+    LL_RECORD_BLOCK_TIME(FTM_FACE_RIGGING_INFO);
+
+    if (vol_face.mJointRiggingInfoTab.needsUpdate())
+    {
+        S32 num_verts = vol_face.mNumVertices;
+        if (num_verts>0 && vol_face.mWeights && (skin->mJointNames.size()>0))
+        {
+            initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);
+            if (vol_face.mJointRiggingInfoTab.size()==0)
+            {
+                //std::set<S32> active_joints;
+                //S32 active_verts = 0;
+                vol_face.mJointRiggingInfoTab.resize(LL_CHARACTER_MAX_ANIMATED_JOINTS);
+                LLJointRiggingInfoTab &rig_info_tab = vol_face.mJointRiggingInfoTab;
+                for (S32 i=0; i<vol_face.mNumVertices; i++)
+                {
+                    LLVector4a& pos = vol_face.mPositions[i];
+                    F32 *weights = vol_face.mWeights[i].getF32ptr();
+                    LLVector4 wght;
+                    S32 idx[4];
+                    F32 scale = 0.0f;
+                    // FIXME unpacking of weights should be pulled into a common function and optimized if possible.
+                    for (U32 k = 0; k < 4; k++)
+                    {
+                        F32 w = weights[k];
+                        idx[k] = llclamp((S32) floorf(w), (S32)0, (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS-1);
+                        wght[k] = w - idx[k];
+                        scale += wght[k];
+                    }
+                    if (scale > 0.0f)
+                    {
+                        for (U32 k=0; k<4; ++k)
+                        {
+                            wght[k] /= scale;
+                        }
+                    }
+                    for (U32 k=0; k<4; ++k)
+                    {
+						S32 joint_index = idx[k];
+                        if (wght[k] > 0.0f)
+                        {
+                            S32 joint_num = skin->mJointNums[joint_index];
+                            if (joint_num >= 0 && joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS)
+                            {
+                                rig_info_tab[joint_num].setIsRiggedTo(true);
+
+                                // FIXME could precompute these matMuls.
+                                LLMatrix4a bind_shape;
+                                bind_shape.loadu(skin->mBindShapeMatrix);
+                                LLMatrix4a inv_bind;
+                                inv_bind.loadu(skin->mInvBindMatrix[joint_index]);
+                                LLMatrix4a mat;
+								mat.setMul(bind_shape, inv_bind);
+                                LLVector4a pos_joint_space;
+                                mat.affineTransform(pos, pos_joint_space);
+                                pos_joint_space.mul(wght[k]);
+                                LLVector4a *extents = rig_info_tab[joint_num].getRiggedExtents();
+                                update_min_max(extents[0], extents[1], pos_joint_space);
+                            }
+                        }
+                    }
+                }
+                //LL_DEBUGS("RigSpammish") << "built rigging info for vf " << &vol_face 
+                //                         << " num_verts " << vol_face.mNumVertices
+                //                         << " active joints " << active_joints.size()
+                //                         << " active verts " << active_verts
+                //                         << LL_ENDL; 
+                vol_face.mJointRiggingInfoTab.setNeedsUpdate(false);
+            }
+        }
+        if (vol_face.mJointRiggingInfoTab.size()!=0)
+        {
+            LL_DEBUGS("RigSpammish") << "we have rigging info for vf " << &vol_face 
+                                     << " num_verts " << vol_face.mNumVertices << LL_ENDL; 
+        }
+        else
+        {
+            LL_DEBUGS("RigSpammish") << "no rigging info for vf " << &vol_face 
+                                     << " num_verts " << vol_face.mNumVertices << LL_ENDL; 
+        }
+
+    }
+}
+
 // This is used for extracting rotation from a bind shape matrix that
 // already has scales baked in
 LLQuaternion LLSkinningUtil::getUnscaledQuaternion(const LLMatrix4& mat4)

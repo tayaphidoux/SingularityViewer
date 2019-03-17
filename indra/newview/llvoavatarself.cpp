@@ -264,7 +264,7 @@ void LLVOAvatarSelf::initInstance()
 	mInitFlags |= 1<<2;
 }
 
-void LLVOAvatarSelf::setHoverIfRegionEnabled()
+void LLVOAvatarSelf::setHoverIfRegionEnabled(bool send_update)
 {
 	LLViewerRegion* region = getRegion();
 	if (region && region->simulatorFeaturesReceived())
@@ -3017,6 +3017,12 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 		// have resolved.
 		gAgentAvatarp->mEndCustomizeCallback = NULL;
 	}
+}
+
+// virtual
+bool LLVOAvatarSelf::shouldRenderRigged() const
+{
+	return gAgent.needsRenderAvatar(); 
 }
 
 // HACK: this will null out the avatar's local texture IDs before the TE message is sent

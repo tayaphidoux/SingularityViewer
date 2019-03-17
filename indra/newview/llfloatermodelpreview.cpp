@@ -1359,7 +1359,11 @@ U32 LLModelPreview::calcResourceCost()
 
 			F32 radius = scale.length()*0.5f*debug_scale;
 
-			streaming_cost += LLMeshRepository::getStreamingCost(ret, radius);
+			LLMeshCostData costs;
+			if (LLMeshRepository::getCostData(ret, costs))
+			{
+				streaming_cost += costs.getRadiusBasedStreamingCost(radius);
+			}
 		}
 	}
 

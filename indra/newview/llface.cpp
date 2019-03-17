@@ -331,6 +331,8 @@ void LLFace::dirtyTexture()
 				if (vobj)
 				{
 					vobj->mLODChanged = TRUE;
+
+					vobj->updateVisualComplexity(); // Animmesh+
 				}
 				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
 			}

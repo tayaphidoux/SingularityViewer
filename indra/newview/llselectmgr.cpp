@@ -44,6 +44,7 @@
 #include "llundo.h"
 #include "lluuid.h"
 #include "llvolume.h"
+#include "llcontrolavatar.h"
 #include "message.h"
 #include "object_flags.h"
 #include "llquaternion.h"
@@ -6645,6 +6646,12 @@ void LLSelectMgr::pauseAssociatedAvatars()
 		{
 			if (object->isAnimatedObject())
 			{
+				// Is an animated object attachment.
+				// Pause both the control avatar and the avatar it's attached to.
+				if (object->getControlAvatar())
+				{
+					object->getControlAvatar()->pauseAllSyncedCharacters(mPauseRequests);
+				}
 				LLVOAvatar* avatar = object->getAvatar();
 				if (avatar)
 				{
@@ -6653,12 +6660,21 @@ void LLSelectMgr::pauseAssociatedAvatars()
 			}
 			else
 			{
+				object->print();
 				// Is a regular attachment. Pause the avatar it's attached to.
 				LLVOAvatar* avatar = object->getAvatar();
 				if (avatar)
 				{
 					avatar->pauseAllSyncedCharacters(mPauseRequests);
 				}
+			}
+		}
+		else
+		{
+			if (object && object->isAnimatedObject() && object->getControlAvatar())
+			{
+				// Is a non-attached animated object. Pause the control avatar.
+				object->getControlAvatar()->pauseAllSyncedCharacters(mPauseRequests);
 			}
 		}
 	}
@@ -7165,10 +7181,16 @@ F32 LLObjectSelection::getSelectedObjectStreamingCost(S32* total_bytes, S32* vis
 		
 		if (object)
 		{
+			cost += object->getStreamingCost();
+
 			S32 bytes = 0;
 			S32 visible = 0;
-			cost += object->getStreamingCost(&bytes, &visible);
-
+			LLMeshCostData costs;
+			if (object->getCostData(costs))
+			{
+				bytes = costs.getSizeTotal();
+				visible = costs.getSizeByLOD(object->getLOD());
+			}
 			if (total_bytes)
 			{
 				*total_bytes += bytes;

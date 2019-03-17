@@ -150,7 +150,10 @@ public:
 	/*virtual*/	const LLMatrix4a&	getRenderMatrix() const;
 	typedef std::map<LLUUID, S32> texture_cost_t;
 				U32 	getRenderCost(texture_cost_t &textures) const;
-	/*virtual*/	F32		getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL, F32* unscaled_value = NULL) const;
+	/*virtual*/	F32		getEstTrianglesMax() const;
+	/*virtual*/	F32		getEstTrianglesStreamingCost() const;
+	/* virtual*/ F32	getStreamingCost() const;
+	/*virtual*/ bool getCostData(LLMeshCostData& costs) const;
 
 	/*virtual*/ U32		getTriangleCount(S32* vcount = NULL) const;
 	/*virtual*/ U32		getHighLODTriangleCount();
@@ -176,6 +179,7 @@ public:
 				const LLMatrix4a& getWorldMatrix(LLXformMatrix* xform) const;
 
 				void	markForUpdate(BOOL priority);
+				void	markForUnload()							{ LLViewerObject::markForUnload(TRUE); mVolumeChanged = TRUE; }
 				void	faceMappingChanged()					{ mFaceMappingChanged=TRUE; };
 
 	/*virtual*/ void	onShift(const LLVector4a &shift_vector); // Called when the drawable shifts
@@ -283,6 +287,20 @@ public:
 	BOOL setIsFlexible(BOOL is_flexible);
 
     const LLMeshSkinInfo* getSkinInfo() const;
+    
+    // Extended Mesh Properties
+    U32 getExtendedMeshFlags() const;
+    void onSetExtendedMeshFlags(U32 flags);
+    void setExtendedMeshFlags(U32 flags);
+    bool canBeAnimatedObject() const;
+    bool isAnimatedObject() const;
+    virtual void onReparent(LLViewerObject *old_parent, LLViewerObject *new_parent);
+    virtual void afterReparent();
+
+    //virtual
+    void updateRiggingInfo();
+    S32 mLastRiggingInfoLOD;
+    
     // Functions that deal with media, or media navigation
     
     // Update this object's media data with the given media data array
@@ -320,6 +338,8 @@ public:
 	// tag: vaa emerald local_asset_browser
 	void setSculptChanged(BOOL has_changed) { mSculptChanged = has_changed; }
 
+	// Flag any corresponding avatars as needing update.
+	void updateVisualComplexity();
 	void notifyMeshLoaded();
 	
 	// Returns 'true' iff the media data for this object is in flight
@@ -372,6 +392,9 @@ public:
 
 	LLViewerTextureAnim *mTextureAnimp;
 	U8 mTexAnimMode;
+    F32 mLODDistance;
+    F32 mLODAdjustedDistance;
+    F32 mLODRadius;
 private:
 	friend class LLDrawable;
 	friend class LLFace;
