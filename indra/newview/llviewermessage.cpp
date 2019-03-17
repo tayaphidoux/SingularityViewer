@@ -6698,8 +6698,8 @@ void update_region_restart(const LLSD& llsdBlock)
 	if (restarting_floater)
 	{
 		restarting_floater->updateTime(seconds);
-		if (!restarting_floater->isMinimized())
-			restarting_floater->center();
+		/*if (!restarting_floater->isMinimized())
+			restarting_floater->center();*/
 	}
 	else
 	{
