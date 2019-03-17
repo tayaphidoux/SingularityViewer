@@ -236,7 +236,7 @@ mIsNavMeshDirty(false)
 	mSearchBevel->setVisible(show_search);
 
 	mTextParcelName->setClickedCallback(boost::bind(onClickParcelInfo));
-	mTextBalance->setClickedCallback(boost::bind(LLStatusBar::sendMoneyBalanceRequest));
+	mTextBalance->setClickedCallback(boost::bind(LLStatusBar::sendMoneyBalanceRequest, true));
 
 	// TODO: Disable buying currency when connected to non-SL grids
 	// that don't support currency yet -- MC
@@ -673,10 +673,10 @@ void LLStatusBar::setUPC(S32 upc)
 }
 
 // static
-void LLStatusBar::sendMoneyBalanceRequest()
+void LLStatusBar::sendMoneyBalanceRequest(bool from_user)
 {
 	void cmdline_printchat(const std::string& message);
-	cmdline_printchat(LLTrans::getString("refreshing balance"));
+	if (from_user) cmdline_printchat(LLTrans::getString("refreshing balance"));
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_MoneyBalanceRequest);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -898,7 +898,7 @@ public:
 		if (tokens.size() == 1
 			&& tokens[0].asString() == "request")
 		{
-			LLStatusBar::sendMoneyBalanceRequest();
+			LLStatusBar::sendMoneyBalanceRequest(true);
 			return true;
 		}
 		return false;
