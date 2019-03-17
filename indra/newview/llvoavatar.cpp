@@ -1114,6 +1114,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastUpdateRequestCOFVersion(-1),
 	mLastUpdateReceivedCOFVersion(-1),
 	mIsUIAvatar(false),
+	mEnableDefaultMotions(true),
 	// <edit>
 	mHasPhysicsParameters( false ),
 	mIdleMinute(0),
@@ -1233,9 +1234,6 @@ LLVOAvatar::~LLVOAvatar()
 	LL_DEBUGS("Avatar") << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << LL_ENDL;
 
 	std::for_each(mAttachmentPoints.begin(), mAttachmentPoints.end(), DeletePairedPointer());
-#if USE_LL_APPEARANCE_CODE
-	mAttachmentPoints.clear();
-#endif
 	
 	mDead = TRUE;
 	
@@ -1566,7 +1564,7 @@ void LLVOAvatar::cleanupClass()
 }
 
 // virtual
-void LLVOAvatar::initInstance(void)
+void LLVOAvatar::initInstance()
 {
 	//-------------------------------------------------------------------------
 	// register motions
@@ -1709,6 +1707,11 @@ void LLVOAvatar::onShift(const LLVector4a& shift_vector)
 
 void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
+	if (mDrawable.isNull())
+	{
+		return;
+	}
+
 	if (isImpostor() && !needsImpostorUpdate())
 	{
 		LLVector3 delta = getRenderPosition() -
@@ -1889,13 +1892,23 @@ void LLVOAvatar::renderCollisionVolumes()
 		static F32 sphere_scale = 1.0f;
 		static F32 center_dot_scale = 0.05f;
 
-		static LLVector3 CV_COLOR_OCCLUDED(0.0f, 0.0f, 1.0f);
-		static LLVector3 CV_COLOR_VISIBLE(0.5f, 0.5f, 1.0f);
-		static LLVector3 DOT_COLOR_OCCLUDED(1.0f, 1.0f, 1.0f);
-		static LLVector3 DOT_COLOR_VISIBLE(1.0f, 1.0f, 1.0f);
+        static LLVector3 BLUE(0.0f, 0.0f, 1.0f);
+        static LLVector3 PASTEL_BLUE(0.5f, 0.5f, 1.0f);
+        static LLVector3 RED(1.0f, 0.0f, 0.0f);
+        static LLVector3 PASTEL_RED(1.0f, 0.5f, 0.5f);
+        static LLVector3 WHITE(1.0f, 1.0f, 1.0f);
 
-		render_sphere_and_line(begin_pos, end_pos, sphere_scale, CV_COLOR_OCCLUDED, CV_COLOR_VISIBLE);
-		render_sphere_and_line(begin_pos, end_pos, center_dot_scale, DOT_COLOR_OCCLUDED, DOT_COLOR_VISIBLE);
+
+        LLVector3 cv_color_occluded;
+        LLVector3 cv_color_visible;
+        LLVector3 dot_color_occluded(WHITE);
+        LLVector3 dot_color_visible(WHITE);
+        {
+            cv_color_occluded = BLUE;
+            cv_color_visible = PASTEL_BLUE;
+        }
+        render_sphere_and_line(begin_pos, end_pos, sphere_scale, cv_color_occluded, cv_color_visible);
+        render_sphere_and_line(begin_pos, end_pos, center_dot_scale, dot_color_occluded, dot_color_visible);
 
 		gGL.popMatrix();
 	}
@@ -2123,6 +2136,7 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
 		if (isSelf())
 		{
+#if SLOW_ATTACHMENT_LIST
 			for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 			 iter != mAttachmentPoints.end();
 			 ++iter)
@@ -2134,6 +2148,12 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 					 ++attachment_iter)
 				{
 					LLViewerObject* attached_object = (*attachment_iter);
+#else
+			for(auto& iter : mAttachedObjectsVector)
+			{{
+					const LLViewerJointAttachment* attachment = iter.second;
+					const LLViewerObject* attached_object = iter.first;
+#endif
 					
 					if (attached_object && !attached_object->isDead() && attachment->getValid())
 					{
@@ -2187,6 +2207,7 @@ LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector
 		LLVector4a local_end = end;
 		LLVector4a local_intersection;
 
+#if SLOW_ATTACHMENT_LIST
 		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 			iter != mAttachmentPoints.end();
 			++iter)
@@ -2198,7 +2219,12 @@ LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector
 					++attachment_iter)
 			{
 				LLViewerObject* attached_object = (*attachment_iter);
-					
+#else
+		for(auto& iter : mAttachedObjectsVector)
+		{{
+				LLViewerObject* attached_object = iter.first;
+#endif
+
 				if (attached_object->lineSegmentIntersect(start, local_end, face, pick_transparent, face_hit, &local_intersection, tex_coord, normal, tangent))
 				{
 					local_end = local_intersection;
@@ -2280,6 +2306,11 @@ void LLVOAvatar::buildCharacter()
 		mAahMorph = getVisualParam( "Express_Open_Mouth" );
 	}
 
+    // Currently disabled for control avatars (animated objects), enabled for all others.
+    if (mEnableDefaultMotions)
+    {
+        startDefaultMotions();
+    }
 	startDefaultMotions();
 
 	//-------------------------------------------------------------------------
@@ -2394,8 +2425,11 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
     }
 
     // Reset tweakable params to preserved state
-    bool slam_params = true;
-    applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
+    if (mLastProcessedAppearance)
+    {
+        bool slam_params = true;
+        applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
+    }
     updateVisualParams();
 
     // Restore attachment pos overrides
@@ -7353,7 +7387,7 @@ void LLVOAvatar::lazyAttach()
 
 void LLVOAvatar::resetHUDAttachments()
 {
-
+#if SLOW_ATTACHMENT_LIST
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -7366,6 +7400,14 @@ void LLVOAvatar::resetHUDAttachments()
 				 ++attachment_iter)
 			{
 				const LLViewerObject* attached_object = (*attachment_iter);
+#else
+	for(auto& iter : mAttachedObjectsVector)
+	{{{
+				const LLViewerJointAttachment* attachment = iter.second;
+				if (!attachment->getIsHUDAttachment())
+					continue;
+				const LLViewerObject* attached_object = iter.first;
+#endif
 				if (attached_object && attached_object->mDrawable.notNull())
 				{
 					gPipeline.markMoved(attached_object->mDrawable);
@@ -7377,6 +7419,7 @@ void LLVOAvatar::resetHUDAttachments()
 
 void LLVOAvatar::rebuildRiggedAttachments( void )
 {
+#if SLOW_ATTACHMENT_LIST
 	for ( attachment_map_t::iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter )
 	{
 		LLViewerJointAttachment* pAttachment = iter->second;
@@ -7386,6 +7429,12 @@ void LLVOAvatar::rebuildRiggedAttachments( void )
 			 attachmentIter != attachmentIterEnd; ++attachmentIter)
 		{
 			const LLViewerObject* pAttachedObject =  *attachmentIter;
+#else
+	for(auto& iter : mAttachedObjectsVector)
+	{{
+			const LLViewerObject* pAttachedObject = iter.first;
+			const LLViewerJointAttachment* pAttachment = iter.second;
+#endif
 			if ( pAttachment && pAttachedObject->mDrawable.notNull() )
 			{
 				gPipeline.markRebuild(pAttachedObject->mDrawable);
@@ -7568,7 +7617,10 @@ void LLVOAvatar::getOffObject()
 	mRoot->setRotation(cur_rotation_world);
 	mRoot->getXform()->update();
 
+	if (mEnableDefaultMotions)
+	{
 	startMotion(ANIM_AGENT_BODY_NOISE);
+	}
 
 	if (isSelf())
 	{
@@ -7703,6 +7755,7 @@ LLViewerObject* LLVOAvatar::getWornAttachment( const LLUUID& inv_item_id )
 
 LLViewerObject *	LLVOAvatar::findAttachmentByID( const LLUUID & target_id ) const
 {
+#if SLOW_ATTACHMENT_LIST
 	for(attachment_map_t::const_iterator attachment_points_iter = mAttachmentPoints.begin();
 		attachment_points_iter != gAgentAvatarp->mAttachmentPoints.end();
 		++attachment_points_iter)
@@ -7713,6 +7766,11 @@ LLViewerObject *	LLVOAvatar::findAttachmentByID( const LLUUID & target_id ) cons
 			 ++attachment_iter)
 		{
 			LLViewerObject *attached_object = (*attachment_iter);
+#else
+	for(auto& iter : mAttachedObjectsVector)
+	{{
+			LLViewerObject* attached_object =  iter.first;
+#endif
 			if (attached_object &&
 				attached_object->getID() == target_id)
 			{
@@ -8563,6 +8621,7 @@ BOOL LLVOAvatar::hasHUDAttachment() const
 LLBBox LLVOAvatar::getHUDBBox() const
 {
 	LLBBox bbox;
+#if SLOW_ATTACHMENT_LIST
 	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -8575,6 +8634,14 @@ LLBBox LLVOAvatar::getHUDBBox() const
 				 ++attachment_iter)
 			{
 				const LLViewerObject* attached_object = (*attachment_iter);
+#else
+	for(auto& iter : mAttachedObjectsVector)
+	{{{
+				const LLViewerJointAttachment* attachment = iter.second;
+				if (!attachment || !attachment->getIsHUDAttachment())
+					continue;
+				const LLViewerObject* attached_object =  iter.first;
+#endif
 				if (attached_object == NULL)
 				{
 					LL_WARNS() << "HUD attached object is NULL!" << LL_ENDL;

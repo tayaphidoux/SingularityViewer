@@ -32,6 +32,7 @@
 #include "material_codes.h"
 
 // viewer includes
+#include "llagent.h"
 #include "llcriticaldamp.h"
 #include "llface.h"
 #include "lllightconstants.h"
@@ -49,6 +50,7 @@
 #include "llspatialpartition.h"
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
+#include "lldrawpoolavatar.h"
 
 const F32 MIN_INTERPOLATE_DISTANCE_SQUARED = 0.001f * 0.001f;
 const F32 MAX_INTERPOLATE_DISTANCE_SQUARED = 10.f * 10.f;
@@ -111,6 +113,28 @@ void LLDrawable::init()
 	LLViewerOctreeEntry* entry = NULL;
 	setOctreeEntry(entry);
 	initVisible(sCurVisible - 2);//invisible for the current frame and the last frame.
+}
+
+void LLDrawable::unload()
+{
+	LLVOVolume *pVVol = getVOVolume();
+	pVVol->setNoLOD();
+
+	for (S32 i = 0; i < getNumFaces(); i++)
+	{
+		LLFace* facep = getFace(i);
+		if (facep->isState(LLFace::RIGGED))
+		{
+			LLDrawPoolAvatar* pool = (LLDrawPoolAvatar*)facep->getPool();
+			if (pool) {
+				pool->removeRiggedFace(facep);
+			}
+			facep->setVertexBuffer(NULL);
+		}
+		facep->clearState(LLFace::RIGGED);
+	}
+
+	pVVol->markForUpdate(TRUE);
 }
 
 // static

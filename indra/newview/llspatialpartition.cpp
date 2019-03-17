@@ -76,6 +76,8 @@ BOOL LLSpatialGroup::sNoDelete = FALSE;
 static F32 sLastMaxTexPriority = 1.f;
 static F32 sCurMaxTexPriority = 1.f;
 
+BOOL LLSpatialPartition::sTeleportRequested = FALSE;
+
 //BOOL LLSpatialPartition::sFreezeState = FALSE;
 
 //static counter for frame to switch LOD on
@@ -1309,7 +1311,7 @@ void LLSpatialPartition::restoreGL()
 
 void LLSpatialPartition::resetVertexBuffers()
 {
-	LLOctreeDirty dirty;
+	LLOctreeDirty dirty(sTeleportRequested);
 	dirty.traverse(mOctree);
 }
 

@@ -428,6 +428,7 @@ public:
 
     void recursiveMarkForUpdate(BOOL priority);
 	virtual void markForUpdate(BOOL priority);
+	void markForUnload(BOOL priority);
 	void updateVolume(const LLVolumeParams& volume_params);
 	virtual	void updateSpatialExtents(LLVector4a& min, LLVector4a& max);
 	virtual F32 getBinRadius();
@@ -696,6 +697,10 @@ public:
 public:
 
     virtual bool isAnimatedObject() const;
+
+    // Flags for createObject
+    static const S32 CO_FLAG_UI_AVATAR = 1 << 1;
+
 protected:
 	// delete an item in the inventory, but don't tell the
 	// server. This is used internally by remove, update, and
@@ -706,8 +711,7 @@ protected:
 	// updateInventory.
 	void doUpdateInventory(LLPointer<LLViewerInventoryItem>& item, U8 key, bool is_new);
 
-
-	static LLViewerObject *createObject(const LLUUID &id, LLPCode pcode, LLViewerRegion *regionp);
+	static LLViewerObject *createObject(const LLUUID &id, LLPCode pcode, LLViewerRegion *regionp, S32 flags = 0);
 
 	BOOL setData(const U8 *datap, const U32 data_size);
 

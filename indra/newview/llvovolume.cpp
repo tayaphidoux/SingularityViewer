@@ -85,6 +85,7 @@
 #include "llvoavatar.h"
 #include "llvocache.h"
 #include "llmaterialmgr.h"
+#include "llsculptidsize.h"
 
 // [RLVa:KB] - Checked: 2010-04-04 (RLVa-1.2.0d)
 #include "rlvhandler.h"
@@ -262,6 +263,7 @@ void LLVOVolume::markDead()
 {
 	if (!mDead)
 	{
+		LLSculptIDSize::instance().rem(getVolume()->getParams().getSculptID());
 		if(getMDCImplCount() > 0)
 		{
 			LLMediaDataClientObject::ptr_t obj = new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false);
@@ -1078,8 +1080,10 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 
 		return TRUE;
 	}
-
-
+	else if (NO_LOD == lod) 
+	{
+		LLSculptIDSize::instance().resetSizeSum(volume_params.getSculptID());
+	}
 
 	return FALSE;
 }
@@ -1304,7 +1308,16 @@ BOOL LLVOVolume::updateLOD()
 		return FALSE;
 	}
 	
-	BOOL lod_changed = calcLOD();
+	BOOL lod_changed = FALSE;
+
+	if (!LLSculptIDSize::instance().isUnloaded(getVolume()->getParams().getSculptID())) 
+	{
+		lod_changed = calcLOD();
+	}
+	else
+	{
+		return FALSE;
+	}
 
 	if (lod_changed)
 	{
@@ -3346,6 +3359,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	static const F32 ARC_BUMP_MULT = 1.25f; // tested based on performance
 	static const F32 ARC_FLEXI_MULT = 5; // tested based on performance
 	static const F32 ARC_SHINY_MULT = 1.6f; // tested based on performance
+	static const F32 ARC_INVISI_COST = 1.2f; // tested based on performance
 	static const F32 ARC_WEIGHTED_MESH = 1.2f; // tested based on performance
 
 	static const F32 ARC_PLANAR_COST = 1.0f; // tested based on performance to have negligible impact
@@ -3354,6 +3368,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 	F32 shame = 0;
 
+	U32 invisi = 0;
 	U32 shiny = 0;
 	U32 glow = 0;
 	U32 alpha = 0;
@@ -3384,7 +3399,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		}
 	}
 
-	if (num_triangles == 0)
+	if (num_triangles <= 0)
 	{
 		num_triangles = 4;
 	}
@@ -3395,10 +3410,10 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		{
 			// base cost is dependent on mesh complexity
 			// note that 3 is the highest LOD as of the time of this coding.
-			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(),3);
+			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(), getLOD());
 			if ( size > 0)
 			{
-				if (gMeshRepo.getSkinInfo(volume_params.getSculptID(), this))
+				if (isRiggedMesh())
 				{
 					// weighted attachment - 1 point for every 3 bytes
 					weighted_mesh = 1;
@@ -3461,6 +3476,10 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		{
 			alpha = 1;
 		}
+		else if (img && img->getPrimaryFormat() == GL_ALPHA)
+		{
+			invisi = 1;
+		}
 		if (face->hasMedia())
 		{
 			media_faces++;
@@ -3512,6 +3531,11 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	if (alpha)
 	{
 		shame *= alpha * ARC_ALPHA_COST;
+	}
+
+	if(invisi)
+	{
+		shame *= invisi * ARC_INVISI_COST;
 	}
 
 	if (glow)

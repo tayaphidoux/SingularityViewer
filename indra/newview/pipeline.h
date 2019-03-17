@@ -115,7 +115,7 @@ public:
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
-	void doResetVertexBuffers();
+	void doResetVertexBuffers(bool forced = false);
 	void resizeScreenTexture();
 	void releaseVertexBuffers();
 	void releaseGLBuffers();
@@ -254,6 +254,7 @@ public:
 	void rebuildPriorityGroups();
 	void rebuildGroups();
 	void clearRebuildGroups();
+	void clearRebuildDrawables();
 
 	//calculate pixel area of given box from vantage point of given camera
 	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);

@@ -440,6 +440,7 @@ set(viewer_SOURCE_FILES
     llsavedsettingsglue.cpp
     llscrollingpanelparam.cpp
     llscrollingpanelparambase.cpp
+    llsculptidsize.cpp
     llselectmgr.cpp
     llshareavatarhandler.cpp
     llskinningutil.cpp
@@ -976,6 +977,7 @@ set(viewer_HEADER_FILES
     llsavedsettingsglue.h
     llscrollingpanelparam.h
     llscrollingpanelparambase.h
+    llsculptidsize.h
     llselectmgr.h
     llsimplestat.h
     llskinningutil.h

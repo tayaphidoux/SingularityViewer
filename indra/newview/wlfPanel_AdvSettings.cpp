@@ -467,7 +467,7 @@ void syncFromPreferenceSetting(LLSliderCtrl* sldrCtrl)
 	{
 		LLVector3 offset(0.0, 0.0, llclamp(value,MIN_HOVER_Z,MAX_HOVER_Z));
 		LL_INFOS("Avatar") << "setting hover from preference setting " << offset[2] << LL_ENDL;
-		gAgentAvatarp->setHoverOffset(offset);
+		gAgentAvatarp->setHoverIfRegionEnabled();
 	}
 }
 
@@ -476,19 +476,22 @@ void onHoverSliderMoved(const LLSD& val)
 	F32 value = val.asFloat();
 	LLVector3 offset(0.0, 0.0, llclamp(value,MIN_HOVER_Z,MAX_HOVER_Z));
 	LL_INFOS("Avatar") << "setting hover from slider moved" << offset[2] << LL_ENDL;
-	gAgentAvatarp->setHoverOffset(offset, false);
 }
+
+bool sInwlfPanelUpdate = false;
 
 // Do send-to-the-server work when slider drag completes, or new
 // value entered as text.
 void onHoverSliderFinalCommit(const LLSD& val)
 {
+	sInwlfPanelUpdate = true;
 	F32 value = val.asFloat();
 	gSavedPerAccountSettings.setF32("AvatarHoverOffsetZ", value);
 
 	LLVector3 offset(0.0, 0.0, llclamp(value,MIN_HOVER_Z,MAX_HOVER_Z));
 	LL_INFOS("Avatar") << "setting hover from slider final commit " << offset[2] << LL_ENDL;
-	gAgentAvatarp->setHoverOffset(offset, true); // will send update this time.
+	gAgentAvatarp->setHoverIfRegionEnabled(); // will send update this time.
+	sInwlfPanelUpdate = false;
 }
 
 void wlfPanel_AdvSettings::onRegionChanged()

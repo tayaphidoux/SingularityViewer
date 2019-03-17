@@ -68,6 +68,7 @@
 #include "llselectmgr.h"
 #include "llrendersphere.h"
 #include "lltooldraganddrop.h"
+#include "lluiavatar.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
 #include "llviewerinventory.h"
@@ -98,7 +99,7 @@
 #include "llvowlsky.h"
 #include "llmanip.h"
 #include "llmediaentry.h"
-
+#include "llmeshrepository.h"
 // [RLVa:KB]
 #include "rlvhandler.h"
 #include "rlvlocks.h"
@@ -137,11 +138,11 @@ const S32 MAX_OBJECT_BINARY_DATA_SIZE = 60 + 16;
 static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
 
 // static
-LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
+LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, S32 flags)
 {
 	LLViewerObject *res = NULL;
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
-	
+
 	switch (pcode)
 	{
 	case LL_PCODE_VOLUME:
@@ -156,7 +157,7 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 				gAgentAvatarp->initInstance();
 				gAgentWearables.setAvatarObject(gAgentAvatarp);
 			}
-			else 
+			else
 			{
 				if (isAgentAvatarValid())
 				{
@@ -165,9 +166,15 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 			}
 			res = gAgentAvatarp;
 		}
+		else if (flags & CO_FLAG_UI_AVATAR)
+		{
+			LLUIAvatar *ui_avatar = new LLUIAvatar(id, pcode, regionp);
+			ui_avatar->initInstance();
+			res = ui_avatar;
+		}
 		else
 		{
-			LLVOAvatar *avatar = new LLVOAvatar(id, pcode, regionp); 
+			LLVOAvatar *avatar = new LLVOAvatar(id, pcode, regionp);
 			avatar->initInstance();
 			res = avatar;
 		}
@@ -2780,6 +2787,9 @@ struct LLFilenameAndTask
 {
 	LLUUID mTaskID;
 	std::string mFilename;
+
+	// for sequencing in case of multiple updates
+	S16 mSerial;
 #ifdef _DEBUG
 	static S32 sCount;
 	LLFilenameAndTask()
@@ -2815,14 +2825,22 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 		return;
 	}
 
-	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, object->mInventorySerialNum);
 	LLFilenameAndTask* ft = new LLFilenameAndTask;
 	ft->mTaskID = task_id;
+	// we can receive multiple task updates simultaneously, make sure we will not rewrite newer with older update
+	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, ft->mSerial);
+
+	if (ft->mSerial < object->mInventorySerialNum)
+	{
+		// viewer did some changes to inventory that were not saved yet.
+		LL_DEBUGS() << "Task inventory serial might be out of sync, server serial: " << ft->mSerial << " client serial: " << object->mInventorySerialNum << LL_ENDL;
+		object->mInventorySerialNum = ft->mSerial;
+	}
 
 	std::string unclean_filename;
 	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, unclean_filename);
 	ft->mFilename = LLDir::getScrubbedFileName(unclean_filename);
-	
+
 	if(ft->mFilename.empty())
 	{
 		LL_DEBUGS() << "Task has no inventory" << LL_ENDL;
@@ -2871,9 +2889,13 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 {
 	LLFilenameAndTask* ft = (LLFilenameAndTask*)user_data;
 	LLViewerObject* object = NULL;
-	if(ft && (0 == error_code) &&
-	   (object = gObjectList.findObject(ft->mTaskID)))
+
+	if (ft
+		&& (0 == error_code)
+		&& (object = gObjectList.findObject(ft->mTaskID))
+		&& ft->mSerial >= object->mInventorySerialNum)
 	{
+		object->mInventorySerialNum = ft->mSerial;
 		if (object->loadTaskInvFile(ft->mFilename))
 		{
 
@@ -4264,14 +4286,14 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 
 	const LLUUID& image_id = getTE(te)->getID();
 		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-	
+
 	if (getTE(te)->getMaterialParams().notNull())
 	{
 		const LLUUID& norm_id = getTE(te)->getMaterialParams()->getNormalID();
-		mTENormalMaps[te] = LLViewerTextureManager::getFetchedTexture(norm_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-		
+		mTENormalMaps[te] = LLViewerTextureManager::getFetchedTexture(norm_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE);
+
 		const LLUUID& spec_id = getTE(te)->getMaterialParams()->getSpecularID();
-		mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE);
 	}
 }
 
@@ -4393,14 +4415,14 @@ S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)
 S32 LLViewerObject::setTENormalMap(const U8 te, const LLUUID& uuid)
 {
 	LLViewerFetchedTexture *image = (uuid == LLUUID::null) ? NULL : LLViewerTextureManager::getFetchedTexture(
-		uuid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost::invalid);
+		uuid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost::invalid);
 	return setTENormalMapCore(te, image);
 }
 
 S32 LLViewerObject::setTESpecularMap(const U8 te, const LLUUID& uuid)
 {
 	LLViewerFetchedTexture *image = (uuid == LLUUID::null) ? NULL : LLViewerTextureManager::getFetchedTexture(
-		uuid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost::invalid);
+		uuid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost::invalid);
 	return setTESpecularMapCore(te, image);
 }
 
@@ -5759,6 +5781,15 @@ void LLViewerObject::markForUpdate(BOOL priority)
 	}
 }
 
+
+void LLViewerObject::markForUnload(BOOL priority)
+{
+	if (mDrawable.notNull())
+	{
+		gPipeline.markRebuild(mDrawable, LLDrawable::FOR_UNLOAD, priority);
+	}
+}
+
 bool LLViewerObject::isPermanentEnforced() const
 {
 	return flagObjectPermanent() && (mRegionp != gAgent.getRegion()) && !gAgent.isGodlike();
@@ -6246,7 +6277,7 @@ public:
 	{
 		LLSD object_data = input["body"]["ObjectData"];
 		S32 num_entries = object_data.size();
-		
+
 		for ( S32 i = 0; i < num_entries; i++ )
 		{
 			LLSD& curr_object_data = object_data[i];
@@ -6279,9 +6310,9 @@ public:
 				node->getObject()->setPhysicsFriction(friction);
 				node->getObject()->setPhysicsDensity(density);
 				node->getObject()->setPhysicsRestitution(restitution);
-			}	
+			}
 		}
-		
+
 		dialog_refresh_all();
 	};
 };

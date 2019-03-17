@@ -51,7 +51,7 @@
 #include "llviewertexlayer.h"
 #include "material_codes.h"		// LL_MCODE_END
 #include "llviewerstats.h"
-
+#include "llvovolume.h"
 #include "llavatarname.h"
 
 //<singu>
@@ -477,6 +477,7 @@ private:
 
 public:
     bool mIsUIAvatar;
+    bool mEnableDefaultMotions;
 	//--------------------------------------------------------------------
 	// Morph masks
 	//--------------------------------------------------------------------
