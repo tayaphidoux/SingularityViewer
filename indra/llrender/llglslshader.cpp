@@ -460,29 +460,6 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
 			return createShader(attributes,uniforms);
 		}
 	}
-	else if (mFeatures.mIndexedTextureChannels > 0)
-	{ //override texture channels for indexed texture rendering
-		bind();
-		S32 channel_count = mFeatures.mIndexedTextureChannels;
-
-		for (S32 i = 0; i < channel_count; i++)
-		{
-			LLStaticHashedString uniName(llformat("tex%d", i));
-			uniform1i(uniName, i);
-		}
-
-		S32 cur_tex = channel_count; //adjust any texture channels that might have been overwritten
-		for (U32 i = 0; i < mTexture.size(); i++)
-		{
-			if (mTexture[i] > -1 && mTexture[i] < channel_count)
-			{
-				llassert(cur_tex < gGLManager.mNumTextureImageUnits);
-				uniform1i(i, cur_tex);
-				mTexture[i] = cur_tex++;
-			}
-		}
-		unbind();
-    }
 
     if (LLShaderMgr::instance()->mProgramObjects.find(mName) == LLShaderMgr::instance()->mProgramObjects.end())
     {
@@ -603,24 +580,14 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
 	return FALSE;
 }
 
-void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * uniforms)
+void LLGLSLShader::mapUniform(const gl_uniform_data_t& gl_uniform, const vector<LLStaticHashedString> * uniforms)
 {
-	if (index == -1)
-	{
-		return;
-	}
-
-	GLenum type;
-	GLsizei length;
-	GLint size = -1;
-	char name[1024];		/* Flawfinder: ignore */
-	name[0] = 0;
-
-	glGetActiveUniformARB(mProgramObject, index, 1024, &length, &size, &type, (GLcharARB *)name);
+	GLint size = gl_uniform.size;
+	char* name = (char*)gl_uniform.name.c_str(); //blegh
 #if !LL_DARWIN
 	if (size > 0)
 	{
-		switch(type)
+		switch(gl_uniform.type)
 		{
 			case GL_FLOAT_VEC2: size *= 2; break;
 			case GL_FLOAT_VEC3: size *= 3; break;
@@ -677,30 +644,40 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
 		mUniformMap[hashedName] = location;
 
 		LL_DEBUGS("ShaderLoading") << "Uniform " << name << " is at location " << location << LL_ENDL;
+
+		// Indexed textures are referenced by hardcoded tex unit index. This is where that mapping happens.
+		if (gl_uniform.texunit_priority < (U32)mFeatures.mIndexedTextureChannels)
+		{
+			// mUniform and mTexture are irrelivant for indexed textures, since there's no enum to look them up through.
+			// Thus, only call mapUniformTextureChannel to create the texunit => uniform location mapping in opengl.
+			mapUniformTextureChannel(location, gl_uniform.type);
+			return;
+		}
 	
 		//find the index of this uniform
-		for (S32 i = 0; i < (S32) LLShaderMgr::instance()->mReservedUniforms.size(); i++)
+		for (U32 i = 0; i < LLShaderMgr::instance()->mReservedUniforms.size(); i++)
 		{
 			if ( (mUniform[i] == -1)
 				&& (LLShaderMgr::instance()->mReservedUniforms[i] == name))
 			{
 				//found it
 				mUniform[i] = location;
-				mTexture[i] = mapUniformTextureChannel(location, type);
+				mTexture[i] = mapUniformTextureChannel(location, gl_uniform.type);
 				return;
 			}
 		}
 
 		if (uniforms != NULL)
 		{
-			for (U32 i = 0; i < uniforms->size(); i++)
+			U32 j = LLShaderMgr::instance()->mReservedUniforms.size();
+			for (U32 i = 0; i < uniforms->size(); i++, j++)
 			{
-				if ( (mUniform[i+LLShaderMgr::instance()->mReservedUniforms.size()] == -1)
+				if ( (mUniform[j] == -1)
 					&& ((*uniforms)[i].String() == name))
 				{
 					//found it
-					mUniform[i+LLShaderMgr::instance()->mReservedUniforms.size()] = location;
-					mTexture[i+LLShaderMgr::instance()->mReservedUniforms.size()] = mapUniformTextureChannel(location, type);
+					mUniform[j] = location;
+					mTexture[j] = mapUniformTextureChannel(location, gl_uniform.type);;
 					return;
 				}
 			}
@@ -734,6 +711,8 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 {
 	BOOL res = TRUE;
+
+	auto& reservedUniforms = LLShaderMgr::instance()->mReservedUniforms;
 	
 	mTotalUniformSize = 0;
 	mActiveTextureChannels = 0;
@@ -746,8 +725,8 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 	mValueMat4.clear();
 	//initialize arrays
 	U32 numUniforms = (uniforms == NULL) ? 0 : uniforms->size();
-	mUniform.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
-	mTexture.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
+	mUniform.resize(numUniforms + reservedUniforms.size(), -1);
+	mTexture.resize(numUniforms + reservedUniforms.size(), -1);
 	
 	bind();
 
@@ -755,9 +734,58 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 	GLint activeCount;
 	glGetProgramiv(mProgramObject, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &activeCount);
 
+	std::vector< gl_uniform_data_t > gl_uniforms;
+	
+	bool has_diffuse = false;
+	U32 max_index = mFeatures.mIndexedTextureChannels;
+	// Gather active uniforms.
 	for (S32 i = 0; i < activeCount; i++)
 	{
-		mapUniform(i, uniforms);
+		// Fetch name and size from opengl
+		char name[1024];
+		gl_uniform_data_t gl_uniform;
+		GLsizei length;
+		glGetActiveUniformARB(mProgramObject, i, 1024, &length, &gl_uniform.size, &gl_uniform.type, (GLcharARB *)name);
+		if (gl_uniform.size < 0 || length <= 0)
+			continue;
+		gl_uniform.name = std::string(name, length);
+
+		// Track if diffuseMap uniform was detected. If so, flag as such to assert indexed textures aren't also used in this shader.
+		has_diffuse |= gl_uniform.name == "diffuseMap";
+
+		// Use mReservedUniforms to calculate texunit ordering. Reserve priority [0,max_index) for indexed textures if applicable.
+		auto it = std::find(reservedUniforms.begin(), reservedUniforms.end(), gl_uniform.name);
+		gl_uniform.texunit_priority = it != reservedUniforms.end() ? max_index + std::distance(reservedUniforms.begin(), it) : UINT_MAX;
+
+		// Indexed texture uniforms must ALWAYS have highest texunit priority. Ensures [texunit[0],texunit[max_index]) map to [tex[0],tex[max_index]) uniforms.
+		// Note that this logic will break if a tex# index is skipped over in the shader.
+		if (gl_uniform.texunit_priority == UINT_MAX)
+		{
+			S32 idx;
+			if (sscanf(gl_uniform.name.c_str(), "tex%d", &idx) && idx < (S32)max_index)
+			{
+				gl_uniform.texunit_priority = idx;
+			}
+		}
+		
+		gl_uniforms.push_back(gl_uniform);
+	}
+
+	// Sort uniforms by texunit_priority
+	std::sort(gl_uniforms.begin(), gl_uniforms.end(), [](gl_uniform_data_t& lhs, gl_uniform_data_t& rhs)
+	{
+		return lhs.texunit_priority < rhs.texunit_priority;
+	});
+
+	// Sanity check
+	if (gl_uniforms.size() && gl_uniforms[0].name == "tex0")
+	{
+		llassert_always_msg(!has_diffuse, "Indexed textures and diffuseMap are incompatible!"); 
+	}
+
+	for (auto& gl_uniform : gl_uniforms)
+	{
+		mapUniform(gl_uniform, uniforms);
 	}
 
 	unbind();

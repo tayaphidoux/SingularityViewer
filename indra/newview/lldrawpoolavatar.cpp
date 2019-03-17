@@ -1403,6 +1403,16 @@ void LLDrawPoolAvatar::getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>
 	}
 
 	//LL_INFOS() << "Rebuilt face " << face->getTEOffset() << " of " << face->getDrawable() << " at " << gFrameTimeSeconds << LL_ENDL;
+
+	// Let getGeometryVolume know if a texture matrix is in play
+	if (face->mTextureMatrix)
+	{
+		face->setState(LLFace::TEXTURE_ANIM);
+	}
+	else
+	{
+		face->clearState(LLFace::TEXTURE_ANIM);
+	}
 	face->getGeometryVolume(*volume, face->getTEOffset(), mat_vert, mat_inv_trans, offset, true);
 
 	buffer->flush();
@@ -1410,16 +1420,24 @@ void LLDrawPoolAvatar::getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>
 
 void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* face, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face)
 {
-	LLVector4a* weight = vol_face.mWeights;
-	if (!weight)
+	LLVector4a* weights = vol_face.mWeights;
+	if (!weights)
 	{
 		return;
 	}
+	// FIXME ugly const cast
+	LLSkinningUtil::scrubInvalidJoints(avatar, const_cast<LLMeshSkinInfo*>(skin));
 
 	LLPointer<LLVertexBuffer> buffer = face->getVertexBuffer();
 	LLDrawable* drawable = face->getDrawable();
 
 	U32 data_mask = face->getRiggedVertexBufferDataMask();
+
+	if (!vol_face.mWeightsScrubbed)
+	{
+		LLSkinningUtil::scrubSkinWeights(weights, vol_face.mNumVertices, skin);
+		vol_face.mWeightsScrubbed = TRUE;
+	}
 	
 	if (buffer.isNull() || 
 		buffer->getTypeMask() != data_mask ||
@@ -1452,7 +1470,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 
 	if (sShaderLevel <= 0 && face->mLastSkinTime < avatar->getLastSkinTime())
 	{
-		avatar->updateSoftwareSkinnedVertices(skin, weight, vol_face, buffer);
+		avatar->updateSoftwareSkinnedVertices(skin, weights, vol_face, buffer);
 	}
 }
 

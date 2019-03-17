@@ -696,7 +696,7 @@ void LocalAssetBrowser::PerformSculptUpdates(LocalBitmap& unit)
 			{
 				LLImageRaw* rawimage = gTextureList.findImage(unit.getID())->getCachedRawImage();
 
-				aobj.object->getVolume()->sculpt(rawimage->getWidth(), rawimage->getHeight(), rawimage->getComponents(), rawimage->getData(), 0);
+				aobj.object->getVolume()->sculpt(rawimage->getWidth(), rawimage->getHeight(), rawimage->getComponents(), rawimage->getData(), 0, true);
 				unit.volume_dirty = false;
 			}
 
