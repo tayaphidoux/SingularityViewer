@@ -260,9 +260,11 @@ void LLVOAvatarSelf::initInstance()
 	doPeriodically(update_avatar_rez_metrics, 5.0);
 	doPeriodically(check_for_unsupported_baked_appearance, 120.0);
 	doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
+
+	mInitFlags |= 1<<2;
 }
 
-void LLVOAvatarSelf::setHoverIfRegionEnabled()
+void LLVOAvatarSelf::setHoverIfRegionEnabled(bool send_update)
 {
 	LLViewerRegion* region = getRegion();
 	if (region && region->simulatorFeaturesReceived())
@@ -609,6 +611,13 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 	if (!jointp && mScreenp)
 	{
 		jointp = mScreenp->findJoint(name);
+		if (jointp)
+		{
+			joint_map_t::value_type entry;
+			strncpy(entry.first, name.c_str(), sizeof(entry.first));
+			entry.second = jointp;
+			mJointMap.emplace_back(entry);
+		}
 	}
 	return jointp;
 
@@ -3010,6 +3019,12 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 	}
 }
 
+// virtual
+bool LLVOAvatarSelf::shouldRenderRigged() const
+{
+	return gAgent.needsRenderAvatar(); 
+}
+
 // HACK: this will null out the avatar's local texture IDs before the TE message is sent
 //       to ensure local texture IDs are not sent to other clients in the area.
 //       this is a short-term solution. The long term solution will be to not set the texture
@@ -3107,7 +3122,7 @@ BOOL LLVOAvatarSelf::needsRenderBeam()
 		// don't render selection beam on hud objects
 		is_touching_or_grabbing = FALSE;
 	}
-	return is_touching_or_grabbing || (mState & AGENT_STATE_EDITING && LLSelectMgr::getInstance()->shouldShowSelection());
+	return is_touching_or_grabbing || (getAttachmentState()  & AGENT_STATE_EDITING && LLSelectMgr::getInstance()->shouldShowSelection());
 }
 
 void dump_visual_param(apr_file_t* file, LLVisualParam const* viewer_param, F32 value);

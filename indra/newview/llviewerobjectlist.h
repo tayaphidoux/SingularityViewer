@@ -74,7 +74,7 @@ public:
 	
 	inline LLViewerObject *findObject(const LLUUID &id) const;
 	inline LLVOAvatar *findAvatar(const LLUUID &id) const;
-	LLViewerObject *createObjectViewer(const LLPCode pcode, LLViewerRegion *regionp); // Create a viewer-side object
+	LLViewerObject *createObjectViewer(const LLPCode pcode, LLViewerRegion *regionp, S32 flags = 0); // Create a viewer-side object
 	LLViewerObject *createObject(const LLPCode pcode, LLViewerRegion *regionp,
 								 const LLUUID &uuid, const U32 local_id, const LLHost &sender);
 
@@ -141,6 +141,7 @@ public:
 	LLViewerObject *getSelectedObject(const U32 object_id);
 
 	inline S32 getNumObjects() { return (S32) mObjects.size(); }
+	inline S32 getNumActiveObjects() { return (S32) mActiveObjects.size(); }
 
 	void addToMap(LLViewerObject *objectp);
 	void removeFromMap(LLViewerObject *objectp);

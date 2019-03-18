@@ -1333,7 +1333,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 		max_texmem = llmin(max_texmem, system_ram/2);
 	else
 		max_texmem = llmin(max_texmem, system_ram);
-		
+
     // limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
 	max_texmem = llmin(max_texmem, (S32Megabytes) (mem_multiplier * max_texmem));
 

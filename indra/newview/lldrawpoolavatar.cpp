@@ -116,6 +116,32 @@ LLDrawPoolAvatar::LLDrawPoolAvatar() :
 {
 }
 
+LLDrawPoolAvatar::~LLDrawPoolAvatar()
+{
+	if (!isDead())
+	{
+		LL_WARNS() << "Destroying avatar drawpool that still contains faces" << LL_ENDL;
+	}
+}
+
+// virtual
+BOOL LLDrawPoolAvatar::isDead()
+{
+	if (!LLFacePool::isDead())
+	{
+		return FALSE;
+	}
+
+	for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
+	{
+		if (mRiggedFace[i].size() > 0)
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+ 
 //-----------------------------------------------------------------------------
 // instancePool()
 //-----------------------------------------------------------------------------
@@ -460,7 +486,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 	LLVOAvatar *avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
 
-	if (avatarp->isDead() || avatarp->mIsDummy || avatarp->mDrawable.isNull())
+	if (avatarp->isDead() || avatarp->isUIAvatar() || avatarp->mDrawable.isNull())
 	{
 		return;
 	}
@@ -1479,7 +1505,7 @@ extern int sCurCacheHit;
 
 void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 {
-	if ((avatar->isSelf() && !gAgent.needsRenderAvatar()) || !gMeshRepo.meshRezEnabled())
+	if (!avatar->shouldRenderRigged() || !gMeshRepo.meshRezEnabled())
 	{
 		return;
 	}
@@ -1510,13 +1536,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			continue;
 		}
 
-		LLUUID mesh_id = volume->getParams().getSculptID();
-		if (mesh_id.isNull())
-		{
-			continue;
-		}
-
-		const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id, vobj);
+		const LLMeshSkinInfo* skin = vobj->getSkinInfo();
 		if (!skin)
 		{
 			continue;
@@ -1729,7 +1749,7 @@ void LLDrawPoolAvatar::updateRiggedVertexBuffers(LLVOAvatar* avatar)
 
 			LLVOVolume* vobj = drawable->getVOVolume();
 
-			if (!vobj)
+			if (!vobj || vobj->isNoLOD())
 			{
 				continue;
 			}
@@ -1742,13 +1762,7 @@ void LLDrawPoolAvatar::updateRiggedVertexBuffers(LLVOAvatar* avatar)
 				continue;
 			}
 
-			LLUUID mesh_id = volume->getParams().getSculptID();
-			if (mesh_id.isNull())
-			{
-				continue;
-			}
-
-			const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id, vobj);
+			const LLMeshSkinInfo* skin = vobj->getSkinInfo();
 			if (!skin)
 			{
 				continue;

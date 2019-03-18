@@ -505,7 +505,7 @@ protected:
 	U32 				mMiscFlags;			// home for misc bools
 
 	static LLVolumeMgr* sVolumeManager;
-
+public:
 	enum
 	{
 		NO_LOD = -1

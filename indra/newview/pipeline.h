@@ -115,7 +115,7 @@ public:
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
-	void doResetVertexBuffers();
+	void doResetVertexBuffers(bool forced = false);
 	void resizeScreenTexture();
 	void releaseVertexBuffers();
 	void releaseGLBuffers();
@@ -254,6 +254,7 @@ public:
 	void rebuildPriorityGroups();
 	void rebuildGroups();
 	void clearRebuildGroups();
+	void clearRebuildDrawables();
 
 	//calculate pixel area of given box from vantage point of given camera
 	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
@@ -568,6 +569,8 @@ public:
 	S32						 mMeanBatchSize;
 	S32						 mTrianglesDrawn;
 	S32						 mNumVisibleNodes;
+
+	static S32				sCompiles;
 
 	static BOOL				sShowHUDAttachments;
 	static BOOL				sForceOldBakedUpload; // If true will not use capabilities to upload baked textures.

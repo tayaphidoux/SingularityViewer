@@ -273,5 +273,16 @@
       <key>Value</key>
       <real>0</real>
     </map>
+    <key>SHSkipResetVBOsOnTeleport</key>
+    <map>
+      <key>Comment</key>
+      <string>Skip VBO auto-recreation upon teleport. Setting to true may help avoid attachments dissipearing on teleport.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>0</real>
+    </map>
   </map>
 </llsd>

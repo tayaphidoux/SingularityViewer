@@ -45,6 +45,7 @@ typedef FILE	LLFILE;
 typedef struct _stat	llstat;
 #else
 typedef struct stat		llstat;
+#include <sys/types.h>
 #endif
 
 #ifndef S_ISREG
@@ -77,8 +78,8 @@ public:
 	static	int		mkdir(const std::string& filename, int perms = 0700);
 
 	static	int		rmdir(const std::string& filename);
-	static	int		remove(const std::string& filename);
-	static	int		rename(const std::string& filename,const std::string&	newname);
+	static	int		remove(const std::string& filename, int supress_error = 0);
+	static	int		rename(const std::string& filename,const std::string& newname, int supress_error = 0);
 	static	int		stat(const std::string&	filename,llstat*	file_status);
 	static	bool	isdir(const std::string&	filename);
 	static	bool	isfile(const std::string&	filename);

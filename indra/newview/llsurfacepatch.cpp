@@ -44,7 +44,7 @@
 #include "llperlin.h"
 
 extern bool gShiftFrame;
-extern U64 gFrameTime;
+extern U64MicrosecondsImplicit gFrameTime;
 extern LLPipeline gPipeline;
 
 LLSurfacePatch::LLSurfacePatch()

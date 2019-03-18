@@ -39,6 +39,7 @@
 #include "llrect.h"
 #include "llerror.h"
 #include "llstring.h"
+#include "llvoavatarself.h"
 #include "message.h"
 
 // project include
@@ -127,10 +128,28 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 	LLViewerObject* objectp = gObjectList.findObject(source_id);
 	std::string floater_label;
 
+	// Handle /me messages.
+	std::string prefix = utf8mesg.substr(0, 4);
+	std::string message = (prefix == "/me " || prefix == "/me'") ? user_name + utf8mesg.substr(3) : utf8mesg;
+
 	if (objectp)
 	{
-		objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
-		floater_label = llformat("%s(%.2f, %.2f)", user_name.c_str(), objectp->getPositionRegion().mV[VX], objectp->getPositionRegion().mV[VY]);
+		if(objectp->isHUDAttachment())
+		{
+			if (isAgentAvatarValid())
+			{
+				((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+			}
+		}
+		else
+		{
+			objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+		}
+		floater_label = llformat("%s(%.0f, %.0f, %.0f)",
+						user_name.c_str(),
+						objectp->getPositionRegion().mV[VX],
+						objectp->getPositionRegion().mV[VY],
+						objectp->getPositionRegion().mV[VZ]);
 	}
 	else
 	{
@@ -142,11 +161,17 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 
 	// add to "All" floater
 	LLFloaterScriptDebugOutput* floaterp = LLFloaterScriptDebugOutput::getFloaterByID(LLUUID::null);
-	floaterp->addLine(utf8mesg, user_name, color);
-
+	if (floaterp)
+	{
+		floaterp->addLine(message, user_name, color);
+	}
+	
 	// add to specific script instance floater
 	floaterp = LLFloaterScriptDebugOutput::getFloaterByID(source_id);
-	floaterp->addLine(utf8mesg, floater_label, color);
+	if (floaterp)
+	{
+		floaterp->addLine(message, floater_label, color);
+	}
 }
 
 //

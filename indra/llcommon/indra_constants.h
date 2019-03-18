@@ -32,15 +32,6 @@
 
 class LLUUID;
 
-// At 45 Hz collisions seem stable and objects seem
-// to settle down at a reasonable rate.
-// JC 3/18/2003
-
-// const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
-// This must be a #define due to anal retentive restrictions on const expressions
-// CG 2008-06-05
-#define PHYSICS_TIMESTEP (1.f / 45.f)
-
 const F32 COLLISION_TOLERANCE = 0.1f;
 const F32 HALF_COLLISION_TOLERANCE = 0.05f;
 
@@ -252,7 +243,7 @@ const U8 SIM_ACCESS_DOWN	= 254;
 const U8 SIM_ACCESS_MAX 	= SIM_ACCESS_ADULT;
 
 // attachment constants
-const S32 MAX_AGENT_ATTACHMENTS = 38;
+const U32 MAX_AGENT_ATTACHMENTS = 38;
 const U8  ATTACHMENT_ADD = 0x80;
 
 // god levels

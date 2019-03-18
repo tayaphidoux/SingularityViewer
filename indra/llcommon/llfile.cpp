@@ -265,10 +265,10 @@ int	LLFile::remove_nowarn(const std::string& filename)
 	return rc;
 }
 
-int	LLFile::remove(const std::string& filename)
+int	LLFile::remove(const std::string& filename, int supress_error)
 {
 	int rc = LLFile::remove_nowarn(filename);
-	return warnif("remove", filename, rc);
+	return warnif("remove", filename, rc, supress_error);
 }
 
 int	LLFile::rename_nowarn(const std::string& filename, const std::string& newname)
@@ -285,10 +285,10 @@ int	LLFile::rename_nowarn(const std::string& filename, const std::string& newnam
 	return rc;
 }
 
-int	LLFile::rename(const std::string& filename, const std::string& newname)
+int	LLFile::rename(const std::string& filename, const std::string& newname, int supress_error)
 {
 	int rc = LLFile::rename_nowarn(filename, newname);
-	return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc);
+	return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc, supress_error);
 }
 
 int	LLFile::stat(const std::string& filename, llstat* filestatus)

@@ -53,7 +53,7 @@
 
 const F32 MAX_PART_LIFETIME = 120.f;
 
-extern U64 gFrameTime;
+extern U64MicrosecondsImplicit gFrameTime;
 
 LLPointer<LLVertexBuffer> LLVOPartGroup::sVB = NULL;
 S32 LLVOPartGroup::sVBSlotFree[];

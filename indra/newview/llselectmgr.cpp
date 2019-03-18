@@ -46,6 +46,7 @@
 #include "llundo.h"
 #include "lluuid.h"
 #include "llvolume.h"
+#include "llcontrolavatar.h"
 #include "message.h"
 #include "object_flags.h"
 #include "llquaternion.h"
@@ -372,7 +373,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S3
 //-----------------------------------------------------------------------------
 // Select the object, parents and children.
 //-----------------------------------------------------------------------------
-LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, BOOL add_to_end)
+LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, BOOL add_to_end, BOOL ignore_select_owned)
 {
 	llassert( obj );
 
@@ -389,7 +390,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, 
 		return NULL;
 	}
 
-	if (!canSelectObject(obj))
+	if (!canSelectObject(obj,ignore_select_owned))
 	{
 		//make_ui_sound("UISndInvalidOp");
 		return NULL;
@@ -661,6 +662,10 @@ bool LLSelectMgr::enableLinkObjects()
 			const bool firstonly = true;
 			new_value = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
 		}
+	}
+	if (!LLSelectMgr::getInstance()->getSelection()->checkAnimatedObjectLinkable())
+	{
+		new_value = false;
 	}
 // [RLVa:KB] - Checked: 2011-03-19 (RLVa-1.3.0f) | Modified: RLVa-0.2.0g
 	if ( (new_value) && ((rlv_handler_t::isEnabled()) && (!RlvActions::canStand())) )
@@ -1216,7 +1221,7 @@ void LLSelectMgr::setGridMode(EGridMode mode)
 	updateSelectionCenter();
 }
 
-void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &scale)
+void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &scale, bool for_snap_guides)
 {
 	mGridObjects.cleanupNodes();
 	
@@ -1241,7 +1246,15 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 	}
 	else if (mGridMode == GRID_MODE_REF_OBJECT && first_grid_object && first_grid_object->mDrawable.notNull())
 	{
-		mGridRotation = first_grid_object->getRenderRotation();
+		LLSelectNode *node = mSelectedObjects->findNode(first_grid_object);
+		if (!for_snap_guides && node)
+		{
+			mGridRotation = node->mSavedRotation;
+		}
+		else
+		{
+			mGridRotation = first_grid_object->getRenderRotation();
+		}
 
 		LLVector4a min_extents(F32_MAX);
 		LLVector4a max_extents(-F32_MAX);
@@ -6708,7 +6721,6 @@ void LLSelectMgr::updateSelectionCenter()
 		mSelectionCenterGlobal.clearVec();
 		mShowSelection = FALSE;
 		mSelectionBBox = LLBBox(); 
-		mPauseRequests.clear();
 		resetAgentHUDZoom();
 
 	}
@@ -6716,21 +6728,7 @@ void LLSelectMgr::updateSelectionCenter()
 	{
 		mSelectedObjects->mSelectType = getSelectTypeForObject(object);
 
-		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid())
-		{
-			// Freeze avatars with a selected attachment, and all avatars with synchronized motions, if any.
-			LLVOAvatar* avatar = object->getAvatar();
-			// It is possible that 'avatar' is NULL despite this being an attachment because of some race condition.
-			// In that case just don't freeze the avatar.
-			if (avatar)
-			{
-				avatar->pauseAllSyncedCharacters(mPauseRequests);
-			}
-		}
-		else
-		{
-			mPauseRequests.clear();
-		}
+
 
 		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && isAgentAvatarValid())
 		{
@@ -6807,6 +6805,68 @@ void LLSelectMgr::updateSelectionCenter()
 	if (gEditMenuHandler == this && mSelectedObjects->getObjectCount() == 0)
 	{
 		gEditMenuHandler = NULL;
+	}
+
+	pauseAssociatedAvatars();
+}
+
+//-----------------------------------------------------------------------------
+// pauseAssociatedAvatars
+//
+// If the selection includes an attachment or an animated object, the
+// associated avatars should pause their animations until they are no
+// longer selected.
+//-----------------------------------------------------------------------------
+void LLSelectMgr::pauseAssociatedAvatars()
+{
+	mPauseRequests.clear();
+
+	for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
+		 iter != mSelectedObjects->end(); iter++)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if (!object)
+			continue;
+			
+		mSelectedObjects->mSelectType = getSelectTypeForObject(object);
+
+		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && 
+			isAgentAvatarValid() && object->getParent() != NULL)
+		{
+			if (object->isAnimatedObject())
+			{
+				// Is an animated object attachment.
+				// Pause both the control avatar and the avatar it's attached to.
+				if (object->getControlAvatar())
+				{
+					object->getControlAvatar()->pauseAllSyncedCharacters(mPauseRequests);
+				}
+				LLVOAvatar* avatar = object->getAvatar();
+				if (avatar)
+				{
+					avatar->pauseAllSyncedCharacters(mPauseRequests);
+				}
+			}
+			else
+			{
+				object->print();
+				// Is a regular attachment. Pause the avatar it's attached to.
+				LLVOAvatar* avatar = object->getAvatar();
+				if (avatar)
+				{
+					avatar->pauseAllSyncedCharacters(mPauseRequests);
+				}
+			}
+		}
+		else
+		{
+			if (object && object->isAnimatedObject() && object->getControlAvatar())
+			{
+				// Is a non-attached animated object. Pause the control avatar.
+				object->getControlAvatar()->pauseAllSyncedCharacters(mPauseRequests);
+			}
+		}
 	}
 }
 
@@ -7017,7 +7077,7 @@ void LLSelectMgr::validateSelection()
 	getSelection()->applyToObjects(&func);	
 }
 
-BOOL LLSelectMgr::canSelectObject(LLViewerObject* object)
+BOOL LLSelectMgr::canSelectObject(LLViewerObject* object, BOOL ignore_select_owned)
 {
 	// Never select dead objects
 	if (!object || object->isDead())
@@ -7030,11 +7090,14 @@ BOOL LLSelectMgr::canSelectObject(LLViewerObject* object)
 		return TRUE;
 	}
 
-	if ((gSavedSettings.getBOOL("SelectOwnedOnly") && !object->permYouOwner()) ||
-		(gSavedSettings.getBOOL("SelectMovableOnly") && (!object->permMove() ||  object->isPermanentEnforced())))
+	if(!ignore_select_owned)
 	{
-		// only select my own objects
-		return FALSE;
+		if ((gSavedSettings.getBOOL("SelectOwnedOnly") && !object->permYouOwner()) ||
+				(gSavedSettings.getBOOL("SelectMovableOnly") && (!object->permMove() ||  object->isPermanentEnforced())))
+		{
+			// only select my own objects
+			return FALSE;
+		}
 	}
 
 	// Can't select orphans
@@ -7308,10 +7371,16 @@ F32 LLObjectSelection::getSelectedObjectStreamingCost(S32* total_bytes, S32* vis
 		
 		if (object)
 		{
+			cost += object->getStreamingCost();
+
 			S32 bytes = 0;
 			S32 visible = 0;
-			cost += object->getStreamingCost(&bytes, &visible);
-
+			LLMeshCostData costs;
+			if (object->getCostData(costs))
+			{
+				bytes = costs.getSizeTotal();
+				visible = costs.getSizeByLOD(object->getLOD());
+			}
 			if (total_bytes)
 			{
 				*total_bytes += bytes;
@@ -7337,7 +7406,9 @@ U32 LLObjectSelection::getSelectedObjectTriangleCount(S32* vcount)
 		
 		if (object)
 		{
-			count += object->getTriangleCount(vcount);
+			S32 vt = 0;
+			count += object->getTriangleCount(&vt);
+			*vcount += vt;
 		}
 	}
 
@@ -7464,6 +7535,31 @@ bool LLObjectSelection::applyToObjects(LLSelectedObjectFunctor* func)
 		result = result && r;
 	}
 	return result;
+}
+
+bool LLObjectSelection::checkAnimatedObjectEstTris()
+{
+	F32 est_tris = 0;
+	F32 max_tris = 0;
+	S32 anim_count = 0;
+	for (root_iterator iter = root_begin(); iter != root_end(); ++iter)
+	{
+		LLViewerObject* object = (*iter)->getObject();
+		if (!object)
+			continue;
+		if (object->isAnimatedObject())
+		{
+			anim_count++;
+		}
+		est_tris += object->recursiveGetEstTrianglesMax();
+		max_tris = llmax((F32)max_tris,(F32)object->getAnimatedObjectMaxTris());
+	}
+	return anim_count==0 || est_tris <= max_tris;
+}
+
+bool LLObjectSelection::checkAnimatedObjectLinkable()
+{
+	return checkAnimatedObjectEstTris();
 }
 
 bool LLObjectSelection::applyToRootObjects(LLSelectedObjectFunctor* func, bool firstonly)

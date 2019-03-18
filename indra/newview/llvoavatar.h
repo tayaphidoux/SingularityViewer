@@ -50,8 +50,9 @@
 #include "lldriverparam.h"
 #include "llviewertexlayer.h"
 #include "material_codes.h"		// LL_MCODE_END
+#include "llrigginginfo.h"
 #include "llviewerstats.h"
-
+#include "llvovolume.h"
 #include "llavatarname.h"
 
 //<singu>
@@ -80,6 +81,7 @@ class LLTexGlobalColor;
 class LLViewerJoint;
 struct LLAppearanceMessageContents;
 class LLMeshSkinInfo;
+class LLViewerJointMesh;
 
 class SHClientTagMgr : public LLSingleton<SHClientTagMgr>, public boost::signals2::trackable
 {
@@ -207,7 +209,7 @@ public:
 	/*virtual*/ void   	 	 	setPixelAreaAndAngle(LLAgent &agent);
 	/*virtual*/ void   	 	 	updateRegion(LLViewerRegion *regionp);
 	/*virtual*/ void   	 	 	updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax);
-	/*virtual*/ void   	 	 	getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
+	void			   	 	 	calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
 	/*virtual*/ BOOL   	 	 	lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 												 S32 face = -1,                    // which face to check, -1 = ALL_SIDES
 												 BOOL pick_transparent = FALSE,
@@ -241,6 +243,7 @@ public:
 	void						startMotion(U32 bit, F32 start_offset = 0.f);
 	void						stopMotion(U32 bit, BOOL stop_immediate = FALSE);
 	//</singu>
+	virtual bool			hasMotionFromSource(const LLUUID& source_id);
 	virtual void			stopMotionFromSource(const LLUUID& source_id);
 	virtual void			requestStopMotion(LLMotion* motion);
 	LLMotion*				findMotion(const LLUUID& id) const;
@@ -248,19 +251,29 @@ public:
 	void					dumpAnimationState();
 
 	virtual LLJoint*		getJoint(const std::string &name);
-	LLJoint*		        getJoint(S32 num);
+	LLJoint*				getJoint(S32 num);
 	
-	void 					addAttachmentOverridesForObject(LLViewerObject *vo);
-	void					resetJointsOnDetach(const LLUUID& mesh_id);
-	void					resetJointsOnDetach(LLViewerObject *vo);
-	bool					jointIsRiggedTo(const std::string& joint_name);
-	bool					jointIsRiggedTo(const std::string& joint_name, const LLViewerObject *vo);
+	void 					addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LLUUID>* meshes_seen = NULL, bool recursive = true);
+	void					removeAttachmentOverridesForObject(const LLUUID& mesh_id);
+	void					removeAttachmentOverridesForObject(LLViewerObject *vo);
+	bool					jointIsRiggedTo(const LLJoint *joint) const;
 	void					clearAttachmentOverrides();
 	void					rebuildAttachmentOverrides();
+	void					updateAttachmentOverrides();
 	void					showAttachmentOverrides(bool verbose = false) const;
 	void					getAttachmentOverrideNames(	std::set<std::string>& pos_names, 
 														std::set<std::string>& scale_names) const;
+
+    void 					getAssociatedVolumes(std::vector<LLVOVolume*>& volumes);
+
+    // virtual
+    void 					updateRiggingInfo();
+	// This encodes mesh id and LOD, so we can see whether display is up-to-date.
+	std::map<LLUUID,S32>	mLastRiggingInfoKey;
 	
+    std::set<LLUUID>		mActiveOverrideMeshes;
+    virtual void			onActiveOverrideMeshesChanged();
+    
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);
 	/*virtual*/ F32				getTimeDilation();
@@ -283,6 +296,8 @@ public:
 public:
 	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
 
+	virtual bool 	isControlAvatar() const { return mIsControlAvatar; } // True if this avatar is a control av (no associated user)
+	virtual bool 	isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
 private: //aligned members
 	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
 
@@ -293,8 +308,16 @@ private:
 	// Updates
 	//--------------------------------------------------------------------
 public:
-	void			updateDebugText();
+    void			updateAppearanceMessageDebugText();
+	void 			updateAnimationDebugText();
+	virtual void	updateDebugText();
 	virtual BOOL 	updateCharacter(LLAgent &agent);
+    void			updateFootstepSounds();
+    void			computeUpdatePeriod();
+    void			updateOrientation(LLAgent &agent, F32 speed, F32 delta_time);
+    void			updateTimeStep();
+    void			updateRootPositionAndRotation(LLAgent &agent, F32 speed, bool was_sit_ground_constrained);
+    
 	void 			idleUpdateVoiceVisualizer(bool voice_enabled);
 	void 			idleUpdateMisc(bool detailed_update);
 	virtual void	idleUpdateAppearanceAnimation();
@@ -311,19 +334,25 @@ public:
 	// force all name tags to rebuild, useful when display names turned on/off
 	static void		invalidateNameTags();
 	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
-	void 			idleUpdateRenderCost();
-	void			calculateUpdateRenderCost();
-	void			updateVisualComplexity() { mVisualComplexityStale = TRUE; }
+	void 			idleUpdateRenderComplexity();
+    void 			accountRenderComplexityForObject(const LLViewerObject *attached_object,
+                                                     const F32 max_attachment_complexity,
+                                                     LLVOVolume::texture_cost_t& textures,
+                                                     U32& cost/*,
+                                                     hud_complexity_list_t& hud_complexity_list*/);
+	void			calculateUpdateRenderComplexity();
+	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
+	void			updateVisualComplexity();
 
-	S32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
-	S32				getAttachmentGeometryBytes()	{ return mAttachmentGeometryBytes;		};		// number of bytes in attached geometry
+	U32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
 	F32				getAttachmentSurfaceArea()		{ return mAttachmentSurfaceArea;		};		// estimated surface area of attachments
 
-	S32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
+	U32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
 	void			setReportedVisualComplexity(S32 value)			{ mReportedVisualComplexity = value;			};
 
 	S32				getUpdatePeriod()				{ return mUpdatePeriod;			};
 
+	static void		updateImpostorRendering(U32 newMaxNonImpostorsValue);
 
 	void 			idleUpdateBelowWater();
 
@@ -336,13 +365,13 @@ public:
 	static U32		sMaxVisible; //(affected by control "RenderAvatarMaxVisible")
 	static F32		sRenderDistance; //distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
-	static BOOL		sUseImpostors; //use impostors for far away avatars
-	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
-	static BOOL		sVisibleInFirstPerson;
+	static bool		sUseImpostors; //use impostors for far away avatars
+	static bool		sShowFootPlane;	// show foot collision plane reported by server
+	static bool		sVisibleInFirstPerson;
 	static S32		sNumLODChangesThisFrame;
 	static S32		sNumVisibleChatBubbles;
 	static BOOL		sDebugInvisible;
-	static BOOL		sShowAttachmentPoints;
+	static bool		sShowAttachmentPoints;
 	static F32		sLODFactor; // user-settable LOD factor
 	static F32		sPhysicsLODFactor; // user-settable physics LOD factor
 	static BOOL		sJointDebug; // output total number of joints being touched for each avatar
@@ -392,8 +421,6 @@ private:
 	BOOL			mPreviousFullyLoaded;
 	BOOL			mFullyLoadedInitialized;
 	S32				mFullyLoadedFrameCounter;
-	S32				mVisualComplexity;
-	BOOL			mVisualComplexityStale;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
 	bool			mFreezeTimeLangolier;	// True when this avatar was created during snapshot FreezeTime mode, and that mode is still active.
@@ -460,12 +487,10 @@ public:
 	static void	destroyGL();
 	static void	restoreGL();
 	S32			mSpecialRenderMode; // special lighting
-	S32			mAttachmentGeometryBytes; //number of bytes in attached geometry
-	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
-
-	S32			mReportedVisualComplexity;			// Numbers as reported by the SL server
-
 private:
+	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
+	U32			mAttachmentVisibleTriangleCount;
+	F32			mAttachmentEstTriangleCount;
 	bool		shouldAlphaMask();
 
 	BOOL 		mNeedsSkin; // avatar has been animated and verts have not been updated
@@ -473,6 +498,19 @@ private:
 
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
+
+	// the isTooComplex method uses these mutable values to avoid recalculating too frequently
+	mutable U32  mVisualComplexity;
+	mutable bool mVisualComplexityStale;
+	U32			 mReportedVisualComplexity; // from other viewers through the simulator
+
+	//--------------------------------------------------------------------
+	// animated object status
+	//--------------------------------------------------------------------
+public:
+    bool mIsControlAvatar;
+    bool mIsUIAvatar;
+    bool mEnableDefaultMotions;
 
 	//--------------------------------------------------------------------
 	// Morph masks
@@ -513,7 +551,8 @@ private:
 	//--------------------------------------------------------------------
 public:
 	BOOL 		isImpostor() const;
-	BOOL 	    needsImpostorUpdate() const;
+	BOOL 		shouldImpostor(const U32 rank_factor = 1) const;
+	BOOL 		needsImpostorUpdate() const;
 	const LLVector3& getImpostorOffset() const;
 	const LLVector2& getImpostorDim() const;
 	void 		getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& distance) const;
@@ -523,14 +562,19 @@ public:
 	static void updateImpostors();
 	LLRenderTarget mImpostor;
 	BOOL		mNeedsImpostorUpdate;
+	F32SecondsImplicit mLastImpostorUpdateFrameTime;
+	const LLVector3*  getLastAnimExtents() const { return mLastAnimExtents; }
+	void		setNeedsExtentUpdate(bool val) { mNeedsExtentUpdate = val; }
 private:
 	LLVector3	mImpostorOffset;
 	LLVector2	mImpostorDim;
 	BOOL		mNeedsAnimUpdate;
+	bool		mNeedsExtentUpdate;
 	LLVector3	mImpostorAngle;
 	F32			mImpostorDistance;
 	F32			mImpostorPixelArea;
 	LLVector3	mLastAnimExtents[2];  
+	LLVector3	mLastAnimBasePos;
 
 	//--------------------------------------------------------------------
 	// Wind rippling in clothes
@@ -717,7 +761,6 @@ public:
     void            applyParsedAppearanceMessage(LLAppearanceMessageContents& contents, bool slam_params);
 	void 			hideSkirt();
 	void			startAppearanceAnimation();
-	/*virtual*/ void bodySizeChanged();
 	
 	//--------------------------------------------------------------------
 	// Appearance morphing
@@ -755,6 +798,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isVisible() const;
+	virtual bool    shouldRenderRigged() const;
 	void			setVisibilityRank(U32 rank);
 	U32				getVisibilityRank()  const { return mVisibilityRank; } // unused
 	static S32 		sNumVisibleAvatars; // Number of instances of this class
@@ -779,9 +823,9 @@ public:
 	static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
 	/*virtual*/ BOOL	isWearingWearableType(LLWearableType::EType type ) const;
 	LLViewerObject *	findAttachmentByID( const LLUUID & target_id ) const;
+	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 
 protected:
-	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 	void 				lazyAttach();
 	void				rebuildRiggedAttachments( void );
 
@@ -803,11 +847,12 @@ public:
 	BOOL 				hasHUDAttachment() const;
 	LLBBox 				getHUDBBox() const;
 	void 				resetHUDAttachments();
-	BOOL				canAttachMoreObjects() const;
-	BOOL				canAttachMoreObjects(U32 n) const;
+	BOOL				canAttachMoreObjects(U32 n=1) const;
+    U32					getMaxAnimatedObjectAttachments() const;
+    BOOL				canAttachMoreAnimatedObjects(U32 n=1) const;
 protected:
 	U32					getNumAttachments() const; // O(N), not O(1)
-
+	U32					getNumAnimatedObjectAttachments() const; // O(N), not O(1)
 	//--------------------------------------------------------------------
 	// Old/nonstandard/Agent-only functions
 	//--------------------------------------------------------------------

@@ -4499,6 +4499,10 @@ version 2.0
 		AgeVerificationBlock Single
 		{   RegionDenyAgeUnverified BOOL    }
 	}
+    {
+        RegionAllowAccessBlock Single
+        {   RegionAllowAccessOverride BOOL  }  
+    }
 }
 
 // ParcelPropertiesUpdate
@@ -7280,6 +7284,29 @@ version 2.0
 	}
 }
 
+
+// *************************************************************************
+// Object animation messages
+// *************************************************************************
+
+// Note this is basically identical to AvatarAnimation.
+// Needs to be a different message because existing viewers
+// have insufficiently smart handler functions.
+
+// ObjectAnimation - Update animation state
+// simulator --> viewer
+{
+        ObjectAnimation High 30 Trusted Unencoded
+        {
+                Sender                  Single
+                {       ID                      LLUUID  }
+        }
+        {
+                AnimationList Variable
+                { AnimID                LLUUID }
+                { AnimSequenceID S32 }
+        }
+}
 
 // *************************************************************************
 // Asset storage messages

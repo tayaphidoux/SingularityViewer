@@ -491,7 +491,7 @@ void LLTexLayerParamColor::setWeight(F32 weight, bool upload_bake)
 	{
 		mCurWeight = new_weight;
 
-                const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
+		const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
 
 		if (info->mNumColors <= 0)
 		{

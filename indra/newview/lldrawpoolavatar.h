@@ -67,6 +67,8 @@ public:
 	virtual S32 getVertexShaderLevel() const;
 
 	LLDrawPoolAvatar();
+	~LLDrawPoolAvatar();
+	/*virtual*/ BOOL isDead();
 
 	static const LLMatrix4a& getModelView();
 

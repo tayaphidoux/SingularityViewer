@@ -59,6 +59,7 @@
 #include "llviewershadermgr.h"
 #include "llviewertexture.h"
 #include "llvoavatar.h"
+#include "llsculptidsize.h"
 
 #define LL_MAX_INDICES_COUNT 1000000
 
@@ -330,6 +331,8 @@ void LLFace::dirtyTexture()
 				if (vobj)
 				{
 					vobj->mLODChanged = TRUE;
+
+					vobj->updateVisualComplexity(); // Animmesh+
 				}
 				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
 			}
@@ -851,12 +854,6 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 	//get bounding box
 	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
 	{
-		//VECTORIZE THIS
-		const LLMatrix4a& mat_vert = mat_vert_in;
-		//mat_vert.loadu(mat_vert_in);
-
-		LLVector4a min,max;
-	
 		if (f >= volume.getNumVolumeFaces())
 		{
 			LL_WARNS() << "Generating bounding box for invalid face index!" << LL_ENDL;
@@ -864,77 +861,42 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		}
 
 		const LLVolumeFace &face = volume.getVolumeFace(f);
-		min = face.mExtents[0];
-		max = face.mExtents[1];
 		
-		llassert(less_than_max_mag(min));
-		llassert(less_than_max_mag(max));
 
-		//min, max are in volume space, convert to drawable render space
-
-		//get 8 corners of bounding box
-		LLVector4Logical mask[6];
-
-		for (U32 i = 0; i < 6; ++i)
+		// MAINT-8264 - stray vertices, especially in low LODs, cause bounding box errors.
+		if (face.mNumVertices < 3) 
 		{
-			mask[i].clear();
+			LL_DEBUGS("RiggedBox") << "skipping face " << f << ", bad num vertices " 
+									<< face.mNumVertices << " " << face.mNumIndices << " " << face.mWeights << LL_ENDL;
+		return FALSE;
 		}
 
-		mask[0].setElement<2>(); //001
-		mask[1].setElement<1>(); //010
-		mask[2].setElement<1>(); //011
-		mask[2].setElement<2>();
-		mask[3].setElement<0>(); //100
-		mask[4].setElement<0>(); //101
-		mask[4].setElement<2>();
-		mask[5].setElement<0>(); //110
-		mask[5].setElement<1>();
-		
-		LLVector4a v[8];
+		//VECTORIZE THIS
+		LLMatrix4a mat_vert = mat_vert_in;
+		LLVector4a new_extents[2];
 
-		v[6] = min;
-		v[7] = max;
+		llassert(less_than_max_mag(face.mExtents[0]));
+		llassert(less_than_max_mag(face.mExtents[1]));
 
-		for (U32 i = 0; i < 6; ++i)
-		{
-			v[i].setSelectWithMask(mask[i], min, max);
-		}
-
-		LLVector4a tv[8];
-
-		//transform bounding box into drawable space
-		for (U32 i = 0; i < 8; ++i)
-		{
-			mat_vert.affineTransform(v[i], tv[i]);
-		}
-	
-		//find bounding box
-		LLVector4a& newMin = mExtents[0];
-		LLVector4a& newMax = mExtents[1];
-
-		newMin = newMax = tv[0];
-
-		for (U32 i = 1; i < 8; ++i)
-		{
-			newMin.setMin(newMin, tv[i]);
-			newMax.setMax(newMax, tv[i]);
-		}
+		matMulBoundBox(mat_vert, face.mExtents, mExtents);
 
 		if (!mDrawablep->isActive())
 		{	// Shift position for region
 			LLVector4a offset;
 			offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
-			newMin.add(offset);
-			newMax.add(offset);
+			mExtents[0].add(offset);
+			mExtents[1].add(offset);
+			LL_DEBUGS("RiggedBox") << "updating extents for face " << f 
+									<< " not active, added offset " << offset << LL_ENDL;
 		}
 
 		LLVector4a t;
-		t.setAdd(newMin,newMax);
+		t.setAdd(mExtents[0],mExtents[1]);
 		t.mul(0.5f);
 
 		mCenterLocal.set(t.getF32ptr());
 
-		t.setSub(newMax,newMin);
+		t.setSub(mExtents[1],mExtents[0]);
 		mBoundingSphereRadius = t.getLength3().getF32()*0.5f;
 
 		updateCenterAgent();
@@ -2521,12 +2483,25 @@ LLViewerTexture* LLFace::getTexture(U32 ch) const
 
 void LLFace::setVertexBuffer(LLVertexBuffer* buffer)
 {
+	if (buffer)
+	{
+		LLSculptIDSize::instance().inc(mDrawablep, buffer->getSize() + buffer->getIndicesSize());
+	}
+
+	if (mVertexBuffer)
+	{
+		LLSculptIDSize::instance().dec(mDrawablep);
+	}
 	mVertexBuffer = buffer;
 	llassert(verify());
 }
 
 void LLFace::clearVertexBuffer()
 {
+	if (mVertexBuffer)
+	{
+		LLSculptIDSize::instance().dec(mDrawablep);
+	}
 	mVertexBuffer = NULL;
 }
 
