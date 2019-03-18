@@ -746,6 +746,10 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 		gl_uniform_data_t gl_uniform;
 		GLsizei length;
 		glGetActiveUniformARB(mProgramObject, i, 1024, &length, &gl_uniform.size, &gl_uniform.type, (GLcharARB *)name);
+		if (length && name[length - 1] == '\0')
+		{
+			--length; // Some drivers can't be trusted...
+		}
 		if (gl_uniform.size < 0 || length <= 0)
 			continue;
 		gl_uniform.name = std::string(name, length);
@@ -762,7 +766,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 		if (gl_uniform.texunit_priority == UINT_MAX)
 		{
 			S32 idx;
-			if (sscanf(gl_uniform.name.c_str(), "tex%d", &idx) && idx < (S32)max_index)
+			if (sscanf(gl_uniform.name.c_str(), "tex%d", &idx))
 			{
 				gl_uniform.texunit_priority = idx;
 			}

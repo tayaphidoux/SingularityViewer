@@ -1154,7 +1154,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("specularMap");
 	mReservedUniforms.push_back("bumpMap");
 	mReservedUniforms.push_back("environmentMap");
-	mReservedUniforms.push_back("cloude_noise_texture");
+	mReservedUniforms.push_back("cloud_noise_texture");
 	mReservedUniforms.push_back("fullbright");
 	mReservedUniforms.push_back("lightnorm");
 	mReservedUniforms.push_back("sunlight_color_copy");
