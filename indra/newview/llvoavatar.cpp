@@ -328,7 +328,7 @@ const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
 
-#define SLOW_ATTACHMENT_LIST 1
+#define SLOW_ATTACHMENT_LIST 0
 
 //Singu note: FADE and ALWAYS are swapped around from LL's source to match our preference panel.
 //	Changing the "RenderName" order would cause confusion when 'always' setting suddenly gets
@@ -1813,7 +1813,7 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 			{
 				static const LLVector4Logical mask = _mm_load_ps((F32*)&S_V4LOGICAL_MASK_TABLE[3 * 4]);
 				LLVector4a trans;
-				trans.setSelectWithMask(mask, mesh->mJointRenderData[joint_num]->mWorldMatrix->getRow<3>(), _mm_setzero_ps());
+				trans.setSelectWithMask(mask, _mm_setzero_ps(), mesh->mJointRenderData[joint_num]->mWorldMatrix->getRow<3>());
 				update_min_max(newMin, newMax, trans);
 			}
 		}
