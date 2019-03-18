@@ -327,10 +327,7 @@ void wlfPanel_AdvSettings::onChangeDayTime(const LLSD& value)
 	inst.mAnimator.deactivate();
 
 	F32 val = value.asFloat() + 0.25f;
-	if(val > 1.0)
-	{
-		val--;
-	}
+	if (val > 1.0f) --val;
 
 	inst.mAnimator.setDayTime((F64)val);
 	inst.mAnimator.update(inst.mCurParams);
