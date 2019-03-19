@@ -4912,7 +4912,7 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 			root_pos += LLVector3d(getHoverOffset());
 		}
 
-		LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+		LLControlAvatar *cav = asControlAvatar();
 		if (cav)
 		{
 			// SL-1350: Moved to LLDrawable::updateXform()
@@ -5003,7 +5003,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	bool is_attachment = false;
 	if (is_control_avatar)
 	{
-		LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+		LLControlAvatar *cav = asControlAvatar();
 		is_attachment = cav && cav->mRootVolp && cav->mRootVolp->isAttachment(); // For attached animated objects
 	}
 
@@ -5577,10 +5577,19 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			}
 			first_pass = FALSE;
 		}
-		// Can't test for baked hair being defined, since that won't always be the case (not all viewers send baked hair)
-		// TODO: 1.25 will be able to switch this logic back to calling isTextureVisible();
-		if ((getImage(TEX_HAIR_BAKED, 0) && 
-		     getImage(TEX_HAIR_BAKED, 0)->getID() != IMG_INVISIBLE) || LLDrawPoolAlpha::sShowDebugAlpha)		
+		bool show_hair = false;
+		if (isControlAvatar())
+		{
+			show_hair = isTextureVisible(TEX_HAIR_BAKED);
+		}
+		else
+		{
+			// Can't test for baked hair being defined, since that won't always be the case (not all viewers send baked hair)
+			// TODO: 1.25 will be able to switch this logic back to calling isTextureVisible();
+			auto image = getImage(TEX_HAIR_BAKED, 0);
+			show_hair = LLDrawPoolAlpha::sShowDebugAlpha || (image && image->getID() != IMG_INVISIBLE);
+		}
+		if (show_hair)
 		{
 			LLViewerJoint* hair_mesh = getViewerJoint(MESH_ID_HAIR);
 			if (hair_mesh)
@@ -6783,7 +6792,7 @@ void LLVOAvatar::rebuildAttachmentOverrides()
     clearAttachmentOverrides();
 
     // Handle the case that we're resetting the skeleton of an animated object.
-    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+    LLControlAvatar *control_av = asControlAvatar();
     if (control_av)
     {
         LLVOVolume *volp = control_av->mRootVolp;
@@ -6837,7 +6846,7 @@ void LLVOAvatar::updateAttachmentOverrides()
     std::set<LLUUID> meshes_seen;
     
     // Handle the case that we're updating the skeleton of an animated object.
-    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+    LLControlAvatar *control_av = asControlAvatar();
     if (control_av)
     {
         LLVOVolume *volp = control_av->mRootVolp;
@@ -10402,7 +10411,7 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
         }
     }
 
-    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+    LLControlAvatar *control_av = asControlAvatar();
     if (control_av)
     {
         LLVOVolume *volp = control_av->mRootVolp;
@@ -10616,7 +10625,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 {
 	if (isControlAvatar())
 	{
-		LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+		LLControlAvatar *cav = asControlAvatar();
 		bool is_attachment = cav && cav->mRootVolp && cav->mRootVolp->isAttachment(); // For attached animated objects
 		if (is_attachment)
 		{
@@ -10891,7 +10900,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 		// A standalone animated object needs to be accounted for
 		// using its associated volume. Attached animated objects
 		// will be covered by the subsequent loop over attachments.
-		LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+		LLControlAvatar *control_av = asControlAvatar();
 		if (control_av)
 		{
 			LLVOVolume *volp = control_av->mRootVolp;

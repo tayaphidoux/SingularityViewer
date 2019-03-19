@@ -82,6 +82,7 @@ class LLViewerJoint;
 struct LLAppearanceMessageContents;
 class LLMeshSkinInfo;
 class LLViewerJointMesh;
+class LLControlAvatar;
 
 class SHClientTagMgr : public LLSingleton<SHClientTagMgr>, public boost::signals2::trackable
 {
@@ -296,8 +297,9 @@ public:
 public:
 	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
 
-	virtual bool 	isControlAvatar() const { return mIsControlAvatar; } // True if this avatar is a control av (no associated user)
-	virtual bool 	isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
+	bool 	isControlAvatar() const { return mIsControlAvatar; } // True if this avatar is a control av (no associated user)
+	virtual LLControlAvatar* asControlAvatar() { return nullptr; }
+	bool 	isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
 private: //aligned members
 	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
 
