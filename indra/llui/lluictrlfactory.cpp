@@ -412,13 +412,13 @@ LLMenuGL *LLUICtrlFactory::buildMenu(const std::string &filename, LLView* parent
 	}
 
 	// root must be called panel
-	if( !root->hasName( "menu_bar" ) && !root->hasName( "menu" ))
+	if( !root->hasName( "menu_bar" ) && !root->hasName( "menu" ) && !root->hasName("context_menu"))
 	{
 		LL_WARNS() << "Root node should be named menu bar or menu in : " << filename << LL_ENDL;
 		return NULL;
 	}
 
-	if (root->hasName("menu"))
+	if (root->hasName("menu") || root->hasName("context_menu"))
 	{
 		menu = (LLMenuGL*)LLMenuGL::fromXML(root, parentp, this);
 	}
@@ -496,7 +496,7 @@ void LLUICtrlFactory::rebuild()
 		panelp->setFocus(FALSE);
 		panelp->deleteAllChildren();
 
-		buildPanel(panelp, filename.c_str(), &panelp->getFactoryMap());
+		buildPanel(panelp, filename, &panelp->getFactoryMap());
 		panelp->setVisible(visible);
 	}
 

@@ -93,6 +93,7 @@ LLFloaterTopObjects::LLFloaterTopObjects()
 	mCommitCallbackRegistrar.add("TopObjects.CommitObjectsList",boost::bind(&LLFloaterTopObjects::onCommitObjectsList, this));
 
 	mCommitCallbackRegistrar.add("TopObjects.TeleportToObject",	boost::bind(&LLFloaterTopObjects::onTeleportToObject, this));
+	mCommitCallbackRegistrar.add("TopObjects.CamToObject",		boost::bind(&LLFloaterTopObjects::onCamToObject, this));
 	mCommitCallbackRegistrar.add("TopObjects.Kick",				boost::bind(&LLFloaterTopObjects::onKick, this));
 	mCommitCallbackRegistrar.add("TopObjects.Profile",			boost::bind(&LLFloaterTopObjects::onProfile, this));
 
@@ -494,23 +495,11 @@ void LLFloaterTopObjects::onGetByParcelName()
 
 void LLFloaterTopObjects::showBeacon()
 {
-	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("objects_list");
-	if (!list) return;
-
-	LLScrollListItem* first_selected = list->getFirstSelected();
-	if (!first_selected) return;
-
+	LLVector3d pos_global = getSelectedPosition();
+	if (pos_global.isExactlyZero()) return;
+	LLScrollListItem* first_selected = getChild<LLScrollListCtrl>("objects_list")->getFirstSelected();
 	std::string name = first_selected->getColumn(1)->getValue().asString();
-	std::string pos_string =  first_selected->getColumn(3)->getValue().asString();
-
-	F32 x, y, z;
-	S32 matched = sscanf(pos_string.c_str(), "<%g,%g,%g>", &x, &y, &z);
-	if (matched != 3) return;
-
-	LLVector3 pos_agent(x, y, z);
-	LLVector3d pos_global = gAgent.getPosGlobalFromAgent(pos_agent);
-	std::string tooltip("");
-	LLTracker::trackLocation(pos_global, name, tooltip, LLTracker::LOCATION_ITEM);
+	LLTracker::trackLocation(pos_global, name, LLStringUtil::null, LLTracker::LOCATION_ITEM);
 
 	const LLUUID& taskid = first_selected->getUUID();
 	if(LLVOAvatar* voavatar = gObjectList.findAvatar(taskid))
@@ -522,24 +511,37 @@ void LLFloaterTopObjects::showBeacon()
 	}
 }
 
-void LLFloaterTopObjects::onTeleportToObject()
+LLVector3d LLFloaterTopObjects::getSelectedPosition() const
 {
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("objects_list");
-		if (!list) return;
+	if (!list) return LLVector3d::zero;
 
 	LLScrollListItem* first_selected = list->getFirstSelected();
-	if (!first_selected) return;
+	if (!first_selected) return LLVector3d::zero;
 
 	std::string pos_string =  first_selected->getColumn(3)->getValue().asString();
 
 	F32 x, y, z;
 	S32 matched = sscanf(pos_string.c_str(), "<%g,%g,%g>", &x, &y, &z);
-	if (matched != 3) return;
+	if (matched != 3) return LLVector3d::zero;
 
 	LLVector3 pos_agent(x, y, z);
-	LLVector3d pos_global = gAgent.getPosGlobalFromAgent(pos_agent);
+	return gAgent.getPosGlobalFromAgent(pos_agent);
+}
 
+void LLFloaterTopObjects::onTeleportToObject()
+{
+	LLVector3d pos_global = getSelectedPosition();
+	if (pos_global.isExactlyZero()) return;
 	gAgent.teleportViaLocation( pos_global );
+}
+
+void LLFloaterTopObjects::onCamToObject()
+{
+	LLVector3d pos_global = getSelectedPosition();
+	if (pos_global.isExactlyZero()) return;
+	const LLUUID& id = getChild<LLScrollListCtrl>("objects_list")->getFirstSelected()->getUUID();
+	gAgentCamera.setCameraPosAndFocusGlobal(pos_global + LLVector3d(3.5,1.35,0.75), pos_global, id);
 }
 
 void LLFloaterTopObjects::onKick()

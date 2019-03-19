@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="rclickmenu" create_jump_keys="true">
+  <menu_item_call label="Cut" name="Cut">
+    <on_click function="Text" userdata="Cut"/>
+  </menu_item_call>
+  <menu_item_call label="Copy" name="Copy">
+    <on_click function="Text" userdata="Copy"/>
+  </menu_item_call>
+  <menu_item_call label="Copy Raw" name="Copy Raw">
+    <on_click function="Text" userdata="CopyRaw"/>
+  </menu_item_call>
+  <menu_item_call label="Paste" name="Paste">
+    <on_click function="Text" userdata="Paste"/>
+  </menu_item_call>
+  <menu_item_call label="Delete" name="Delete">
+    <on_click function="Text" userdata="Delete"/>
+  </menu_item_call>
+  <menu_item_call label="Select All" name="Select All">
+    <on_click function="Text" userdata="SelectAll"/>
+  </menu_item_call>
+</menu>

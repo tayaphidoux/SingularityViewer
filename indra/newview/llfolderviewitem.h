@@ -61,7 +61,8 @@ public:
 		: mSortOrder(0),
 		mByDate(false),
 		mSystemToTop(false),
-		mFoldersByName(false) { }
+		mFoldersByName(false),
+		mFoldersByWeight(false) { }
 
 	// Returns true if order has changed
 	bool updateSort(U32 order);
@@ -74,6 +75,7 @@ private:
 	bool mByDate;
 	bool mSystemToTop;
 	bool mFoldersByName;
+	bool mFoldersByWeight;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,12 +141,11 @@ protected:
 	BOOL                            mIsLoading;
 	LLTimer                         mTimeSinceRequestStart;
 	bool						mShowLoadStatus;
+	bool						mAllowDrop;
+	bool						mAllowWear;
 
 	std::string					mSearchable;
 	U32							mSearchType;
-	
-	// helper function to change the selection from the root.
-	void changeSelectionFromRoot(LLFolderViewItem* selection, BOOL selected);
 
 	//Sets extra search criteria 'labels' to be compared against by filter.
 	void updateExtraSearchCriteria();
@@ -240,13 +241,16 @@ public:
 
 	void setShowLoadStatus(bool status) { mShowLoadStatus = status; }
 
+	void setAllowDrop(bool allow) { mAllowDrop = allow; }
+	void setAllowWear(bool allow) { mAllowWear = allow; }
+
 	// Call through to the viewed object and return true if it can be
 	// removed. Returns true if it's removed.
 	//virtual BOOL removeRecursively(BOOL single_item);
 	BOOL remove();
 
 	// Build an appropriate context menu for the item.	Flags unused.
-	void buildContextMenu(LLMenuGL& menu, U32 flags);
+	void buildContextMenu(class LLMenuGL& menu, U32 flags);
 
 	// This method returns the actual name of the thing being
 	// viewed. This method will ask the viewed object itself.
@@ -283,12 +287,12 @@ public:
 	virtual void openItem( void );
 	virtual void preview(void);
 
-	// Show children (unfortunate that this is called "open")
+	// Show children
 	virtual void setOpen(BOOL open = TRUE) {};
-
 	virtual BOOL isOpen() const { return FALSE; }
 
 	virtual LLFolderView*	getRoot();
+	virtual const LLFolderView*	getRoot() const;
 	BOOL			isDescendantOf( const LLFolderViewFolder* potential_ancestor );
 	S32				getIndentation() { return mIndentation; }
 
@@ -532,12 +536,14 @@ public:
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
-	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
+		BOOL drop,
 		EDragAndDropType cargo_type,
 		void* cargo_data,
 		EAcceptance* accept,
 		std::string& tooltip_msg);
-	BOOL handleDragAndDropToThisFolder(MASK mask, BOOL drop,
+	BOOL handleDragAndDropToThisFolder(MASK mask,
+									   BOOL drop,
 									   EDragAndDropType cargo_type,
 									   void* cargo_data,
 									   EAcceptance* accept,
@@ -554,6 +560,7 @@ public:
 	items_t::const_iterator getItemsBegin() const { return mItems.begin(); }
 	items_t::const_iterator getItemsEnd() const { return mItems.end(); }
 	items_t::size_type getItemsCount() const { return mItems.size(); }
+
 	LLFolderViewFolder* getCommonAncestor(LLFolderViewItem* item_a, LLFolderViewItem* item_b, bool& reverse);
 	void gatherChildRangeExclusive(LLFolderViewItem* start, LLFolderViewItem* end, bool reverse,  std::vector<LLFolderViewItem*>& items);
 };

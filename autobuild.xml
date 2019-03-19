@@ -1351,92 +1351,6 @@
         <key>version</key>
         <string>1.5.3</string>
       </map>
-      <key>jsoncpp</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2007-2010 by Baptiste Lepilleur</string>
-        <key>description</key>
-        <string>JsonCpp is an implementation of a JSON (http://json.org) reader and writer in C++.</string>
-        <key>license</key>
-        <string>Public Domain</string>
-        <key>license_file</key>
-        <string>LICENSES/jsoncpp.txt</string>
-        <key>name</key>
-        <string>jsoncpp</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3243745940e8419f93abf39fd3358158</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>https://bitbucket.org/alchemyviewer/publiclibs-darwin/downloads/jsoncpp-1.6.5-darwin-201511222000.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>840cd9455638c0ea52c613cfddd07d5b</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-linux-20110315.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3ebbace19eb931d9236432ba537c3727</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-trusty/jsoncpp-1.6.5-linux64-201603232323.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>de7bd51771d3d45185c4977e6aec3a37</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/jsoncpp-1.6.5-windows-201601151019.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>592a4145fcc71be4ddae58b265885382</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc142/jsoncpp-1.8.4-windows64-201712251058.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.8.4</string>
-      </map>
       <key>libhunspell</key>
       <map>
         <key>copyright</key>
@@ -2013,6 +1927,38 @@
         <key>version</key>
         <string>7.11.1.297294</string>
       </map>
+      <key>modernjson</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2013-2018 Niels Lohmann</string>
+        <key>description</key>
+        <string>JSON for Modern C++</string>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/modernjson.txt</string>
+        <key>name</key>
+        <string>modernjson</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>6f11eca7e2a6ca61f9217e949a64f026</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://depot.alchemyviewer.org/pub/common/lib/modernjson-3.2.0-common-201809210551.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>3.2.0</string>
+      </map>
       <key>nvapi</key>
       <map>
         <key>copyright</key>
@@ -2476,7 +2422,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/alchemyviewer/publiclibs-darwin/downloads/uriparser-0.8.4-darwin-201511221948.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/darwin/lib/uriparser-0.8.4-darwin-201511221948.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2498,11 +2444,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>69224d9285e5a26fc7a9aca5d3da7543</string>
+              <string>cf21d9f7ed7949d2230413e8a391fb73</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-trusty/uriparser-0.8.4-linux64-201603240044.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/linux64/lib-xenial/uriparser-0.8.4-linux64-201609241428.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2512,11 +2458,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f9f82fbd29751a969e9ab55a1f33ac7b</string>
+              <string>89f3fc7f3fe396439d306f099d1a12d3</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/uriparser-0.8.4-windows-201601151009.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc141/uriparser-0.8.4-windows-201703090606.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

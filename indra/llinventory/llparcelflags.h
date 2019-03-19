@@ -68,7 +68,7 @@ const U32 PF_ALLOW_ALL_OBJECT_ENTRY		= 1 << 27;	// Allow all objects to enter a 
 const U32 PF_ALLOW_GROUP_OBJECT_ENTRY	= 1 << 28;	// Only allow group (and owner) objects to enter the parcel
 const U32 PF_ALLOW_VOICE_CHAT			= 1 << 29;	// Allow residents to use voice chat on this parcel
 const U32 PF_USE_ESTATE_VOICE_CHAN      = 1 << 30;
-const U32 PF_DENY_AGEUNVERIFIED         = 1 << 31;  // Prevent residents who aren't age-verified 
+const U32 PF_DENY_AGEUNVERIFIED         = 1U << 31;  // Prevent residents who aren't age-verified 
 // NOTE: At one point we have used all of the bits.
 // We have deprecated two of them in 1.19.0 which *could* be reused,
 // but only after we are certain there are no simstates using those bits.

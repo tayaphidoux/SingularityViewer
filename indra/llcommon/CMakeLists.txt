@@ -10,21 +10,23 @@ include(Linking)
 include(Boost)
 include(OpenSSL)
 include(LLSharedLibs)
+include(Json)
 include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
 include(ZLIB)
+include(URIPARSER)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIRS}
+    ${JSON_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIRS}
     ${BREAKPAD_INCLUDE_DIRECTORIES}
     )
 
 set(llcommon_SOURCE_FILES
     aialert.cpp
-    aifile.cpp
     aiframetimer.cpp
     aisyncclient.cpp
     aithreadid.cpp
@@ -85,6 +87,7 @@ set(llcommon_SOURCE_FILES
     llrun.cpp
     llscopedvolatileaprpool.h
     llsd.cpp
+    llsdjson.cpp
     llsdparam.cpp
     llsdserialize.cpp
     llsdserialize_xml.cpp
@@ -101,6 +104,7 @@ set(llcommon_SOURCE_FILES
     llthreadsafequeue.cpp
     lltimer.cpp
     lluri.cpp
+    lluriparser.cpp
     lluuid.cpp
     llworkerthread.cpp
     metaclass.cpp
@@ -114,7 +118,6 @@ set(llcommon_HEADER_FILES
     CMakeLists.txt
 
     aialert.h
-    aifile.h
     aiframetimer.h
     airecursive.h
     aisyncclient.h
@@ -210,6 +213,7 @@ set(llcommon_HEADER_FILES
     llrun.h
     llsafehandle.h
     llsd.h
+    llsdjson.h
     llsdparam.h
     llsdserialize.h
     llsdserialize_xml.h
@@ -238,6 +242,7 @@ set(llcommon_HEADER_FILES
     llunittype.h
     lltypeinfolookup.h
     lluri.h
+    lluriparser.h
     lluuid.h
     llwin32headers.h
     llwin32headerslean.h
@@ -296,6 +301,7 @@ target_link_libraries(
     ${Boost_THREAD_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${CORESERVICES_LIBRARY}
+    ${URIPARSER_LIBRARY}
     )
 
 if (DARWIN)

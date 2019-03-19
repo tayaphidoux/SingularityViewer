@@ -104,7 +104,7 @@ BOOL LLFloaterLandmark::postBuild()
 		mInventoryPanel->setAllowMultiSelect(FALSE);
 
 		// store this filter as the default one
-		mInventoryPanel->getRootFolder()->getFilter()->markDefault();
+		mInventoryPanel->getRootFolder()->getFilter().markDefault();
 
 		// Commented out to stop opening all folders with textures
 		mInventoryPanel->openDefaultFolderForType(LLAssetType::AT_LANDMARK);

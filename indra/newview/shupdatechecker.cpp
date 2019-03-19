@@ -16,8 +16,7 @@
 #include "llbufferstream.h"
 #include "llweb.h"
 
-
-#include <jsoncpp/reader.h>
+#include <nlohmann/json.hpp>
 
 extern AIHTTPTimeoutPolicy getUpdateInfoResponder_timeout;
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,27 +56,20 @@ public:
 			return;
 		}
 
-		Json::Value root;
-		Json::Reader reader;
-		if (!reader.parse(body, root))
-		{
-			LL_WARNS() << "Failed to parse update info: " << reader.getFormattedErrorMessages() << LL_ENDL;
-			return;
-		}
+		auto root = nlohmann::json::parse(body);
 
 		std::string viewer_version = llformat("%s (%i)", LLVersionInfo::getShortVersion().c_str(), LLVersionInfo::getBuild());
 
-		const Json::Value data = root[mType];
+		const auto data = root[mType];
 #if LL_WINDOWS
-		std::string recommended_version = data["recommended"]["windows"].asString();
-		std::string minimum_version = data["minimum"]["windows"].asString();
+		constexpr auto platform = "windows";
 #elif LL_LINUX
-		std::string recommended_version = data["recommended"]["linux"].asString();
-		std::string minimum_version = data["minimum"]["linux"].asString();
+		constexpr auto platform = "linux";
 #elif LL_DARWIN
-		std::string recommended_version = data["recommended"]["apple"].asString();
-		std::string minimum_version = data["minimum"]["apple"].asString();
+		constexpr auto platform = "apple";
 #endif
+		std::string recommended_version = data["recommended"][platform];
+		std::string minimum_version = data["minimum"][platform];
 		
 		S32 minimum_build, recommended_build;
 		sscanf(recommended_version.c_str(), "%*i.%*i.%*i (%i)", &recommended_build);
@@ -88,7 +80,7 @@ public:
 		args["CURRENT_VER"] = viewer_version;
 		args["RECOMMENDED_VER"] = recommended_version;
 		args["MINIMUM_VER"] = minimum_version;
-		args["URL"] = data["url"].asString();
+		args["URL"] = data["url"].get<std::string>();
 		args["TYPE"] = mType == "release" ? "Viewer" : "Alpha";
 
 		static LLCachedControl<S32> sLastKnownReleaseBuild("SinguLastKnownReleaseBuild", 0);
@@ -123,7 +115,7 @@ public:
 			}
 			if (!notificaiton.empty())
 			{
-				LLNotificationsUtil::add(notificaiton, args, LLSD(), boost::bind(&GetUpdateInfoResponder::onNotifyButtonPress, this, _1, _2, notificaiton, data["url"].asString()));
+				LLNotificationsUtil::add(notificaiton, args, LLSD(), boost::bind(&GetUpdateInfoResponder::onNotifyButtonPress, this, _1, _2, notificaiton, data["url"]));
 			}
 		}	
 	}
@@ -138,7 +130,6 @@ private:
 
 void check_for_updates()
 {
-#if LL_WINDOWS | LL_LINUX | LL_DARWIN
 	// Hard-code the update url for now.
 	std::string url = "http://singularity-viewer.github.io/pages/api/get_update_info.json";//gSavedSettings.getString("SHUpdateCheckURL");
 	if (!url.empty())
@@ -159,5 +150,4 @@ void check_for_updates()
 		}
 		LLHTTPClient::get(url, new GetUpdateInfoResponder(type));
 	}
-#endif
 }

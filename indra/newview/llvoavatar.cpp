@@ -115,8 +115,7 @@
 #include "llskinningutil.h"
 
 #include "llfloaterexploreanimations.h"
-//#include "aixmllindengenepool.h"
-#include "aifile.h"
+#include "aixmllindengenepool.h"
 
 #include "llavatarname.h"
 #include "../lscript/lscript_byteformat.h"
@@ -4265,7 +4264,10 @@ void LLVOAvatar::idleUpdateBelowWater()
 	F32 water_height;
 	water_height = getRegion()->getWaterHeight();
 
+	BOOL old_below = mBelowWater;
 	mBelowWater =  avatar_height < water_height;
+	if (old_below != mBelowWater)
+		LLFloaterAO::toggleSwim(mBelowWater);
 }
 
 void LLVOAvatar::slamPosition()
@@ -6329,7 +6331,7 @@ void LLVOAvatar::processAnimationStateChanges()
 			{
 				if (AOEnabled && isSelf()) // AO is only for ME
 				{
-					LLFloaterAO::startMotion(anim_it->first, 0,FALSE); // AO overrides the anim if needed
+					LLFloaterAO::startMotion(anim_it->first, false); // AO overrides the anim if needed
 				}
 
 				mPlayingAnimations[anim_it->first] = anim_it->second;
@@ -7687,17 +7689,6 @@ void LLVOAvatar::removeChild(LLViewerObject *childp)
 	}
 }
 
-namespace
-{
-	boost::signals2::connection sDetachBridgeConnection;
-	void detach_bridge(const LLViewerObject* obj, const LLViewerObject* bridge)
-	{
-		if (obj != bridge) return;
-		sDetachBridgeConnection.disconnect();
-		LLVOAvatarSelf::detachAttachmentIntoInventory(obj->getAttachmentItemID());
-	}
-}
-
 LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* viewer_object)
 {
 	S32 attachmentID = ATTACHMENT_ID_FROM_STATE(viewer_object->getAttachmentState());
@@ -7718,11 +7709,6 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 			<< " trying to use 1 (chest)"
 			<< LL_ENDL;
 
-		if (isSelf() && attachmentID == 127 && gSavedSettings.getBOOL("SGDetachBridge"))
-		{
-			LL_INFOS() << "Bridge detected! detaching" << LL_ENDL;
-			sDetachBridgeConnection = gAgentAvatarp->setAttachmentCallback(boost::bind(detach_bridge, _1, viewer_object));
-		}
 		attachment = get_if_there(mAttachmentPoints, 1, (LLViewerJointAttachment*)NULL); // Arbitrary using 1 (chest)
 		if (attachment)
 		{
@@ -8281,7 +8267,7 @@ LLViewerObject *	LLVOAvatar::findAttachmentByID( const LLUUID & target_id ) cons
 {
 #if SLOW_ATTACHMENT_LIST
 	for(attachment_map_t::const_iterator attachment_points_iter = mAttachmentPoints.begin();
-		attachment_points_iter != gAgentAvatarp->mAttachmentPoints.end();
+		attachment_points_iter != mAttachmentPoints.end();
 		++attachment_points_iter)
 	{
 		LLViewerJointAttachment* attachment = attachment_points_iter->second;
@@ -10047,11 +10033,9 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 
 void LLVOAvatar::dumpArchetypeXML_cont(std::string const& fullpath, bool group_by_wearables)
 {
-#if 0
 	try
 	{
-	  AIFile outfile(fullpath, "wb");
-	  AIXMLLindenGenepool linden_genepool(outfile);
+	  AIXMLLindenGenepool linden_genepool(fullpath);
 
 	  if (group_by_wearables)
 	  {
@@ -10123,7 +10107,6 @@ void LLVOAvatar::dumpArchetypeXML_cont(std::string const& fullpath, bool group_b
 	{
 		AIAlert::add_modal("AIXMLdumpArchetypeXMLError", AIArgs("[FILE]", fullpath), error);
 	}
-#endif 
 }
 
 

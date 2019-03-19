@@ -13,7 +13,7 @@ include(FMODSTUDIO)
 include(GLOD)
 include(FindOpenGL)
 include(Hunspell)
-include(JsonCpp)
+include(Json)
 include(LLAddBuildTest)
 include(LLAppearance)
 include(LLAudio)
@@ -43,6 +43,7 @@ include(UI)
 include(ViewerMiscLibs)
 include(WinManifest)
 include(ZLIB)
+include(URIPARSER)
 
 if (MSVC)
     use_prebuilt_binary(vcredist)
@@ -52,7 +53,7 @@ include_directories(
     ${STATEMACHINE_INCLUDE_DIRS}
     ${DBUSGLIB_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
-    ${JSONCPP_INCLUDE_DIR}
+    ${JSON_INCLUDE_DIR}
     ${GLOD_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
@@ -77,7 +78,7 @@ include_directories(
 set(viewer_SOURCE_FILES
     NACLantispam.cpp
     aihttpview.cpp
-    #aixmllindengenepool.cpp
+    aixmllindengenepool.cpp
     alfloaterregiontracker.cpp
     aoremotectrl.cpp
     ascentfloatercontactgroups.cpp
@@ -174,6 +175,7 @@ set(viewer_SOURCE_FILES
     llexternaleditor.cpp
     llface.cpp
     llfasttimerview.cpp
+    llfavoritesbar.cpp
     llfeaturemanager.cpp
     llfirstuse.cpp
     llflexibleobject.cpp
@@ -231,6 +233,7 @@ set(viewer_SOURCE_FILES
     llfloaterlandholdings.cpp
     llfloaterlandmark.cpp
     llfloatermap.cpp
+    llfloatermarketplacelistings.cpp
     llfloatermediafilter.cpp
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
@@ -243,7 +246,6 @@ set(viewer_SOURCE_FILES
     llfloaterobjectiminfo.cpp
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
-    llfloateroutbox.cpp
     llfloaterparcel.cpp
     llfloaterpathfindingcharacters.cpp
     llfloaterpathfindinglinksets.cpp
@@ -320,6 +322,7 @@ set(viewer_SOURCE_FILES
     llinventoryobserver.cpp
     llinventorypanel.cpp
     lljoystickbutton.cpp
+    lllandmarkactions.cpp
     lllandmarklist.cpp
     lllogchat.cpp
     llloginhandler.cpp
@@ -387,7 +390,6 @@ set(viewer_SOURCE_FILES
     llpanellandoptions.cpp
     llpanellogin.cpp
     llpanelmaininventory.cpp
-    llpanelmarketplaceoutboxinventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
@@ -613,7 +615,7 @@ set(viewer_HEADER_FILES
 
     NACLantispam.h
     aihttpview.h
-    #aixmllindengenepool.h
+    aixmllindengenepool.h
     alfloaterregiontracker.h
     aoremotectrl.h
     ascentfloatercontactgroups.h
@@ -710,6 +712,7 @@ set(viewer_HEADER_FILES
     llexternaleditor.h
     llface.h
     llfasttimerview.h
+    llfavoritesbar.h
     llfeaturemanager.h
     llfirstuse.h
     llflexibleobject.h
@@ -767,6 +770,7 @@ set(viewer_HEADER_FILES
     llfloaterlandholdings.h
     llfloaterlandmark.h
     llfloatermap.h
+    llfloatermarketplacelistings.h
     llfloatermediafilter.h
     llfloatermediasettings.h
     llfloatermemleak.h
@@ -779,7 +783,6 @@ set(viewer_HEADER_FILES
     llfloaterobjectiminfo.h
     llfloaterobjectweights.h
     llfloateropenobject.h
-    llfloateroutbox.h
     llfloaterparcel.h
     llfloaterpathfindingcharacters.h
     llfloaterpathfindinglinksets.h
@@ -855,6 +858,7 @@ set(viewer_HEADER_FILES
     llinventoryobserver.h
     llinventorypanel.h
     lljoystickbutton.h
+    lllandmarkactions.h
     lllandmarklist.h
     lllightconstants.h
     lllogchat.h
@@ -924,7 +928,6 @@ set(viewer_HEADER_FILES
     llpanellandoptions.h
     llpanellogin.h
     llpanelmaininventory.h
-    llpanelmarketplaceoutboxinventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
@@ -1642,6 +1645,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLCOMMON_LIBRARIES}
     ${NDOF_LIBRARY}
     ${NVAPI_LIBRARY}
+    ${URIPARSER_LIBRARY}
     ${viewer_LIBRARIES}
     ${Boost_CONTEXT_LIBRARY}
     ${Boost_FILESYSTEM_LIBRARY}
@@ -1655,7 +1659,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${GLOD_LIBRARIES}
     ${APRUTIL_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${JSONCPP_LIBRARIES}
     ${SDL_LIBRARY}
     ${SMARTHEAP_LIBRARY}
     ${UI_LIBRARIES}

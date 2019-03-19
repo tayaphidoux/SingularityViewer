@@ -145,7 +145,7 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	mCollisionParcel = new LLParcel();
 
 // <FS:CR> Aurora Sim
-	mParcelsPerEdge = S32(8192.f / PARCEL_GRID_STEP_METERS); // 8192 is the maximum region size on Aurora and solves the audio problem.
+	mParcelsPerEdge = S32(8192.f / PARCEL_GRID_STEP_METERS); // 8192 is the maximum region size on WhiteCore and solves the audio problem.
 	//mParcelsPerEdge = S32(	REGION_WIDTH_METERS / PARCEL_GRID_STEP_METERS );
 // </FS:CR> Aurora Sim
 	mHighlightSegments = new U8[(mParcelsPerEdge+1)*(mParcelsPerEdge+1)];

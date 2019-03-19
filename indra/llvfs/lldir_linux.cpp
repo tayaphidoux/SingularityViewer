@@ -102,7 +102,7 @@ LLDir_Linux::LLDir_Linux()
 			LL_INFOS() << "Running in dev checkout with mSkinBaseDir "
 			 << mSkinBaseDir << LL_ENDL;
 		else
-			mSkinBaseDir = "";
+			mSkinBaseDir.clear();
     }
     if (mSkinBaseDir.empty())
     {

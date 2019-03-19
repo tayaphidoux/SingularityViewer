@@ -80,7 +80,7 @@ BOOL check_for_card(const char* RENDERER, const char* bad_card)
 			"You can try to run Second Life, but it will probably crash or run\n"
 			"very slowly.  Try anyway?",
 			bad_card);
-		S32 button = OSMessageBox(buffer.c_str(), "Unsupported video card", OSMB_YESNO);
+		S32 button = OSMessageBox(buffer, "Unsupported video card", OSMB_YESNO);
 		if (OSBTN_YES == button)
 		{
 			return FALSE;

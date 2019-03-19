@@ -68,9 +68,7 @@ public:
 	/*virtual*/ EImportResult	importStream( std::istream& input_stream, LLAvatarAppearance* avatarp );
 
 	// Singu extension.
-#if 0
-	AIArchetype getArchetype(void) const;
-#endif
+	class AIArchetype getArchetype() const;
 
 	void				setParamsToDefaults();
 	void				setTexturesToDefaults();

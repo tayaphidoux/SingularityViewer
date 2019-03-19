@@ -818,6 +818,17 @@
 			<key>Value</key>
 			<string>/regionsay</string>
 		</map>
+		<key>SinguCmdLineSetting</key>
+		<map>
+			<key>Comment</key>
+			<string>Set or toggle debug settings from the chatbar.</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>String</string>
+			<key>Value</key>
+			<string>/setdebug</string>
+		</map>
 		<key>SinguCmdLineURL</key>
 		<map>
 			<key>Comment</key>
@@ -862,17 +873,6 @@
 			<key>Value</key>
 			<real>0</real>
 		</map>
-		<key>SinguMotionResetsCamera</key>
-		<map>
-			<key>Comment</key>
-			<string>Allow camera to reset when moving.</string>
-			<key>Persist</key>
-			<integer>1</integer>
-			<key>Type</key>
-			<string>Boolean</string>
-			<key>Value</key>
-			<boolean>1</boolean>
-		</map>
 		<key>SinguLastKnownReleaseBuild</key>
 		<map>
 			<key>Comment</key>
@@ -894,6 +894,54 @@
 			<string>S32</string>
 			<key>Value</key>
 			<boolean>0</boolean>
+		</map>
+		<key>SinguMotionResetsCamera</key>
+		<map>
+			<key>Comment</key>
+			<string>Allow camera to reset when moving.</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>Boolean</string>
+			<key>Value</key>
+			<boolean>1</boolean>
+		</map>
+		<key>SinguMotionResetsCameraReset</key>
+		<map>
+			<key>Comment</key>
+			<string>Disable for the behavior Liru intended SinguMotionResetsCamera to have, wherein it doesn't reset every time you press escape, teleport, or whatever else! So you can walk around and your camera won't reset at all like it was  meant to be.
+RIP Latif Khalifa.</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>Boolean</string>
+			<key>Value</key>
+			<boolean>1</boolean>
+		</map>
+		<key>SinguPostProcessDefault</key>
+		<map>
+			<key>Comment</key>
+			<string>Default post process preset, changing this will change your active preset</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>String</string>
+			<key>Value</key>
+			<boolean>Default</boolean>
+		</map>
+		<key>SinguReplaceLinks</key>
+		<map>
+			<key>Comment</key>
+			<string>Whether or not to visually replace special links like SLURLs with labels where applicable.
+While having this on allows people to mislead you with links that look like other links, it also allows you to use SLURLs that appear as people's names and increasingly more scripts use this to run faster.
+You can always select the text, right click and select Copy Raw to copy the hidden contents of the link.
+Changing this setting only affects new text.</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>Boolean</string>
+			<key>Value</key>
+			<boolean>1</boolean>
 		</map>
 		<key>WarnRecommendedUpdate</key>
 		<map>
@@ -1005,6 +1053,28 @@
       <string>F32</string>
       <key>Value</key>
       <real>3.5</real>
+    </map>
+    <key>EmergencyTeleportSeconds</key>
+    <map>
+      <key>Comment</key>
+      <string>The remaining time left in seconds when to execute an emergency teleport out of a restarting region.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>20</integer>
+    </map>
+    <key>LiruEnableWIPUI</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to enable UI components that probably don't work yet.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>LiruFlashWhenMinimized</key>
     <map>
@@ -1713,6 +1783,17 @@
       <key>IsCOA</key>
       <integer>1</integer>
     </map>
+    <key>ToolbarVisibleMarketplaceListings</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not the button for marketplace listings is on the toolbar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <boolean>0</boolean>
+    </map>
     <key>ToolbarVisibleMeanEvents</key>
     <map>
       <key>Comment</key>
@@ -1843,10 +1924,10 @@
       <key>IsCOA</key>
       <integer>1</integer>
     </map>
-    <key>ToolbarVisibleOutbox</key>
+    <key>ToolbarVisibleMarketplaceListings</key>
     <map>
       <key>Comment</key>
-      <string>Whether or not the button for outbox is on the toolbar</string>
+      <string>Whether or not the button for Marketplace Listings is on the toolbar</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1860,19 +1941,6 @@
     <map>
       <key>Comment</key>
       <string>Whether or not the button for the notifications console is on the toolbar</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <boolean>0</boolean>
-      <key>IsCOA</key>
-      <integer>1</integer>
-    </map>
-    <key>ToolbarVisibleOutbox</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether or not the button for the merchant outbox is on the toolbar</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

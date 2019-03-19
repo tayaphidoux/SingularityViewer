@@ -27,7 +27,7 @@
 #ifndef LL_LLINVENTORYMODEL_H
 #define LL_LLINVENTORYMODEL_H
 
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 #include <vector>
@@ -154,13 +154,13 @@ private:
 	// the inventory using several different identifiers.
 	// mInventory member data is the 'master' list of inventory, and
 	// mCategoryMap and mItemMap store uuid->object mappings. 
-	typedef std::map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
-	typedef std::map<LLUUID, LLPointer<LLViewerInventoryItem> > item_map_t;
+	typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
+	typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryItem> > item_map_t;
 	cat_map_t mCategoryMap;
 	item_map_t mItemMap;
 	// This last set of indices is used to map parents to children.
-	typedef std::map<LLUUID, cat_array_t*> parent_cat_map_t;
-	typedef std::map<LLUUID, item_array_t*> parent_item_map_t;
+	typedef std::unordered_map<LLUUID, cat_array_t*> parent_cat_map_t;
+	typedef std::unordered_map<LLUUID, item_array_t*> parent_item_map_t;
 	parent_cat_map_t mParentChildCategoryTree;
 	parent_item_map_t mParentChildItemTree;
 
@@ -418,15 +418,6 @@ public:
 	// Returns end() of the vector if not found.
 	static LLInventoryModel::item_array_t::iterator findItemIterByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id);
 
-	// Saves current order of the passed items using inventory item sort field.
-	// Resets 'items' sort fields and saves them on server.
-	// Is used to save order for Favorites folder.
-	//void saveItemsOrder(const LLInventoryModel::item_array_t& items);
-
-	// Rearranges Landmarks inside Favorites folder.
-	// Moves source landmark before target one.
-	void rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id);
-
 	//--------------------------------------------------------------------
 	// Creation
 	//--------------------------------------------------------------------
@@ -476,7 +467,7 @@ public:
 		LLInitializedS32& operator++() { ++mValue; return *this; }
 		LLInitializedS32& operator--() { --mValue; return *this; }
 	};
-	typedef std::map<LLUUID, LLInitializedS32> update_map_t;
+	typedef std::unordered_map<LLUUID, LLInitializedS32> update_map_t;
 
 	// Call when there are category updates.  Call them *before* the 
 	// actual update so the method can do descendent accounting correctly.
@@ -601,8 +592,8 @@ protected:
 	cat_array_t* getUnlockedCatArray(const LLUUID& id);
 	item_array_t* getUnlockedItemArray(const LLUUID& id);
 private:
-	std::map<LLUUID, bool> mCategoryLock;
-	std::map<LLUUID, bool> mItemLock;
+	std::unordered_map<LLUUID, bool> mCategoryLock;
+	std::unordered_map<LLUUID, bool> mItemLock;
 	
 	//--------------------------------------------------------------------
 	// Debugging

@@ -65,13 +65,14 @@
 		<!-- =========================== -->
 		<panel label="Extras" name="extras_tab">
 			<check_box label="Alerta Edad Avatar" name="agealert" tool_tip="Habilita el Alerta por Edad del Avatar" />
-			<spinner name="AgeAlertDays" left_delta="150" label="Umbral de Edad" tool_tip="La cantidad mínima de días que un avatar existe en el grid sin disparar el alerta" />
+			<spinner name="AgeAlertDays" left_delta="150" label_width="90" label="Umbral de Edad" tool_tip="La cantidad mínima de días que un avatar existe en el grid sin disparar el alerta" />
 			<text name="hide_columns">Ocultar Columnas:</text>
 			<check_box name="hide_mark" label="Marca"/>
 			<check_box name="hide_pos" label="Pos." tool_tip="Posición"/>
 			<check_box name="hide_alt" label="Alt." tool_tip="Altitud"/>
 			<check_box name="hide_act" label="Act." tool_tip="Actividad"/>
 			<check_box name="hide_voice" label="Voz" tool_tip="Estado de Voz"/>
+			<check_box name="hide_notes" label="Notas" tool_tip="Notas del Perfil"/>
 			<check_box name="hide_age" label="Edad"/>
 			<check_box name="hide_time" label="Tiempo"/>
 			<check_box name="hide_client" label="Cliente"/>

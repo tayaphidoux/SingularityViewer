@@ -191,29 +191,12 @@ LLNotifyBox::LLNotifyBox(LLNotificationPtr notification)
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
 
-	LLIconCtrl* icon;
-	LLTextEditor* text;
-
 	const S32 TOP = getRect().getHeight() - (mIsTip ? (S32)sFont->getLineHeight() : 32);
 	const S32 BOTTOM = (S32)sFont->getLineHeight();
 	S32 x = HPAD + HPAD;
 	S32 y = TOP;
 
-	if (mIsTip)
-	{
-		// use the tip notification icon
-		icon = new LLIconCtrl(std::string("icon"), LLRect(x, y, x+32, TOP-32), std::string("notify_tip_icon.tga"));
-	}
-	else if (mIsCaution)
-	{
-		// use the caution notification icon
-		icon = new LLIconCtrl(std::string("icon"), LLRect(x, y, x+32, TOP-32), std::string("notify_caution_icon.tga"));
-	}
-	else
-	{
-		// use the default notification icon
-		icon = new LLIconCtrl(std::string("icon"), LLRect(x, y, x+32, TOP-32), std::string("notify_box_icon.tga"));
-	}
+	auto icon = new LLIconCtrl(std::string("icon"), LLRect(x, y, x+32, TOP-32), mIsTip ? "notify_tip_icon.tga" : mIsCaution ? "notify_caution_icon.tga" : "notify_box_icon.tga");
 
 	icon->setMouseOpaque(FALSE);
 	addChild(icon);
@@ -221,11 +204,10 @@ LLNotifyBox::LLNotifyBox(LLNotificationPtr notification)
 	x += HPAD + HPAD + 32;
 
 	// add a caution textbox at the top of a caution notification
-	LLTextBox* caution_box = NULL;
 	if (mIsCaution && !mIsTip)
 	{
 		S32 caution_height = ((S32)sFont->getLineHeight() * 2) + VPAD;
-		caution_box = new LLTextBox(
+		auto caution_box = new LLTextBox(
 			std::string("caution_box"), 
 			LLRect(x, y, getRect().getWidth() - 2, caution_height), 
 			LLStringUtil::null, 
@@ -244,58 +226,30 @@ LLNotifyBox::LLNotifyBox(LLNotificationPtr notification)
 		// it appears below the caution textbox
 		y = y - caution_height;
 	}
-	else if (mIsCaution && mIsTip)	
+	else
 	{
-
 		const S32 BTN_TOP = BOTTOM_PAD + (((mNumOptions-1+2)/3)) * (BTN_HEIGHT+VPAD);
 
 		// Tokenization on \n is handled by LLTextBox
 
 		const S32 MAX_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE;  // For script dialogs: add space for title.
 
-		text = new LLTextEditor(std::string("box"), LLRect(x, y, getRect().getWidth()-2, mIsTip ? BOTTOM : BTN_TOP+16), MAX_LENGTH, message, sFont, FALSE);
+		auto text = new LLTextEditor(std::string("box"), LLRect(x, y, getRect().getWidth()-2, mIsTip ? BOTTOM : BTN_TOP+16), MAX_LENGTH, LLStringUtil::null, sFont, FALSE, true);
 		text->setWordWrap(TRUE);
-		text->setTabStop(FALSE);
-		text->setMouseOpaque(FALSE);
+		text->setMouseOpaque(TRUE);
 		text->setBorderVisible(FALSE);
-		text->setTakesNonScrollClicks(FALSE);
+		text->setTakesNonScrollClicks(TRUE);
 		text->setHideScrollbarForShortDocs(TRUE);
 		text->setReadOnlyBgColor ( LLColor4::transparent ); // the background color of the box is manually 
 															// rendered under the text box, therefore we want 
 															// the actual text box to be transparent
-		text->setReadOnlyFgColor ( gColors.getColor("NotifyCautionWarnColor") ); //sets caution text color for tip notifications
-		text->setEnabled(FALSE); // makes it read-only
-		text->setTabStop(FALSE); // can't tab to it (may be a problem for scrolling via keyboard)
-		addChild(text);
-	}
-	else
-	{
-		const S32 BTN_TOP = BOTTOM_PAD + (((mNumOptions-1+2)/3)) * (BTN_HEIGHT+VPAD);
 
-		// Tokenization on \n is handled by LLTextBox
-		const S32 MAX_LENGTH = 512 + 20 + 
-			DB_FIRST_NAME_BUF_SIZE + 
-			DB_LAST_NAME_BUF_SIZE +
-			DB_INV_ITEM_NAME_BUF_SIZE;  // For script dialogs: add space for title.
-
-		text = new LLTextEditor(std::string("box"),
-								LLRect(x, y, getRect().getWidth()-2, mIsTip ? BOTTOM : BTN_TOP+16),
-								MAX_LENGTH,
-								message,
-								sFont,
-								FALSE);
-		text->setWordWrap(TRUE);
-		text->setTabStop(FALSE);
-		text->setMouseOpaque(FALSE);
-		text->setBorderVisible(FALSE);
-		text->setTakesNonScrollClicks(FALSE);
-		text->setHideScrollbarForShortDocs(TRUE);
-		text->setReadOnlyBgColor ( LLColor4::transparent ); // the background color of the box is manually 
-															// rendered under the text box, therefore we want 
-															// the actual text box to be transparent
-		text->setReadOnlyFgColor ( gColors.getColor("NotifyTextColor") );
-		text->setEnabled(FALSE); // makes it read-only
+		auto text_color = gColors.getColor(mIsCaution && mIsTip ? "NotifyCautionWarnColor" : "NotifyTextColor");
+		text->setReadOnlyFgColor(text_color); //sets caution text color for tip notifications
+		if (!mIsCaution) // We could do some extra color math here to determine if bg's too close to link color, but let's just cross with the link color instead
+			text->setLinkColor(new LLColor4(lerp(text_color, gSavedSettings.getColor4("HTMLLinkColor"), 0.4f)));
 		text->setTabStop(FALSE); // can't tab to it (may be a problem for scrolling via keyboard)
+		text->appendText(message,false,false,nullptr,!layout_script_dialog); // Now we can set the text, since colors have been set.
 		addChild(text);
 	}
 
@@ -486,13 +440,9 @@ BOOL LLNotifyBox::handleMouseUp(S32 x, S32 y, MASK mask)
 // virtual
 BOOL LLNotifyBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!mIsTip)
-	{
-		moveToBack(true);
-		return TRUE;
-	}
-
-	return LLPanel::handleRightMouseDown(x, y, mask);
+	bool done = LLPanel::handleRightMouseDown(x, y, mask);
+	if (!done && !mIsTip) moveToBack(true);
+	return done || !mIsTip;
 }
 
 

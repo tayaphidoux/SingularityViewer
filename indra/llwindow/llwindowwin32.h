@@ -41,7 +41,7 @@ class LLWindowWin32 : public LLWindow
 {
 public:
 	/*virtual*/ void postInitialized();
-	/*virtual*/ void show();
+	/*virtual*/ void show(bool focus = true);
 	/*virtual*/ void hide();
 	/*virtual*/ void close();
 	/*virtual*/ BOOL getVisible();

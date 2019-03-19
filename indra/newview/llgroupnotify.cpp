@@ -170,23 +170,20 @@ LLGroupNotifyBox::LLGroupNotifyBox(const std::string& subject,
 		DB_GROUP_NOTICE_MSG_STR_LEN,
 		LLStringUtil::null,
 		LLFontGL::getFontSansSerif(),
-		FALSE);
+		FALSE,
+		true);
 
 	static const LLStyleSP headerstyle(new LLStyle(true,LLColor4::black,"SansSerifBig"));
 	static const LLStyleSP datestyle(new LLStyle(true,LLColor4::black,"serif"));
+	static const LLStyleSP msgstyle(new LLStyle(true, LLColor4::grey4, LLStringUtil::null));
 
-	text->appendStyledText(subject + "\n",false,false,headerstyle);
+	text->appendText(subject + '\n',false,false,headerstyle,false);
 
-	text->appendStyledText(time_buf,false,false,datestyle);
-	// Sadly, our LLTextEditor can't handle both styled and unstyled text
-	// at the same time.  Hence this space must be styled. JC
-	text->appendColoredText(std::string(" "),false,false,LLColor4::grey4);
-	text->setParseHTML(TRUE);
-	text->appendColoredText(std::string("\n\n") + message,false,false,LLColor4::grey4);
+	text->appendText(time_buf,false,false,datestyle,false);
+	text->appendText(std::string(" \n\n") + message,false,false,msgstyle,false);
 
 	LLColor4 semi_transparent(1.0f,1.0f,1.0f,0.8f);
 	text->setCursor(0,0);
-	text->setEnabled(FALSE);
 	text->setWordWrap(TRUE);
 	//text->setTabStop(FALSE); // was interfering with copy-and-paste
 	text->setTabsToNextField(TRUE);
@@ -294,7 +291,8 @@ LLGroupNotifyBox::~LLGroupNotifyBox()
 // virtual
 BOOL LLGroupNotifyBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	moveToBack();
+	if (!LLPanel::handleRightMouseDown(x, y, mask))
+		moveToBack();
 	return TRUE;
 }
 

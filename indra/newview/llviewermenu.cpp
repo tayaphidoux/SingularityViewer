@@ -41,6 +41,7 @@
 #include "llnotificationsutil.h"
 #include "llfeaturemanager.h"
 #include "llsecondlifeurls.h"
+#include "llurlaction.h"
 // <edit>
 #include "llfloaterblacklist.h"
 // </edit>
@@ -74,6 +75,7 @@
 #include "llfloatergodtools.h"
 #include "llfloaterhtmlcurrency.h"
 #include "llfloaterland.h"
+#include "llfloatermarketplacelistings.h"
 #include "llfloatermute.h"
 #include "llfloateropenobject.h"
 #include "llfloaterpathfindingcharacters.h"
@@ -94,6 +96,7 @@
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventoryfunctions.h"
+#include "llmarketplacefunctions.h"
 #include "llmimetypes.h"
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmutelist.h"
@@ -103,6 +106,7 @@
 #include "llselectmgr.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
+#include "lltoolbar.h"
 #include "lltoolcomp.h"
 #include "lltoolgrab.h"
 #include "lltoolmgr.h"
@@ -127,6 +131,7 @@
 #include "llfloaternotificationsconsole.h"
 
 // <edit>
+#include "lltexteditor.h" // Initialize the text editor menu listeners in here
 #include "llfloatermessagelog.h"
 #include "shfloatermediaticker.h"
 #include "llpacketring.h"
@@ -582,6 +587,33 @@ void rebuild_context_menus()
 	build_pie_menus();
 	if (!gAgentAvatarp) return; // The agent's avatar isn't here yet, don't bother with the dynamic attach/detach submenus.
 	gAgentAvatarp->buildContextMenus();
+}
+
+void set_merchant_SLM_menu()
+{
+	// DD-170 : SLM Alpha and Beta program : for the moment, we always show the SLM menu and
+	// tools so that all merchants can try out the UI, even if not migrated.
+	// *TODO : Keep SLM UI hidden for non migrated merchant in released viewer
+	gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(TRUE);
+	gToolBar->getChild<LLView>("marketplace_listings_btn")->setEnabled(true);
+}
+
+void check_merchant_status()
+{
+	if (!gSavedSettings.getBOOL("InventoryOutboxDisplayBoth"))
+	{
+		// Reset the SLM status: we actually want to check again, that's the point of calling check_merchant_status()
+		LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED);
+
+		// Hide SLM related menu item
+		gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(FALSE);
+
+		// Also disable the toolbar button for Marketplace Listings
+		gToolBar->getChild<LLView>("marketplace_listings_btn")->setEnabled(false);
+
+		// Launch an SLM test connection to get the merchant status
+		LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_SLM_menu));
+	}
 }
 
 void init_menus()
@@ -3004,17 +3036,22 @@ class LLAvatarFreeze : public view_listener_t
 	}
 };
 
+void do_script_count(bool del, LLViewerObject* object = nullptr)
+{
+	if (object || (object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()))
+	{
+		if (ScriptCounter::getInstance(object->getID())) return;
+		ScriptCounter* sc = new ScriptCounter(del, object);
+		sc->requestInventories();
+		// sc will destroy itself
+	}
+}
+
 class LLScriptCount : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if (LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
-		{
-			if (ScriptCounter::getInstance(object->getID())) return true;
-			ScriptCounter* sc = new ScriptCounter(false, object);
-			sc->requestInventories();
-			// sc will destroy itself
-		}
+		do_script_count(false, userdata["data"].asString() == "agent" ? gAgentAvatarp : nullptr);
 		return true;
 	}
 };
@@ -3023,13 +3060,7 @@ class LLScriptDelete : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if (LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
-		{
-			if (ScriptCounter::getInstance(object->getID())) return true;
-			ScriptCounter* sc = new ScriptCounter(true, object);
-			sc->requestInventories();
-			// sc will destroy itself
-		}
+		do_script_count(true);
 		return true;
 	}
 };
@@ -3038,7 +3069,7 @@ class LLObjectVisibleScriptCount : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		LLViewerObject* object = userdata["data"].asString() == "agent" ? gAgentAvatarp : LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 		bool new_value = (object != NULL);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		
@@ -3050,20 +3081,20 @@ class LLObjectEnableScriptDelete : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		auto objects = LLSelectMgr::getInstance()->getSelection();
+		LLViewerObject* object = objects->getPrimaryObject();
 		bool new_value = (object != NULL);
 		if(new_value)
-		for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-			iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
+		for (LLObjectSelection::root_iterator iter = objects->root_begin();
+			iter != objects->root_end(); iter++)
 		{
 			LLSelectNode* selectNode = *iter;
 			LLViewerObject* object = selectNode->getObject();
-			if(object)
-				if(!object->permModify())
-				{
-					new_value=false;
-					break;
-				}
+			if (object && !object->permModify())
+			{
+				new_value=false;
+				break;
+			}
 		}
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		
@@ -4088,7 +4119,8 @@ void reset_view_final( BOOL proceed )
 	}
 	gAgentCamera.resetView(TRUE, TRUE);
 	gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
-	gSavedSettings.setBOOL("SinguMotionResetsCamera", true);
+	if (gSavedSettings.getBOOL("SinguMotionResetsCameraReset"))
+		gSavedSettings.setBOOL("SinguMotionResetsCamera", true);
 
 	if(gAgentCamera.cameraCustomizeAvatar() && LLFloaterCustomize::instanceExists())
 		LLFloaterCustomize::getInstance()->close();
@@ -8894,6 +8926,15 @@ class SinguVisibleDebugConsole : public view_listener_t
 	}
 };
 
+class SinguUrlAction : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLUrlAction::clickAction(userdata.asStringRef(), true);
+		return true;
+	}
+};
+
 class VisibleSecondLife : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9301,6 +9342,25 @@ class ListToggleMute : public view_listener_t
 	}
 };
 
+struct MarketplaceViewSortAction : view_listener_t
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+	{
+		LLFloaterMarketplaceListings::findInstance()->mPanelListings->onViewSortMenuItemClicked(userdata);
+		return true;
+	}
+};
+
+struct MarketplaceViewSortCheckItem : view_listener_t
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+	{
+		gMenuHolder->findControl(userdata["control"].asString())
+			->setValue(LLFloaterMarketplaceListings::findInstance()->mPanelListings->onViewSortMenuItemCheck(userdata["data"]));
+		return true;
+	}
+};
+
 void addMenu(view_listener_t *menu, const std::string& name)
 {
 	sMenus.push_back(menu);
@@ -9579,6 +9639,7 @@ void initialize_menus()
 	addMenu(new SinguCheckPoseStand(), "CheckPoseStand");
 	addMenu(new SinguRebake(), "Rebake");
 	addMenu(new SinguVisibleDebugConsole(), "VisibleRegionDebugConsole");
+	addMenu(new SinguUrlAction(), "URLAction");
 	addMenu(new LLSyncAnimations(), "Tools.ResyncAnimations");
 
 // [RLVa:KB] - Checked: 2010-01-18 (RLVa-1.1.0m) | Added: RLVa-1.1.0m | OK
@@ -9626,6 +9687,14 @@ void initialize_menus()
 	addMenu(new ListToggleMute(), "List.ToggleMute");
 
 	add_radar_listeners();
+
+	// Text Editor menus
+	LLTextEditor::setIsObjectBlockedCallback(boost::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
+	LLTextEditor::setIsFriendCallback(LLAvatarActions::isFriend);
+	LLTextEditor::addMenuListeners();
+
+	addMenu(new MarketplaceViewSortAction, "Marketplace.ViewSort.Action");
+	addMenu(new MarketplaceViewSortCheckItem, "Marketplace.ViewSort.CheckItem");
 
 	class LLViewBuildMode : public view_listener_t
 	{

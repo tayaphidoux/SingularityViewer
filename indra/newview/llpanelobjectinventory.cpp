@@ -40,6 +40,7 @@
 #include "roles_constants.h"
 
 #include "llagent.h"
+#include "llavataractions.h"
 #include "llcallbacklist.h"
 #include "llfloaterbuycontents.h"
 #include "llfloaterbuycurrency.h"
@@ -203,27 +204,11 @@ void LLTaskInvFVBridge::showProperties()
 	}
 }
 
-struct LLBuyInvItemData
-{
-	LLUUID mTaskID;
-	LLUUID mItemID;
-	LLAssetType::EType mType;
-
-	LLBuyInvItemData(const LLUUID& task,
-					 const LLUUID& item,
-					 LLAssetType::EType type) :
-		mTaskID(task), mItemID(item), mType(type)
-	{}
-};
-
 void LLTaskInvFVBridge::buyItem()
 {
 	LL_INFOS() << "LLTaskInvFVBridge::buyItem()" << LL_ENDL;
 	LLInventoryItem* item = findItem();
 	if(!item || !item->getSaleInfo().isForSale()) return;
-	LLBuyInvItemData* inv = new LLBuyInvItemData(mPanel->getTaskUUID(),
-												 mUUID,
-												 item->getType());
 
 	const LLSaleInfo& sale_info = item->getSaleInfo();
 	const LLPermissions& perm = item->getPermissions();
@@ -234,7 +219,6 @@ void LLTaskInvFVBridge::buyItem()
 	{
 		LLNotificationsUtil::add("Cannot_Purchase_an_Attachment");
 		LL_INFOS() << "Attempt to purchase an attachment" << LL_ENDL;
-		delete inv;
 	}
 	else
 	{
@@ -265,9 +249,9 @@ void LLTaskInvFVBridge::buyItem()
        	}
 
 		LLSD payload;
-		payload["task_id"] = inv->mTaskID;
-		payload["item_id"] = inv->mItemID;
-		payload["type"] = inv->mType;
+		payload["task_id"] = mPanel->getTaskUUID();
+		payload["item_id"] = mUUID;
+		payload["type"] = item->getType();
 		LLNotificationsUtil::add(alertdesc, args, payload, LLTaskInvFVBridge::commitBuyItem);
 	}
 }
@@ -606,7 +590,7 @@ BOOL LLTaskInvFVBridge::isClipboardPasteable() const
 	return FALSE;
 }
 
-void LLTaskInvFVBridge::pasteFromClipboard(bool only_copies)
+void LLTaskInvFVBridge::pasteFromClipboard(bool)
 {
 }
 
@@ -666,11 +650,6 @@ BOOL LLTaskInvFVBridge::dragOrDrop(MASK mask, BOOL drop,
 	//LL_INFOS() << "LLTaskInvFVBridge::dragOrDrop()" << LL_ENDL;
 	return FALSE;
 }
-
-//void LLTaskInvFVBridge::dropped()
-//{
-//	LL_WARNS() << "LLTaskInvFVBridge::dropped() - not implemented" << LL_ENDL;
-//}
 
 void pack_script_message(LLMessageSystem*, const LLInventoryItem*, const LLViewerObject*);
 
@@ -761,7 +740,7 @@ void LLTaskInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		return;
 	}
 
-	if(gAgent.allowOperation(PERM_OWNER, item->getPermissions(),
+	if(!gAgent.allowOperation(PERM_OWNER, item->getPermissions(),
 							 GP_OBJECT_MANIPULATE)
 	   && item->getSaleInfo().isForSale())
 	{
@@ -980,16 +959,6 @@ BOOL LLTaskCategoryBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_CALLINGCARD:
 		case DAD_MESH:
 			accept = LLToolDragAndDrop::isInventoryDropAcceptable(object, (LLViewerInventoryItem*)cargo_data);
-			// <edit> testzone
-			//if(LLToolDragAndDrop::isInventoryDropAcceptable(
-			//	   object, (LLViewerInventoryItem*)cargo_data)
-			/*if(object->permModify()
-			// </edit>
-			   && (LLToolDragAndDrop::SOURCE_WORLD != LLToolDragAndDrop::getInstance()->getSource())
-			   && (LLToolDragAndDrop::SOURCE_NOTECARD != LLToolDragAndDrop::getInstance()->getSource()))
-			{
-				accept = TRUE;
-			}*/
 			if(accept && drop)
 			{
 				LLToolDragAndDrop::dropInventory(object,
@@ -1172,7 +1141,6 @@ void LLTaskSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else if (canOpenItem())
 	{
-		//items.push_back(std::string("Task Open")); 
 		if (!isItemCopyable())
 		{
 			disabled_items.push_back(std::string("Task Open"));
@@ -1237,6 +1205,7 @@ BOOL LLTaskCallingCardBridge::renameItem(const std::string& new_name)
 {
 	return FALSE;
 }
+
 
 ///----------------------------------------------------------------------------
 /// Class LLTaskScriptBridge
@@ -1665,7 +1634,7 @@ void LLPanelObjectInventory::clearContents()
 	if( mScroller )
 	{
 		// removes mFolders
-		removeChild( mScroller );
+		removeChild( mScroller ); //*TODO: Really shouldn't do this during draw()/refresh()
 		mScroller->die();
 		mScroller = NULL;
 		mFolders = NULL;
@@ -1682,7 +1651,7 @@ void LLPanelObjectInventory::reset()
 	LLRect dummy_rect(0, 1, 1, 0);
 	mFolders = new LLFolderView(std::string("task inventory"), dummy_rect, getTaskUUID(), this, LLTaskInvFVBridge::createObjectBridge(this, NULL));
 	// this ensures that we never say "searching..." or "no items found"
-	mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
+	mFolders->getFilter().setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 
 	LLRect scroller_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	mScroller = new LLScrollContainer(std::string("task inventory scroller"), scroller_rect, mFolders );
@@ -1749,27 +1718,27 @@ void LLPanelObjectInventory::updateInventory()
 		inventory_has_focus = gFocusMgr.childHasKeyboardFocus(mFolders);
 	}
 
-	reset();
-
 	LLViewerObject* objectp = gObjectList.findObject(mTaskUUID);
 	if (objectp)
 	{
 		LLInventoryObject* inventory_root = objectp->getInventoryRoot();
 		LLInventoryObject::object_list_t contents;
 		objectp->getInventoryContents(contents);
+
 		if (inventory_root)
 		{
-			createFolderViews(inventory_root, contents);
-			mHaveInventory = TRUE;
+			reset();
 			mIsInventoryEmpty = FALSE;
+			createFolderViews(inventory_root, contents);
 			mFolders->setEnabled(TRUE);
 		}
 		else
 		{
 			// TODO: create an empty inventory
 			mIsInventoryEmpty = TRUE;
-			mHaveInventory = TRUE;
 		}
+
+		mHaveInventory = TRUE;
 	}
 	else
 	{
@@ -1780,10 +1749,11 @@ void LLPanelObjectInventory::updateInventory()
 
 	// restore previous selection
 	std::set<LLUUID>::iterator selection_it;
-	BOOL first_item = TRUE;
+	bool first_item = true;
 	for (selection_it = selected_items.begin(); selection_it != selected_items.end(); ++selection_it)
 	{
 		LLFolderViewItem* selected_item = mFolders->getItemByID(*selection_it);
+
 		if (selected_item)
 		{
 			//HACK: "set" first item then "change" each other one to get keyboard focus right
@@ -1799,8 +1769,12 @@ void LLPanelObjectInventory::updateInventory()
 		}
 	}
 
-	mFolders->requestArrange();
+	if (mFolders)
+	{
+		mFolders->requestArrange();
+	}
 	mInventoryNeedsUpdate = FALSE;
+	// Edit menu handler is set in onFocusReceived
 }
 
 // *FIX: This is currently a very expensive operation, because we have
@@ -1942,11 +1916,16 @@ void LLPanelObjectInventory::refresh()
 	}
 	if(!has_inventory)
 	{
-		mTaskUUID = LLUUID::null;
-		removeVOInventoryListener();
-		clearContents();
+		clearInventoryTask();
 	}
 	//LL_INFOS() << "LLPanelObjectInventory::refresh() " << mTaskUUID << LL_ENDL;
+}
+
+void LLPanelObjectInventory::clearInventoryTask()
+{
+	mTaskUUID = LLUUID::null;
+	removeVOInventoryListener();
+	clearContents();
 }
 
 void LLPanelObjectInventory::removeSelectedItem()
@@ -2032,7 +2011,6 @@ BOOL LLPanelObjectInventory::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dro
 void LLPanelObjectInventory::idle(void* user_data)
 {
 	LLPanelObjectInventory* self = (LLPanelObjectInventory*)user_data;
-
 
 	if (self->mInventoryNeedsUpdate)
 	{

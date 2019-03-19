@@ -407,9 +407,9 @@
         <button.commit_callback function="ShowFloater" parameter="floater_inventory_favs.xml"/>
       </button>
     </layout_panel>
-    <layout_panel name="paneloutbox" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleOutbox">
-      <button bottom="0" height="24" label="Outbox" image_overlay="icn_toolbar_outbox.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="outbox_btn" width="50" follows="left|right">
-        <button.commit_callback function="ShowFloater" parameter="outbox"/>
+    <layout_panel name="panelmarketplacelistings" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleMarketplaceListings">
+      <button bottom="0" height="24" label="Market Listings" image_overlay="icn_toolbar_marketplace_listings.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="marketplace_listings_btn" width="50" follows="left|right">
+        <button.commit_callback function="ShowFloater" parameter="marketplace_listings"/>
       </button>
     </layout_panel>
     <layout_panel name="panelpreferences" height="24" width="50" user_resize="false" visibility_control="ToolbarVisiblePreferences">

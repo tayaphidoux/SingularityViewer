@@ -70,7 +70,7 @@
 using namespace LLOldEvents;
 
 // static
-LLMenuHolderGL *LLMenuGL::sMenuContainer = NULL;
+LLMenuHolderGL *LLMenuGL::sMenuContainer = nullptr;
 
 S32 MENU_BAR_HEIGHT = 0;
 S32 MENU_BAR_WIDTH = 0;
@@ -258,7 +258,7 @@ BOOL LLMenuItemGL::handleRightMouseUp(S32 x, S32 y, MASK mask)
 // if not, it will be added to the list
 BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
 {
-	LLKeyBinding *accelerator = NULL;
+	LLKeyBinding *accelerator = nullptr;
 
 	if (mAcceleratorKey != KEY_NONE)
 	{
@@ -268,19 +268,37 @@ BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
 			accelerator = *list_it;
 			if ((accelerator->mKey == mAcceleratorKey) && (accelerator->mMask == (mAcceleratorMask & MASK_NORMALKEYS)))
 			{
+
+			// *NOTE: get calling code to throw up warning or route
+			// warning messages back to app-provided output
+			//	std::string warning;
+			//	warning.append("Duplicate key binding <");
+			//	appendAcceleratorString( warning );
+			//	warning.append("> for menu items:\n    ");
+			//	warning.append(accelerator->mName);
+			//	warning.append("\n    ");
+			//	warning.append(mLabel);
+
+			//	LL_WARNS() << warning << LL_ENDL;
+			//	LLAlertDialog::modalAlert(warning);
 				return FALSE;
 			}
 		}
 		if (!accelerator)
 		{				
-			accelerator = new LLKeyBinding;
-			if (accelerator)
+			try
 			{
+				accelerator = new LLKeyBinding;
 				accelerator->mKey = mAcceleratorKey;
 				accelerator->mMask = (mAcceleratorMask & MASK_NORMALKEYS);
 // 				accelerator->mName = mLabel;
+				listp->push_back(accelerator);//addData(accelerator);
 			}
-			listp->push_back(accelerator);//addData(accelerator);
+			catch (const std::bad_alloc& e)
+			{
+				LL_WARNS() << "Failed to allocate memory for keybinding with exception: " << e.what() << LL_ENDL;
+				return FALSE;
+			}
 		}
 	}
 	return TRUE;
@@ -681,7 +699,7 @@ class LLMenuItemVerticalSeparatorGL
 public:
 	LLMenuItemVerticalSeparatorGL( void );
 
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask) { return FALSE; }
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override { return FALSE; }
 };
 
 LLMenuItemVerticalSeparatorGL::LLMenuItemVerticalSeparatorGL( void )
@@ -733,7 +751,7 @@ LLFloater* LLMenuItemTearOffGL::getParentFloater()
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void LLMenuItemTearOffGL::onCommit()
@@ -4873,7 +4891,7 @@ void LLContextMenu::hide()
 	{
 		mHoverItem->setHighlight( FALSE );
 	}
-	mHoverItem = NULL;
+	mHoverItem = nullptr;
 }
 
 
@@ -4983,7 +5001,11 @@ bool LLContextMenu::addChild(LLView* view, S32 tab_group)
 	if (LLContextMenu* context = dynamic_cast<LLContextMenu*>(view))
 		return appendContextSubMenu(context);
 	if (LLMenuItemGL* item = dynamic_cast<LLMenuItemGL*>(view))
+	{
+		if (!mItems.empty() && mItems.back()->getType() == "separator" && item->getType() == "separator") // Singu TODO: Profile this? Does it matter?
+			item->setVisible(false);
 		return append(item);
+	}
 	if (LLMenuGL* menu = dynamic_cast<LLMenuGL*>(view))
 		return appendMenu(menu);
 	return false;
@@ -5024,7 +5046,7 @@ LLPieMenu::LLPieMenu(const std::string& name, const std::string& label)
 // Separators on pie menus are invisible
 bool LLPieMenu::addChild(LLView* view, S32 tab_group)
 {
-	if (LLContextMenu::addChild(view, tab_group))
+	if (LLContextMenu::addChild(view, tab_group) && view->getVisible())
 	{
 		LLMenuItemSeparatorGL* sep = dynamic_cast<LLMenuItemSeparatorGL*>(view);
 		if(sep)

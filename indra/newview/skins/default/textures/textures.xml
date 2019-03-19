@@ -29,6 +29,7 @@ with the same filename but different name
 -->
 
 <textures version="101">
+  <!-- Please add new files alphabetically to prevent merge conflicts. JC -->
   <texture name="Accordion_ArrowClosed_Off" file_name="Accordion_ArrowClosed_Off.png" preload="false" />
   <texture name="Accordion_ArrowClosed_Press" file_name="Accordion_ArrowClosed_Press.png" preload="false" />
   <texture name="Accordion_ArrowOpened_Off" file_name="Accordion_ArrowOpened_Off.png" preload="false" />
@@ -38,7 +39,24 @@ with the same filename but different name
   <texture name="Accordion_Over" file_name="Accordion_Over.png" preload="false" />
   <texture name="Accordion_Selected" file_name="Accordion_Selected.png" preload="false" />
 
+  <texture name="Cam_Preset_Back_Off" file_name="Cam_Preset_Back_Off.png" preload="false" />
+  <texture name="Cam_Preset_Back_On" file_name="Cam_Preset_Back_On.png" preload="false" />
+  <texture name="Cam_Preset_Front_Off" file_name="Cam_Preset_Front_Off.png" preload="false" />
+  <texture name="Cam_Preset_Front_On" file_name="Cam_Preset_Front_On.png" preload="false" />
+  <texture name="Cam_Preset_Side_Off" file_name="Cam_Preset_Side_Off.png" preload="false" />
+  <texture name="Cam_Preset_Side_On" file_name="Cam_Preset_Side_On.png" preload="false" />
+
+  <texture name="Conv_toolbar_plus" file_name="Conv_toolbar_plus.png" preload="false" />
+  <texture name="Conv_toolbar_sort" file_name="Conv_toolbar_sort.png" preload="false" />
+
   <texture name="icon_group.tga"/>
+
+  <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
+  <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
+  <texture name="Favorite_Star_Press" file_name="navbar/Favorite_Star_Press.png" preload="false" />
+  <texture name="Favorite_Star_Over" file_name="navbar/Favorite_Star_Over.png" preload="false" />
+  <texture name="Favorite_Link_Over" file_name="navbar/Favorite_Link_Over.png" preload="false" />
+
   <texture name="Parcel_M_Dark" file_name="map_event_mature.tga" preload="true" />
   <texture name="Parcel_M_Light" file_name="map_event_mature.tga" preload="false" />
   <texture name="Parcel_PG_Light" file_name="map_event.tga" preload="false" />
@@ -47,6 +65,9 @@ with the same filename but different name
   <texture name="ProgressTrack" file_name="progressbar_track.tga" preload="true" scale.left="10" scale.top="7" scale.right="80" scale.bottom="7" />
   <texture name="Refresh_Off" file_name="Refresh_Off.png" preload="true" />
 
+  <texture name="Marketplace_Dropzone_Background" file_name="Marketplace_Dropzone_Background.png" preload="true" />
+  <texture name="MarketplaceBtn_Off" file_name="MarketplaceBtn_Off.png" preload="true" scale.left="30" scale.top="4" scale.right="35" scale.bottom="4" />
+  <texture name="MarketplaceBtn_Selected" file_name="MarketplaceBtn_Selected.png" preload="true" scale.left="30" scale.top="4" scale.right="35" scale.bottom="4" />
   <texture name="NoEntryLines" file_name="world/NoEntryLines.png" use_mips="true" preload="false" />
   <texture name="NoEntryPassLines" file_name="world/NoEntryPassLines.png" use_mips="true" preload="false" />
   <texture name="Rounded_Rect"	file_name="Rounded_Rect.png" preload="true" scale.left="6" scale.top="26" scale.right="58" scale.bottom="6" />
@@ -67,6 +88,8 @@ with the same filename but different name
   <texture name="silhouette.j2c" use_mips="true"/>
   <texture name="foot_shadow.j2c" use_mips="true"/>
   <texture name="cloud-particle.j2c" use_mips="true"/>
+
+  <!--WARNING OLD ART BELOW *do not use*-->
   <texture name="icn_media_web.tga" preload="true"/>
   <texture name="icn_media_movie.tga" preload="true"/>
   <texture name="scrollbutton_left_out_blue.tga"	preload="true"/>
@@ -81,33 +104,62 @@ with the same filename but different name
   <texture name="down_arrow.tga" file_name="down_arrow.png"/>
   <texture name="arrow_down.tga"/>
   <texture name="color_swatch_alpha.tga" preload="true"/>
+
   <texture name="button_anim_pause.tga"/>
   <texture name="button_anim_pause_selected.tga"/>
   <texture name="button_anim_play.tga"/>
   <texture name="button_anim_play_selected.tga"/>
   <texture name="crosshairs.tga"/>
   <texture name="direction_arrow.tga"/>
+
   <texture name="icon_avatar_offline.tga"/>
   <texture name="icon_avatar_online.tga"/>
   <texture name="icon_diurnal.tga"/>
   <texture name="icon_for_sale.tga"/>
   <texture name="icon_top_pick.tga"/>
+
+
   <texture name="lag_status_critical.tga"/>
   <texture name="lag_status_good.tga"/>
   <texture name="lag_status_warning.tga"/>
+
   <texture name="legend.tga"/>
+
   <texture name="map_avatar_16.tga"/>
   <texture name="map_avatar_8.tga"/>
+  <texture name="map_event.tga"/>
   <texture name="map_home.tga"/>
   <texture name="map_infohub.tga"/>
   <texture name="map_telehub.tga"/>
   <texture name="map_track_16.tga"/>
+
   <texture name="notify_caution_icon.tga"/>
+
   <texture name="default_land_picture.j2c"/>
   <texture name="default_profile_picture.j2c"/>
   <texture name="locked_image.j2c"/>
+
+  <texture name="Progress_1" file_name="Progress_1.png" preload="true" />
+  <texture name="Progress_2" file_name="Progress_2.png" preload="true" />
+  <texture name="Progress_3" file_name="Progress_3.png" preload="true" />
+  <texture name="Progress_4" file_name="Progress_4.png" preload="true" />
+  <texture name="Progress_5" file_name="Progress_5.png" preload="true" />
+  <texture name="Progress_6" file_name="Progress_6.png" preload="true" />
+  <texture name="Progress_7" file_name="Progress_7.png" preload="true" />
+  <texture name="Progress_8" file_name="Progress_8.png" preload="true" />
+  <texture name="Progress_9" file_name="Progress_9.png" preload="true" />
+  <texture name="Progress_10" file_name="Progress_10.png" preload="true" />
+  <texture name="Progress_11" file_name="Progress_11.png" preload="true" />
+  <texture name="Progress_12" file_name="Progress_12.png" preload="true" />
+
   <!-- Images that have since been renamed to something else in v3 and need updating. Alphabetical. -->
   <texture name="Flag.png" file_name="Flag.png" preload="false" />
+  <texture name="Inv_Post_Process.png" preload="true"/>
+  <texture name="Inv_Settings" file_name="Inv_Settings.png" preload="false" />
+  <texture name="Inv_SettingsSky" file_name="Inv_SettingsSky.png" preload="false" />
+  <texture name="Inv_SettingsWater" file_name="Inv_SettingsWater.png" preload="false" />
+  <texture name="Inv_SettingsDay" file_name="Inv_SettingsDay.png" preload="false" />
+  <texture name="Inv_Unknown" file_name="Inv_UnknownObject.png" preload="false" />
   <texture name="Inv_WaterLight.png" preload="true"/>
   <texture name="Inv_WindLight.png" preload="true"/>
   <texture name="Parcel_Exp_Color.png" file_name="Parcel_Exp_Color.png" preload="false" />
@@ -271,6 +323,11 @@ with the same filename but different name
   <texture name="inv_folder_sound.tga"/>
   <texture name="inv_folder_texture.tga"/>
   <texture name="inv_folder_trash.tga" preload="true"/>
+  <texture name="Inv_StockFolderClosed" file_name="Inv_StockFolderClosed.png" preload="false" />
+  <texture name="Inv_StockFolderOpen" file_name="Inv_StockFolderOpen.png" preload="false" />
+  <texture name="Inv_VersionFolderClosed" file_name="Inv_VersionFolderClosed.png" preload="false" />
+  <texture name="Inv_VersionFolderOpen" file_name="Inv_VersionFolderOpen.png" preload="false" />
+  
   <texture name="inv_item_animation.tga"/>
   <texture name="inv_item_callingcard_offline.tga"/>
   <texture name="inv_item_callingcard_online.tga"/>
@@ -321,8 +378,6 @@ with the same filename but different name
   <texture name="minimize_pressed.tga"	preload="true"/>
   <texture name="music_icon.tga" file_name="icn_label_music.tga" />
   <texture name="mute_icon.tga"/>
-  <texture name="noentrylines.j2c" use_mips="true"/>
-  <texture name="noentrypasslines.j2c" use_mips="true"/>
   <texture name="notify_box_icon.tga"/>
   <texture name="notify_next.png" preload="true"/>
   <texture name="notify_tip_icon.tga"/>
@@ -396,7 +451,6 @@ with the same filename but different name
   <texture name="toolbar_tab.tga"	preload="true" scale.left="6" scale.top="42" scale.right="104" scale.bottom="8"/>
   
   <!--DeleteMe-->
-  <texture name="map_event.tga"/>
   <texture name="map_event_mature.tga"/>
   <texture name="ProgressBar"	preload="true" scale.left="10" scale.top="7" scale.right="65" scale.bottom="7"/>
   <texture name="ProgressTrack"	preload="true" scale.left="10" scale.top="7" scale.right="80" scale.bottom="7"/>
@@ -404,4 +458,6 @@ with the same filename but different name
   <texture name="icn_slide-thumb_dark.tga" scale.left="2" scale.top="5" scale.right="29" scale.bottom="4"/>
   <texture name="map_avatar_you_8.tga"/>
   <texture name="icon_avatar_expand.png" preload="true" />
+
+  <texture name="Marketplace_Dropzone_Background" file_name="Marketplace_Dropzone_Background.png" preload="true" />
 </textures>

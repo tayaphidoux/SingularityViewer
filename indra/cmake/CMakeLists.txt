@@ -36,10 +36,10 @@ set(cmake_SOURCE_FILES
     FindGoogleBreakpad.cmake
     FindGooglePerfTools.cmake
     FindHunSpell.cmake
-    FindJsonCpp.cmake
     FindNDOF.cmake
     FindOpenJPEG.cmake
     FindTut.cmake
+    FindURIPARSER.cmake
     FindXmlRpcEpi.cmake
     FreeType.cmake
     GLOD.cmake
@@ -50,7 +50,7 @@ set(cmake_SOURCE_FILES
     GooglePerfTools.cmake
     Hunspell.cmake
     JPEG.cmake
-    JsonCpp.cmake
+    Json.cmake
     LLAddBuildTest.cmake
     LLAppearance.cmake
     LLAudio.cmake
@@ -65,7 +65,6 @@ set(cmake_SOURCE_FILES
     LLPlugin.cmake
     LLPrimitive.cmake
     LLPhysicsExtensions.cmake
-    LLSharedLibs.cmake
     LLRender.cmake
     LLSharedLibs.cmake
     LLUI.cmake
@@ -93,6 +92,7 @@ set(cmake_SOURCE_FILES
     Tut.cmake
     UI.cmake
     UnixInstall.cmake
+    URIPARSER.cmake
     Variables.cmake
     ViewerMiscLibs.cmake
     WinManifest.cmake

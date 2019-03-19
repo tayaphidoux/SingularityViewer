@@ -34,10 +34,12 @@
 		Ofrecido un Item de Inventario
 	</string>
 	<flyout_button label="Perfil" name="instant_message_flyout">
-		<flyout_button_item label="Solicitar Teleporte" name="request_teleport_item"/>
+		<flyout_button_item label="Solicitar Teleporte" name="request_teleport_item" width="180"/>
 		<flyout_button_item label="Invitar a Grupo" name="group_invite_item"/>
 		<flyout_button_item label="Copiar SLURL" name="copy_slurl_item"/>
+		<flyout_button_item label="Añadir a la Conferencia" name="conference"/>
 	</flyout_button>
+	<string name="find on map" value="Ubicar en el Mapa"/>
 	<string name="ding on" value="Timbre en Nuevos Mensajes (Encendido)"/>
 	<string name="ding off" value="Timbre en Nuevos Mensajes (Apagado)"/>
 	<string name="rp mode on" value="Modo RP (Encendido)"/>

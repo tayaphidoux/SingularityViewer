@@ -717,9 +717,10 @@ void LLWindowWin32::postInitialized()
 	mCallbacks->handleDPIScaleChange(this, xDPIScale, yDPIScale);
 }
 
-void LLWindowWin32::show()
+void LLWindowWin32::show(bool take_focus)
 {
 	ShowWindow(mWindowHandle, SW_SHOW);
+	if (!take_focus) return;
 	SetForegroundWindow(mWindowHandle);
 	SetFocus(mWindowHandle);
 }

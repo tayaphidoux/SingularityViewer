@@ -321,6 +321,7 @@ private:
 	nullary_func_t mPostUpdateFunc;
 };
 
+// [SL:KB] - Patch: Appearance-SyncAttach | Checked: 2010-08-31 (Catznip-2.1)
 class LLUpdateAppearanceAndEditWearableOnDestroy: public LLInventoryCallback
 {
 public:

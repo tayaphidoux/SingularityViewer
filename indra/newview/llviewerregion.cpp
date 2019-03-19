@@ -63,7 +63,6 @@
 #include "llfloateravatarlist.h"
 #include "llfloatergodtools.h"
 #include "llfloaterperms.h"
-#include "llfloaterreporter.h"
 #include "llfloaterregioninfo.h"
 #include "llhttpnode.h"
 #include "llregioninfomodel.h"
@@ -417,7 +416,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mColoName("unknown"),
 	mProductSKU("unknown"),
 	mProductName("unknown"),
-	mHttpUrl(""),
+	mViewerAssetUrl(""),
 	mCacheLoaded(FALSE),
 	mCacheDirty(FALSE),
 	mReleaseNotesRequested(FALSE),
@@ -904,7 +903,6 @@ void LLViewerRegion::processRegionInfo(LLMessageSystem* msg, void**)
 	LLRegionInfoModel::instance().update(msg);
 	LLFloaterGodTools::processRegionInfo(msg);
 	LLFloaterRegionInfo::processRegionInfo(msg);
-	LLFloaterReporter::processRegionInfo(msg);
 }
 
 void LLViewerRegion::setCacheID(const LLUUID& id)
@@ -1984,6 +1982,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("CreateInventoryCategory");
 	capabilityNames.append("CustomMenuAction");
 	capabilityNames.append("DispatchRegionInfo");
+	capabilityNames.append("DirectDelivery");
 	capabilityNames.append("EnvironmentSettings");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
@@ -2048,7 +2047,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("UpdateScriptAgent");
 	capabilityNames.append("UpdateScriptTask");
 	capabilityNames.append("UploadBakedTexture");
-	capabilityNames.append("ViewerAsset"); 
+	capabilityNames.append("ViewerAsset");
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
@@ -2158,9 +2157,20 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 	else
 	{
 		mImpl->mCapabilities[name] = url;
-		if(name == "GetTexture" || name == "ViewerAsset")
+		if(name == "ViewerAsset")
 		{
-			mHttpUrl = url ;
+			/*==============================================================*/
+			// The following inserted lines are a hack for testing MAINT-7081,
+			// which is why the indentation and formatting are left ugly.
+			const char* VIEWERASSET = getenv("VIEWERASSET");
+			if (VIEWERASSET)
+			{
+				mImpl->mCapabilities[name] = VIEWERASSET;
+				mViewerAssetUrl = VIEWERASSET;
+			}
+			else
+			/*==============================================================*/
+			mViewerAssetUrl = url;
 		}
 	}
 }
@@ -2171,9 +2181,20 @@ void LLViewerRegion::setCapabilityDebug(const std::string& name, const std::stri
 	if ( ! ( name == "EventQueueGet" || name == "UntrustedSimulatorMessage" || name == "SimulatorFeatures" ) )
 	{
 		mImpl->mSecondCapabilitiesTracker[name] = url;
-		if(name == "GetTexture" || name == "ViewerAsset")
+		if(name == "ViewerAsset")
 		{
-			mHttpUrl = url ;
+			/*==============================================================*/
+			// The following inserted lines are a hack for testing MAINT-7081,
+			// which is why the indentation and formatting are left ugly.
+			const char* VIEWERASSET = getenv("VIEWERASSET");
+			if (VIEWERASSET)
+			{
+				mImpl->mSecondCapabilitiesTracker[name] = VIEWERASSET;
+				mViewerAssetUrl = VIEWERASSET;
+			}
+			else
+			/*==============================================================*/
+			mViewerAssetUrl = url;
 		}
 	}
 

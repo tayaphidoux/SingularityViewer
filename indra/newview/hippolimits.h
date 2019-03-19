@@ -27,7 +27,7 @@ private:
 
 	void setMaxAgentGroups();
 	void setOpenSimLimits();
-	void setAuroraLimits();
+	void setWhiteCoreLimits();
 	void setSecondLifeLimits();
 };
 

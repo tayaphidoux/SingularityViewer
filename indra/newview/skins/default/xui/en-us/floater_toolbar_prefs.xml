@@ -80,7 +80,7 @@
   <check_box bottom_delta="-20" label="Make Outfit" name="make_outfit_btn" follows="left|right" control_name="ToolbarVisibleOutfit"/>
   <check_box bottom_delta="-20" label="Outfits" name="outfits_btn" follows="left|right" control_name="ToolbarVisibleInventoryOutfits"/>
   <check_box bottom_delta="-20" label="Favorites" name="favs_btn" follows="left|right" control_name="ToolbarVisibleInventoryFavs"/>
-  <check_box bottom_delta="-20" label="Outbox" name="outbox_btn" follows="left|right" control_name="ToolbarVisibleOutbox"/>
+  <check_box bottom_delta="-20" label="Marketplace Listings" name="marketplace_listings_btn" follows="left|right" control_name="ToolbarVisibleMarketplaceListings"/>
   <check_box bottom_delta="-20" label="Preferences" name="preferences_btn" follows="left|right" control_name="ToolbarVisiblePreferences"/>
   <check_box bottom="-38" label="Joystick Config" name="joystick_btn" follows="left|right" control_name="ToolbarVisibleJoystick" left_delta="160"/>
   <check_box bottom_delta="-20" label="Autoreplace" name="auto_replace_btn" follows="left|right" control_name="ToolbarVisibleAutoReplace"/>

@@ -695,11 +695,10 @@ void LLFloaterTexturePicker::draw()
 		LLFolderView* folder_view = mInventoryPanel->getRootFolder();
 		if (!folder_view) return;
 
-		LLInventoryFilter* filter = folder_view->getFilter();
-		if (!filter) return;
+		LLInventoryFilter& filter = folder_view->getFilter();
 
-		bool is_filter_active = folder_view->getCompletedFilterGeneration() < filter->getCurrentGeneration() &&
-				filter->isNotDefault();
+		bool is_filter_active = folder_view->getCompletedFilterGeneration() < filter.getCurrentGeneration() &&
+				filter.isNotDefault();
 
 		// After inventory panel filter is applied we have to update
 		// constraint rect for the selected item because of folder view
@@ -1306,7 +1305,7 @@ void LLTextureCtrl::setEnabled( BOOL enabled )
 	mCaption->setEnabled( enabled );
 	mEnable = enabled;
 
-	LLView::setEnabled( enabled );
+	//LLView::setEnabled( enabled ); // <edit/>
 }
 
 void LLTextureCtrl::setValid(BOOL valid )

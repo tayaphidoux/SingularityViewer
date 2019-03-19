@@ -79,6 +79,7 @@ public:
 	static void getFields(std::string& firstname, std::string& lastname, std::string& password);
 
 	static void setLocation(const LLSLURL& slurl);
+	static void autologinToLocation(const LLSLURL& slurl);
 	
 	/// Call when preferences that control visibility may have changed
 	static void updateLocationSelectorsVisibility();
@@ -94,6 +95,8 @@ public:
 	static void refreshLoginPage();
 	static void giveFocus();
 	static void setAlwaysRefresh(bool refresh); 
+	void clearPassword();
+	void hidePassword();
 	void mungePassword(const std::string& password);
 
 	// inherited from LLViewerMediaObserver
@@ -104,6 +107,7 @@ public:
 
 private:
 	void reshapeBrowser();
+	void addFavoritesToStartLocation();
 	void onLocationSLURL();
 
 	void onClickConnect();

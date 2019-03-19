@@ -188,6 +188,8 @@ public:
 
 	bool isNonFriendSessionNotified(const LLUUID& session_id);
 
+	static std::string getOfflineMessage(const LLUUID& id);
+
 private:
 	// create a panel and update internal representation for
 	// consistency. Returns the pointer, caller (the class instance

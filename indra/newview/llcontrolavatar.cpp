@@ -113,7 +113,7 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
 		unshift_extents[0] = extents[0] - mPositionConstraintFixup;
 		unshift_extents[1] = extents[1] - mPositionConstraintFixup;
         LLVector3 box_dims = extents[1]-extents[0];
-        F32 box_size = llmax(box_dims[0],box_dims[1],box_dims[2]);
+        //F32 box_size = llmax(box_dims[0],box_dims[1],box_dims[2]);
 
 		if (!mRootVolp->isAttachment())
 		{

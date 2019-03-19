@@ -217,6 +217,7 @@
 #include "generichandlers.h"
 
 // <edit>
+#include "floaterlocalassetbrowse.h"
 #include "llpanellogin.h"
 //#include "llfloateravatars.h"
 //#include "llactivation.h"
@@ -859,7 +860,7 @@ bool idle_startup()
 	{
 		LL_DEBUGS("AppInit") << "STATE_BROWSER_INIT" << LL_ENDL;
 		//std::string msg = LLTrans::getString("LoginInitializingBrowser");
-		//set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
+		//set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD);
 		display_startup();
 		// LLViewerMedia::initBrowser();
 		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
@@ -890,6 +891,8 @@ bool idle_startup()
 			LLToolMgr::getInstance()->initTools();
 
 			display_startup();
+			// Load local textures now, maybe someone wants to use them in UI (why?)
+			LocalAssetBrowser::instance(); // <edit/>
 			// Quickly get something onscreen to look at.
 			gViewerWindow->initWorldUI();
 			display_startup();
@@ -944,7 +947,11 @@ bool idle_startup()
 		display_startup();
 
 		// Push our window frontmost
-		gViewerWindow->getWindow()->show();
+		// Singu Note: Actually, don't! But flash the window to let the user know
+		auto& window(*gViewerWindow->getWindow());
+		window.show(false);
+		if (gSavedSettings.getBOOL("LiruFlashWhenMinimized")) // No, we're not minimized, but if you flash my bar, I will give you the biggest SIGSEGV ~Liru <3
+			window.flashIcon(5.f);
 		display_startup();
 
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
@@ -1131,9 +1138,6 @@ bool idle_startup()
 			// END TODO
 			//LLPanelLogin::close();
 		}
-
-		//For HTML parsing in text boxes.
-		LLTextEditor::setLinkColor( gSavedSettings.getColor4("HTMLLinkColor") );
 
 		// Load URL History File
 		LLURLHistory::loadFile("url_history.xml");
@@ -1586,9 +1590,9 @@ bool idle_startup()
 				if (!secondlife ||
 					!boost::algorithm::iequals(lastname, "Resident"))
 				{
-					name += " " + lastname;
+					name += ' ' + lastname;
 				}
-				if (gSavedSettings.getBOOL("LiruGridInTitle")) gWindowTitle += "- " + gHippoGridManager->getCurrentGrid()->getGridName() + " ";
+				if (gSavedSettings.getBOOL("LiruGridInTitle")) gWindowTitle += "- " + gHippoGridManager->getCurrentGrid()->getGridName() + ' ';
 				gViewerWindow->getWindow()->setTitle(gWindowTitle += "- " + name);
 
 				if (!secondlife)
@@ -2342,6 +2346,12 @@ bool idle_startup()
 		}
 
 		display_startup();
+
+		// *TODO : Uncomment that line once the whole grid migrated to SLM and suppress it from LLAgent::handleTeleportFinished() (llagent.cpp)
+		//check_merchant_status();
+
+		display_startup();
+
 		// We're successfully logged in.
 		gSavedSettings.setBOOL("FirstLoginThisInstall", FALSE);
 
@@ -2673,15 +2683,15 @@ bool idle_startup()
 		update_texture_fetch();
 		display_startup();
 		set_startup_status(0.9f + 0.1f * wearables_time / MAX_WEARABLES_TIME,
-						 LLTrans::getString("LoginDownloadingClothing").c_str(),
-						 gAgent.mMOTD.c_str());
+						 LLTrans::getString("LoginDownloadingClothing"),
+						 gAgent.mMOTD);
 		display_startup();
 		return TRUE;
 	}
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())
 	{
-		set_startup_status(1.0, "", "");
+		set_startup_status(1.0, LLStringUtil::null, LLStringUtil::null);
 		display_startup();
 
 		// Let the map know about the inventory.
@@ -4121,7 +4131,7 @@ bool process_login_success_response(std::string& password, U32& first_sim_size_x
 		LLWorldMap::gotMapServerURL(true);
 	}
 
-	bool opensim = gHippoGridManager->getConnectedGrid()->isOpenSimulator();
+	bool opensim = !gHippoGridManager->getConnectedGrid()->isSecondLife();
 	if (opensim)
 	{
 		std::string web_profile_url = response["web_profile_url"];

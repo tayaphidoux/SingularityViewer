@@ -88,8 +88,14 @@ LLIconDictionary::LLIconDictionary()
 	addEntry(LLInventoryType::ICONNAME_LINKFOLDER, 				new IconEntry("inv_link_folder.tga"));
 	addEntry(LLInventoryType::ICONNAME_MESH,	 				new IconEntry("inv_item_mesh.tga"));
 
+	addEntry(LLInventoryType::ICONNAME_SETTINGS_SKY,	new IconEntry("Inv_SettingsSky.png"));
+	addEntry(LLInventoryType::ICONNAME_SETTINGS_WATER,	new IconEntry("Inv_SettingsWater.png"));
+	addEntry(LLInventoryType::ICONNAME_SETTINGS_DAY,	new IconEntry("Inv_SettingsDay.png"));
+	addEntry(LLInventoryType::ICONNAME_SETTINGS,		new IconEntry("Inv_Settings.png"));
+
 	addEntry(LLInventoryType::ICONNAME_CLOTHING_UNKNOWN, 		new IconEntry("inv_item_unknown.tga"));
 	addEntry(LLInventoryType::ICONNAME_INVALID, 				new IconEntry("inv_invalid.png"));
+	addEntry(LLInventoryType::ICONNAME_UNKNOWN, 				new IconEntry("Inv_UnknownObject.png"));
 
 	addEntry(LLInventoryType::ICONNAME_NONE, 					new IconEntry("NONE"));
 }
@@ -163,6 +169,14 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 			break;
 		case LLAssetType::AT_MESH:
 			idx = LLInventoryType::ICONNAME_MESH;
+			break;
+		case LLAssetType::AT_SETTINGS:
+			// TODO: distinguish between Sky and Water settings.
+			idx = assignSettingsIcon(misc_flag);
+			break;
+		case LLAssetType::AT_UNKNOWN:
+			idx = LLInventoryType::ICONNAME_UNKNOWN;
+			break;
 		default:
 			break;
 	}
@@ -181,4 +195,15 @@ LLInventoryType::EIconName LLInventoryIcon::assignWearableIcon(U32 misc_flag)
 {
 	const LLWearableType::EType wearable_type = LLWearableType::EType(LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK & misc_flag);
 	return LLWearableType::getIconName(wearable_type);
+}
+
+LLInventoryType::EIconName LLInventoryIcon::assignSettingsIcon(U32 misc_flag)
+{
+	switch (misc_flag & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK)
+	{
+		case 0: return LLInventoryType::ICONNAME_SETTINGS_SKY;
+		case 1: return LLInventoryType::ICONNAME_SETTINGS_WATER;
+		case 2: return LLInventoryType::ICONNAME_SETTINGS_DAY;
+	}
+	return LLInventoryType::ICONNAME_SETTINGS;
 }

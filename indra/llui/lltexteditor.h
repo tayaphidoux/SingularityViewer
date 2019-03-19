@@ -65,14 +65,22 @@ public:
 	LLTextEditor(const std::string& name,
 				 const LLRect& rect,
 				 S32 max_length,
-				 const std::string &default_text, 
+				 const std::string &default_text,
 				 const LLFontGL* glfont = NULL,
-				 BOOL allow_embedded_items = FALSE);
+				 BOOL allow_embedded_items = FALSE,
+				 bool parse_html = false);
 
 	virtual ~LLTextEditor();
 
-	typedef boost::signals2::signal<void (LLTextEditor* caller)> keystroke_signal_t;
+	const std::string& getMenuSegmentUrl() const;
 
+	typedef boost::signals2::signal<void (LLTextEditor* caller)> keystroke_signal_t;
+	typedef boost::signals2::signal<bool(const LLUUID& user_id)> is_friend_signal_t;
+	typedef boost::signals2::signal<bool(const LLUUID& blocked_id, const std::string from)> is_blocked_signal_t;
+
+	static boost::signals2::connection setIsFriendCallback(const is_friend_signal_t::slot_type& cb);
+	static boost::signals2::connection setIsObjectBlockedCallback(const is_blocked_signal_t::slot_type& cb);
+	static void addMenuListeners();
 	void	setKeystrokeCallback(const keystroke_signal_t::slot_type& callback);
 
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
@@ -84,6 +92,7 @@ public:
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
+	virtual void	onMouseLeave(S32 x, S32 y, MASK mask) override;
 	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask );
 	virtual BOOL	handleRightMouseDown( S32 x, S32 y, MASK mask );
@@ -131,7 +140,9 @@ public:
 	virtual BOOL	canRedo() const;
 	virtual void	cut();
 	virtual BOOL	canCut() const;
-	virtual void	copy();
+	void			copy(bool raw);
+	void			copyRaw() { copy(true); }
+	virtual void	copy() { copy(false); }
 	virtual BOOL	canCopy() const;
 	virtual void	paste();
 	virtual BOOL	canPaste() const;
@@ -149,12 +160,6 @@ public:
 	virtual BOOL	canSelectAll()	const;
 	virtual void	deselect();
 	virtual BOOL	canDeselect() const;
-	static void context_cut(void* data);
-
-	static void context_copy(void* data);
-	static void context_paste(void* data);
-	static void context_delete(void* data);
-	static void context_selectall(void* data);
 	static void spell_correct(void* data);
 	static void spell_add(void* data);
 	static void spell_show(void* data);
@@ -176,20 +181,24 @@ public:
 	void			insertText(const std::string &text, BOOL deleteSelection = TRUE);
 	// appends text at end
 	void 			appendText(const std::string &wtext, bool allow_undo, bool prepend_newline,
-							   const LLStyleSP stylep = NULL);
+							   const LLStyleSP stylep = NULL, bool force_replace_links = true);
+	void			appendTextImpl(const std::string& new_text, const LLStyleSP style, bool force_replace_links = true);
+
+	void			setLastSegmentToolTip(const std::string& tooltip);
+
+	void			appendLineBreakSegment();
+
+	void			appendAndHighlightText(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep, bool underline_on_hover = false);
+
+	void			replaceUrl(const std::string& url, const std::string& label, const std::string& icon);
 
 	void 			appendColoredText(const std::string &wtext, bool allow_undo, 
 									  bool prepend_newline,
 									  const LLColor4 &color,
 									  const std::string& font_name = LLStringUtil::null);
-	// if styled text starts a line, you need to prepend a newline.
-	void 			appendStyledText(const std::string &new_text, bool allow_undo, 
-									 bool prepend_newline,
-									 LLStyleSP stylep = NULL);
-	void			appendHighlightedText(const std::string &new_text,  bool allow_undo, 
-										  bool prepend_newline,	 S32  highlight_part,
-										  LLStyleSP stylep);
 	
+	void			appendAndHighlightTextImpl(const std::string& new_text, S32 highlight_part, const LLStyleSP stylep, bool underline_on_hover = false);
+
 	// Removes text from the end of document
 	// Does not change highlight or cursor position.
 	void 			removeTextFromEnd(S32 num_chars);
@@ -253,8 +262,8 @@ public:
 
 	void			setHandleEditKeysDirectly( BOOL b ) 	{ mHandleEditKeysDirectly = b; }
 
-	// Callbacks
-	static void		setLinkColor(LLColor4 color) { mLinkColor = color; }
+	// Use for when the link color needs to be changed to avoid looking awful
+	void			setLinkColor(LLColor4* color) { if (mLinkColor) delete mLinkColor; mLinkColor = color; }
 
 	void			setOnScrollEndCallback(void (*callback)(void*), void* userdata);
 
@@ -263,7 +272,9 @@ public:
 	LLSD 			getValue() const;
 
  	const std::string&	getText() const;
-	
+
+	LLMenuGL*		createUrlContextMenu(S32 x, S32 y, const std::string &url); // create a popup context menu for the given Url
+
 	// Non-undoable
 	void			setText(const LLStringExplicit &utf8str);
 	void			setWText(const LLWString &wtext);
@@ -284,6 +295,7 @@ public:
 	llwchar			getWChar(S32 pos) const { return mWText[pos]; }
 	LLWString		getWSubString(S32 pos, S32 len) const { return mWText.substr(pos, len); }
 	
+	const LLTextSegment*	getLastSegment() const { return mSegments.empty() ? nullptr : mSegments.back(); }
 	const LLTextSegment*	getCurrentSegment() const { return getSegmentAtOffset(mCursorPos); }
 	const LLTextSegment*	getPreviousSegment() const;
 	void getSelectedSegments(std::vector<LLTextSegmentPtr>& segments) const;
@@ -308,7 +320,6 @@ protected:
 	void			updateTextRect();
 	const LLRect&	getTextRect() const { return mTextRect; }
 
-	void 			assignEmbedded(const std::string &s);
 	BOOL 			truncate();				// Returns true if truncation occurs
 	
 	void			removeCharOrTab();
@@ -364,9 +375,6 @@ protected:
 	virtual llwchar	pasteEmbeddedItem(llwchar ext_char) { return ext_char; }
 	virtual void	bindEmbeddedChars(const LLFontGL* font) const {}
 	virtual void	unbindEmbeddedChars(const LLFontGL* font) const {}
-	
-	S32				findHTMLToken(const std::string &line, S32 pos, BOOL reverse) const;
-	BOOL			findHTML(const std::string &line, S32 *begin, S32 *end) const;
 
 	// Abstract inner base class representing an undoable editor command.
 	// Concrete sub-classes can be defined for operations such as insert, remove, etc.
@@ -408,7 +416,6 @@ protected:
 	void			removeWord(bool prev);
 	S32				insert(const S32 pos, const LLWString &wstr, const BOOL group_with_next_op);
 	S32				remove(const S32 pos, const S32 length, const BOOL group_with_next_op);
-	S32				append(const LLWString &wstr, const BOOL group_with_next_op);
 	
 	// Direct operations
 	S32				insertStringNoUndo(S32 pos, const LLWString &wstr); // returns num of chars actually inserted
@@ -454,7 +461,6 @@ protected:
 
 	BOOL			mParseHTML;
 	BOOL			mParseHighlights;
-	std::string		mHTML;
 
 	typedef std::vector<LLTextSegmentPtr> segment_list_t;
 	segment_list_t mSegments;
@@ -466,6 +472,10 @@ protected:
 	BOOL			mTakesNonScrollClicks;
 	void			(*mOnScrollEndCallback)(void*);
 	void			*mOnScrollEndData;
+
+	// Used to check if user with given ID is avatar's friend
+	static is_friend_signal_t*         mIsFriendSignal;
+	static is_blocked_signal_t*        mIsObjectBlockedSignal;
 
 	LLWString			mPreeditWString;
 	LLWString			mPreeditOverwrittenWString;
@@ -480,6 +490,8 @@ private:
 	void	                pasteHelper(bool is_primary);
 	void			onKeyStroke();
 
+	void			createDefaultSegment();
+	void			clearSegments();
 	void			updateSegments();
 	void			pruneSegments();
 
@@ -502,7 +514,7 @@ private:
 	// Data
 	//
 	LLKeywords		mKeywords;
-	static LLColor4 mLinkColor;
+	LLColor4*		mLinkColor;
 
 	// Concrete LLTextCmd sub-classes used by the LLTextEditor base class
 	class LLTextCmdInsert;
@@ -615,6 +627,7 @@ public:
 	LLTextSegment( const LLColor3& color, S32 start, S32 end );
 
 	S32					getStart() const					{ return mStart; }
+	void				setStart(S32 start)					{ mStart = start; }
 	S32					getEnd() const						{ return mEnd; }
 	void				setEnd( S32 end )					{ mEnd = end; }
 	const LLColor4&		getColor() const					{ return mStyle->getColor(); }
@@ -623,9 +636,12 @@ public:
 	void 				setStyle(const LLStyleSP &style)	{ mStyle = style; }
 	void 				setIsDefault(BOOL b)   				{ mIsDefault = b; }
 	BOOL 				getIsDefault() const   				{ return mIsDefault; }
+	void				setUnderlineOnHover(bool b)			{ mUnderlineOnHover = b; }
+	void				underlineOnHover(bool hover)		{ if (mUnderlineOnHover) mStyle->mUnderline = hover; }
 	void				setToken( LLKeywordToken* token )	{ mToken = token; }
 	LLKeywordToken*		getToken() const					{ return mToken; }
 	BOOL				getToolTip( std::string& msg ) const;
+	void				setToolTip(const std::string& tooltip);
 
 	void				dump() const;
 
@@ -643,6 +659,8 @@ private:
 	S32			mEnd;
 	LLKeywordToken* mToken;
 	BOOL		mIsDefault;
+	bool		mUnderlineOnHover = false;
+	std::string mTooltip;
 };
 
 

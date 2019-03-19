@@ -66,10 +66,6 @@ void fake_local_chat(std::string msg);
 // Longest time, in seconds, to wait for all animations to stop playing
 const F32 MAX_WAIT_ANIM_SECS = 30.f;
 
-// If this gesture is a link, get the base gesture that this link points to,
-// otherwise just return this id.
-static const LLUUID& get_linked_uuid(const LLUUID& item_id);
- 
 // Lightweight constructor.
 // init() does the heavy lifting.
 LLGestureMgr::LLGestureMgr()
@@ -259,7 +255,7 @@ void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 												BOOL inform_server,
 												BOOL deactivate_similar)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
 	if( !gAssetStorage )
 	{
@@ -307,7 +303,7 @@ void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 
 void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
@@ -352,7 +348,7 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 
 void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& in_item_id)
 {
-	const LLUUID& base_in_item_id = get_linked_uuid(in_item_id);
+	const LLUUID& base_in_item_id = gInventory.getLinkedItemID(in_item_id);
 	uuid_vec_t gest_item_ids;
 
 	// Deactivate all gestures that match
@@ -439,7 +435,7 @@ void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& i
 
 BOOL LLGestureMgr::isGestureActive(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 	item_map_t::iterator it = mActive.find(base_item_id);
 	return (it != mActive.end());
 }
@@ -447,7 +443,7 @@ BOOL LLGestureMgr::isGestureActive(const LLUUID& item_id)
 
 BOOL LLGestureMgr::isGesturePlaying(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end()) return FALSE;
 
@@ -469,7 +465,7 @@ BOOL LLGestureMgr::isGesturePlaying(LLMultiGesture* gesture)
 
 void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_gesture, const LLUUID& asset_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
@@ -510,7 +506,7 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_ges
 
 void LLGestureMgr::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
 	item_map_t::iterator it = LLGestureMgr::instance().mActive.find(base_item_id);
 	if (it == mActive.end())
@@ -613,7 +609,7 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture, bool local)
 // Convenience function that looks up the item_id for you.
 void LLGestureMgr::playGesture(const LLUUID& item_id, bool local)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end()) return;
@@ -1337,7 +1333,7 @@ void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
 
 void LLGestureMgr::stopGesture(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end()) return;
 
@@ -1493,13 +1489,4 @@ void LLGestureMgr::done()
 	}
 }
 
-// static
-const LLUUID& get_linked_uuid(const LLUUID &item_id)
-{
-	LLViewerInventoryItem* item = gInventory.getItem(item_id);
-	if (item && item->getIsLinkType())
-	{
-		return item->getLinkedUUID();
-	}
-	return item_id;
-}
+

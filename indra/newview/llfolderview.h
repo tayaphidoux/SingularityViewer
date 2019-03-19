@@ -1,3 +1,4 @@
+
 /** 
  * @file llfolderview.h
  * @brief Definition of the folder view collection of classes.
@@ -49,6 +50,7 @@
 #include "lldepthstack.h"
 #include "lleditmenuhandler.h"
 #include "llfontgl.h"
+#include "llinventoryfilter.h"
 #include "lltooldraganddrop.h"
 #include "llviewertexture.h"
 
@@ -87,6 +89,7 @@ public:
 
 	virtual BOOL canFocusChildren() const;
 
+	virtual const LLFolderView*	getRoot() const { return this; }
 	virtual LLFolderView*	getRoot() { return this; }
 
 	LLFolderViewGroupedItemModel* getFolderViewGroupedItemModel() { return mGroupedItemModel; }
@@ -101,13 +104,15 @@ public:
 	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
 	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 	void setAllowMultiSelect(BOOL allow) { mAllowMultiSelect = allow; }
+	void setShowEmptyMessage(bool show) { mShowEmptyMessage = show; }
+	/*void setShowItemLinkOverlays(bool show) { mShowItemLinkOverlays = show; }
+	void setAllowDropOnRoot(bool show) { mAllowDropOnRoot = show; }*/
 
-	LLInventoryFilter* getFilter();
+	LLInventoryFilter& getFilter() { return mFilter; }
 	const std::string getFilterSubString(BOOL trim = FALSE);
-	bool getFilterWorn() const;
 	U32 getFilterObjectTypes() const;
 	PermissionMask getFilterPermissions() const;
-	// *NOTE: use getFilter()->getShowFolderState();
+	// *NOTE: use getFilter().getShowFolderState();
 	//LLInventoryFilter::EFolderShow getShowFolderState();
 	U32 getSortOrder() const;
 	BOOL isFilterModified();
@@ -132,15 +137,16 @@ public:
 	void arrangeAll() { mArrangeGeneration++; }
 	S32 getArrangeGeneration() { return mArrangeGeneration; }
 
-	// Apply filters to control visibility of inventory items
+	// applies filters to control visibility of items
 	virtual void filter( LLInventoryFilter& filter);
 
 	// Get the last selected item
 	virtual LLFolderViewItem* getCurSelectedItem( void );
+	selected_items_t& getSelectedItems( void );
 
 	// Record the selected item and pass it down the hierarchy.
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem,
-		BOOL take_keyboard_focus);
+		BOOL take_keyboard_focus = TRUE);
 
 	// Used by menu callbacks
 	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
@@ -148,19 +154,19 @@ public:
 	// Called once a frame to update the selection if mSelectThisID has been set
 	void updateSelection();
 
-	// This method is used to toggle the selection of an item. 
-	// Walks children and keeps track of selected objects.
+	// This method is used to toggle the selection of an item. Walks
+	// children, and keeps track of selected objects.
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
 
 	virtual std::set<LLUUID> getSelectionList() const;
 
-	// Make sure if ancestor is selected, descendents are not
+	// Make sure if ancestor is selected, descendants are not
 	void sanitizeSelection();
-	void clearSelection();
+	virtual void clearSelection();
 	void addToSelectionList(LLFolderViewItem* item);
 	void removeFromSelectionList(LLFolderViewItem* item);
 
-	BOOL startDrag(LLToolDragAndDrop::ESource source);
+	bool startDrag(LLToolDragAndDrop::ESource source);
 	void setDragAndDropThisFrame() { mDragAndDropThisFrame = TRUE; }
 	void setDraggingOverItem(LLFolderViewItem* item) { mDraggingOverItem = item; }
 	LLFolderViewItem* getDraggingOverItem() { return mDraggingOverItem; }
@@ -179,30 +185,23 @@ public:
 	void autoOpenItem(LLFolderViewFolder* item);
 	void closeAutoOpenedFolders();
 	BOOL autoOpenTest(LLFolderViewFolder* item);
+	BOOL isOpen() const { return TRUE; } // root folder always open
 
 	// Copy & paste
-	virtual void	copy();
 	virtual BOOL	canCopy() const;
+	virtual void	copy();
 
-	virtual void	cut();
 	virtual BOOL	canCut() const;
+	virtual void	cut();
 
-	virtual void	paste();
 	virtual BOOL	canPaste() const;
+	virtual void	paste();
 
-	virtual void	doDelete();
 	virtual BOOL	canDoDelete() const;
+	virtual void	doDelete();
 
 	// Public rename functionality - can only start the process
 	void startRenamingSelectedItem( void );
-
-	// These functions were used when there was only one folderview,
-	// and relied on that concept. This functionality is now handled
-	// by the listeners and the lldraganddroptool.
-	//LLFolderViewItem*	getMovingItem() { return mMovingItem; }
-	//void setMovingItem( LLFolderViewItem* item ) { mMovingItem = item; }
-	//void				dragItemIntoFolder( LLFolderViewItem* moving_item, LLFolderViewFolder* dst_folder, BOOL drop, BOOL* accept );
-	//void				dragFolderIntoFolder( LLFolderViewFolder* moving_folder, LLFolderViewFolder* dst_folder, BOOL drop, BOOL* accept );
 
 	// LLView functionality
 	///*virtual*/ BOOL handleKey( KEY key, MASK mask, BOOL called_from_parent );
@@ -218,6 +217,7 @@ public:
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask) { setShowSelectionContext(FALSE); }
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
 	virtual void deleteAllChildren();
@@ -228,12 +228,13 @@ public:
 	LLRect getVisibleRect();
 
 	BOOL search(LLFolderViewItem* first_item, const std::string &search_string, BOOL backward);
-	void setShowSelectionContext(BOOL show) { mShowSelectionContext = show; }
+	void setShowSelectionContext(bool show) { mShowSelectionContext = show; }
 	BOOL getShowSelectionContext();
-	void setShowSingleSelection(BOOL show);
+	void setShowSingleSelection(bool show);
 	BOOL getShowSingleSelection() { return mShowSingleSelection; }
 	F32  getSelectionFadeElapsedTime() { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
 	bool getUseEllipses() { return mUseEllipses; }
+	S32 getSelectedCount() { return (S32)mSelectedItems.size(); }
 
 	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
 	void removeItemID(const LLUUID& id);
@@ -259,7 +260,7 @@ public:
 	virtual S32	notify(const LLSD& info) ;
 	
 	bool useLabelSuffix() { return mUseLabelSuffix; }
-	void updateMenu();
+	virtual void updateMenu();
 	void saveFolderState();
 	void restoreFolderState();
 
@@ -290,35 +291,37 @@ protected:
 	LLHandle<LLView>					mPopupMenuHandle;
 	
 	selected_items_t				mSelectedItems;
-	BOOL							mKeyboardSelection;
-	BOOL							mAllowMultiSelect;
-	BOOL							mShowEmptyMessage;
-	BOOL							mShowFolderHierarchy;
+	bool							mKeyboardSelection,
+									mAllowMultiSelect,
+									mShowEmptyMessage,
+									mShowFolderHierarchy,
+									mNeedsScroll,
+									mPinningSelectedItem,
+									mNeedsAutoSelect,
+									mAutoSelectOverride,
+									mNeedsAutoRename,
+									mUseLabelSuffix,
+									mDragAndDropThisFrame,
+									mShowSelectionContext,
+									mShowSingleSelection;
+
 	LLUUID							mSourceID;
 
 	// Renaming variables and methods
 	LLFolderViewItem*				mRenameItem;  // The item currently being renamed
 	LLLineEditor*					mRenamer;
 
-	BOOL							mNeedsScroll;
-	BOOL							mPinningSelectedItem;
 	LLRect							mScrollConstraintRect;
-	BOOL							mNeedsAutoSelect;
-	BOOL							mAutoSelectOverride;
-	BOOL							mNeedsAutoRename;
-	bool							mUseLabelSuffix;
-	
-	BOOL							mDebugFilters;
+
+	bool							mDebugFilters;
 	U32								mSortOrder;
 	U32								mSearchType;
 	LLDepthStack<LLFolderViewFolder>	mAutoOpenItems;
 	LLFolderViewFolder*				mAutoOpenCandidate;
 	LLFrameTimer					mAutoOpenTimer;
 	LLFrameTimer					mSearchTimer;
-	std::string						mSearchString;
-	LLInventoryFilter*				mFilter;
-	BOOL							mShowSelectionContext;
-	BOOL							mShowSingleSelection;
+	LLWString						mSearchString;
+	LLInventoryFilter				mFilter;
 	LLFrameTimer					mMultiSelectionFadeTimer;
 	S32								mArrangeGeneration;
 
@@ -328,8 +331,6 @@ protected:
 	S32								mMinWidth;
 	S32								mRunningHeight;
 	std::map<LLUUID, LLFolderViewItem*> mItemMap;
-	BOOL							mDragAndDropThisFrame;
-	
 	LLUUID							mSelectThisID; // if non null, select this item
 	
 	LLHandle<LLPanel>				mParentPanel;
@@ -353,11 +354,10 @@ public:
 
 };
 
-bool sort_item_name(LLFolderViewItem* a, LLFolderViewItem* b);
-bool sort_item_date(LLFolderViewItem* a, LLFolderViewItem* b);
 
 // Flags for buildContextMenu()
 const U32 SUPPRESS_OPEN_ITEM = 0x1;
 const U32 FIRST_SELECTED_ITEM = 0x2;
+const U32 ITEM_IN_MULTI_SELECTION = 0x4;
 
 #endif // LL_LLFOLDERVIEW_H

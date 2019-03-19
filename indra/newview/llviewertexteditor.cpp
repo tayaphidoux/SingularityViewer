@@ -578,34 +578,20 @@ LLViewerTextEditor::LLViewerTextEditor(const std::string& name,
 									   S32 max_length, 
 									   const std::string& default_text, 
 									   const LLFontGL* font,
-									   BOOL allow_embedded_items)
-	: LLTextEditor(name, rect, max_length, default_text, font, allow_embedded_items),
+									   BOOL allow_embedded_items,
+									   bool parse_html)
+	: LLTextEditor(name, rect, max_length, default_text, font, allow_embedded_items, parse_html),
 	  mDragItemChar(0),
 	  mDragItemSaved(FALSE),
 	  mInventoryCallback(new LLEmbeddedNotecardOpener)
 {
 	mEmbeddedItemList = new LLEmbeddedItems(this);
 	mInventoryCallback->setEditor(this);
-
-	// *TODO: Add right click menus for SLURLs
-	// Build the right click menu
-	// make the popup menu available
-
-	//LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_slurl.xml", this);
-	//if (!menu)
-	//{
-	//	menu = new LLMenuGL(LLStringUtil::null);
-	//}
-	//menu->setBackgroundColor(gColors.getColor("MenuPopupBgColor"));
-	//// menu->setVisible(FALSE);
-	//mPopupMenuHandle = menu->getHandle();
 }
 
 LLViewerTextEditor::~LLViewerTextEditor()
 {
 	delete mEmbeddedItemList;
-	
-	
 	// The inventory callback may still be in use by gInventoryCallbackManager...
 	// so set its reference to this to null.
 	mInventoryCallback->setEditor(NULL); 
@@ -672,6 +658,7 @@ BOOL LLViewerTextEditor::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* s
 	return TRUE;
 }
 
+// Singu TODO: This is mostly duplicated from LLTextEditor
 BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = FALSE;
@@ -794,114 +781,28 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
 
-	if (!mDragItem)
+	if (!mIsSelecting && mDragItem && hasMouseCapture())
 	{
-		// leave hover segment active during drag and drop
-		mHoverSegment = NULL;
-	}
-	if(hasMouseCapture() )
-	{
-		if( mIsSelecting ) 
+		S32 screen_x;
+		S32 screen_y;
+		localPointToScreen(x, y, &screen_x, &screen_y );
+		if( LLToolDragAndDrop::getInstance()->isOverThreshold( screen_x, screen_y ) )
 		{
-			if (x != mLastSelectionX || y != mLastSelectionY)
-			{
-				mLastSelectionX = x;
-				mLastSelectionY = y;
-			}
+			LLToolDragAndDrop::getInstance()->beginDrag(
+				LLViewerAssetType::lookupDragAndDropType( mDragItem->getType() ),
+				mDragItem->getUUID(),
+				LLToolDragAndDrop::SOURCE_NOTECARD,
+				getSourceID(), mObjectID);
 
-			if( y > getTextRect().mTop )
-			{
-				mScrollbar->setDocPos( mScrollbar->getDocPos() - 1 );
-			}
-			else
-			if( y < getTextRect().mBottom )
-			{
-				mScrollbar->setDocPos( mScrollbar->getDocPos() + 1 );
-			}
-
-			setCursorAtLocalPos( x, y, TRUE );
-			mSelectionEnd = mCursorPos;
-			
-			updateScrollFromCursor();
-			getWindow()->setCursor(UI_CURSOR_IBEAM);
+			return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
 		}
-		else if( mDragItem )
-		{
-			S32 screen_x;
-			S32 screen_y;
-			localPointToScreen(x, y, &screen_x, &screen_y );
-			if( LLToolDragAndDrop::getInstance()->isOverThreshold( screen_x, screen_y ) )
-			{
-				LLToolDragAndDrop::getInstance()->beginDrag(
-					LLViewerAssetType::lookupDragAndDropType( mDragItem->getType() ),
-					mDragItem->getUUID(),
-					LLToolDragAndDrop::SOURCE_NOTECARD,
-					getSourceID(), mObjectID);
-
-				return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
-			}
-			getWindow()->setCursor(UI_CURSOR_HAND);
-		}
+		getWindow()->setCursor(UI_CURSOR_HAND);
 
 		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << LL_ENDL;
 		handled = TRUE;
 	}
 
-	if( !handled )
-	{
-		// Pass to children
-		handled = LLView::childrenHandleHover(x, y, mask) != NULL;
-	}
-
-	if( handled )
-	{
-		// Delay cursor flashing
-		resetKeystrokeTimer();
-	}
-
-	// Opaque
-	if( !handled && mTakesNonScrollClicks)
-	{
-		// Check to see if we're over an HTML-style link
-		if( !mSegments.empty() )
-		{
-			LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-			if( cur_segment )
-			{
-				if(cur_segment->getStyle()->isLink())
-				{
-					LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (over link, inactive)" << LL_ENDL;
-					getWindow()->setCursor(UI_CURSOR_HAND);
-					handled = TRUE;
-				}
-				else
-				if(cur_segment->getStyle()->getIsEmbeddedItem())
-				{
-					LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (over embedded item, inactive)" << LL_ENDL;
-					getWindow()->setCursor(UI_CURSOR_HAND);
-					//getWindow()->setCursor(UI_CURSOR_ARROW);
-					handled = TRUE;
-				}
-				mHoverSegment = cur_segment;
-			}
-		}
-
-		if( !handled )
-		{
-			LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << LL_ENDL;
-			if (!mScrollbar->getVisible() || x < getRect().getWidth() - SCROLLBAR_SIZE)
-			{
-				getWindow()->setCursor(UI_CURSOR_IBEAM);
-			}
-			else
-			{
-				getWindow()->setCursor(UI_CURSOR_ARROW);
-			}
-			handled = TRUE;
-		}
-	}
-
-	return handled;
+	return handled || LLTextEditor::handleHover(x, y, mask);
 }
 
 
@@ -945,125 +846,36 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLViewerTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = childrenHandleRightMouseDown(x, y, mask) != NULL;
-	if(!handled)handled = LLTextEditor::handleRightMouseDown(x, y, mask);
-
-	// *TODO: Add right click menus for SLURLs
-// 	if(! handled)
-// 	{
-// 		const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-// 		if( cur_segment )
-// 		{
-// 			if(cur_segment->getStyle()->isLink())
-// 			{
-// 				handled = TRUE;
-// 				mHTML = cur_segment->getStyle()->getLinkHREF();
-// 			}
-// 		}
-// 	}
-// 	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-// 	if(handled && menu && mParseHTML && mHTML.length() > 0)
-// 	{
-// 		menu->setVisible(TRUE);
-// 		menu->arrange();
-// 		menu->updateParent(LLMenuGL::sMenuContainer);
-// 		LLMenuGL::showPopup(this, menu, x, y);
-// 		mHTML = "";
-// 	}
-// 	else
-// 	{
-// 		if(menu && menu->getVisible())
-// 		{
-// 			menu->setVisible(FALSE);
-// 		}
-// 	}
-	return handled;
+	return childrenHandleRightMouseDown(x, y, mask) != NULL || LLTextEditor::handleRightMouseDown(x, y, mask);
 }
 
 BOOL LLViewerTextEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
-	handled = childrenHandleMiddleMouseDown(x, y, mask) != NULL;
-	if (!handled)
-	{
-		handled = LLTextEditor::handleMiddleMouseDown(x, y, mask);
-	}
-	return handled;
+	return childrenHandleMiddleMouseDown(x, y, mask) != NULL || LLTextEditor::handleMiddleMouseDown(x, y, mask);
 }
 
 BOOL LLViewerTextEditor::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = childrenHandleMiddleMouseUp(x, y, mask) != NULL;
-
-	return handled;
+	return childrenHandleMiddleMouseUp(x, y, mask) != NULL || LLTextEditor::handleMiddleMouseUp(x, y, mask);
 }
 
 BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
-
-	// let scrollbar have first dibs
-	handled = LLView::childrenHandleDoubleClick(x, y, mask) != NULL;
-
-	if( !handled && mTakesNonScrollClicks)
+	if (mTakesNonScrollClicks && allowsEmbeddedItems())
 	{
-		if( allowsEmbeddedItems() )
+		const LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+		if (cur_segment && cur_segment->getStyle()->getIsEmbeddedItem())
 		{
-			const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-			if( cur_segment && cur_segment->getStyle()->getIsEmbeddedItem() )
+			if( openEmbeddedItemAtPos(cur_segment->getStart()))
 			{
-				if( openEmbeddedItemAtPos( cur_segment->getStart() ) )
-				{
-					deselect();
-					setFocus( FALSE );
-					return TRUE;
-				}
+				deselect();
+				setFocus(FALSE);
+				return TRUE;
 			}
 		}
-
-	
-		setCursorAtLocalPos( x, y, FALSE );
-		deselect();
-
-		const LLWString &text = getWText();
-		
-		if( isPartOfWord( text[mCursorPos] ) )
-		{
-			// Select word the cursor is over
-			while ((mCursorPos > 0) && isPartOfWord(text[mCursorPos-1]))
-			{
-				mCursorPos--;
-			}
-			startSelection();
-
-			while ((mCursorPos < (S32)text.length()) && isPartOfWord( text[mCursorPos] ) )
-			{
-				mCursorPos++;
-			}
-		
-			mSelectionEnd = mCursorPos;
-		}
-		else if ((mCursorPos < (S32)text.length()) && !iswspace( text[mCursorPos]) )
-		{
-			// Select the character the cursor is over
-			startSelection();
-			mCursorPos++;
-			mSelectionEnd = mCursorPos;
-		}
-
-		// We don't want handleMouseUp() to "finish" the selection (and thereby
-		// set mSelectionEnd to where the mouse is), so we finish the selection here.
-		mIsSelecting = FALSE;  
-
-		// delay cursor flashing
-		resetKeystrokeTimer();
-
-		// take selection to 'primary' clipboard
-		updatePrimary();
-
-		handled = TRUE;
 	}
-	return handled;
+
+	return LLTextEditor::handleDoubleClick(x, y, mask);
 }
 
 
@@ -1243,7 +1055,6 @@ void LLViewerTextEditor::setEmbeddedText(const std::string& instr)
 
 std::string LLViewerTextEditor::getEmbeddedText()
 {
-#if 1
 	// New version (Version 2)
 	mEmbeddedItemList->copyUsedCharsToIndexed();
 	LLWString outtextw;
@@ -1259,26 +1070,6 @@ std::string LLViewerTextEditor::getEmbeddedText()
 	}
 	std::string outtext = wstring_to_utf8str(outtextw);
 	return outtext;
-#else
-	// Old version (Version 1)
-	mEmbeddedItemList->copyUsedCharsToIndexed();
-	std::string outtext;
-	for (S32 i=0; i<(S32)mWText.size(); i++)
-	{
-		llwchar wch = mWText[i];
-		if( wch >= FIRST_EMBEDDED_CHAR && wch <= LAST_EMBEDDED_CHAR )
-		{
-			S32 index = mEmbeddedItemList->getIndexFromEmbeddedChar(wch);
-			wch = 0x80 | index % 128;
-		}
-		else if (wch >= 0x80)
-		{
-			wch = LL_UNKNOWN_CHAR;
-		}
-		outtext.push_back((U8)wch);
-	}
-	return outtext;
-#endif
 }
 
 std::string LLViewerTextEditor::appendTime(bool prepend_newline)
@@ -1679,7 +1470,7 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 	text_editor->initFromXML(node, parent);
 
 	// add text after all parameters have been set
-	text_editor->appendStyledText(text, FALSE, FALSE);
+	text_editor->appendText(text, FALSE, FALSE);
 
 	return text_editor;
 }

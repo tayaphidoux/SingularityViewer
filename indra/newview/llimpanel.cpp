@@ -42,6 +42,7 @@
 #include "llavatarnamecache.h"
 #include "llbutton.h"
 #include "llcombobox.h"
+#include "llfloateravatarpicker.h"
 #include "llfloaterchat.h"
 #include "llfloaterinventory.h"
 #include "llfloaterwebcontent.h" // For web browser display of logs
@@ -523,11 +524,14 @@ BOOL LLFloaterIMPanel::postBuild()
 		if (LLComboBox* flyout = findChild<LLComboBox>("instant_message_flyout"))
 		{
 			flyout->setCommitCallback(boost::bind(&LLFloaterIMPanel::onFlyoutCommit, this, flyout, _2));
-			if (is_agent_mappable(mOtherParticipantUUID))
-				flyout->add(getString("find on map"), -2);
-			addDynamics(flyout);
-			if (gObjectList.findAvatar(mOtherParticipantUUID))
-				flyout->add(getString("focus"), -3);
+			if (mSessionType == P2P_SESSION)
+			{
+				if (is_agent_mappable(mOtherParticipantUUID))
+					flyout->add(getString("find on map"), -2);
+				addDynamics(flyout);
+				if (gObjectList.findAvatar(mOtherParticipantUUID))
+					flyout->add(getString("focus"), -3);
+			}
 		}
 		if (LLUICtrl* ctrl = findChild<LLUICtrl>("tp_btn"))
 			ctrl->setCommitCallback(boost::bind(static_cast<void(*)(const LLUUID&)>(LLAvatarActions::offerTeleport), mOtherParticipantUUID));
@@ -800,7 +804,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, LLColor4 incol
 			// Convert the name to a hotlink and add to message.
 			LLStyleSP source_style = LLStyleMap::instance().lookupAgent(source);
 			source_style->mItalic = is_irc;
-			mHistoryEditor->appendStyledText(show_name,false,prepend_newline,source_style);
+			mHistoryEditor->appendText(show_name,false,prepend_newline,source_style, false);
 		}
 		prepend_newline = false;
 	}
@@ -811,7 +815,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, LLColor4 incol
 		style->setColor(incolor);
 		style->mItalic = is_irc;
 		style->mBold = from_user && gSavedSettings.getBOOL("SingularityBoldGroupModerator") && isModerator(source);
-		mHistoryEditor->appendStyledText(utf8msg, false, prepend_newline, style);
+		mHistoryEditor->appendText(utf8msg, false, prepend_newline, style, false);
 	}
 
 	if (log_to_file
@@ -980,6 +984,96 @@ bool LLFloaterIMPanel::isInviteAllowed() const
 	return mSessionType == ADHOC_SESSION;
 }
 
+void LLFloaterIMPanel::onAddButtonClicked()
+{
+	LLView * button = findChild<LLButton>("instant_message_flyout");
+	LLFloater* root_floater = gFloaterView->getParentFloater(this);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterIMPanel::addSessionParticipants, this, _1), TRUE, TRUE, FALSE, root_floater->getName(), button);
+	if (!picker)
+	{
+		return;
+	}
+
+	// Need to disable 'ok' button when selected users are already in conversation.
+	picker->setOkBtnEnableCb(boost::bind(&LLFloaterIMPanel::canAddSelectedToChat, this, _1));
+
+	if (root_floater)
+	{
+		root_floater->addDependentFloater(picker);
+	}
+}
+
+bool LLFloaterIMPanel::canAddSelectedToChat(const uuid_vec_t& uuids) const
+{
+	switch (mSessionType)
+	{
+	case P2P_SESSION: return true; // Don't bother blocking self or peer
+	case ADHOC_SESSION:
+	{
+		// For a conference session we need to check against the list from LLSpeakerMgr,
+		// because this list may change when participants join or leave the session.
+
+		LLSpeakerMgr::speaker_list_t speaker_list;
+		LLIMSpeakerMgr* speaker_mgr = getSpeakerManager();
+		if (speaker_mgr)
+		{
+			speaker_mgr->getSpeakerList(&speaker_list, true);
+		}
+
+		for (const auto& id : uuids)
+			for (const LLPointer<LLSpeaker>& speaker : speaker_list)
+				if (id == speaker->mID)
+					return false;
+	}
+	return true;
+	default: return false;
+	}
+}
+
+void LLFloaterIMPanel::addSessionParticipants(const uuid_vec_t& uuids)
+{
+	if (mSessionType == P2P_SESSION)
+	{
+		LLSD payload;
+		LLSD args;
+
+		LLNotificationsUtil::add("ConfirmAddingChatParticipants", args, payload,
+				boost::bind(&LLFloaterIMPanel::addP2PSessionParticipants, this, _1, _2, uuids));
+	}
+	else inviteToSession(uuids);
+}
+
+void LLFloaterIMPanel::addP2PSessionParticipants(const LLSD& notification, const LLSD& response, const uuid_vec_t& uuids)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0)
+	{
+		return;
+	}
+
+	LLVoiceChannel* voice_channel = LLActiveSpeakerMgr::getInstance()->getVoiceChannel();
+
+	// first check whether this is a voice session
+	bool is_voice_call = voice_channel != nullptr && voice_channel->getSessionID() == mSessionUUID && voice_channel->isActive();
+
+	uuid_vec_t temp_ids;
+
+	// Add the initial participant of a P2P session
+	temp_ids.push_back(mOtherParticipantUUID);
+	temp_ids.insert(temp_ids.end(), uuids.begin(), uuids.end());
+
+	// Start a new ad hoc voice call if we invite new participants to a P2P call,
+	// or start a text chat otherwise.
+	if (is_voice_call)
+	{
+		LLAvatarActions::startAdhocCall(temp_ids);
+	}
+	else
+	{
+		LLAvatarActions::startConference(temp_ids);
+	}
+}
+
 void LLFloaterIMPanel::removeDynamics(LLComboBox* flyout)
 {
 	flyout->remove(mDing ? getString("ding on") : getString("ding off"));
@@ -1012,30 +1106,38 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 {
 	if (value.isUndefined() || value.asInteger() == 0)
 	{
-		LLAvatarActions::showProfile(mOtherParticipantUUID);
-		return;
+		switch (mSessionType)
+		{
+			case GROUP_SESSION: LLGroupActions::show(mOtherParticipantUUID); return;
+			case P2P_SESSION: LLAvatarActions::showProfile(mOtherParticipantUUID); return;
+			default: onClickHistory(); return; // If there's no profile for this type, we should be the history button.
+		}
 	}
 
-	int option = value.asInteger();
-	if (option == 1) onClickHistory();
-	else if (option == 2) LLAvatarActions::offerTeleport(mOtherParticipantUUID);
-	else if (option == 3) LLAvatarActions::teleportRequest(mOtherParticipantUUID);
-	else if (option == 4) LLAvatarActions::pay(mOtherParticipantUUID);
-	else if (option == 5) LLAvatarActions::inviteToGroup(mOtherParticipantUUID);
-	else if (option == -1) copy_profile_uri(mOtherParticipantUUID);
-	else if (option == -2) LLAvatarActions::showOnMap(mOtherParticipantUUID);
-	else if (option == -3) gAgentCamera.lookAtObject(mOtherParticipantUUID);
-	else if (option >= 6) // Options that use dynamic items
+	switch (int option = value.asInteger())
 	{
-
+	case 1:	onClickHistory(); break;
+	case 2: LLAvatarActions::offerTeleport(mOtherParticipantUUID); break;
+	case 3: LLAvatarActions::teleportRequest(mOtherParticipantUUID); break;
+	case 4: LLAvatarActions::pay(mOtherParticipantUUID); break;
+	case 5: LLAvatarActions::inviteToGroup(mOtherParticipantUUID); break;
+	case -1: copy_profile_uri(mOtherParticipantUUID); break;
+	case -2: LLAvatarActions::showOnMap(mOtherParticipantUUID); break;
+	case -3: gAgentCamera.lookAtObject(mOtherParticipantUUID); break;
+	case -4: onAddButtonClicked(); break;
+	default: // Options >= 6 use dynamic items
+	{
 		// First remove them all
 		removeDynamics(flyout);
 
 		// Toggle as requested, adjust the strings
-		if (option == 6) mDing = !mDing;
-		else if (option == 7) mRPMode = !mRPMode;
-		else if (option == 8) LLAvatarActions::isFriend(mOtherParticipantUUID) ? LLAvatarActions::removeFriendDialog(mOtherParticipantUUID) : LLAvatarActions::requestFriendshipDialog(mOtherParticipantUUID);
-		else if (option == 9) LLAvatarActions::toggleBlock(mOtherParticipantUUID);
+		switch (option)
+		{
+			case 6: mDing = !mDing; break;
+			case 7: mRPMode = !mRPMode; break;
+			case 8: LLAvatarActions::isFriend(mOtherParticipantUUID) ? LLAvatarActions::removeFriendDialog(mOtherParticipantUUID) : LLAvatarActions::requestFriendshipDialog(mOtherParticipantUUID); break;
+			case 9: LLAvatarActions::toggleBlock(mOtherParticipantUUID); break;
+		}
 
 		// Last add them back
 		addDynamics(flyout);
@@ -1043,6 +1145,7 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 		const std::string focus(getString("focus"));
 		if (flyout->remove(focus)) // If present, reorder to bottom.
 			flyout->add(focus, -3);
+	}
 	}
 }
 
@@ -1124,7 +1227,7 @@ void deliver_message(const std::string& utf8_text,
 	if((offline == IM_OFFLINE) && (LLVoiceClient::getInstance()->isOnlineSIP(other_participant_id)))
 	{
 		// User is online through the OOW connector, but not with a regular viewer.  Try to send the message via SLVoice.
-		sent = LLVoiceClient::getInstance()->sendTextMessage(other_participant_id, utf8_text);
+//		sent = LLVoiceClient::getInstance()->sendTextMessage(other_participant_id, utf8_text);
 	}
 
 	if(!sent)

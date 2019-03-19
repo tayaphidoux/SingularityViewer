@@ -63,6 +63,9 @@ public:
 	virtual const LLUUID& getAssetUUID() const;
 	virtual const LLUUID& getProtectedAssetUUID() const; // returns LLUUID::null if current agent does not have permission to expose this asset's UUID to the user
 	virtual const std::string& getName() const;
+	virtual S32 getSortField() const;
+	//virtual void setSortField(S32 sortField);
+	virtual void getSLURL(); //Caches SLURL for landmark. //*TODO: Find a better way to do it and remove this method from here.
 	virtual const LLPermissions& getPermissions() const;
 	virtual const bool getIsFullPerm() const; // 'fullperm' in the popular sense: modify-ok & copy-ok & transfer-ok, no special god rules applied
 	virtual const LLUUID& getCreatorUUID() const;
@@ -74,6 +77,8 @@ public:
 	virtual U32 getFlags() const;
 	virtual time_t getCreationDate() const;
 	virtual U32 getCRC32() const; // really more of a checksum.
+
+	static BOOL extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName);
 
 	// construct a complete viewer inventory item
 	LLViewerInventoryItem(const LLUUID& uuid, const LLUUID& parent_uuid,
@@ -231,6 +236,9 @@ public:
 	void changeType(LLFolderType::EType new_folder_type);
 	virtual void unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 	virtual BOOL unpackMessage(const LLSD& category);
+
+	// returns true if the category object will accept the incoming item
+	bool acceptItem(LLInventoryItem* inv_item);
 
 private:
 	friend class LLInventoryModel;

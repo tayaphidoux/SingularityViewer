@@ -77,6 +77,7 @@
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
+#include "llmarketplacefunctions.h"
 #include "llmutelist.h"
 #include "llnotify.h"
 #include "llnotifications.h"
@@ -1667,7 +1668,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		// send the message
 		msg->sendReliable(mHost);
 
-		if (gSavedSettings.getBOOL("LogInventoryDecline"))
+		if (!mFromGroup && gSavedSettings.getBOOL("LogInventoryDecline"))
 		{
 // [RLVa:KB] - Checked: 2010-09-23 (RLVa-1.2.1e) | Added: RLVa-1.2.1e
 			if ( (rlv_handler_t::isEnabled()) &&
@@ -2240,6 +2241,20 @@ void autoresponder_finish(bool show_autoresponded, const LLUUID& session_id, con
 	}
 }
 
+const std::string NOT_ONLINE_MSG("User not online - message will be stored and delivered later.");
+const std::string NOT_ONLINE_INVENTORY("User not online - inventory has been saved.");
+void translate_if_needed(std::string& message)
+{
+	if (message == NOT_ONLINE_MSG)
+	{
+		message = LLTrans::getString("not_online_msg");
+	}
+	else if (message == NOT_ONLINE_INVENTORY)
+	{
+		message = LLTrans::getString("not_online_inventory");
+	}
+}
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	if (gNoRender)
@@ -2307,6 +2322,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	&& NACLAntiSpamRegistry::checkQueue((U32)NACLAntiSpamRegistry::QUEUE_IM,from_id))
 		return;
 	// NaCl End
+
+	// Singu TODO: LLIMProcessing goes here
+	if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
+	{ // Translate server message if required (MAINT-6109)
+		translate_if_needed(message);
+	}
 
 	// make sure that we don't have an empty or all-whitespace name
 	LLStringUtil::trim(name);
@@ -5248,6 +5269,8 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 
 	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
 
+	bool different_region = mesgsys->getSender().getIPandPort() != gAgent.getRegion()->getHost().getIPandPort();
+
 	for (i = 0; i < num_objects; i++)
 	{
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
@@ -5273,6 +5296,11 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 			LLViewerObject *objectp = gObjectList.findObject(id);
 			if (objectp)
 			{
+				if (different_region && gAgentAvatarp == objectp->getAvatar())
+				{
+					LL_WARNS() << "Region other than our own killing our attachments!!" << LL_ENDL;
+					continue;
+				}
 				// Display green bubble on kill
 				if ( gShowObjectUpdates )
 				{
@@ -6739,8 +6767,8 @@ void update_region_restart(const LLSD& llsdBlock)
 	if (restarting_floater)
 	{
 		restarting_floater->updateTime(seconds);
-		if (!restarting_floater->isMinimized())
-			restarting_floater->center();
+		/*if (!restarting_floater->isMinimized())
+			restarting_floater->center();*/
 	}
 	else
 	{
@@ -6778,7 +6806,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				LL_WARNS() << "attempt_standard_notification: Attempted to read notification parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
 			}
 		}
-		
+
 		if (
 			(notificationID == "RegionEntryAccessBlocked") ||
 			(notificationID == "LandClaimAccessBlocked") ||
@@ -6829,6 +6857,25 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			update_region_restart(llsdBlock);
 			LLUI::sAudioCallback(LLUUID(gSavedSettings.getString("UISndRestart")));
 			return true; // Floater is enough.
+		}
+		else
+
+		// Special Marketplace update notification
+		if (notificationID == "SLM_UPDATE_FOLDER")
+		{
+			std::string state = llsdBlock["state"].asString();
+			if (state == "deleted")
+			{
+				// Perform the deletion viewer side, no alert shown in this case
+				LLMarketplaceData::instance().deleteListing(llsdBlock["listing_id"].asInteger());
+				return true;
+			}
+			else
+			{
+				// In general, no message will be displayed, all we want is to get the listing updated in the marketplace floater
+				// If getListing() fails though, the message of the alert will be shown by the caller of attempt_standard_notification()
+				return LLMarketplaceData::instance().getListing(llsdBlock["listing_id"].asInteger());
+			}
 		}
 
 		LLNotificationsUtil::add(notificationID, llsdBlock);

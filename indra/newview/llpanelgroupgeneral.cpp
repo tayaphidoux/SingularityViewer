@@ -130,7 +130,10 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mInsignia->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitAny,this));
 		mDefaultIconID = mInsignia->getImageAssetID();
 		void show_picture(const LLUUID& id, const std::string& name);
-		getChild<LLUICtrl>("bigimg")->setCommitCallback(boost::bind(boost::bind(show_picture, boost::bind(&LLTextureCtrl::getImageAssetID, mInsignia), "Group Insignia")));
+		auto show_pic = [this] { show_picture(mInsignia->getImageAssetID(), "Group Insignia"); };
+		auto show_pic_if_not_self = [=] { if (!mInsignia->canChange()) show_pic(); };
+		mInsignia->setMouseUpCallback(std::bind(show_pic_if_not_self));
+		getChild<LLUICtrl>("bigimg")->setCommitCallback(std::bind(show_pic));
 	}
 	
 	mEditCharter = getChild<LLTextEditor>("charter", recurse);

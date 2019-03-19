@@ -436,6 +436,7 @@ void LLComboBox::setLabel(const LLStringExplicit& name)
 		{
 			if (!mSuppressTentative) mTextEntry->setTentative(mTextEntryTentative);
 		}
+		mTextEntry->setCursor(0); // Be scrolled to the beginning!
 	}
 	
 	if (!mAllowTextEntry)

@@ -165,6 +165,7 @@
 // in save_settings_to_globals()
 #include "llbutton.h"
 #include "llcombobox.h"
+#include "floaterlocalassetbrowse.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
 #include "llvosky.h"
@@ -773,7 +774,6 @@ bool LLAppViewer::init()
 
 	writeSystemInfo();
 
-
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -818,7 +818,14 @@ bool LLAppViewer::init()
 	LLUrlAction::setOpenURLInternalCallback(boost::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null));
 	LLUrlAction::setOpenURLExternalCallback(boost::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
 	LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
-	
+
+	LL_INFOS("InitInfo") << "UI initialization is done." << LL_ENDL ;
+
+	// Load translations for tooltips
+	LLFloater::initClass();
+
+	/////////////////////////////////////////////////
+
 	LLToolMgr::getInstance(); // Initialize tool manager if not already instantiated
 		
 	/////////////////////////////////////////////////
@@ -884,7 +891,7 @@ bool LLAppViewer::init()
 		std::ostringstream msg;
 		msg << LLTrans::getString("MBUnableToAccessFile");
 		OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
-		return 1;
+		return true;
 	}
 	LL_INFOS("InitInfo") << "Cache initialization is done." << LL_ENDL ;
 
@@ -913,7 +920,7 @@ bool LLAppViewer::init()
 	load_default_bindings(gSavedSettings.getBOOL("LiruUseZQSDKeys"));
 
 	// If we don't have the right GL requirements, exit.
-	if (!gGLManager.mHasRequirements && !gNoRender)
+	if (!gGLManager.mHasRequirements)
 	{	
 		// can't use an alert here since we're exiting and
 		// all hell breaks lose.
@@ -923,10 +930,9 @@ bool LLAppViewer::init()
 			msg,
 			LLStringUtil::null,
 			OSMB_OK);
-		return 0;
+		return false;
 	}
 
-#if (_M_IX86_FP > 1 || defined(__SSE2__))
 	// Without SSE2 support we will crash almost immediately, warn here.
 	if (!gSysCPU.hasSSE2())
 	{
@@ -938,23 +944,8 @@ bool LLAppViewer::init()
 			msg,
 			LLStringUtil::null,
 			OSMB_OK);
-		return 0;
+		return false;
 	}
-#elif (_M_IX86_FP == 1 || defined(__SSE__))
-	// Without SSE support we will crash almost immediately, warn here.
-	if (!gSysCPU.hasSSE())
-	{
-		// can't use an alert here since we're exiting and
-		// all hell breaks lose.
-		std::string msg = LNotificationTemplates::instance().getGlobalString("UnsupportedCPUSSE2");
-		LLStringUtil::format(msg,LLTrans::getDefaultArgs());
-		OSMessageBox(
-			msg,
-			LLStringUtil::null,
-			OSMB_OK);
-		return 0;
-	}
-#endif
 
 	// alert the user if they are using unsupported hardware
 	if(!gSavedSettings.getBOOL("AlertedUnsupportedHardware"))
@@ -1172,18 +1163,18 @@ bool LLAppViewer::mainLoop()
 	BOOL restore_rendering_masks = FALSE;
 
 	// Handle messages
-	while (!LLApp::isExiting())
+	try
 	{
-		LLFastTimer::nextFrame(); // Should be outside of any timer instances
-
-		//clear call stack records
-		LL_CLEAR_CALLSTACKS();
-
-		//check memory availability information
-		checkMemory() ;
-		
-		try
+		while (!LLApp::isExiting())
 		{
+			LLFastTimer::nextFrame(); // Should be outside of any timer instances
+
+			//clear call stack records
+			LL_CLEAR_CALLSTACKS();
+
+			//check memory availability information
+			checkMemory() ;
+		
 			// Check if we need to restore rendering masks.
 			if (restore_rendering_masks)
 			{
@@ -1236,12 +1227,10 @@ bool LLAppViewer::mainLoop()
 			
 #endif
 			//memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance =
-				LLFloaterMemLeak::getInstance();
-			if(mem_leak_instance)
+			if (auto mem_leak_instance = LLFloaterMemLeak::getInstance())
 			{
-				mem_leak_instance->idle() ;				
-			}			
+				mem_leak_instance->idle();
+			}
 
 			// canonical per-frame event
 			mainloop.post(newFrame);
@@ -1424,54 +1413,29 @@ bool LLAppViewer::mainLoop()
 					// LLAppViewer::getTextureFetch()->pause(); // Don't pause the fetch (IO) thread
 				}
 				//LLVFSThread::sLocal->pause(); // Prevent the VFS thread from running while rendering.
-				//LLLFSThread::sLocal->pause(); // Prevent the LFS thread from running while rendering.
 
 				resumeMainloopTimeout();
 	
 				pingMainloopTimeout("Main:End");
 			}
 		}
-		catch(std::bad_alloc)
-		{			
-			LLMemory::logMemoryInfo(TRUE) ;
 
-			//stop memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance =
-				LLFloaterMemLeak::getInstance();
-			if(mem_leak_instance)
-			{
-				mem_leak_instance->stop() ;				
-				LL_WARNS() << "Bad memory allocation in LLAppViewer::mainLoop()!" << LL_ENDL ;
-			}
-			else
-			{
-				//output possible call stacks to log file.
-				LLError::LLCallStacks::print() ;
-
-				LL_ERRS() << "Bad memory allocation in LLAppViewer::mainLoop()!" << LL_ENDL ;
-			}
-		}
-	}
-
-	// Save snapshot for next time, if we made it through initialization
-	if (STATE_STARTED == LLStartUp::getStartupState())
-	{
-		try
-		{
+		// Save snapshot for next time, if we made it through initialization
+		if (STATE_STARTED == LLStartUp::getStartupState())
 			saveFinalSnapshot();
-		}
-		catch(std::bad_alloc)
-		{
-			LL_WARNS() << "Bad memory allocation when saveFinalSnapshot() is called!" << LL_ENDL ;
+	}
+	catch(std::bad_alloc)
+	{
+		LLMemory::logMemoryInfo(TRUE);
 
-			//stop memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance =
-				LLFloaterMemLeak::getInstance();
-			if(mem_leak_instance)
-			{
-				mem_leak_instance->stop() ;				
-			}	
-		}
+		//stop memory leaking simulation
+		if (auto mem_leak_instance = LLFloaterMemLeak::getInstance())
+			mem_leak_instance->stop();
+
+		//output possible call stacks to log file.
+		LLError::LLCallStacks::print();
+
+		LL_ERRS() << "Bad memory allocation in LLAppViewer::mainLoop()!" << LL_ENDL;
 	}
 	
 	delete gServicePump;
@@ -1732,6 +1696,8 @@ bool LLAppViewer::cleanup()
 	AIFilePicker::saveFile("filepicker_contexts.xml");
 
 	LLFloaterTeleportHistory::saveFile("teleport_history.xml");
+
+	LocalAssetBrowser::deleteSingleton(); // <edit/>
 
 	// save mute list. gMuteList used to also be deleted here too.
 	LLMuteList::getInstance()->cache(gAgent.getID());
@@ -2474,12 +2440,11 @@ bool LLAppViewer::initConfiguration()
 	//
 	// Set the name of the window
 	//
-	gWindowTitle = LLTrans::getString("APP_NAME");
+	gWindowTitle = LLTrans::getString("APP_NAME") + llformat(" (%d) ", LLVersionInfo::getBuild())
 #if LL_DEBUG
-	gWindowTitle += std::string(" [DEBUG] ") + gArgs;
-#else
-	gWindowTitle += std::string(" ") + gArgs;
+		+ "[DEBUG] "
 #endif
+		+ gArgs;
 	LLStringUtil::truncate(gWindowTitle, 255);
 
 	//RN: if we received a URL, hand it off to the existing instance.
@@ -2679,6 +2644,8 @@ void LLAppViewer::cleanupSavedSettings()
 	{
 		gSavedSettings.setF32("RenderFarClip", gAgentCamera.mDrawDistance);
 	}
+
+	LLSpeakerVolumeStorage::deleteSingleton();
 }
 
 void LLAppViewer::removeCacheFiles(const std::string& file_mask)

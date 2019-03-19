@@ -89,10 +89,8 @@
       <check_box label="Affiche les changements de d&#xE9;comptes de scripts de la r&#xE9;gion." name="totalscriptjumps" tool_tip="D&#xE9;pendant du seuil que vous choisissez dans la fen&#xEA;tre &#xE0; droite."/>
       <spinner left_delta="350" name="ScriptJumpCount"/>
       <check_box label="RLVa (Restrained Love API)" name="RestrainedLove" tool_tip="Active le RLVa"/>
-      <check_box label="Reduit automatiquement la notice de redémarrage de la sim" name="region_restart_minimized"/>
       <text name="EmergencyTeleportDesc">Glissez un landmark ci dessous pour y être téléporté 20 sec avant le redémarrage de la sim</text>
       <text name="EmergencyTeleportBackupDesc">Glissez ci dessous un second landmark de 'secours'</text>
-      <text name="UISndRestartText">Alerte sonore du redémarrage:</text>
    </panel>
 
     <panel label="Build/Cr&#xE9;ation" name="Building">

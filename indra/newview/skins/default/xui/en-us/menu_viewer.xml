@@ -606,10 +606,10 @@
 			     userdata="WebLaunchJoinNow,http://secondlife.com/account/" />
 		</menu_item_call>
         <menu_item_check
-         label="Merchant Outbox..."
-         name="MerchantOutbox">
-            <on_click function="ShowFloater" userdata="outbox" />
-            <on_check function="FloaterVisible" userdata="outbox" />
+         label="Marketplace Listings..."
+         name="MarketplaceListings">
+            <on_click function="ShowFloater" userdata="marketplace_listings" />
+            <on_check function="FloaterVisible" userdata="marketplace_listings" />
         </menu_item_check>
 		<menu_item_call bottom="-286" enabled="true" height="19" label="Buy [CURRENCY]..." left="0"
 		     mouse_opaque="true" name="Buy and Sell L$..." width="166">
@@ -1044,6 +1044,10 @@
 				<on_click function="PromptShowURL" name="RequestFeature_url" userdata="WebLaunchSinguIssue,https://singularityviewer.atlassian.net/secure/CreateIssue!default.jspa?issuetype=2"/>
 			</menu_item_call>
 		</menu>
+		<menu_item_call label="[SHORT_APP_NAME] Group" name="viewer group">
+			<on_click function="URLAction" userdata="secondlife:///app/group/4fa278be-b621-9447-0958-85af4b01cdab/about"/>
+			<on_visible function="VisibleSecondLife"/>
+		</menu_item_call>
 		<menu_item_call bottom="-313" enabled="true" height="19" label="About [SHORT_APP_NAME]..." left="0"
 		     mouse_opaque="true" name="About Second Life..." width="166">
 			<on_click function="ShowFloater" userdata="about" />

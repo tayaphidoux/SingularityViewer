@@ -103,6 +103,7 @@
 
 #include "lluictrlfactory.h" //For LLUICtrlFactory::getLayeredXMLNode
 
+#include "floaterao.h" // for Typing override
 #include "hippolimits.h" // for getMaxAgentGroups
 // [RLVa:KB] - Checked: 2011-11-04 (RLVa-1.4.4a)
 #include "rlvactions.h"
@@ -2014,10 +2015,7 @@ void LLAgent::startTyping()
 		}
 	}
 
-	if (gSavedSettings.getBOOL("PlayTypingAnim"))
-	{
-		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
-	}
+	LLFloaterAO::typing(true); // Singu Note: Typing anims handled by AO/settings.
 	gChatBar->
 			sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
@@ -2030,7 +2028,7 @@ void LLAgent::stopTyping()
 	if (mRenderState & AGENT_STATE_TYPING)
 	{
 		clearRenderState(AGENT_STATE_TYPING);
-		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
+		LLFloaterAO::typing(false); // Singu Note: Typing anims handled by AO/settings.
 		gChatBar->
 				sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
@@ -4123,6 +4121,12 @@ void LLAgent::handleTeleportFinished()
 		LLNotificationsUtil::add("PreferredMaturityChanged", args);
 		mIsMaturityRatingChangingDuringTeleport = false;
 	}
+
+	// Init SLM Marketplace connection so we know which UI should be used for the user as a merchant
+	// Note: Eventually, all merchant will be migrated to the new SLM system and there will be no reason to show the old UI at all.
+	// Note: Some regions will not support the SLM cap for a while so we need to do that check for each teleport.
+	// *TODO : Suppress that line from here once the whole grid migrated to SLM and move it to idle_startup() (llstartup.cpp)
+	check_merchant_status();
 }
 
 void LLAgent::handleTeleportFailed()

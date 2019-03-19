@@ -35,7 +35,7 @@
 class LLWindowMesaHeadless : public LLWindow
 {
 public:
-	/*virtual*/ void show() {};
+	/*virtual*/ void show(bool) {};
 	/*virtual*/ void hide() {};
 	/*virtual*/ void close() {};
 	/*virtual*/ BOOL getVisible() {return FALSE;};

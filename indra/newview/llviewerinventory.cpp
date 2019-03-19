@@ -50,8 +50,8 @@
 #include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "llfloaterperms.h"
+#include "lllandmarkactions.h"
 
-#include "lllandmark.h"
 #include "llviewerassettype.h"
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
@@ -62,6 +62,7 @@
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
 #include "llavatarnamecache.h"
+#include "llfavoritesbar.h"
 
 #include "llsdutil.h"
 
@@ -401,28 +402,28 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 			{
 				LL_WARNS(LOG_INV) << "Agent Region is absent" << LL_ENDL;
 			}
+		}
 
-			if (!url.empty())
-			{
-				LLSD body;
-				body["agent_id"] = gAgent.getID();
-				body["items"][0]["owner_id"] = mPermissions.getOwner();
-				body["items"][0]["item_id"] = mUUID;
+		if (!url.empty())
+		{
+			LLSD body;
+			body["agent_id"] = gAgent.getID();
+			body["items"][0]["owner_id"] = mPermissions.getOwner();
+			body["items"][0]["item_id"] = mUUID;
 
-				LLHTTPClient::post(url, body, new LLInventoryModel::FetchItemHttpHandler(body));
-			}
-			else
-			{
-				LLMessageSystem* msg = gMessageSystem;
-				msg->newMessage("FetchInventory");
-				msg->nextBlock("AgentData");
-				msg->addUUID("AgentID", gAgent.getID());
-				msg->addUUID("SessionID", gAgent.getSessionID());
-				msg->nextBlock("InventoryData");
-				msg->addUUID("OwnerID", mPermissions.getOwner());
-				msg->addUUID("ItemID", mUUID);
-				gAgent.sendReliableMessage();
-			}
+			LLHTTPClient::post(url, body, new LLInventoryModel::FetchItemHttpHandler(body));
+		}
+		else
+		{
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessage("FetchInventory");
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID());
+			msg->addUUID("SessionID", gAgent.getSessionID());
+			msg->nextBlock("InventoryData");
+			msg->addUUID("OwnerID", mPermissions.getOwner());
+			msg->addUUID("ItemID", mUUID);
+			gAgent.sendReliableMessage();
 		}
 	}
 }
@@ -809,6 +810,36 @@ bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 	return true;
 }
 
+bool LLViewerInventoryCategory::acceptItem(LLInventoryItem* inv_item)
+{
+	if (!inv_item)
+	{
+		return false;
+	}
+
+	// Only stock folders have limitation on which item they will accept
+	bool accept = true;
+	if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+	{
+		// If the item is copyable (i.e. non stock) do not accept the drop in a stock folder
+		if (inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+		{
+			accept = false;
+		}
+		else
+		{
+			LLInventoryModel::cat_array_t* cat_array;
+			LLInventoryModel::item_array_t* item_array;
+			gInventory.getDirectDescendentsOf(getUUID(),cat_array,item_array);
+			// Destination stock folder must be empty OR types of incoming and existing items must be identical and have the same permissions
+			accept = (!item_array->size() ||
+					  ((item_array->at(0)->getInventoryType() == inv_item->getInventoryType()) &&
+					   (item_array->at(0)->getPermissions().getMaskNextOwner() == inv_item->getPermissions().getMaskNextOwner())));
+		}
+	}
+	return accept;
+}
+
 void LLViewerInventoryCategory::determineFolderType()
 {
 	/* Do NOT uncomment this code.  This is for future 2.1 support of ensembles.
@@ -1088,13 +1119,6 @@ void create_notecard_cb(const LLUUID& inv_item)
 			gInventory.notifyObservers();
 		}
 	}
-}
-
-void AddFavoriteLandmarkCallback::fire(const LLUUID& inv_item_id)
-{
-	if (mTargetLandmarkId.isNull()) return;
-
-	//gInventory.rearrangeFavoriteLandmarks(inv_item_id, mTargetLandmarkId);	// MULTI-WEARABLES TODO
 }
 
 LLInventoryCallbackManager gInventoryCallbacks;
@@ -2136,17 +2160,21 @@ const std::string& LLViewerInventoryItem::getName() const
 	return  LLInventoryItem::getName();
 }
 
-#if 0
 S32 LLViewerInventoryItem::getSortField() const
 {
 	return LLFavoritesOrderStorage::instance().getSortIndex(mUUID);
 }
 
+//void LLViewerInventoryItem::setSortField(S32 sortField)
+//{
+//	LLFavoritesOrderStorage::instance().setSortIndex(mUUID, sortField);
+//	getSLURL();
+//}
+
 void LLViewerInventoryItem::getSLURL()
 {
 	LLFavoritesOrderStorage::instance().getSLURL(mAssetUUID);
 }
-#endif
 
 const LLPermissions& LLViewerInventoryItem::getPermissions() const
 {
@@ -2242,6 +2270,33 @@ time_t LLViewerInventoryItem::getCreationDate() const
 U32 LLViewerInventoryItem::getCRC32() const
 {
 	return LLInventoryItem::getCRC32();	
+}
+
+// *TODO: mantipov: should be removed with LMSortPrefix patch in llinventorymodel.cpp, EXT-3985
+static char getSeparator() { return '@'; }
+BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName)
+{
+	const char separator = getSeparator();
+	const std::string::size_type separatorPos = name.find(separator, 0);
+
+	BOOL result = FALSE;
+
+	if (separatorPos < std::string::npos)
+	{
+		if (sortField)
+		{
+			*sortField = std::stoi(name.substr(0, separatorPos));
+		}
+
+		if (displayName)
+		{
+			*displayName = name.substr(separatorPos + 1, std::string::npos);
+		}
+
+		result = TRUE;
+	}
+
+	return result;
 }
 
 // This returns true if the item that this item points to 

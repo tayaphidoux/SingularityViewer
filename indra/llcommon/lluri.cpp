@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /** 
  * @file lluri.cpp
  * @author Phoenix
@@ -40,7 +42,8 @@
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 
-void encode_character(std::ostream& ostr, std::string::value_type val)
+// static
+void LLURI::encodeCharacter(std::ostream& ostr, std::string::value_type val)
 {
 	ostr << "%"
 
@@ -95,7 +98,7 @@ std::string LLURI::escape(
 			}
 			else
 			{
-				encode_character(ostr, c);
+				encodeCharacter(ostr, c);
 			}
 		}
 	}
@@ -106,7 +109,7 @@ std::string LLURI::escape(
 			c = *it;
 			if(allowed.find(c) == std::string::npos)
 			{
-				encode_character(ostr, c);
+				encodeCharacter(ostr, c);
 			}
 			else
 			{
@@ -129,11 +132,30 @@ std::string LLURI::unescape(const std::string& str)
 		{
 			++it;
 			if(it == end) break;
-			U8 c = hex_as_nybble(*it++);
-			c = c << 4;
-			if (it == end) break;
-			c |= hex_as_nybble(*it);
-			ostr.put((char)c);
+
+			if(is_char_hex(*it))
+			{
+				U8 c = hex_as_nybble(*it++);
+
+				c = c << 4;
+				if (it == end) break;
+
+				if(is_char_hex(*it))
+				{
+					c |= hex_as_nybble(*it);
+					ostr.put((char)c);
+				}
+				else
+				{
+					ostr.put((char)c);
+					ostr.put(*it);
+				}
+			}
+			else
+			{
+				ostr.put('%');
+				ostr.put(*it);
+			}
 		}
 		else
 		{
@@ -169,11 +191,10 @@ namespace
 		{ return LLURI::escape(s, unreserved() + ":@!$'()*+,="); }	// sub_delims - "&;" + ":@"
 }
 
-// *TODO: Consider using curl. After http textures gets merged everywhere.
 // static
 std::string LLURI::escape(const std::string& str)
 {
-	static std::string default_allowed(unreserved() + ":@!$'()*+,=/?&#;");
+	static std::string default_allowed = unreserved();
 	static bool initialized = false;
 	if(!initialized)
 	{
@@ -228,7 +249,8 @@ void LLURI::parseAuthorityAndPathUsingOpaque()
 {
 	if (mScheme == "http" || mScheme == "https" ||
 		mScheme == "ftp" || mScheme == "secondlife" || 
-		mScheme == "x-grid-location-info")
+		mScheme == "x-grid-info" ||
+		mScheme == "x-grid-location-info") // legacy
 	{
 		if (mEscapedOpaque.substr(0,2) != "//")
 		{
@@ -402,6 +424,15 @@ LLURI LLURI::buildHTTP(const std::string& prefix,
 }
 
 // static
+LLURI LLURI::buildHTTP(const std::string& scheme,
+	const std::string& prefix,
+	const LLSD& path,
+	const LLSD& query)
+{
+	return buildHTTP(llformat("%s://%s", scheme.c_str(), prefix.c_str()), path, query);
+}
+
+// static
 LLURI LLURI::buildHTTP(const std::string& host,
 					   const U32& port,
 					   const LLSD& path)
@@ -484,6 +515,14 @@ std::string LLURI::hostName() const
 	findAuthorityParts(mEscapedAuthority, user, host, port);
 	return unescape(host);
 }
+
+std::string LLURI::hostNameAndPort() const
+{
+	std::string user, host, port;
+	findAuthorityParts(mEscapedAuthority, user, host, port);
+	return port.empty() ? unescape(host) : unescape(host + ":" + port);
+}
+
 
 std::string LLURI::userName() const
 {

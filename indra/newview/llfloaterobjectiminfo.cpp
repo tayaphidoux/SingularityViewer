@@ -79,7 +79,7 @@ BOOL LLFloaterObjectIMInfo::postBuild()
 {
 	getChild<LLUICtrl>("Mute")->setCommitCallback(boost::bind(&LLFloaterObjectIMInfo::onClickMute, this));
 	getChild<LLTextBox>("OwnerName")->setClickedCallback(boost::bind(boost::ref(mGroupOwned) ? boost::bind(LLGroupActions::show, boost::ref(mOwnerID)) : boost::bind(show_avatar_profile, boost::ref(mOwnerID))));
-	getChild<LLTextBox>("Slurl")->setClickedCallback(boost::bind(LLUrlAction::executeSLURL, boost::bind(std::plus<std::string>(), "secondlife:///app/worldmap/", boost::ref(mSLurl))));
+	getChild<LLTextBox>("Slurl")->setClickedCallback(boost::bind(LLUrlAction::executeSLURL, boost::bind(std::plus<std::string>(), "secondlife:///app/worldmap/", boost::ref(mSLurl)), true));
 
 	return true;
 }

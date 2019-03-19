@@ -2,10 +2,10 @@
     <map>
     <key>ambient</key>
         <array>
+            <real>0</real>
             <real>0.449999988079071044921875</real>
-            <real>0.75</real>
-            <real>1.0499999523162841796875</real>
-            <real>0.3499999940395355224609375</real>
+            <real>0.89999997615814208984375</real>
+            <real>0.2999999821186065673828125</real>
         </array>
     <key>blue_density</key>
         <array>
@@ -23,16 +23,16 @@
         </array>
     <key>cloud_color</key>
         <array>
-            <real>0.199999988079071044921875</real>
-            <real>0.199999988079071044921875</real>
-            <real>0.199999988079071044921875</real>
-            <real>0.199999988079071044921875</real>
+            <real>0.25</real>
+            <real>0.25</real>
+            <real>0.25</real>
+            <real>0.25</real>
         </array>
     <key>cloud_pos_density1</key>
         <array>
             <real>1</real>
             <real>1</real>
-            <real>0.25</real>
+            <real>0.189999997615814208984375</real>
             <real>1</real>
         </array>
     <key>cloud_pos_density2</key>
@@ -44,7 +44,7 @@
         </array>
     <key>cloud_scale</key>
         <array>
-            <real>0.0999999940395355224609375</real>
+            <real>0.07000000029802322387695313</real>
             <real>0</real>
             <real>0</real>
             <real>1</real>
@@ -91,21 +91,21 @@
         </array>
     <key>glow</key>
         <array>
-            <real>4.00000095367431640625</real>
+            <real>38</real>
             <real>0.001000000047497451305389404</real>
-            <real>-0.39999997615814208984375</real>
+            <real>-0.2499999850988388061523438</real>
             <real>1</real>
         </array>
     <key>haze_density</key>
         <array>
-            <real>0.75</real>
+            <real>0.199999988079071044921875</real>
             <real>0</real>
             <real>0</real>
             <real>1</real>
         </array>
     <key>haze_horizon</key>
         <array>
-            <real>0.199999988079071044921875</real>
+            <real>0.5</real>
             <real>0.1991560012102127075195313</real>
             <real>0.1991560012102127075195313</real>
             <real>1</real>
@@ -132,10 +132,10 @@
         <real>0.31415927410125732421875</real>
     <key>sunlight_color</key>
         <array>
-            <real>3</real>
+            <real>2.9999997615814208984375</real>
             <real>1.19999992847442626953125</real>
-            <real>0.2999999821186065673828125</real>
-            <real>3</real>
+            <real>0.449999988079071044921875</real>
+            <real>1</real>
         </array>
     </map>
 </llsd>

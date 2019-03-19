@@ -135,6 +135,7 @@ public:
 	/*virtual*/ bool isActiveFetching();
 	
 	/*virtual*/ const LLUUID& getID() const { return mID; }
+	void setID(const LLUUID& id) { mID = id; } // Edit for local assets to cut down on reloads, be sure to remove from wherever this has been added first.
 	void setBoostLevel(S32 level);
 	S32  getBoostLevel() { return mBoostLevel; }
 

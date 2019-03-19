@@ -454,6 +454,8 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+    <key>IsCOA</key>
+    <integer>1</integer>
   </map>
   <key>AOAdvanced</key>
   <map>
@@ -475,6 +477,21 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
+    <integer>1</integer>
+    <key>IsCOA</key>
+    <integer>1</integer>
+  </map>
+  <key>AOSwimEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Overrides fly animations with swims when underwater.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+    <key>IsCOA</key>
     <integer>1</integer>
   </map>
   <key>AONoStandsInMouselook</key>
@@ -827,7 +844,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>LiruMiniBuildFloater</key>
     <map>
@@ -1159,17 +1176,6 @@ Found in Advanced->Rendering->Info Displays</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>FloaterUnfocusedBackgroundOpaque</key>
-    <map>
-      <key>Comment</key>
-      <string>Disables floaters going transparent when not in focus, may conflict with some skins, though.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>FSSynchronizeTextureMaps</key>
     <map>
       <key>Comment</key>
@@ -1190,7 +1196,7 @@ Found in Advanced->Rendering->Info Displays</string>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <boolean>0</boolean>
+      <boolean>1</boolean>
     </map>
     <key>InstantMessageLogPathAnyAccount</key>
     <map>
@@ -1531,15 +1537,6 @@ This should be as low as possible, but too low may break functionality</string>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>InventorySortOrder</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifies sort key for inventory items (+0 = name, +1 = date, +2 = folders always by name, +4 = system folders to top)</string>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>3</integer>
     </map>
     <key>Blacklist.Settings</key>
     <map>
@@ -2559,6 +2556,17 @@ This should be as low as possible, but too low may break functionality</string>
       <string>F32</string>
       <key>Value</key>
       <real>300.0</real>
+    </map>
+    <key>ActiveFloaterTransparency</key>
+    <map>
+      <key>Comment</key>
+      <string>Transparency of active floaters (floaters that have focus)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1</real>
     </map>
     <key>AdvanceSnapshot</key>
     <map>
@@ -5468,6 +5476,17 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>DebugHideEmptySystemFolders</key>
+    <map>
+      <key>Comment</key>
+      <string>Hide empty system folders when on</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>DebugInventoryFilters</key>
     <map>
       <key>Comment</key>
@@ -7683,6 +7702,17 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>24</integer>
     </map>
+    <key>RadarColumnNotesWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Width for radar's notes column</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>24</integer>
+    </map>
     <key>RadarColumnAgeWidth</key>
     <map>
       <key>Comment</key>
@@ -7771,6 +7801,17 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <boolean>0</boolean>
     </map>
+    <key>RadarColumnNotesHidden</key>
+    <map>
+      <key>Comment</key>
+      <string>Hide radar's notes column</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RadarColumnAgeHidden</key>
     <map>
       <key>Comment</key>
@@ -7838,6 +7879,28 @@ This should be as low as possible, but too low may break functionality</string>
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>RadarAlertFlood</key>
+    <map>
+      <key>Comment</key>
+      <string>Show the flood of people arriving and (if RadarAlertFloodLeaving) leaving when you login and when you open/close the Radar with RadarKeepOpen off.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RadarAlertFloodLeaving</key>
+    <map>
+      <key>Comment</key>
+      <string>When activated along with RadarAlertFlood shows the flood of people leaving when you close the Radar with RadarKeepOpen off.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>RadarAlertShowDist</key>
     <map>
@@ -8109,10 +8172,26 @@ This should be as low as possible, but too low may break functionality</string>
         <integer>0</integer>
       </array>
     </map>
-    <key>FloaterOutboxRect</key>
+    <key>FloaterMarketplaceListingsRect</key>
     <map>
       <key>Comment</key>
-      <string>Rectangle for merchant outbox window</string>
+      <string>Rectangle for Marketplace Listings window</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+		<integer>0</integer>
+		<integer>342</integer>
+		<integer>310</integer>
+		<integer>52</integer>
+      </array>
+    </map>
+    <key>FloaterMarketplaceValidationRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Rectangle for Marketplace Validation window</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9099,6 +9178,22 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>400</integer>
     </map>
+    <key>HTMLAgentColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of hyperlinked user/object names</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.600000023842</real>
+        <real>0.600000023842</real>
+        <real>1.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
     <key>HTMLLinkColor</key>
     <map>
       <key>Comment</key>
@@ -9339,6 +9434,17 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>InactiveFloaterTransparency</key>
+    <map>
+      <key>Comment</key>
+      <string>Transparency of inactive floaters (floaters that have no focus)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
     <key>InBandwidth</key>
     <map>
       <key>Comment</key>
@@ -9416,12 +9522,12 @@ This should be as low as possible, but too low may break functionality</string>
         <key>Value</key>
         <integer>0</integer>
     </map>
-    <key>InventoryDisplayOutbox</key>
+    <key>InventoryOutboxDisplayBoth</key>
     <map>
         <key>Comment</key>
-        <string>Override merchant inventory outbox display</string>
+        <string>Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
         <key>Persist</key>
-        <integer>0</integer>
+        <integer>1</integer>
         <key>Type</key>
         <string>Boolean</string>
         <key>Value</key>
@@ -9438,6 +9544,17 @@ This should be as low as possible, but too low may break functionality</string>
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
+	<key>InventoryOutboxMakeVisible</key>
+	<map>
+		<key>Comment</key>
+		<string>Enable making the Merchant Outbox and Inbox visible in the inventory for debug purposes.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>1</integer>
+	</map>
     <key>InventoryOutboxMaxFolderCount</key>
     <map>
       <key>Comment</key>
@@ -9447,7 +9564,7 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>21</integer>
+      <integer>20</integer>
     </map>
     <key>InventoryOutboxMaxFolderDepth</key>
     <map>
@@ -9471,6 +9588,17 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>200</integer>
     </map>
+    <key>InventoryOutboxMaxStockItemCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of items allowed in a stock folder.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>200</integer>
+    </map>
     <key>InventorySortOrder</key>
     <map>
       <key>Comment</key>
@@ -9481,6 +9609,17 @@ This should be as low as possible, but too low may break functionality</string>
       <string>U32</string>
       <key>Value</key>
       <integer>7</integer>
+    </map>
+    <key>MarketplaceListingsSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies sort for marketplace listings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2</integer>
     </map>
     <key>InvertMouse</key>
     <map>
@@ -10322,6 +10461,17 @@ This should be as low as possible, but too low may break functionality</string>
       <string>String</string>
       <key>Value</key>
       <string/>
+    </map>
+    <key>MarketplaceListingsLogging</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable debug output associated with the Marketplace Listings (SLM) API.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>MaxDragDistance</key>
     <map>
@@ -13838,7 +13988,7 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>RenderHideGroupTitle</key>
     <map>

@@ -109,14 +109,20 @@ Make sure you entered the correct Login URI. An example of a Login URI is: \"htt
 	<string name="TooltipLand">Land:</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
 
-	<string name="TooltipOutboxDragToWorld">You can not rez items in your merchant outbox</string>
-	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred.</string>
-	<string name="TooltipOutboxNotInInventory">Your merchant outbox can only accept items directly from your inventory</string>
-	<string name="TooltipOutboxWorn">You can not put items you are wearing into your merchant outbox</string>
-	<string name="TooltipOutboxCallingCard">You can not put calling cards into your merchant outbox</string>
-	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds 3</string>
-	<string name="TooltipOutboxTooManyFolders">Subfolder count in top-level folder exceeds 20</string>
-	<string name="TooltipOutboxTooManyObjects">Item count in top-level folder exceeds 200</string>
+	<string name="TooltipOutboxDragToWorld">You can not rez items from the Marketplace Listings folder</string>
+	<string name="TooltipOutboxWorn">You can't put items you are wearing in the Marketplace Listings folder</string>
+	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]. Decrease the depth of folders-within-folders; box items if necessary.</string>
+	<string name="TooltipOutboxTooManyFolders">Subfolder count exceeds [AMOUNT]. Decrease the number of folders in your listing; box items if necessary.</string>
+	<string name="TooltipOutboxTooManyObjects">Item count exceeds [AMOUNT]. In order to sell more than [AMOUNT] items in one listing, you must box some of them.</string>
+	<string name="TooltipOutboxTooManyStockItems">Stock items count exceeds [AMOUNT].</string>
+	<string name="TooltipOutboxCannotDropOnRoot">You can only drop items or folders in the ALL or UNASSOCIATED tabs. Please select that tab and move your item(s) or folder(s) again.</string>
+	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred</string>
+	<string name="TooltipOutboxNotInInventory">You can only put items from your inventory on the marketplace</string>
+	<string name="TooltipOutboxLinked">You can't put linked items or folders on the marketplace</string>
+	<string name="TooltipOutboxCallingCard">You can't put calling cards on the marketplace</string>
+	<string name="TooltipOutboxDragActive">You can't move a listed listing</string>
+	<string name="TooltipOutboxCannotMoveRoot">You can't move the marketplace listings root folder</string>
+	<string name="TooltipOutboxMixedStock">All items in a stock folder must have the same type and permission</string>
 	
 	<string name="TooltipDragOntoOwnChild">You can't move a folder into its child</string>
 	<string name="TooltipDragOntoSelf">You can't move a folder into itself</string>
@@ -141,6 +147,7 @@ Make sure you entered the correct Login URI. An example of a Login URI is: \"htt
 	<string name="TooltipMapUrl">Click to view this location on a map</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
+	<string name="TooltipEmail">Click to compose an email</string>
 
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleport to</string>
@@ -153,6 +160,18 @@ Make sure you entered the correct Login URI. An example of a Login URI is: \"htt
 	<string name="SLappAgentPay">Pay</string>
 	<string name="SLappAgentOfferTeleport">Offer Teleport to </string>
 	<string name="SLappAgentRequestFriend">Friend Request </string>
+  <string name="SLappAgentRemoveFriend">Friend Removal</string>
+
+	<!-- ButtonToolTips, llfloater.cpp -->
+	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
+	<string name="BUTTON_CLOSE_WIN">Close (Ctrl+W)</string>
+	<string name="BUTTON_CLOSE_CHROME">Close</string>
+	<string name="BUTTON_RESTORE">Restore</string>
+	<string name="BUTTON_MINIMIZE">Minimize</string>
+	<string name="BUTTON_TEAR_OFF">Tear Off</string>
+	<string name="BUTTON_DOCK">Dock</string>
+	<string name="BUTTON_HELP">Show Help</string>
+	<string name="BUTTON_EDIT">Edit</string>
 
 	<!-- searching - generic -->
 	<string name="Searching">Searching...</string>
@@ -2155,8 +2174,8 @@ Sets the given permission mask to the new value on the root object the task is a
     Please keep LL-LSL above this section
     ** DATA SOURCES **
        OpenSim OS Functions:      \OpenSim\Region\ScriptEngine\Shared\Api\Interface\IOSSL_Api.cs
-       Aurora-Sim AA Functions:   \Aurora\AuroraDotNetEngine\APIs\AA_API.cs
-       Aurora-Sim BOT Functions:  \Aurora\BotManager\Bot_API.cs
+       WhiteCore AA Functions:    \WhiteCore\ScriptEngine\DotNetEngine\APIs\AA\AA_API.cs
+       WhiteCore BOT Functions:   \WhiteCore\BotManager\Bot_API.cs
 -->
 
 	<string name="LSLTipText_osSetDynamicTextureURL">
@@ -2786,319 +2805,259 @@ list lsGetWindlightScene(list rules)
 Get the current WindLight settings.
 (Reguires LightShare Enabled Viewer)
 	</string>
-<!-- Aurora-Sim OSSL-Functions  (unique to Aurora Only)  'osReturnObject', 'osReturnObjects', 'osShutDown', 'osaddAgentToGroup', 'osRezObject',
-   Aurora-Sim aaFunctions (\Aurora\AuroraDotNetEngine\APIs\IAA_Api.cs)
-   Aurora-Sim botFunctions (\Aurora\BotManager\IBot_Api.cs) 
+<!-- WhiteCore OSSL-Functions  (unique to WhiteCore Only)  'osReturnObject', 'osReturnObjects', 'osShutDown', 'osaddAgentToGroup', 'osRezObject',
+   WhiteCore aaFunctions (\WhiteCore\ScriptEngine\DotNetEngine\APIs\AA\AA_Api.cs)
+   WhiteCore botFunctions (\WhiteCore\BotManager\Bot_Api.cs)
 -->
 	<string name="LSLTipText_osReturnObject">
 osReturnObject(key userID)
 Returns object to specified avatars UUID.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_osReturnObjects">
 osReturnObjects(float Parameter)
 Returns group of objects. Parameter's are numeric, values are owner objects = 0, everyone except owner objects = 1, group objects = 2.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_osShutDown">
 osShutDown()
 Shut's down current Simulator.  Authorized Admin Only by config.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_osAddAgentToGroup">
 osAddAgentToGroup(key avatarID, string group_name, string role_name)
 Adds an avatar to a group.  Where group_name = name of the target group, role_name = role to assign within the group.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_osRezObject">
 osRezObject(string inventory, vector position, vector velocity, rotation rot, integer param, integer isRezAtRoot, integer doRecoil, integer SetDieAtEdge, integer CheckPos)
 Where inventory = object to rez.  Position = vector to rez object.  Velocity = initial velocity.  Rot = initial rotation.  Param = onrez event.
 IzAtRoot = TRUE/FALSE flag changes llRezAtRoot to llRezObject.  doRecoil =TRUE/FALSE to push avatar.  SetDieAtEdge = TRUE/FALSE for rezzed object to die at edge of region.
 CheckPos = TRUE/FALSE enable/disable 10m rez limit.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaSetCloudDensity">
 aaSetCloudDensity(float density)
 AaSetCloudDensity(0.5)  Where float density values are 0.0 =  no cloud to 1.0 = 100% cloud.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaUpdateDatabase">
 aUpdateDatabase(string Key, string value, string token)
 Where Key = database field name, xmlDataToPutIntoTheDatabase = serialized XML data,  Token = data-password
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaQueryDatabase">
 aaQueryDatabase(string Key, string Token)
 Returns a list with first value is the token, the second the Key, and the third the value
 Where Key = database field name, Token = data-password
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaDeserializeXMLValues">
 aaDeserializeXMLValues(string xmlData)
 Returns a list of Values from XML data. Where xmlData = xml formatted data Values.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaDeserializeXMLKeys">
 aaDeserializeXMLKeys(string xmlData)
 Returns a list of keys from XML data. Where xmlData = xml formatted data keys.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaSetConeOfSilence">
 aaSetConeOfSilence(float radius)
 Where radius = metres radius from centre of scripted item.  This creates an area that sounds can only be heard by the people within the area(radius) and not heard outside and visa-versa.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaSerializeXML">
 aaSerializeXML(list keys, list values)
 Returns xml formatted string of the keys and values.  Where keys = list of keys in the database, values = fields to retrieve from database.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaGetTeam">
 aaGetTeam(key uuid)
 Returns a string of avatars team name.  Where uuid = avatar key.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaGetHealth">
 aaGetHealth(key uuid)
 Returns float value (0.0 to 100.0) of current health.  Where uuid = avatar key.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaJoinCombat">
 aaJoinCombat(key uuid)
 Where uuid = avatar key.  If (PERMISSION_COMBAT == PERMISSION_COMBAT) and permission is granted then join combat.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaLeaveCombat">
 aaLeaveCombat(key uuid)
 Where uuid = avatar key.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaJoinCombatTeam">
 aaJoinCombatTeam(key uuid, string team)
 Where uuid = key of avatar, team = string of the team name.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaRequestCombatPermission">
 aaRequestCombatPermission(key ID)
 Where ID = avatar uuid.  Requests target avatar for Permissions to enter into combat mode.
 Raises a run_time_permissions event. (PERMISSION_COMBAT == PERMISSION_COMBAT).
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaThawAvatar">
 aaThawAvatar(key ID)
 Where ID = avatar uuid. If combat permission are granted then avatar can be un-frozen (movement re-enabled).
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaFreezeAvatar">
 aaFreezeAvatar(key ID)
 Where ID = avatar uuid. If combat permission are granted then avatar can be frozen (no movement).
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaGetTeamMembers">
 aaGetTeamMembers(string team)
 Return a list of team members.  Where team = string of team name.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaGetLastOwner">
     POLYMORPHIC FUNCTION.
 aaGetLastOwner(string PrimID)  returns last owner UUID of PrimID where PrimID = uuid of prim.
 AaGetLastOwner()  returns last owner uuid of prim containg script.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaSayDistance">
 aaSayDistance(integer channelID, float Distance, string text)
 Where channelID = channel to say on, Distance = float in meters  for distance to say, text = string to say.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaSayTo">
 aaSayTo(key userID, string text)
 Where userID = avatar key, text = string msg.  Similar to llOwnerSay but can be directly targeted to an avatar.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaGetWalkDisabled">
 aaGetWalkDisabled(key ID)
 Returns integer of TRUE or FALSE for specifid ID.  Where ID = avatar uuid.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaSetWalkDisabled">
 aaSetWalkDisabled(key ID, integer Value)
 Where ID = avatar uuid, Value = TRUE or FALSE. If PERMISSION_COMBAT is accepted, this disables walk, forcing avatar to fly.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaGetFlyDisabled">
 aaGetFlyDisabled(key ID)
 Returns integer of TRUE or FALSE for specifid ID. Where ID = avatar uuid.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaSetFlyDisabled">
 aaSetFlyDisabled(key ID, integer Value)
 Where ID = avatar uuid, Value = TRUE or FALSE. If PERMISSION_COMBAT is accepted, this disables flying, forcing avatar to walk.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaAvatarFullName2Key">
 aaAvatarFullName2Key(string FullName)
 Returns the avatar uuid from their fullname.  Where FullName = "Firstname Lastname”.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaRaiseError">
 aaRaiseError(string message)
 Allows you to have errors that end the execution of the event and fire another event in the script.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaGetText">
 aaGetText()
 Returns a string of the hover text of an object.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaGetTextColor">
 aaGetTextColor()
 Returns the hovertext color in rotation. Use Ex: rotation color = aaGetTextColor() to separate color.x, color.y, color.z, color.s  Where s = value of alpha in llSetText.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaSetEnv">
 aaSetEnv(string EnvName, list Value)
 Sets environment values.  Where EnvName = ENABLE_GRAVITY, GRAVITY_FORCE_X, GRAVITY_FORCE_Y, GRAVITY_FORCE_Z, ADD_GRAVITY_POINT, ADD_GRAVITY_FORCE, START_TIME_REVERSAL_SAVING,
 STOP_TIME_REVERSAL_SAVING, START_TIME_REVERSAL, STOP_TIME_REVERSAL.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaGetIsInfiniteRegion">
 aaGetIsInfiniteRegion()
 Returns TRUE or FALSE if region is an infinite region.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaSetCharacterStat">
 aaSetCharacterStat( ID, StatName, statValue)
 Sets Character Stats.  Where ID = avatar uuid, StatName = stat to change, statValue the value to change it to.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaAllRegionInstanceSay">
 aaAllRegionInstanceSay(integer channelID, string text)
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaWindlightGetDayCycle">
 aaWindlightGetDayCycle()
 Returns a List of settings
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaWindlightAddDayCycleFrame">
 aaWindlightAddDayCycleFrame(float dayCyclePosition, integer dayCycleFrameToCopy)
 Returns TRUE / FALSE on success status
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaWindlightRemoveDayCycleFrame">
 aaWindlightRemoveDayCycleFrame(int dayCycleFrame)
 Returns TRUE / FALSE on success status
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaWindlightSetScene">
 aaWindlightSetScene(list list)
 aaWindlightSetScene(integer dayCycleIndex, list list)
 Returns TRUE/FALSE on success
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaWindlightGetScene">
 aaWindlightGetScene(list rules)
 aaWindlightGetScene(integer dayCycleKeyFrame, list rules)
 Returns a list
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaWindlightGetSceneIsStatic">
 aaWindlightGetSceneIsStatic()
 Returns TRUE / FALSE
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_aaWindlightGetSceneDayCycleKeyFrameCount">
 aaWindlightGetSceneDayCycleKeyFrameCount()
 Returns integer value
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botGetWaitingTime">
 botGetWaitingTime(integer waitTime)
 Returns waitTime as vector.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botSetMap">
 botSetMap(key keyOfBot, list positions, list movementType, integer flags)
 keyOfBot = bot uuid, positions = list of position vectors, movementType = corresponding list of move modes:  0 – walk, 1 – fly,
 flags = BOT_FOLLOW_FLAG_NONE and BOT_FOLLOW_FLAG_INDEFINITELY.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botCreateBot">
 botCreateBot(string FirstName, string LastName, key idToClone, vector startPos)
 Where FirstName and LastName = strings for new bot name.  idToClone = uuid of prebuild avatar to clone OR another existing avatar.  startPos = vector of starting position on region.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botRemoveBot">
 botRemoveBot(key botID)
 Where botID = uuid of bot.  Removes bot identified by botID.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botPauseMovement">
 botPauseMovement(key botID)
 Where botID = bot uuid.  Pauses bot at current position.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botResumeMovement">
 botResumeMovement(key botID)
 Where botID = bot uuid.  Resumes bot movement.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botFollowAvatar">
 botFollowAvatar(key botID, string avName, float startFollowDistance, float endFollowDistance)
 Where botID = bot uuid.  AvName = sting of avatar name OR avatar uuid.  StartFollowDistance = distance to start following from.  EndFollowDistance = distance to stop following avatar.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botStopFollowAvatar">
 botStopFollowAvatar(key botID)
 Where botID = bot uuid.  Stops bot from following an avatar.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botSendChatMessage">
 botSendChatMessage(key botID, string message, integer channel, integer sayType)
 Where  botID = bot uuid.  Message = string msg.  Channel = channel to speak on.  SayType = (0=whisper, 1=say, 2=shout).
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botSendIM">
 botSendIM(string bot, string user, string message)
 Send IM to bot.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botSetShouldFly">
 botSetShouldFly(key botID, integer ShouldFly)
 Where botID = bot uuid.  ShouldFly = TRUE/FALSE.  Enables or disables flight mode.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botSitObject">
 botSitObject(key botID, key objectID, vector offset)
 Where botID = bot uuid,  objectID = uuid of object to sit on,  offset = Vector for sit position (note that VECTOR_ZERO = default sit pos).
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botStandUp">
 botStandUp(key botID)
 Where botID = bot uuid.  Command bot to stand up.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botTouchObject">
 botTouchObject(key botID, key objectID)
 Where botID = bot uuid,  objectID = object uuid.  Causes bot to touch object identified.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botAddTag">
 botAddTag(key botID, string tag)
 Where botID = bot uuid,  tag = string tag over bot.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botGetBotsWithTag">
 botGetBotsWithTag(string tag)
 Where tag = tag string to match.  Return a list of bot UUID's in region with the matching tag.
-(Aurora-Sim only)
 	</string>
 	<string name="LSLTipText_botRemoveBotsWithTag">
 botRemoveBotsWithTag(string tag)
 Where tag = tag string to match.  Removes bot's matching the tag.
-(Aurora-Sim only)
 	</string>
-<!-- *** END OF OpenSimulator & Aurora-Sim syntax section *** -->
+<!-- *** END OF OpenSimulator & WhiteCore syntax section *** -->
 
 	<!-- Strings needed by drop targets -->
 	<string name="CurrentlyNotSet">Item currently not set</string>
@@ -3112,13 +3071,16 @@ Where tag = tag string to match.  Removes bot's matching the tag.
     <string name="ScriptCountObject">Counted [SCRIPTS] scripts in [OBJECTS] objects. ([RUNNING] running, [MONO] mono.)</string>
     <string name="ScriptDeleteObject">Deleted [SCRIPTS] scripts in [OBJECTS] objects.</string>
     <string name="took_a_snapshot">took a snapshot</string>
+    <string name="refreshing balance">Refreshing [CURRENCY] balance</string>
 
     <!-- Radar Alert Strings -->
     <string name="radar_alert_template">[NAME] [ACTION] [RANGE].</string>
     <!-- [ACTION] -->
     <string name="has_triggered_your_avatar_age_alert">has triggered your avatar age alert</string>
     <string name="has_entered">has entered</string>
+    <string name="has_entered_flood">is now detected in</string>
     <string name="has_left">has left</string>
+    <string name="has_left_flood">is now off the radar for</string>
     <!-- [RANGE] -->
     <string name="the_sim">the sim</string>
     <string name="draw_distance">draw distance</string>
@@ -3158,6 +3120,7 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">No matching items found in inventory.</string>
+	<string name="MarketplaceNoMatchingItems">No items found. Check the spelling of your search string and try again.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
 	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3</string>
@@ -3192,6 +3155,46 @@ The
 	</string>
 	<string name="InventoryOutboxErrorSubs">Marketplace store</string>
 	<string name="InventoryOutboxError2">is returning errors.</string>
+	<string name="InventoryMarketplaceError">
+An error occurred while opening Marketplace Listings.
+If you continue to receive this message, please contact Second Life support for assistance at http://support.secondlife.com
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">Your Marketplace Listings folder is empty.</string>
+	<string name="InventoryMarketplaceListingsNoItemsTooltip"></string>
+	<string name="InventoryMarketplaceListingsNoItems">
+	 Drag folders to this area to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
+	</string>
+
+	<string name="Marketplace Validation Log"></string>
+	<string name="Marketplace Validation Warning Stock">stock folder must be contained by a version folder</string>
+	<string name="Marketplace Validation Error Mixed Stock">: Error: all items in a stock folder must be no-copy and of the same type</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">: Error: stock folder cannot contain subfolders</string>
+	<string name="Marketplace Validation Warning Empty">: Warning: folder doesn't contain any items</string>
+	<string name="Marketplace Validation Warning Create Stock">: Warning: creating stock folder</string>
+	<string name="Marketplace Validation Warning Create Version">: Warning: creating version folder</string>
+	<string name="Marketplace Validation Warning Move">: Warning : moving items</string>
+	<string name="Marketplace Validation Warning Delete">: Warning: folder content transfered to stock folder, removing empty folder</string>
+	<string name="Marketplace Validation Error Stock Item">: Error: no-copy items must be contained by a stock folder</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">: Warning: items must be contained by a version folder</string>
+	<string name="Marketplace Validation Error">: Error: </string>
+	<string name="Marketplace Validation Warning">: Warning: </string>
+	<string name="Marketplace Validation Error Empty Version">: Warning: version folder must contain at least 1 item</string>
+	<string name="Marketplace Validation Error Empty Stock">: Warning: stock folder must contain at least 1 item</string>
+
+	<string name="Marketplace Validation No Error">No errors or warnings to report</string>
+	<string name="Marketplace Error None">No errors</string>
+	<string name="Marketplace Error Prefix">Error: </string>
+	<string name="Marketplace Error Not Merchant">Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
+	<string name="Marketplace Error Not Accepted">Cannot move item in that folder.</string>
+	<string name="Marketplace Error Unsellable Item">This item cannot be sold on the Marketplace.</string>
+
+	<string name="MarketplaceNoID">no Mkt ID</string>
+	<string name="MarketplaceLive">listed</string>
+	<string name="MarketplaceActive">active</string>
+	<string name="MarketplaceMax">max</string>
+	<string name="MarketplaceStock">stock</string>
+	<string name="MarketplaceNoStock">out of stock</string>
+	<string name="MarketplaceUpdating">updating...</string>
 
 	<!-- use value="" because they have preceding spaces -->
 	<string name="no_transfer" value=" (no transfer)" />
@@ -4231,6 +4234,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="PowerUser5">Explode objects - Turns an object physical, temporary, and delinks it.</string>
   <string name="OnlineStatus">Online</string>
   <string name="OfflineStatus">Offline</string>
+	<string name="not_online_msg">User not online - message will be stored and delivered later.</string>
+	<string name="not_online_inventory">User not online - inventory has been saved.</string>
 
 	<!-- voice calls -->
 

@@ -85,6 +85,7 @@ LLInventoryDictionary::LLInventoryDictionary()
 	addEntry(LLInventoryType::IT_ANIMATION,           new InventoryEntry("animation", "animation",     1, LLAssetType::AT_ANIMATION));  
 	addEntry(LLInventoryType::IT_GESTURE,             new InventoryEntry("gesture",   "gesture",       1, LLAssetType::AT_GESTURE)); 
 	addEntry(LLInventoryType::IT_MESH,                new InventoryEntry("mesh",      "mesh",          1, LLAssetType::AT_MESH));
+	addEntry(LLInventoryType::IT_SETTINGS,            new InventoryEntry("settings",  "settings",      1, LLAssetType::AT_SETTINGS));
 }
 
 
@@ -145,6 +146,15 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_NONE,			// 47	AT_NONE
 	LLInventoryType::IT_NONE,			// 48	AT_NONE
 	LLInventoryType::IT_MESH,			// 49	AT_MESH
+
+	LLInventoryType::IT_NONE,			// 50	AT_RESERVED_1
+	LLInventoryType::IT_NONE,			// 52	AT_RESERVED_2
+	LLInventoryType::IT_NONE,			// 53	AT_RESERVED_3
+	LLInventoryType::IT_NONE,			// 54	AT_RESERVED_4
+	LLInventoryType::IT_NONE,			// 55	AT_RESERVED_5
+	LLInventoryType::IT_NONE,			// 56	AT_RESERVED_6
+
+	LLInventoryType::IT_SETTINGS,			// 57	AT_SETTINGS
 };
 
 // static

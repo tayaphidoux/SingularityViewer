@@ -286,6 +286,8 @@ void LLPreviewNotecard::loadAsset()
 	// request the asset.
 	if (const LLInventoryItem* item = getItem())
 	{
+		bool modify = gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE);
+		if (modify) editor->setParseHTML(false); // Don't do the url parsing or we'll lose text!
 		if (gAgent.allowOperation(PERM_COPY, item->getPermissions(),
 									GP_OBJECT_MANIPULATE)
 			|| gAgent.isGodlike())
@@ -344,8 +346,7 @@ void LLPreviewNotecard::loadAsset()
 			editor->setEnabled(FALSE);
 			mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
-		if(!gAgent.allowOperation(PERM_MODIFY, item->getPermissions(),
-								GP_OBJECT_MANIPULATE))
+		if(!modify)
 		{
 			editor->setEnabled(FALSE);
 			// <edit> You can always save in task inventory
@@ -387,7 +388,11 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 			// put a EOS at the end
 			buffer[file_length] = 0;
 
-			
+			// Singu Note: Set Enabled first, it determines whether or not our text will be linked
+			const LLInventoryItem* item = preview->getItem();
+			BOOL modifiable = item && gAgent.allowOperation(PERM_MODIFY,
+								item->getPermissions(), GP_OBJECT_MANIPULATE);
+			preview->setEnabled(modifiable);
 			if (LLViewerTextEditor* previewEditor = preview->findChild<LLViewerTextEditor>("Notecard Editor"))
 			{
 				if ((file_length > 19) && !strncmp(buffer, "Linden text version", 19))
@@ -405,11 +410,6 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 
 				previewEditor->makePristine();
 			}
-
-			const LLInventoryItem* item = preview->getItem();
-			BOOL modifiable = item && gAgent.allowOperation(PERM_MODIFY,
-								item->getPermissions(), GP_OBJECT_MANIPULATE);
-			preview->setEnabled(modifiable);
 			delete[] buffer;
 			preview->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}

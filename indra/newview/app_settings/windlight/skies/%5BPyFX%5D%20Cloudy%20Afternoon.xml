@@ -37,14 +37,14 @@
         </array>
     <key>cloud_pos_density2</key>
         <array>
-            <real>1.6884100437164306640625</real>
+            <real>1</real>
             <real>1</real>
             <real>0</real>
             <real>1</real>
         </array>
     <key>cloud_scale</key>
         <array>
-            <real>0.07000000029802322387695313</real>
+            <real>0.2000000029802322387695313</real>
             <real>0</real>
             <real>0</real>
             <real>1</real>
@@ -56,7 +56,7 @@
         </array>
     <key>cloud_shadow</key>
         <array>
-            <real>0.66999995708465576171875</real>
+            <real>0.75</real>
             <real>0</real>
             <real>0</real>
             <real>1</real>
@@ -105,7 +105,7 @@
         </array>
     <key>haze_horizon</key>
         <array>
-            <real>0</real>
+            <real>0.1499999910593032836914063</real>
             <real>0.1991560012102127075195313</real>
             <real>0.1991560012102127075195313</real>
             <real>1</real>
@@ -119,7 +119,7 @@
         </array>
     <key>max_y</key>
         <array>
-            <real>150</real>
+            <real>1</real>
             <real>0</real>
             <real>0</real>
             <real>1</real>

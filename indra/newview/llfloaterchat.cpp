@@ -45,6 +45,7 @@
 #include "llcombobox.h"
 #include "lltextparser.h"
 #include "lltrans.h"
+#include "llurlregistry.h"
 #include "llwindow.h"
 
 // project include
@@ -94,7 +95,6 @@ LLFloaterChat::LLFloaterChat(const LLSD& seed)
 
 	LLTextEditor* history_editor_with_mute = getChild<LLTextEditor>("Chat History Editor with mute");
 	getChild<LLUICtrl>("show mutes")->setCommitCallback(boost::bind(&LLFloaterChat::onClickToggleShowMute, this, _2, getChild<LLTextEditor>("Chat History Editor"), history_editor_with_mute));
-	history_editor_with_mute->setVisible(false);
 	getChild<LLUICtrl>("chat_history_open")->setCommitCallback(boost::bind(show_log_browser, "chat", "chat"));
 }
 
@@ -201,7 +201,7 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	if (chat.mSourceType == CHAT_SOURCE_OBJECT)
 	{
 		LLStringUtil::trim(chat.mFromName);
-		if (!chat.mFromName.length())
+		if (chat.mFromName.empty())
 		{
 			chat.mFromName = LLTrans::getString("Unnamed");
 			line = chat.mFromName + line;
@@ -212,19 +212,19 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	bool is_irc = italicize && chat.mChatStyle == CHAT_STYLE_IRC;
 	// If the chat line has an associated url, link it up to the name.
 	if (!chat.mURL.empty()
-		&& (line.length() > chat.mFromName.length() && line.find(chat.mFromName,0) == 0))
+		&& boost::algorithm::starts_with(line, chat.mFromName))
 	{
-		std::string start_line = line.substr(0, chat.mFromName.length() + 1);
-		line = line.substr(chat.mFromName.length() + 1);
+		line = line.substr(chat.mFromName.length());
 		LLStyleSP sourceStyle = LLStyleMap::instance().lookup(chat.mFromID, chat.mURL);
 		sourceStyle->mItalic = is_irc;
-		edit->appendStyledText(start_line, false, prepend_newline, sourceStyle);
+		edit->appendText(chat.mFromName, false, prepend_newline, sourceStyle, false);
 		prepend_newline = false;
 	}
 	LLStyleSP style(new LLStyle);
 	style->setColor(color);
 	style->mItalic = is_irc;
-	edit->appendStyledText(line, false, prepend_newline, style);
+	style->mBold = chat.mChatType == CHAT_TYPE_SHOUT;
+	edit->appendText(line, false, prepend_newline, style, false);
 }
 
 void log_chat_text(const LLChat& chat)
@@ -339,8 +339,6 @@ void LLFloaterChat::setHistoryCursorAndScrollToEnd()
 //static
 void LLFloaterChat::onClickToggleShowMute(bool show_mute, LLTextEditor* history_editor, LLTextEditor* history_editor_with_mute)
 {
-	history_editor->setVisible(!show_mute);
-	history_editor_with_mute->setVisible(show_mute);
 	(show_mute ? history_editor_with_mute : history_editor)->setCursorAndScrollToEnd();
 }
 
@@ -387,7 +385,19 @@ void LLFloaterChat::addChat(const LLChat& chat,
 		// We display anything if it's not an IM. If it's an IM, check pref...
 		if	( !from_instant_message || gSavedSettings.getBOOL("IMInChatConsole") ) 
 		{
-			gConsole->addConsoleLine(chat.mText, text_color);
+			// Replace registered urls in the console so it looks right.
+			std::string chit(chat.mText), // Read through this
+						chat; // Add parts to this
+			LLUrlMatch match;
+			while (!chit.empty() && LLUrlRegistry::instance().findUrl(chit, match))
+			{
+				const auto start(match.getStart()), length(match.getEnd()+1-start);
+				if (start > 0) chat += chit.substr(0, start); // Add up to the start of the match
+				chat += match.getLabel() + match.getQuery(); // Add the label and the query
+				chit.erase(0, start+length); // remove the url match and all before it
+			}
+			if (!chit.empty()) chat += chit; // Add any leftovers
+			gConsole->addConsoleLine(chat, text_color);
 		}
 	}
 

@@ -34,6 +34,7 @@
 #define LL_POSTPROCESS_H
 
 #include <map>
+#include <boost/signals2.hpp>
 #include "llsd.h"
 #include "llrendertarget.h"
 
@@ -103,6 +104,9 @@ private:
 	//  The map of all availible effects
 	LLSD mAllEffectInfo;
 
+	typedef boost::signals2::signal<void(const std::string&)> selected_effect_changed_signal;
+	selected_effect_changed_signal mSelectedEffectChanged;
+
 public:
 	LLPostProcess(void);
 	~LLPostProcess(void);
@@ -144,6 +148,7 @@ public:
 	//  Setters
 	void setSelectedEffect(std::string const & effectName);
 	void setSelectedEffectValue(std::string const & setting, LLSD value);
+	auto setSelectedEffectChangeCallback(const selected_effect_changed_signal::slot_type& func) { return mSelectedEffectChanged.connect(func); }
 	void resetSelectedEffect();
 	void saveEffectAs(std::string const & effectName);
 };

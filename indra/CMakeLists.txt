@@ -19,6 +19,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(Variables)
 include(BuildVersion)
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
@@ -58,5 +61,8 @@ add_subdirectory(${LIBS_OPEN_PREFIX}plugins)
 
 add_subdirectory(${VIEWER_PREFIX}newview/statemachine)
 add_subdirectory(${VIEWER_PREFIX}newview)
-add_dependencies(viewer singularity-bin)
+add_dependencies(viewer ${VIEWER_BRANDING_ID}-bin)
 
+if (WINDOWS)
+  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${VIEWER_BRANDING_ID}-bin)
+endif (WINDOWS)

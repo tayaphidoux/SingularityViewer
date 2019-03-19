@@ -8,32 +8,42 @@
 #include "lleventtimer.h"
 
 
-const int STATE_AGENT_IDLE = 0;
-const int STATE_AGENT_WALK = 1;
-const int STATE_AGENT_RUN = 2;
-const int STATE_AGENT_STAND = 3;
+enum AOState
+{
+	STATE_AGENT_IDLE = 0,
+	STATE_AGENT_WALK = 1,
+	STATE_AGENT_RUN = 2,
+	STATE_AGENT_STAND = 3,
 
-const int STATE_AGENT_PRE_JUMP = 4;
-const int STATE_AGENT_JUMP = 5;
-const int STATE_AGENT_TURNLEFT = 6;
-const int STATE_AGENT_TURNRIGHT = 7;
+	STATE_AGENT_PRE_JUMP = 4,
+	STATE_AGENT_JUMP = 5,
+	STATE_AGENT_TURNLEFT = 6,
+	STATE_AGENT_TURNRIGHT = 7,
 
-const int STATE_AGENT_SIT = 8;
-const int STATE_AGENT_GROUNDSIT = 9;
+	STATE_AGENT_SIT = 8,
+	STATE_AGENT_GROUNDSIT = 9,
 
-const int STATE_AGENT_HOVER = 10;
-const int STATE_AGENT_HOVER_DOWN = 11;
-const int STATE_AGENT_HOVER_UP = 12;
+	STATE_AGENT_HOVER = 10,
+	STATE_AGENT_HOVER_DOWN = 11,
+	STATE_AGENT_HOVER_UP = 12,
 
-const int STATE_AGENT_CROUCH = 13;
-const int STATE_AGENT_CROUCHWALK = 14;
-const int STATE_AGENT_FALLDOWN = 15;
-const int STATE_AGENT_STANDUP = 16;
-const int STATE_AGENT_LAND = 17;
+	STATE_AGENT_CROUCH = 13,
+	STATE_AGENT_CROUCHWALK = 14,
+	STATE_AGENT_FALLDOWN = 15,
+	STATE_AGENT_STANDUP = 16,
+	STATE_AGENT_LAND = 17,
 
-const int STATE_AGENT_FLY = 18;
-const int STATE_AGENT_FLYSLOW = 19;
+	STATE_AGENT_FLY = 18,
+	STATE_AGENT_FLYSLOW = 19,
 
+	STATE_AGENT_TYPING = 20,
+
+	STATE_AGENT_SWIM_DOWN = 21,
+	STATE_AGENT_SWIM_UP = 22,
+	STATE_AGENT_SWIM = 23,
+	STATE_AGENT_FLOAT = 24,
+	STATE_AGENT_END
+};
 
 
 
@@ -43,8 +53,8 @@ class AOStandTimer : public LLEventTimer
 public:
     AOStandTimer();
     ~AOStandTimer();
-    virtual BOOL tick();
-	virtual void reset();
+    BOOL tick() override;
+	void reset();
 };
 
 class AOInvTimer : public LLEventTimer
@@ -52,72 +62,68 @@ class AOInvTimer : public LLEventTimer
 public:
 	AOInvTimer();
 	~AOInvTimer();
-	BOOL tick();
+	BOOL tick() override;
 };
 
-class LLFloaterAO : public LLFloater
+class LLFloaterAO : public LLFloater, public LLFloaterSingleton<LLFloaterAO>
 {
 public:
 
-    LLFloaterAO();
-	virtual	BOOL	postBuild();
+    LLFloaterAO(const LLSD&);
+	BOOL postBuild() override;
+	void onOpen() override;
     virtual ~LLFloaterAO();
 
-	static void show(void*);
 	static void init();
 
-	static void onClickToggleAO();
-	static void onClickToggleSits();
 	static void run();
-	static void updateLayout(LLFloaterAO* floater);
+	void updateLayout(bool advanced);
 
-	static BOOL loadAnims();
+	//static bool loadAnims();
 
-	static int getAnimationState();
-	static void setAnimationState(int state);
-	static void setStates(const LLUUID& id, BOOL start);
+	static void typing(bool start);
+	static AOState flyToSwimState(const AOState& state);
+	static AOState swimToFlyState(const AOState& state);
+	static AOState getAnimationState();
+	static void setAnimationState(const AOState& state);
 
 	static LLUUID getCurrentStandId();
 	static void setCurrentStandId(const LLUUID& id);
 	static int stand_iterator;
-	static BOOL ChangeStand();
+	static void ChangeStand();
+	static void toggleSwim(bool underwater);
 
-	static BOOL startMotion(const LLUUID& id, F32 time_offset = 0.f, BOOL stand = FALSE);
-	static BOOL stopMotion(const LLUUID& id, BOOL stop_immediate, BOOL stand = FALSE);
+	static void doMotion(const LLUUID& id, bool start, bool stand = false);
+	static void startMotion(const LLUUID& id, bool stand = false) { doMotion(id, true, stand); }
+	static void stopMotion(const LLUUID& id, bool stand = false) { doMotion(id, false, stand); }
 
+	static bool swimCheck(const AOState& state);
 	static LLUUID GetAnimID(const LLUUID& id);
 
-	static int GetStateFromAnimID(const LLUUID& id);
-	static LLUUID GetAnimIDFromState(const int state);
-	static int GetStateFromToken(std::string strtoken);
+	static AOState GetStateFromAnimID(const LLUUID& id);
+	static LLUUID GetAnimIDFromState(const AOState& state);
+	static AOState GetStateFromToken(std::string strtoken);
 
-	static void onClickLess(void* data) ;
-	static void onClickMore(void* data) ;
-
-	static void onClickPrevStand(void* userdata);
-	static void onClickNextStand(void* userdata);
-	static void onClickReloadCard(void* userdata);
-	static void onClickOpenCard(void* userdata);
-	static void onClickNewCard(void* userdata);
+	static void onClickCycleStand(bool next);
+	static void onClickReloadCard();
+	static void onClickOpenCard();
+	static void onClickNewCard();
 
 	static LLUUID invfolderid;
 	static const LLUUID& getAssetIDByName(const std::string& name);
-
-	static bool getInstance();
 	
 private:
 
-	static LLFloaterAO* sInstance;
-	static int mAnimationState;
+	static AOState mAnimationState;
 	static LLUUID mCurrentStandId;
 
-	static void onSpinnerCommit(LLUICtrl* ctrl);
+	static void onSpinnerCommit();
 	static void onComboBoxCommit(LLUICtrl* ctrl);
-	static BOOL SetDefault(void *userdata, LLUUID ao_id, std::string defaultanim);
-
-	BOOL					mDirty;
 
 protected:
+
+	static AOState getStateFromCombo(const class LLComboBox* combo);
+	static LLComboBox* getComboFromState(const AOState& state);
 
 	static void onNotecardLoadComplete(LLVFS *vfs,const LLUUID& asset_uuid,LLAssetType::EType type,void* user_data, S32 status, LLExtStat ext_status);
 

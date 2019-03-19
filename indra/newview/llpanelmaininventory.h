@@ -1,4 +1,4 @@
-/** 
+	/** 
  * @file llpanelmaininventory.h
  * @brief llpanelmaininventory.h
  * class definition
@@ -80,9 +80,8 @@ public:
 		void* cargo_data,
 		EAcceptance* accept,
 		std::string& tooltip_msg);
-	/*virtual*/ void changed(U32 mask);
+	/*virtual*/ void changed(U32);
 	/*virtual*/ void draw();
-	
 
 	LLInventoryPanel* getPanel() { return mActivePanel; }
 	LLInventoryPanel* getActivePanel() { return mActivePanel; }
@@ -92,6 +91,7 @@ public:
 	const std::string& getFilterText() const { return mFilterText; }
 
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb);
+
 	void onFilterEdit(const std::string& search_string);
 	//
 	// Misc functions
@@ -106,21 +106,18 @@ public:
 	static void onFoldersByName(void *user_data);
 	static BOOL checkFoldersByName(void *user_data);
 	
-	
 	void onFilterSelected();
 	
 	const std::string getFilterSubString();
 	void setFilterSubString(const std::string& string);
 		
-
-
 	static void onQuickFilterCommit(LLUICtrl* ctrl, void* user_data);
 	static void refreshQuickFilter(LLUICtrl* ctrl);
-	
+
 	static void onResetAll(void* userdata);
 	static void onExpandAll(void* userdata);
-    static void onCollapseAll(void* userdata);
-	
+	static void onCollapseAll(void* userdata);
+
 	void updateSortControls();
 
 	void resetFilters();
@@ -161,6 +158,7 @@ protected:
 
 protected:
 	LLFloaterInventoryFinder* getFinder();
+
 	LLFilterEditor*				mFilterEditor;
 	LLComboBox*					mQuickFilterCombo;
 	LLTabContainer*				mFilterTabs;
@@ -175,7 +173,6 @@ protected:
 	// is here to support the inventory toggle show button.
 	static std::vector<LLPanelMainInventory*> sActiveViews;
 };
-
 
 #endif // LL_LLPANELMAININVENTORY_H
 
