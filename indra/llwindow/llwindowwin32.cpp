@@ -3377,18 +3377,7 @@ void LLWindowWin32::ShellEx(const std::string& command)
 
 void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
 {
-	bool found = false;
-	S32 i;
-	for (i = 0; i < gURLProtocolWhitelistCount; i++)
-	{
-		if (escaped_url.find(gURLProtocolWhitelist[i]) == 0)
-		{
-			found = true;
-			break;
-		}
-	}
-
-	if (!found)
+	if (!isWhitelistedProtocol(escaped_url))
 	{
 		LL_WARNS("Window") << "spawn_web_browser() called for url with protocol not on whitelist: " << escaped_url << LL_ENDL;
 		return;

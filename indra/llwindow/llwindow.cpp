@@ -49,15 +49,18 @@ LLSplashScreen *gSplashScreenp = NULL;
 BOOL gDebugClicks = FALSE;
 BOOL gDebugWindowProc = FALSE;
 
-const S32 gURLProtocolWhitelistCount = 5;
-const std::string gURLProtocolWhitelist[] = { "secondlife:", "http:", "https:", "data:", "mailto:" };
-
+bool isWhitelistedProtocol(const std::string& escaped_url) {
 // CP: added a handler list - this is what's used to open the protocol and is based on registry entry
 //	   only meaningful difference currently is that file: protocols are opened using http:
 //	   since no protocol handler exists in registry for file:
 //     Important - these lists should match - protocol to handler
 // Maestro: This list isn't referenced anywhere that I could find
 //const std::string gURLProtocolWhitelistHandler[] = { "http", "http", "https" };	
+	for (const auto& protocol : { "secondlife:", "http:", "https:", "data:", "mailto:" })
+		if (escaped_url.find(protocol) != std::string::npos)
+			return true;
+	return false;
+}
 
 
 S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
