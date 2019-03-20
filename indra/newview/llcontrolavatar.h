@@ -39,6 +39,7 @@ public:
     LLControlAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual void 			initInstance(); // Called after construction to initialize the class.
 	virtual	~LLControlAvatar();
+	virtual LLControlAvatar* asControlAvatar() { return this; }
 
     void getNewConstraintFixups(LLVector3& new_pos_constraint, F32& new_scale_constraint) const;
     void matchVolumeTransform();
