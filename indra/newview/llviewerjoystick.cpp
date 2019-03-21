@@ -111,6 +111,17 @@ enum DS3Keys
 	DS3_LOGO_KEY
 };
 
+void set_joystick_type(const S32& type)
+{
+	switch (type)
+	{
+	case 0: sType = SPACE_NAV; break;
+	case 1: case 2: sType = XBOX; break;
+	case 3: sType = DS3; break;
+	default: sType = UNKNOWN; break;
+	}
+}
+
 S32 get_joystick_type()
 {
 	switch (sType)
@@ -1393,6 +1404,7 @@ void LLViewerJoystick::setSNDefaults(S32 type)
 	const bool is_3d_cursor = true;
 #endif
 
+	set_joystick_type(type); // Breaks resetting to default but allows declaring a new identity and button config for the controller
 	//gViewerWindow->alertXml("CacheWillClear");
 	const bool ouya = type == 1;
 	const bool xbox = ouya || type == 2;
