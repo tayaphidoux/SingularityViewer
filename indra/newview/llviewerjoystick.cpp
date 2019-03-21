@@ -42,6 +42,7 @@
 #include "llfocusmgr.h"
 #include "rlvhandler.h"
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/regex.hpp>
 
 // ----------------------------------------------------------------------------
@@ -85,8 +86,7 @@ bool isOUYA(const std::string& desc) { return desc.find("OUYA") != std::string::
 
 bool isXboxLike(const std::string& desc)
 {
-	return desc.find("Xbox") != std::string::npos
-		|| isOUYA(desc);
+	return boost::algorithm::icontains(desc, "xbox") || isOUYA(desc);
 }
 
 bool isDS3Like(const std::string& desc)
