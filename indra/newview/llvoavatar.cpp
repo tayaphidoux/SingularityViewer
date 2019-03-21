@@ -7762,6 +7762,13 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 						   << (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;	
 		return 0;
 	}
+	
+	// The object can already exist in the vector if it was attached while was already attached (causing a re-attach).
+	std::pair<LLViewerObject*, LLViewerJointAttachment*> const val(viewer_object, attachment);
+	if (std::find(mAttachedObjectsVector.begin(), mAttachedObjectsVector.end(), val) == mAttachedObjectsVector.end())
+	{
+		mAttachedObjectsVector.push_back(val);
+	}
 
     if (!viewer_object->isAnimatedObject())
     {
@@ -7774,13 +7781,6 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 	{
 		LLSelectMgr::getInstance()->updateSelectionCenter();
 		LLSelectMgr::getInstance()->updatePointAt();
-	}
-
-	// The object can already exist in the vector if it was attached while was already attached (causing a re-attach).
-	std::pair<LLViewerObject*, LLViewerJointAttachment*> const val(viewer_object, attachment);
-	if (std::find(mAttachedObjectsVector.begin(), mAttachedObjectsVector.end(), val) == mAttachedObjectsVector.end())
-	{
-		mAttachedObjectsVector.push_back(val);
 	}
 
 	return attachment;
