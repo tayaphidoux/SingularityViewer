@@ -881,7 +881,7 @@ private:
 	}
 
 	LLHandle<LLPanel> mActivePanel;
-	typedef std::set<LLUUID> selected_items_t;
+	typedef std::unordered_set<LLUUID> selected_items_t;
 	selected_items_t mSelectedItems;
 
 	/**

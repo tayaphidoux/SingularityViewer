@@ -30,6 +30,9 @@
 #include "lluiimage.h"
 #include "lluictrl.h"
 
+#include <unordered_map>
+#include <unordered_set>
+
 class LLFontGL;
 class LLFolderView;
 class LLFolderViewEventListener;
@@ -218,7 +221,7 @@ public:
 	virtual void selectItem();
 
 	// gets multiple-element selection
-	virtual std::set<LLUUID> getSelectionList() const;
+	virtual std::unordered_set<LLUUID> getSelectionList() const;
 
 	// Returns true is this object and all of its children can be removed (deleted by user)
 	virtual BOOL isRemovable();

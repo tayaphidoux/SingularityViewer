@@ -1365,15 +1365,13 @@ bool LLInventoryPanel::isSelectionRemovable()
 	bool can_delete = false;
 	if (mFolderRoot.get())
 	{
-		std::set<LLUUID> selection_set = mFolderRoot.get()->getSelectionList();
+		auto selection_set = mFolderRoot.get()->getSelectionList();
 		if (!selection_set.empty()) 
 		{
 			can_delete = true;
-			for (std::set<LLUUID>::iterator iter = selection_set.begin();
-				 iter != selection_set.end();
-				 ++iter)
+			for (const auto& id : selection_set)
 			{
-				LLFolderViewItem *item = getItemByID(*iter);
+				LLFolderViewItem *item = getItemByID(id);
 				const LLFolderViewEventListener* listener =item->getListener();
 				if (!listener)
 				{

@@ -158,7 +158,7 @@ public:
 	// children, and keeps track of selected objects.
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
 
-	virtual std::set<LLUUID> getSelectionList() const;
+	virtual std::unordered_set<LLUUID> getSelectionList() const;
 
 	// Make sure if ancestor is selected, descendants are not
 	void sanitizeSelection();
@@ -330,7 +330,7 @@ protected:
 	S32								mSignalSelectCallback;
 	S32								mMinWidth;
 	S32								mRunningHeight;
-	std::map<LLUUID, LLFolderViewItem*> mItemMap;
+	std::unordered_map<LLUUID, LLFolderViewItem*> mItemMap;
 	LLUUID							mSelectThisID; // if non null, select this item
 	
 	LLHandle<LLPanel>				mParentPanel;
