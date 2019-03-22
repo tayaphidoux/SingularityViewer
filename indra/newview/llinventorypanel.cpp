@@ -1118,7 +1118,7 @@ void LLInventoryPanel::setSelection(const LLUUID& obj_id, BOOL take_keyboard_foc
 	setSelectionByID(obj_id, take_keyboard_focus);
 }
 
-void LLInventoryPanel::setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb) 
+void LLInventoryPanel::setSelectCallback(const std::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb) 
 { 
 	if (mFolderRoot.get())
 	{
