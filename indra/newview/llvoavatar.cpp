@@ -1922,7 +1922,7 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 	}
 
     // Stretch bounding box by rigged mesh joint boxes
-    if (box_detail>=3)
+    if (box_detail>=3 && gMeshRepo.meshRezEnabled())
     {
 		updateRiggingInfo();
         for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
@@ -6922,21 +6922,11 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
     }
 
 	LLVOVolume *vobj = dynamic_cast<LLVOVolume*>(vo);
-	bool pelvisGotSet = false;
-
-	if (!vobj)
+	if (vobj && vobj->isRiggedMesh() &&
+		vobj->getVolume() && vobj->getVolume()->isMeshAssetLoaded() && gMeshRepo.meshRezEnabled())
 	{
-		return;
-	}
-	if (vobj->isMesh() &&
-		((vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded()) || !gMeshRepo.meshRezEnabled()))
-	{
-		return;
-	}
-	const LLMeshSkinInfo*  pSkinData = vobj->getSkinInfo();
-
-	if ( vobj && vobj->isMesh() && pSkinData )
-	{
+		bool pelvisGotSet = false;
+		const LLMeshSkinInfo*  pSkinData = vobj->getSkinInfo();
 		const U32 bindCnt = pSkinData->mAlternateBindMatrix.size();								
         const U32 jointCnt = pSkinData->mJointNames.size();
 		if ((bindCnt > 0) && (bindCnt != jointCnt))
@@ -7002,12 +6992,11 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
                 onActiveOverrideMeshesChanged();
 			}							
 		}
-	}
-
-	//Rebuild body data if we altered joints/pelvis
-	if ( pelvisGotSet ) 
-	{
-		postPelvisSetRecalc();
+		//Rebuild body data if we altered joints/pelvis
+		if (pelvisGotSet)
+		{
+			postPelvisSetRecalc();
+		}
 	}
 }
 
@@ -10458,7 +10447,7 @@ void LLVOAvatar::updateRiggingInfo()
 		for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
 		{
 			LLVOVolume *vol = *it;
-			if (vol->isMesh() && vol->getVolume())
+			if (vol->isRiggedMesh() && vol->getVolume() && vol->getVolume()->isMeshAssetLoaded())
 			{
 				const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
 				S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);

@@ -1943,6 +1943,10 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 								gGL.diffuseColor4f(0,1,0.5,1); 
 							}
 						}
+						else if (drawable->getVObj()->asAvatar())
+						{
+							gGL.diffuseColor4f(.5, 0, 1, 1);
+						}
 						else
 						{
 							gGL.diffuseColor4f(1,0,1,1); // magenta
