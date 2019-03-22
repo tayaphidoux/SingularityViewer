@@ -27,6 +27,8 @@
 #ifndef LL_LLAVATARACTIONS_H
 #define LL_LLAVATARACTIONS_H
 
+#include <unordered_set>
+
 class LLAvatarName;
 class LLInventoryPanel;
 class LLFloater;
@@ -232,7 +234,7 @@ public:
 	 */
 	static void buildResidentsString(const uuid_vec_t& avatar_uuids, std::string& residents_string);
 
-	static std::set<LLUUID> getInventorySelectedUUIDs();
+	static std::unordered_set<LLUUID> getInventorySelectedUUIDs();
 
 	/**
 	 * Copy the selected avatar's UUID to clipboard
