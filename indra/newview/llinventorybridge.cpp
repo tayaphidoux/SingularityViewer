@@ -128,7 +128,7 @@ bool isAddAction(const std::string& action)
 
 bool isRemoveAction(const std::string& action)
 {
-	return ("take_off" == action || "detach" == action || "deactivate" == action);
+	return ("take_off" == action || "detach" == action);
 }
 
 // Used by LLFolderBridge as callback for directory fetching recursion
@@ -5654,7 +5654,7 @@ void LLGestureBridge::performAction(LLInventoryModel* model, std::string action)
 			// we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboList.
 			BOOL inform_server = TRUE;
 			BOOL deactivate_similar = FALSE;
-			LLGestureMgr::instance().setGestureLoadedCallback(mUUID, boost::bind(&LLGestureBridge::playGesture, mUUID));
+			LLGestureMgr::instance().setGestureLoadedCallback(mUUID, std::bind(&LLGestureBridge::playGesture, mUUID));
 			LLViewerInventoryItem* item = gInventory.getItem(mUUID);
 			llassert(item);
 			if (item)
