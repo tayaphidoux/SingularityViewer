@@ -1610,7 +1610,22 @@ std::string LLPreviewGesture::getLabel(const std::vector<std::string>& v_labels)
 			for(const auto& pair : LLPreview::sInstances)
 			{
 				const auto& pPreview(pair.second);
-				if (pPreview && pPreview->getTitleName() == "Gesture")
+#ifndef LL_WINDOWS
+#if __cplusplus >= 201606
+				constexpr std::string_view gesture("Gesture");
+				if (pPreview && pPreview->getTitleName().compare(gesture) == 0)
+				LL_COMPILE_TIME_MESSAGE("String view support detected, remove this macro check, this line and the old check below");
+#endif
+#endif
+				if (pPreview && pPreview->getTitleName() ==
+#ifndef LL_WINDOWS
+					static_cast<const std::string>(
+#endif
+					"Gesture"
+#ifndef LL_WINDOWS
+						)
+#endif
+					)
 				{
 					wait_anim = pPreview->getChild<LLCheckBoxCtrl>("wait_anim_check")->getLabel();
 					break;

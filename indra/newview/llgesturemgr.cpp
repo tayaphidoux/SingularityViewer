@@ -333,7 +333,7 @@ void LLGestureMgr::deactivateSimilarGestures(const LLMultiGesture* in, const LLU
 	bool start_message = true;
 
 	// Deactivate all gestures that match
-	for (auto& it = mActive.begin(); it != mActive.end(); )
+	for (auto it = mActive.begin(), end = mActive.end(); it != end; )
 	{
 		const LLUUID& item_id = (*it).first;
 		LLMultiGesture* gest = (*it).second;
@@ -354,6 +354,7 @@ void LLGestureMgr::deactivateSimilarGestures(const LLMultiGesture* in, const LLU
 			gest = nullptr;
 
 			it = mActive.erase(it);
+			end = mActive.end();
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 			if (start_message)
@@ -695,18 +696,10 @@ S32 LLGestureMgr::getPlayingCount() const
 }
 
 
-struct IsGesturePlaying : public std::unary_function<LLMultiGesture*, bool>
-{
-	bool operator()(const LLMultiGesture* gesture) const
-	{
-		return gesture->mPlaying;
-	}
-};
-
 void LLGestureMgr::update()
 {
 	bool notify = false;
-	for (auto& it = mPlaying.begin(); it != mPlaying.end();)
+	for (auto it = mPlaying.begin(), end = mPlaying.end(); it != end;)
 	{
 		auto& gesture = *it;
 		stepGesture(gesture);
@@ -724,6 +717,7 @@ void LLGestureMgr::update()
 
 			// And take done gesture out of the playing list
 			it = mPlaying.erase(it);
+			end = mPlaying.end();
 			notify = true;
 		}
 		else ++it;
@@ -907,7 +901,7 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 				{
 					gAgent.sendAnimationRequest(anim_step->mAnimAssetID, ANIM_REQUEST_STOP);
 					// remove it from our request set in case we just requested it
-					auto& set_it = gesture->mRequestedAnimIDs.find(anim_step->mAnimAssetID);
+					auto set_it = gesture->mRequestedAnimIDs.find(anim_step->mAnimAssetID);
 					if (set_it != gesture->mRequestedAnimIDs.end())
 					{
 						gesture->mRequestedAnimIDs.erase(set_it);
@@ -1074,8 +1068,8 @@ void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 
 				gAgent.sendReliableMessage();
 			}
-			auto& i_cb = self.mCallbackMap.find(item_id);
-			
+
+			auto i_cb = self.mCallbackMap.find(item_id);
 			if(i_cb != self.mCallbackMap.end())
 			{
 				i_cb->second(gesture);
@@ -1221,9 +1215,9 @@ void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
 			gAgent.sendAnimationRequest(anim_id, ANIM_REQUEST_STOP);
 	}
 
-	for (auto& it = std::find(mPlaying.begin(), mPlaying.end(), gesture);
-		it != mPlaying.end();
-		it = std::find(mPlaying.erase(it), mPlaying.end(), gesture));
+	for (auto end = mPlaying.end(), it = std::find(mPlaying.begin(), end, gesture);
+		it != end;
+		it = std::find(mPlaying.erase(it), end = mPlaying.end(), gesture));
 
 	gesture->reset();
 
@@ -1243,7 +1237,7 @@ void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
 void LLGestureMgr::stopGesture(const LLUUID& item_id)
 {
 	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
-	auto& it = mActive.find(base_item_id);
+	auto it = mActive.find(base_item_id);
 	if (it == mActive.end()) return;
 
 	LLMultiGesture* gesture = (*it).second;
@@ -1261,7 +1255,7 @@ void LLGestureMgr::addObserver(LLGestureManagerObserver* observer)
 void LLGestureMgr::removeObserver(LLGestureManagerObserver* observer)
 {
 	const auto& end = mObservers.end();
-	auto& it = std::find(mObservers.begin(), end, observer);
+	auto it = std::find(mObservers.begin(), end, observer);
 	if (it != end)
 	{
 		mObservers.erase(it);
