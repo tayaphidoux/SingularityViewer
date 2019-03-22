@@ -1215,9 +1215,7 @@ void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
 			gAgent.sendAnimationRequest(anim_id, ANIM_REQUEST_STOP);
 	}
 
-	for (auto end = mPlaying.end(), it = std::find(mPlaying.begin(), end, gesture);
-		it != end;
-		it = std::find(mPlaying.erase(it), end = mPlaying.end(), gesture));
+	mPlaying.erase(std::remove(mPlaying.begin(), mPlaying.end(), gesture), mPlaying.end());
 
 	gesture->reset();
 
