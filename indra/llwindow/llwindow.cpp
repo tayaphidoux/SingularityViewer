@@ -262,7 +262,10 @@ int LLWindow::ShellEx(const std::string& command)
 #else // LL_LINUX or other modern unix, pray it has xdg-open
 	"xdg-open \"";
 #endif
-	return std::system((open + command + '"').c_str());
+
+	const auto& code = std::system((open + command + '"').c_str());
+	if (code) LL_WARNS() << "Failed to open \"" << command << "\" return code: " << code << LL_ENDL;
+	return code;
 }
 
 // static
