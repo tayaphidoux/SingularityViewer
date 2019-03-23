@@ -65,6 +65,7 @@
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/lambda/lambda.hpp>
 
 // [RLVa:KB] - Checked: 2013-05-10 (RLVa-1.4.9)
@@ -331,7 +332,9 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 		{
 			static LLCachedControl<bool> concise("UseConciseGroupChatButtons");
 			xml_filename = concise ? "floater_instant_message_group_concisebuttons.xml" : "floater_instant_message_group.xml";
-			mSessionType = GROUP_SESSION;
+			bool support = boost::starts_with(mLogLabel, LLTrans::getString("SHORT_APP_NAME") + ' ');
+			// Singu Note: We could make a button feature for dumping Help->About contents for support, too.
+			mSessionType = support ? SUPPORT_SESSION : GROUP_SESSION;
 		}
 		else
 		{
@@ -1108,6 +1111,7 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 	{
 		switch (mSessionType)
 		{
+			case SUPPORT_SESSION:
 			case GROUP_SESSION: LLGroupActions::show(mOtherParticipantUUID); return;
 			case P2P_SESSION: LLAvatarActions::showProfile(mOtherParticipantUUID); return;
 			default: onClickHistory(); return; // If there's no profile for this type, we should be the history button.
@@ -1312,6 +1316,8 @@ void LLFloaterIMPanel::onSendMsg()
 						break;
 					case GROUP_SESSION:	// Group chat
 						fRlvFilter = !RlvActions::canSendIM(mSessionUUID);
+						break;
+					case SUPPORT_SESSION: // Support Group, never filter, they may need help!!
 						break;
 					case ADHOC_SESSION:	// Conference chat: allow if all participants can be sent an IM
 						{

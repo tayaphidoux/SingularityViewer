@@ -114,6 +114,7 @@ public:
 	{
 		P2P_SESSION,
 		GROUP_SESSION,
+		SUPPORT_SESSION,
 		ADHOC_SESSION
 	};
 	const SType& getSessionType() const { return mSessionType; }
