@@ -59,6 +59,7 @@
 #include "llstylemap.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
+#include "llversioninfo.h"
 #include "llviewerobjectlist.h"
 #include "llviewertexteditor.h"
 #include "llviewerstats.h"
@@ -333,7 +334,6 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 			static LLCachedControl<bool> concise("UseConciseGroupChatButtons");
 			xml_filename = concise ? "floater_instant_message_group_concisebuttons.xml" : "floater_instant_message_group.xml";
 			bool support = boost::starts_with(mLogLabel, LLTrans::getString("SHORT_APP_NAME") + ' ');
-			// Singu Note: We could make a button feature for dumping Help->About contents for support, too.
 			mSessionType = support ? SUPPORT_SESSION : GROUP_SESSION;
 		}
 		else
@@ -564,10 +564,20 @@ BOOL LLFloaterIMPanel::postBuild()
 			mSpeakerPanel->refreshSpeakers();
 		}
 
-		if (mSessionType == P2P_SESSION)
+		switch (mSessionType)
+		{
+		case P2P_SESSION:
 		{
 			getChild<LLUICtrl>("mute_btn")->setCommitCallback(boost::bind(&LLFloaterIMPanel::onClickMuteVoice, this));
 			getChild<LLUICtrl>("speaker_volume")->setCommitCallback(boost::bind(&LLVoiceClient::setUserVolume, LLVoiceClient::getInstance(), mOtherParticipantUUID, _2));
+		}
+		break;
+		case SUPPORT_SESSION:
+			getChildView("Support Check")->setVisible(true);
+			// Singu Note: We could make a button feature for dumping Help->About contents for support, too.
+		break;
+		default:
+		break;
 		}
 
 		setDefaultBtn("send_btn");
@@ -1352,6 +1362,12 @@ void LLFloaterIMPanel::onSendMsg()
 				}
 			}
 // [/RLVa:KB]
+
+			if (mSessionType == SUPPORT_SESSION && getChildView("Support Check")->getValue())
+			{
+				static const auto version = llformat(" (%d) ", LLVersionInfo::getBuild());
+				utf8_text.insert(action ? 3 : 0, action ? version.substr(0, version.size()-1) : version.substr(1));
+			}
 
 			if ( mSessionInitialized )
 			{
