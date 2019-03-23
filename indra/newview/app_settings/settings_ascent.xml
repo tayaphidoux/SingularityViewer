@@ -1087,6 +1087,17 @@ Changing this setting only affects new text.</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>LiruReceivedItemsNotify</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to spawn a notification in addition to the chat message when you receive items from the marketplace.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>OBJExportNotifyFailed</key>
     <map>
       <key>Comment</key>

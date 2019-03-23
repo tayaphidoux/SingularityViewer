@@ -2263,6 +2263,7 @@ void translate_if_needed(std::string& message)
 			message = LLTrans::getString(gift ? "ReceivedGift" : "ReceivedPurchase",
 				gift ? LLSD().with("USER", match[1].str()).with("PRODUCT", match[2].str()).with("MESSAGE", match[3].str())
 				: LLSD().with("PRODUCT", match[1].str()));
+		if (gSavedSettings.getBOOL("LiruReceivedItemsNotify")) LLNotificationsUtil::add("SystemMessage", LLSD().with("MESSAGE", message));
 	}
 }
 
