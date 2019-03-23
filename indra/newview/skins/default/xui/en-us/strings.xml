@@ -4237,6 +4237,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="not_online_msg">User not online - message will be stored and delivered later.</string>
 	<string name="not_online_inventory">User not online - inventory has been saved.</string>
 
+	<string name="ReceivedGift">You've received a gift! [USER] has given you "[PRODUCT]", and says "[MESSAGE]". You can find your gift in your Received Items folder.</string>
+	<string name="ReceivedPurchase">Your purchase of [PRODUCT] has been delivered to your Received Items folder.</string>
+
 	<!-- voice calls -->
 
   <string name="ringing-im">

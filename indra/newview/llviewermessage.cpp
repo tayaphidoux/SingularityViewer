@@ -2241,6 +2241,7 @@ void autoresponder_finish(bool show_autoresponded, const LLUUID& session_id, con
 	}
 }
 
+#include <boost/algorithm/string/predicate.hpp>
 const std::string NOT_ONLINE_MSG("User not online - message will be stored and delivered later.");
 const std::string NOT_ONLINE_INVENTORY("User not online - inventory has been saved.");
 void translate_if_needed(std::string& message)
@@ -2252,6 +2253,16 @@ void translate_if_needed(std::string& message)
 	else if (message == NOT_ONLINE_INVENTORY)
 	{
 		message = LLTrans::getString("not_online_inventory");
+	}
+	else if (boost::algorithm::ends_with(message, "Received Items folder."))
+	{
+		boost::smatch match;
+		const boost::regex gift_exp("^You've received a gift! (.*) has given you \\\"(.*)\\\", and says \\\"(.*)\\\"\\. You can find your gift in your Received Items folder\\.$");
+		bool gift = boost::regex_match(message, match, gift_exp);
+		if (gift || boost::regex_match(message, match, boost::regex("^Your purchase of (.*) has been delivered to your Received Items folder\\.$")))
+			message = LLTrans::getString(gift ? "ReceivedGift" : "ReceivedPurchase",
+				gift ? LLSD().with("USER", match[1].str()).with("PRODUCT", match[2].str()).with("MESSAGE", match[3].str())
+				: LLSD().with("PRODUCT", match[1].str()));
 	}
 }
 
