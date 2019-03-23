@@ -2323,12 +2323,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		return;
 	// NaCl End
 
-	// Singu TODO: LLIMProcessing goes here
-	if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
-	{ // Translate server message if required (MAINT-6109)
-		translate_if_needed(message);
-	}
-
 	// make sure that we don't have an empty or all-whitespace name
 	LLStringUtil::trim(name);
 	if (name.empty())
@@ -2366,6 +2360,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	{
 		LLSD args;
 		args["NAME"] = name;
+	}
+
+	// Singu TODO: LLIMProcessing goes here
+	if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
+	{ // Translate server message if required (MAINT-6109)
+		translate_if_needed(message);
 	}
 
 	LLViewerObject *source = gObjectList.findObject(session_id); //Session ID is probably the wrong thing.
