@@ -1406,7 +1406,7 @@ void LLFloaterIMPanel::onSendMsg()
 					// Look for actions here.
 					if (action)
 					{
-						utf8_text.replace(0,3,"");
+						utf8_text.erase(0,3);
 					}
 					else
 					{
