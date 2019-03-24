@@ -1364,8 +1364,7 @@ void LLFloaterIMPanel::onSendMsg()
 
 			if (mSessionType == SUPPORT_SESSION && getChildView("Support Check")->getValue())
 			{
-				static const auto version = llformat(" (%d) ", LLVersionInfo::getBuild());
-				utf8_text.insert(action ? 3 : 0, action ? version.substr(0, version.size()-1) : version.substr(1));
+				utf8_text.insert(action ? 3 : 0, llformat(action ? " (%d)" : "(%d) ", LLVersionInfo::getBuild()));
 			}
 
 			if ( mSessionInitialized )
