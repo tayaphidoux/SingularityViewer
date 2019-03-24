@@ -1461,7 +1461,6 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 	BOOL parse_html = true;
 	node->getAttributeBOOL("allow_html", parse_html);
 	text_editor->setParseHTML(parse_html);
-	text_editor->setParseHighlights(TRUE);
 
 	BOOL commit_on_focus_lost = FALSE;
 	node->getAttributeBOOL("commit_on_focus_lost",commit_on_focus_lost);

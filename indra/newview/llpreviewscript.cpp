@@ -272,6 +272,7 @@ BOOL LLScriptEdCore::postBuild()
 
 	mEditor = getChild<LLViewerTextEditor>("Script Editor");
 	mEditor->setHandleEditKeysDirectly(TRUE);
+	mEditor->setParseHighlights(TRUE);
 
 	childSetCommitCallback("lsl errors", &LLScriptEdCore::onErrorList, this);
 	childSetAction("Save_btn", boost::bind(&LLScriptEdCore::doSave,this,FALSE));

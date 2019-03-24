@@ -553,7 +553,6 @@ BOOL LLFloaterIMPanel::postBuild()
 
 		mHistoryEditor = getChild<LLViewerTextEditor>("im_history");
 		mHistoryEditor->setParseHTML(TRUE);
-		mHistoryEditor->setParseHighlights(TRUE);
 
 		sTitleString = getString("title_string");
 		sTypingStartString = getString("typing_start_string");
