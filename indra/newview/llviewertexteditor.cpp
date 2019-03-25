@@ -441,7 +441,9 @@ void LLEmbeddedItems::bindEmbeddedChars( const LLFontGL* font ) const
 		  case LLAssetType::AT_BODYPART:		img_name = "inv_item_skin.tga";	break;
 		  case LLAssetType::AT_ANIMATION:		img_name = "inv_item_animation.tga";break;
 		  case LLAssetType::AT_GESTURE:			img_name = "inv_item_gesture.tga";	break;
-		  default: llassert(0); continue;
+			case LLAssetType::AT_MESH:      	img_name = "Inv_Mesh";	    break;
+            case LLAssetType::AT_SETTINGS:      img_name = "Inv_Settings"; break;
+			default:                        	img_name = "Inv_Invalid";  break; // use the Inv_Invalid icon for undefined object types (see MAINT-3981)
 		}
 
 		LLUIImagePtr image = LLUI::getUIImage(img_name);
