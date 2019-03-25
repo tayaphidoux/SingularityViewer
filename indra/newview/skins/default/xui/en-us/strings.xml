@@ -3130,31 +3130,23 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="InventoryOutboxNotMerchantTitle">Anyone can sell items on the Marketplace.</string>
 	<string name="InventoryOutboxNotMerchantTooltip"></string>
 	<string name="InventoryOutboxNotMerchant">
-If you'd like to become a merchant, you'll need to
+If you'd like to become a merchant, you'll need to [[MARKETPLACE_CREATE_STORE_URL] create a Marketplace store].
 	</string>
-	<string name="InventoryOutboxNotMerchantSubs">create a Marketplace store</string>
-	<string name="InventoryOutboxNotMerchant2">.</string>
 	<string name="InventoryOutboxNoItemsTitle">Your outbox is empty.</string>
 	<string name="InventoryOutboxNoItemsTooltip"></string>
 	<string name="InventoryOutboxNoItems">
-Drag folders to this area and click "Send to Marketplace" to list them for sale on the
+Drag folders to this area and click "Send to Marketplace" to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
 	</string>
-	<string name="InventoryOutboxNoItemsSubs">Marketplace</string>
-	<string name="InventoryOutboxNoItems2">.</string>
 	<string name="InventoryOutboxInitializingTitle">Initializing Marketplace.</string>
 	<string name="InventoryOutboxInitializingTooltip"></string>
 	<string name="InventoryOutboxInitializing">
-We are accessing your account on the
+We are accessing your account on the [[MARKETPLACE_CREATE_STORE_URL] Marketplace store].
 	</string>
-	<string name="InventoryOutboxInitializingSubs">Marketplace store</string>
-	<string name="InventoryOutboxInitializing2">.</string>
 	<string name="InventoryOutboxErrorTitle">Marketplace Errors.</string>
 	<string name="InventoryOutboxErrorTooltip"></string>
 	<string name="InventoryOutboxError">
-The
+The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	</string>
-	<string name="InventoryOutboxErrorSubs">Marketplace store</string>
-	<string name="InventoryOutboxError2">is returning errors.</string>
 	<string name="InventoryMarketplaceError">
 An error occurred while opening Marketplace Listings.
 If you continue to receive this message, please contact Second Life support for assistance at http://support.secondlife.com
