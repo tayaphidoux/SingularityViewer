@@ -454,8 +454,8 @@ LLSD llsd_shallow(LLSD value, LLSD filter = LLSD());
 
 
 // Specialization for generating a hash value from an LLSD block. 
-template <>
-struct boost::hash<LLSD>
+namespace boost {
+	template<> struct hash<LLSD>
 {
     typedef LLSD argument_type;
     typedef std::size_t result_type;
@@ -516,5 +516,6 @@ struct boost::hash<LLSD>
         return seed;
     }
 };
+}
 
 #endif // LL_LLSDUTIL_H
