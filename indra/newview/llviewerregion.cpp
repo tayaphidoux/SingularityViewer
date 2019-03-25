@@ -1986,6 +1986,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("EnvironmentSettings");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
+    capabilityNames.append("ExtEnvironment");
 	capabilityNames.append("FetchLib2");
 	capabilityNames.append("FetchLibDescendents2");
 	capabilityNames.append("FetchInventory2");
