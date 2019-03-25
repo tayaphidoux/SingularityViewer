@@ -2259,7 +2259,7 @@ void LLViewerInventoryItem::setWearableType(LLWearableType::EType type)
 		LL_WARNS() << "Calling LLViewerInventoryItem::setWearableType for item that does not have an unknown wearable type!?" << LL_ENDL;
 		return;
 	}
-	mFlags = (mFlags & ~LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK) | type;
+	mFlags = (mFlags & ~LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK) | type;
 }
 
 time_t LLViewerInventoryItem::getCreationDate() const
