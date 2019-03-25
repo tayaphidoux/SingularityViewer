@@ -40,7 +40,7 @@ uniform float max_cof;
 uniform float res_scale;
 uniform float dof_width;
 uniform float dof_height;
-uniform float kern_scale;
+uniform vec2 kern_scale;
 
 VARYING vec2 vary_fragcoord;
 
