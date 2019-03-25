@@ -53,8 +53,7 @@ struct WearableEntry : public LLDictionaryEntry
 		LLDictionaryEntry(name),
 		mAssetType(assetType),
 		mDefaultNewName(default_new_name),
-		//*TODO:Translate
-		mLabel(/*sTrans->getString*/(name)),
+		mLabel(sTrans->getString(name)),
 		mIconName(iconName),
 		mDisableCameraSwitch(disable_camera_switch),
 		mAllowMultiwear(allow_multiwear)
