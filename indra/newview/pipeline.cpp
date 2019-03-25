@@ -4146,9 +4146,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 		{
 			updateHWLightMode(LIGHT_MODE_NORMAL);
+			llassert_always(LLGLState<GL_LIGHTING>::checkEnabled());
 		}
-
-		llassert_always(LLGLState<GL_LIGHTING>::checkEnabled());
 
 		BOOL occlude = sUseOcclusion > 1;
 		U32 cur_type = 0;

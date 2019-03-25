@@ -549,8 +549,8 @@ void LLGLManager::initWGL()
 #if LL_WINDOWS && !LL_MESA_HEADLESS
 	if (ExtensionExists("WGL_ARB_pixel_format"))
 	{
-		wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)wglGetProcAddress("wglGetPixelFormatAttribiv");
-		wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormat");
+		wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)wglGetProcAddress("wglGetPixelFormatAttribivARB");
+		wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 	}
 	else
 	{
@@ -559,7 +559,7 @@ void LLGLManager::initWGL()
 		
 	if (ExtensionExists("WGL_ARB_create_context"))
 	{
-		wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribs");
+		wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 	}
 	else
 	{
