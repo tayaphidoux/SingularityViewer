@@ -3112,6 +3112,7 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="tattoo">Tattoo</string>
   <string name="physics">Physics</string>
   <string name="invalid">invalid</string>
+  <string name="unknown">unknown</string>
   <string name="none">none</string>
 
   <!-- Not Worn Wearable Types -->
