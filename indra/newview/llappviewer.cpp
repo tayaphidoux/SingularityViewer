@@ -640,7 +640,8 @@ bool LLAppViewer::init()
 	
 	// initialize LLWearableType translation bridge.
 	// Memory will be cleaned up in ::cleanupClass()
-	LLWearableType::initClass(new LLUITranslationBridge());
+	LLTranslationBridge::ptr_t trans = std::make_shared<LLUITranslationBridge>();
+	LLWearableType::initClass(trans);
 
 	// <edit>
 	// We can call this early.

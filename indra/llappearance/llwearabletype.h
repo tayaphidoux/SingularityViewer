@@ -63,7 +63,7 @@ public:
 		WT_NONE		  = -1,
 	};
 
-	static void			initClass(LLTranslationBridge* trans); // initializes static members
+	static void			initClass(LLTranslationBridge::ptr_t &trans); // initializes static members
 	static void			cleanupClass(); // initializes static members
 
 	static const std::string& 			getTypeName(EType type);
