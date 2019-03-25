@@ -27,6 +27,8 @@
 #ifndef LL_TRANSLATIONBRDG_H
 #define LL_TRANSLATIONBRDG_H
 
+#include <memory>
+
 class LLTranslationBridge
 {
 public:
