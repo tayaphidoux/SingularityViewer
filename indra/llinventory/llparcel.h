@@ -40,6 +40,7 @@
 #include "llpermissions.h"
 #include "lltimer.h"
 #include "v3math.h"
+#include "llsettingsdaycycle.h"
 
 // Grid out of which parcels taken is stepped every 4 meters.
 const F32 PARCEL_GRID_STEP_METERS	= 4.f;
