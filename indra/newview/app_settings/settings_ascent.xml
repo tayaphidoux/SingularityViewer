@@ -927,7 +927,7 @@ RIP Latif Khalifa.</string>
 			<key>Type</key>
 			<string>String</string>
 			<key>Value</key>
-			<boolean>Default</boolean>
+			<string>Default</string>
 		</map>
 		<key>SinguReplaceLinks</key>
 		<map>
