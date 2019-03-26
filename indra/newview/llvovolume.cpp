@@ -1557,10 +1557,21 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
     bool any_valid_boxes = false;
     
-    if (getRiggedVolume())
+	static LLCachedControl<bool> sh_override_rigged_bounds("SHOverrideRiggedBounds", false);
+    if (sh_override_rigged_bounds && isAttachment() && (mDrawable->isState(LLDrawable::RIGGED) || isRiggedMesh()))
     {
-        LL_DEBUGS("RiggedBox") << "rebuilding box, volume face count " << getVolume()->getNumVolumeFaces() << " drawable face count " << mDrawable->getNumFaces() << LL_ENDL;
+		LLVOAvatar* root = getAvatar();
+		if (root)
+		{
+			any_valid_boxes = true;
+			static const LLVector3 PAD_SIZE(.1f, .1f, .1f);
+			LLVector3 minpos = -PAD_SIZE;
+			LLVector3 maxpos = PAD_SIZE;
+			min.load3(minpos.mV,1.f);
+			max.load3(maxpos.mV, 1.f);
+		}
     }
+	if (!any_valid_boxes) {
 	for (S32 i = 0; i < getVolume()->getNumVolumeFaces(); i++)
 	{
 		LLFace *face = mDrawable->getFace(i);
