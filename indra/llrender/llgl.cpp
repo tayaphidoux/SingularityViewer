@@ -504,41 +504,78 @@ LLGLManager::LLGLManager() :
 {
 }
 
-std::set<std::string> sGLExtensions;
-void registerExtension(std::string ext)
+std::set<std::string> sGLExtensions; // Not techincally safe to issue this before context is created.
+#if LL_WINDOWS
+std::set<std::string> sWGLExtensions; // Fine (probably) without context.
+#endif
+void registerExtension(std::string ext, std::set<std::string>& extensions)
 {
-	sGLExtensions.emplace(ext);
-	LL_DEBUGS("GLExtensions") << ext << LL_ENDL;
+	extensions.emplace(ext);
+	LL_INFOS("GLExtensions") << ext << LL_ENDL;
 }
 void loadExtensionStrings()
 {
 	sGLExtensions.clear();
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	boost::char_separator<char> sep(" ");
-
-	std::string extensions((const char*)glGetString(GL_EXTENSIONS));
-	for (auto& extension : tokenizer(extensions, sep))
+	U32 gl_version = atoi((const char*)glGetString(GL_VERSION));
+	if (gl_version >= 3)
 	{
-		registerExtension(extension);
+#ifndef LL_DARWIN
+		PFNGLGETSTRINGIPROC glGetStringi = (PFNGLGETSTRINGIPROC)GLH_EXT_GET_PROC_ADDRESS("glGetStringi");
+#endif
+		GLint count = 0;
+		glGetIntegerv(GL_NUM_EXTENSIONS, &count);
+		for (GLint i = 0; i < count; ++i)
+		{
+			registerExtension((char const*)glGetStringi(GL_EXTENSIONS, i), sGLExtensions);
+		}
 	}
-
+	else // Deprecated.
+	{
+		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+		boost::char_separator<char> sep(" ");
+		std::string extensions((const char*)glGetString(GL_EXTENSIONS));
+		for (auto& extension : tokenizer(extensions, sep))
+		{
+			registerExtension(extension, sGLExtensions);
+		}
+	}
+}
 #if LL_WINDOWS
+void loadWGLExtensionStrings()
+{
+	sWGLExtensions.clear();
 	PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
 	if (wglGetExtensionsStringARB)
 	{
-		extensions = std::string(wglGetExtensionsStringARB(wglGetCurrentDC()));
+		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+		boost::char_separator<char> sep(" ");
+		std::string extensions = std::string(wglGetExtensionsStringARB(wglGetCurrentDC()));
 		for (auto& extension : tokenizer(extensions, sep))
 		{
-			registerExtension(extension);
+			registerExtension(extension, sWGLExtensions);
 		}
 	}
-#endif
 }
+#endif
+
 bool ExtensionExists(std::string ext)
 {
-	if (sGLExtensions.empty())
+	auto* extensions = &sGLExtensions;
+#if LL_WINDOWS
+	if (ext.rfind("WGL_", 0) == 0)
+	{
+		extensions = &sWGLExtensions;
+		if (extensions->empty())
+			loadWGLExtensionStrings();
+	}
+	else
+#endif
+	if (extensions->empty())
 		loadExtensionStrings();
-	return sGLExtensions.find(ext) != sGLExtensions.end();
+	bool found = extensions->find(ext) != extensions->end();
+	if (!found)
+		LL_INFOS("GLExtensions") << ext << " MISSING" << LL_ENDL;
+	return found;
 }
 
 //---------------------------------------------------------------------
@@ -547,6 +584,7 @@ bool ExtensionExists(std::string ext)
 void LLGLManager::initWGL()
 {
 #if LL_WINDOWS && !LL_MESA_HEADLESS
+	loadWGLExtensionStrings();
 	if (ExtensionExists("WGL_ARB_pixel_format"))
 	{
 		wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)wglGetProcAddress("wglGetPixelFormatAttribivARB");
