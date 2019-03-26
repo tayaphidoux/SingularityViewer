@@ -4477,9 +4477,22 @@ void LLTextEditor::replaceUrl(const std::string &url,
 		{
 			S32 start = seg->getStart();
 			S32 end = seg->getEnd();
-			text = text.substr(0, start) + wlabel + text.substr(end, text.size() - end + 1);
-			seg->setEnd(start + wlabel.size());
-			modified = true;
+			const auto& old_label = text.substr(start, end - start);
+			if (wlabel != old_label)
+			{
+				const auto difference = std::abs((S32)wlabel.length() - (S32)old_label.length());
+				if (mSelectionEnd >= end) // Selection stays at/after end
+				{
+					mSelectionEnd += difference;
+					if (mSelectionStart >= end)
+						mSelectionStart += difference;
+				}
+				if (mCursorPos >= end) // Cursor stays at/after end
+					mCursorPos += difference;
+				text.replace(start, end - start, wlabel);
+				seg->setEnd(start + wlabel.size());
+				modified = true;
+			}
 		}
 
 		/* Singu TODO: Icons with Urls?
@@ -4508,7 +4521,6 @@ void LLTextEditor::replaceUrl(const std::string &url,
 	{
 		mWText = text;
 		mTextIsUpToDate = FALSE;
-		deselect();
 		setCursorPos(mCursorPos);
 		needsReflow();
 	}
