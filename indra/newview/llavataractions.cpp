@@ -1270,5 +1270,5 @@ void LLAvatarActions::copyUUIDs(const uuid_vec_t& ids)
 
 std::string LLAvatarActions::getSLURL(const LLUUID& id)
 {
-	return llformat("secondlife:///app/agent/%s/about", id.asString());
+	return llformat("secondlife:///app/agent/%s/about", id.asString().c_str());
 }
