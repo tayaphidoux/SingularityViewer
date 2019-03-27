@@ -1963,7 +1963,9 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 	const LLVector4a* ext;
 	LLVector4a pos, size;
 
-	if (drawable->getVOVolume())
+	static LLCachedControl<bool> sh_override_rigged_bounds("SHOverrideRiggedBounds", false);
+	LLVOVolume* volume = drawable->getVOVolume();
+	if (volume && (!sh_override_rigged_bounds || !volume->isAttachment() || !(drawable->isState(LLDrawable::RIGGED) || volume->isRiggedMesh())))
 	{
 		//render face bounding boxes
 		for (S32 i = 0; i < drawable->getNumFaces(); i++)
