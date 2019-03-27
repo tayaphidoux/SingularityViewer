@@ -1607,6 +1607,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 			}
 		}
 	}
+	}
 
 	if (any_valid_boxes)
 	{
