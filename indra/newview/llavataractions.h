@@ -241,6 +241,11 @@ public:
 	 */
 	static void copyUUIDs(const uuid_vec_t& id);
 
+	/**
+	 * @return slurl string from agent ID
+	 */
+	static std::string getSLURL(const LLUUID& id);
+
 private:
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
 	static bool handleRemove(const LLSD& notification, const LLSD& response);

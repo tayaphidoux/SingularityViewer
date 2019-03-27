@@ -1267,3 +1267,8 @@ void LLAvatarActions::copyUUIDs(const uuid_vec_t& ids)
 	if (!ids_string.empty())
 		gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(ids_string));
 }
+
+std::string LLAvatarActions::getSLURL(const LLUUID& id)
+{
+	return llformat("secondlife:///app/agent/%s/about", id.asString());
+}
