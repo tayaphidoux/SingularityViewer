@@ -211,8 +211,6 @@ private:
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
-	static void onInviteNameLookup(const LLUUID& id, const std::string& full_name, bool is_group, LLSD payload);
-
 private:
 	std::set<LLHandle<LLFloater> > mFloaters;
 

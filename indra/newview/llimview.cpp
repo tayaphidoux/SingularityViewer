@@ -50,6 +50,7 @@
 #include "llavatarnamecache.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
+#include "llgroupactions.h"
 #include "llimpanel.h"
 #include "llmutelist.h"
 #include "llspeakers.h"
@@ -792,41 +793,17 @@ void LLIMMgr::inviteToSession(
 
 	if ( !mPendingInvitations.has(session_id.asString()) )
 	{
-		if (caller_name.empty())
-		{
-			gCacheName->get(caller_id, true,  // voice
-				boost::bind(&LLIMMgr::onInviteNameLookup, _1, _2, _3, payload));
-		}
-		else
-		{
-			LLSD args;
-			args["NAME"] = caller_name;
-			args["GROUP"] = session_name;
+		LLSD args;
+		args["NAME"] = LLAvatarActions::getSLURL(caller_id);
+		args["GROUP"] = LLGroupActions::getSLURL(session_id);
 
-			LLNotifications::instance().add(notify_box_type, 
-					     args, 
-						 payload,
-						 &inviteUserResponse);
+		LLNotifications::instance().add(notify_box_type,
+				args,
+				payload,
+				&inviteUserResponse);
 
-		}
 		mPendingInvitations[session_id.asString()] = LLSD();
 	}
-}
-
-//static
-void LLIMMgr::onInviteNameLookup(const LLUUID& id, const std::string& full_name, bool is_group, LLSD payload)
-{
-	payload["caller_name"] = full_name;
-	payload["session_name"] = full_name;
-
-	LLSD args;
-	args["NAME"] = full_name;
-
-	LLNotifications::instance().add(
-		payload["notify_box_type"].asString(),
-		args, 
-		payload,
-		&inviteUserResponse);
 }
 
 void LLIMMgr::setFloaterOpen(BOOL set_open)
