@@ -28,8 +28,8 @@
 #define LL_LLGESTUREMGR_H
 
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
+#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 #include <vector>
 
 #include "llassetstorage.h"	// LLAssetType
@@ -56,8 +56,8 @@ public:
 
 	typedef std::function<void (LLMultiGesture* loaded_gesture)> gesture_loaded_callback_t;
 	// Maps inventory item_id to gesture
-	typedef std::unordered_map<LLUUID, LLMultiGesture*> item_map_t;
-	typedef std::unordered_map<LLUUID, gesture_loaded_callback_t> callback_map_t;
+	typedef boost::unordered_map<LLUUID, LLMultiGesture*> item_map_t;
+	typedef boost::unordered_map<LLUUID, gesture_loaded_callback_t> callback_map_t;
 
 	LLGestureMgr();
 	~LLGestureMgr();
@@ -186,7 +186,7 @@ private:
 	std::vector<LLMultiGesture*> mPlaying;	
 	bool mValid;
 
-	std::unordered_set<LLUUID> mLoadingAssets;
+	boost::unordered_set<LLUUID> mLoadingAssets;
 };
 
 #endif

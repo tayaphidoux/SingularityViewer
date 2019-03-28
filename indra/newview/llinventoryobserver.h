@@ -30,7 +30,7 @@
 #include "lluuid.h"
 #include "llmd5.h"
 #include <string>
-#include <unordered_map>
+#include <boost/unordered_map.hpp>
 #include <vector>
 
 class LLViewerInventoryCategory;
@@ -285,7 +285,7 @@ protected:
 		LLUUID		mCatID;
 	};
 
-	typedef	std::unordered_map<LLUUID, LLCategoryData>	category_map_t;
+	typedef	boost::unordered_map<LLUUID, LLCategoryData>	category_map_t;
 	typedef category_map_t::value_type			category_map_value_t;
 
 	category_map_t				mCategoryMap;

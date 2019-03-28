@@ -27,7 +27,7 @@
 #ifndef LL_LLMULTIGESTURE_H
 #define LL_LLMULTIGESTURE_H
 
-#include <unordered_set>
+#include <boost/unordered_set.hpp>
 #include <string>
 #include <vector>
 
@@ -100,11 +100,11 @@ public:
 	std::function<void (LLMultiGesture*)> mDoneCallback;
 
 	// Animations that we requested to start
-	std::unordered_set<LLUUID> mRequestedAnimIDs;
+	boost::unordered_set<LLUUID> mRequestedAnimIDs;
 
 	// Once the animation starts playing (sim says to start playing)
 	// the ID is moved from mRequestedAnimIDs to here.
-	std::unordered_set<LLUUID> mPlayingAnimIDs;
+	boost::unordered_set<LLUUID> mPlayingAnimIDs;
 };
 
 

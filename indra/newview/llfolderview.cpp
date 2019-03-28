@@ -865,9 +865,9 @@ void LLFolderView::clearSelection()
 	mSelectThisID.setNull();
 }
 
-std::unordered_set<LLUUID> LLFolderView::getSelectionList() const
+boost::unordered_set<LLUUID> LLFolderView::getSelectionList() const
 {
-	std::unordered_set<LLUUID> selection;
+	boost::unordered_set<LLUUID> selection;
 	for (const auto& item : mSelectedItems)
 	{
 		selection.insert(item->getListener()->getUUID());

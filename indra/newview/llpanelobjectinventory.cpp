@@ -1710,7 +1710,7 @@ void LLPanelObjectInventory::updateInventory()
 	//		<< " panel UUID: " << panel->mTaskUUID << "\n"
 	//		<< " task  UUID: " << object->mID << LL_ENDL;
 	// We're still interested in this task's inventory.
-	std::unordered_set<LLUUID> selected_items;
+	boost::unordered_set<LLUUID> selected_items;
 	BOOL inventory_has_focus = FALSE;
 	if (mHaveInventory)
 	{

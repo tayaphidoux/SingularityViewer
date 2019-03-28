@@ -211,7 +211,7 @@ protected:
 	LLScrollContainer*	mScroller;
 
     LLPointer<LLFolderViewGroupedItemBridge> mGroupedItemBridge;
-	std::unordered_map<LLUUID, LLFolderViewItem*> mItemMap;
+	boost::unordered_map<LLUUID, LLFolderViewItem*> mItemMap;
 	/**
 	 * Pointer to LLInventoryFolderViewModelBuilder.
 	 *

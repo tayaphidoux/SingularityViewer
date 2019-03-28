@@ -30,8 +30,7 @@
 #include "lluiimage.h"
 #include "lluictrl.h"
 
-#include <unordered_map>
-#include <unordered_set>
+#include <boost/unordered_set.hpp>
 
 class LLFontGL;
 class LLFolderView;
@@ -221,7 +220,7 @@ public:
 	virtual void selectItem();
 
 	// gets multiple-element selection
-	virtual std::unordered_set<LLUUID> getSelectionList() const;
+	virtual boost::unordered_set<LLUUID> getSelectionList() const;
 
 	// Returns true is this object and all of its children can be removed (deleted by user)
 	virtual BOOL isRemovable();
