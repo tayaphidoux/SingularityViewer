@@ -349,10 +349,9 @@ void LLFloaterTopObjects::doToObjects(int action, bool all)
 			msg->nextBlockFast(_PREHASH_ParcelData);
 			msg->addS32Fast(_PREHASH_LocalID, -1); // Whole region
 			msg->addS32Fast(_PREHASH_ReturnType, RT_NONE);
+			msg->nextBlockFast(_PREHASH_TaskIDs);
 			start_message = false;
 		}
-
-		msg->nextBlockFast(_PREHASH_TaskIDs);
 		msg->addUUIDFast(_PREHASH_TaskID, task_id);
 
 		if (msg->isSendFullFast(_PREHASH_TaskIDs))
