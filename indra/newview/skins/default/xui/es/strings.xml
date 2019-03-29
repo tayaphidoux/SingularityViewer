@@ -3560,10 +3560,10 @@ Se espera .wav, .tga, .bmp, .jpg, .jpeg, o .bvh
 	<string name="accel-mac-control">Ctrl-</string>
 	<string name="accel-mac-command">Cmd-</string>
 	<string name="accel-mac-option">Opt-</string>
-	<string name="accel-mac-shift">Mayús</string>
+	<string name="accel-mac-shift">Mayús-</string>
 	<string name="accel-win-control">Ctrl-</string>
 	<string name="accel-win-alt">Alt-</string>
-	<string name="accel-win-shift">Mayús</string>
+	<string name="accel-win-shift">Mayús-</string>
 	
 	<!-- Tab Containers -->
 	<string name="tab_tooltip_prev">[ALT]Flecha Izq. para pestaña previa</string>
