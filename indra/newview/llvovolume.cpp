@@ -89,6 +89,8 @@
 #include "llmaterialmgr.h"
 #include "llsculptidsize.h"
 
+#include "llkeyboard.h" // For allow_rigged_pick()
+
 // [RLVa:KB] - Checked: 2010-04-04 (RLVa-1.2.0d)
 #include "rlvhandler.h"
 #include "rlvlocks.h"
@@ -4283,6 +4285,11 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 	return ret;
 }
 
+bool allow_rigged_pick()
+{
+	static const LLCachedControl<S32> allow_mesh_picking("SGAllowRiggedMeshSelection", 0);
+	return allow_mesh_picking && (gKeyboard->currentMask(true) == MASK_SHIFT || (allow_mesh_picking !=1 && (gFloaterTools->getVisible() || LLFloaterInspect::findInstance())));
+}
 
 BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
 									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
@@ -4310,15 +4317,14 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
 	if (mDrawable->isState(LLDrawable::RIGGED))
 	{
-		static const LLCachedControl<bool> allow_mesh_picking("SGAllowRiggedMeshSelection");
-		if (allow_mesh_picking && (gFloaterTools->getVisible() || LLFloaterInspect::findInstance()))
+		if (allow_rigged_pick())
 		{
 			updateRiggedVolume(true);
 			volume = mRiggedVolume;
 			transform = false;
 		}
 		else
-		{ //cannot pick rigged attachments on other avatars or when not in build mode
+		{
 			return FALSE;
 		}
 	}
