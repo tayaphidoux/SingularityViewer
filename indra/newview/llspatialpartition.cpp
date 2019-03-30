@@ -3512,7 +3512,8 @@ public:
 				if (vobj->isAvatar())
 				{
 					LLVOAvatar* avatar = (LLVOAvatar*) vobj;
-					if (gFloaterTools->getVisible() || LLFloaterInspect::findInstance())
+					bool allow_rigged_pick();
+					if (allow_rigged_pick())
 					{
 						LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mTangent);
 						if (hit)

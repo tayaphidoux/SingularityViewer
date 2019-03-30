@@ -55,11 +55,14 @@
 	<key>SGAllowRiggedMeshSelection</key>
 	<map>
 	  <key>Comment</key>
-	  <string>Allow selection of worn rigged meshes in build or inspect mode</string>
+	  <string>Rigged mesh selection behavior:
+0 = Never select,
+1 = Hold shift to select,
+2 = Hold shift or have build or inspect floater open</string>
 	  <key>Persist</key>
 	  <integer>1</integer>
 	  <key>Type</key>
-	  <string>Boolean</string>
+	  <string>S32</string>
 	  <key>Value</key>
 	  <integer>0</integer>
 	</map>
