@@ -1263,7 +1263,7 @@ void LLViewerMedia::setCookiesEnabled(bool enabled)
 		LLPluginClassMedia* plugin = pimpl->getMediaPlugin();
 		if(plugin)
 		{
-			plugin->enable_cookies(enabled);
+			plugin->cookies_enabled(enabled);
 		}
 	}
 }
@@ -1281,7 +1281,7 @@ void LLViewerMedia::setProxyConfig(bool enable, const std::string &host, int por
 		LLPluginClassMedia* plugin = pimpl->getMediaPlugin();
 		if(plugin)
 		{
-			plugin->proxy_setup(enable, host, port);
+			//pimpl->mMediaSource->proxy_setup(enable, host, port);
 		}
 	}
 }
@@ -1894,7 +1894,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 
 			// collect 'cookies enabled' setting from prefs and send to embedded browser
 			bool cookies_enabled = gSavedSettings.getBOOL( "CookiesEnabled" );
-			media_source->enable_cookies( cookies_enabled );
+			media_source->cookies_enabled( cookies_enabled );
 
 			// collect 'plugins enabled' setting from prefs and send to embedded browser
 			bool plugins_enabled = gSavedSettings.getBOOL( "BrowserPluginsEnabled" );
@@ -1988,23 +1988,13 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		std::string ca_path = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "ca-bundle.crt" );
 		media_source->addCertificateFilePath( ca_path );
 
-		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
+		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getS32("BrowserProxyType"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"),
+			gSavedSettings.getString("BrowserProxyUsername"), gSavedSettings.getString("BrowserProxyPassword"));
 		
 		if(mClearCache)
 		{
 			mClearCache = false;
 			media_source->clear_cache();
-		}
-		
-		// TODO: Only send cookies to plugins that need them
-		//  Ideally, the plugin should tell us whether it handles cookies or not -- either via the init response or through a separate message.
-		//  Due to the ordering of messages, it's possible we wouldn't get that information back in time to send cookies before sending a navigate message,
-		//  which could cause odd race conditions.
-		std::string all_cookies = LLViewerMedia::getCookieStore()->getAllCookies();
-		LL_DEBUGS() << "setting cookies: " << all_cookies << LL_ENDL;
-		if(!all_cookies.empty())
-		{
-			media_source->set_cookies(all_cookies);
 		}
 
 		mPluginBase = media_source;
@@ -2918,7 +2908,7 @@ void LLViewerMediaImpl::update()
 {
 	LL_RECORD_BLOCK_TIME(FTM_MEDIA_DO_UPDATE);
 	LLPluginClassMedia* mMediaSource = getMediaPlugin();
-	if(mMediaSource == NULL)
+	if(mMediaSource == nullptr)
 	{
 		if(mPriority == PRIORITY_UNLOADED)
 		{
@@ -2953,17 +2943,10 @@ void LLViewerMediaImpl::update()
 
 		// TODO: this is updated every frame - is this bad?
 		updateJavascriptObject();
-
-		// If we didn't just create the impl, it may need to get cookie updates.
-		if(!sUpdatedCookies.empty())
-		{
-			// TODO: Only send cookies to plugins that need them
-			mMediaSource->set_cookies(sUpdatedCookies);
-		}
 	}
 
 
-	if(mMediaSource == NULL)
+	if(mMediaSource == nullptr)
 	{
 		return;
 	}
@@ -2976,7 +2959,7 @@ void LLViewerMediaImpl::update()
 	setNavigateSuspended(false);
 
 	mMediaSource = getMediaPlugin();
-	if(mMediaSource == NULL)
+	if(mMediaSource == nullptr)
 	{
 		return;
 	}
@@ -3018,12 +3001,14 @@ void LLViewerMediaImpl::update()
 			if(width > 0 && height > 0)
 			{
 
-				U8* data = NULL;
+				U8* data = nullptr;
 				{
 					LL_RECORD_BLOCK_TIME(FTM_MEDIA_GET_DATA);
 					data = mMediaSource->getBitsData();
 				}
 
+				if(data != NULL)
+				{
 				// Offset the pixels pointer to match x_pos and y_pos
 				data += ( x_pos * mMediaSource->getTextureDepth() * mMediaSource->getBitsWidth() );
 				data += ( y_pos * mMediaSource->getTextureDepth() );
@@ -3039,6 +3024,7 @@ void LLViewerMediaImpl::update()
 							width, 
 							height,
 							TRUE); // <alchemy/>
+					}
 				}
 
 			}
@@ -3061,7 +3047,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 	if(mTextureId.isNull())
 	{
 		// The code that created this instance will read from the plugin's bits.
-		return NULL;
+		return nullptr;
 	}
 	
 	LLViewerMediaTexture* placeholder_image = LLViewerTextureManager::getMediaTexture( mTextureId );
@@ -3299,7 +3285,7 @@ bool LLViewerMediaImpl::isPlayable() const
 
 static void handle_pick_file_request_continued(LLPluginClassMedia* plugin, AIFilePicker* filepicker)
 {
-	plugin->sendPickFileResponse(filepicker->hasFilename() ? filepicker->getFilename() : LLStringUtil::null);
+	plugin->sendPickFileResponse(filepicker->hasFilename() ? filepicker->getFilenames() : std::vector<std::string>());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -3313,7 +3299,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			LL_DEBUGS("Media") << "MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is: " << plugin->getClickURL() << LL_ENDL; 
 			std::string url = plugin->getClickURL();
 			std::string nav_type = plugin->getClickNavType();
-			LLURLDispatcher::dispatch(url, nav_type, NULL, mTrustedBrowser);
+			LLURLDispatcher::dispatch(url, nav_type, nullptr, mTrustedBrowser);
 		}
 		break;
 		case MEDIA_EVENT_CLICK_LINK_HREF:

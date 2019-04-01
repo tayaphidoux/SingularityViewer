@@ -551,6 +551,80 @@
         <key>version</key>
         <string>1</string>
       </map>
+      <key>dullahan</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2017, Linden Research, Inc.</string>
+        <key>description</key>
+        <string>A headless browser SDK that uses the Chromium Embedded Framework (CEF). It is designed to make it easier to write applications that render modern web content directly to a memory buffer, inject synthesized mouse and keyboard events as well as interact with web based features like JavaScript or cookies.</string>
+        <key>license</key>
+        <string>MPL</string>
+        <key>license_file</key>
+        <string>LICENSES/dullahan.txt</string>
+        <key>name</key>
+        <string>dullahan</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e447c0799438b1be850d7b589308d394</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1085-3.3497.1833.g13f506f-darwin-201902131231.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2f44b376e436f37cbad5c7567edddebd</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://bitbucket.org/router_gray/rg_3p-dullahan/downloads/dullahan-1.1.1085-3.3497.1833.g13f506f-linux64-201902042123.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c3e093d40e93ff242e9b9c953ae7316c</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc142/dullahan-1.1.930-3.3282.1733.g9091548-windows-201802202358.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9c9696168fcb640feb7d64988a759b25</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc1415/dullahan-1.1.1085-3.3497.1833.g13f506f-windows64-201809230539.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.1.1085-3.3497.1833.g13f506f</string>
+      </map>
       <key>expat</key>
       <map>
         <key>copyright</key>
@@ -1746,80 +1820,6 @@
         </map>
         <key>version</key>
         <string>2.9.3</string>
-      </map>
-      <key>llceflib</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2014-2015, Linden Research, Inc.</string>
-        <key>description</key>
-        <string>LLCefLib implements a headless web browser, rendering modern web content to a memory buffer and providing an API for injecting mouse and keyboard events. It uses the Chromium Embedded Framework (https://bitbucket.org/chromiumembedded/cef)</string>
-        <key>license</key>
-        <string>LGPL</string>
-        <key>license_file</key>
-        <string>LICENSES/llceflib.txt</string>
-        <key>name</key>
-        <string>llceflib</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>9551150830531abc405888066437e2c2</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>https://bitbucket.org/alchemyviewer/publiclibs-darwin/downloads/llceflib-3.2526.1364.gf6bf57b-darwin-201601160847.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>0e7613b2e038e18488452c2a9882144d</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-trusty/llceflib-3.2526.1373.gb660893-linux64-201603281900.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>30bbc702d7533f8e2c56bdd0f5f22b59</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/llceflib-3.2526.1364.gf6bf57b-windows-201601160235.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>230e4ccb442bd538eabe2167f351a20d</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/llceflib-3.2526.1364.gf6bf57b-windows64-201601160304.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>3.2526.1373.gb660893</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
