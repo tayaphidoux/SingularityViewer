@@ -370,31 +370,29 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # CEF runtime files - debug
-        if self.args['configuration'].lower() == 'debug':
-            if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'debug'), dst="llplugin"):
-                self.path("d3dcompiler_47.dll")
-                self.path("libcef.dll")
-                self.path("libEGL.dll")
-                self.path("libGLESv2.dll")
-                self.path("llceflib_host.exe")
-                self.path("natives_blob.bin")
-                self.path("snapshot_blob.bin")
-                self.path("widevinecdmadapter.dll")
-                self.path("wow_helper.exe")
-                self.end_prefix()
-        else:
         # CEF runtime files - not debug (release, relwithdebinfo etc.)
-            if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'release'), dst="llplugin"):
+        config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
+        if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', config), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
-                self.path("llceflib_host.exe")
+                self.path("dullahan_host.exe")
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
+                self.path("v8_context_snapshot.bin")
                 self.path("widevinecdmadapter.dll")
-                self.path("wow_helper.exe")
+
                 self.end_prefix()
+
+        # CEF runtime files for software rendering - debug
+        # CEF runtime files for software rendering - not debug (release, relwithdebinfo etc.)
+        if self.prefix(src=os.path.join(pkgdir, 'bin', config, 'swiftshader'), dst=os.path.join("llplugin", 'swiftshader')):
+            self.path("libEGL.dll")
+            self.path("libGLESv2.dll")
+            self.end_prefix()
+
 
         # CEF files common to all configurations
         if self.prefix(src=os.path.join(os.pardir, 'packages', 'resources'), dst="llplugin"):
@@ -461,6 +459,7 @@ class WindowsManifest(ViewerManifest):
             self.path("zh-CN.pak")
             self.path("zh-TW.pak")
             self.end_prefix()
+
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"

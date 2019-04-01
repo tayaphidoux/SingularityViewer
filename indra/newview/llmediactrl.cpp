@@ -99,6 +99,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mTextureWidth ( 1024 ),
 	mTextureHeight ( 1024 ),
 	mClearCache(false),
+	mUpdateScrolls( false ),
 	mHomePageMimeType(p.initial_mime_type),
 	mErrorPageURL(p.error_page_url),
 	mTrusted(p.trusted_content),
@@ -143,7 +144,7 @@ LLMediaCtrl::~LLMediaCtrl()
 	if (mMediaSource)
 	{
 		mMediaSource->remObserver( this );
-		mMediaSource = NULL;
+		mMediaSource = nullptr;
 	}
 }
 
@@ -395,6 +396,12 @@ void LLMediaCtrl::onOpenWebInspector()
 		mMediaSource->getMediaPlugin()->showWebInspector( true );
 }
 
+void LLMediaCtrl::onShowSource()
+{
+	if (mMediaSource && mMediaSource->hasMedia())
+		mMediaSource->getMediaPlugin()->showPageSource();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
@@ -516,6 +523,16 @@ void LLMediaCtrl::navigateForward()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+void LLMediaCtrl::navigateStop()
+{
+	if (mMediaSource && mMediaSource->hasMedia())
+	{
+		mMediaSource->getMediaPlugin()->browse_stop();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 bool LLMediaCtrl::canNavigateBack()
 {
 	if (mMediaSource)
@@ -551,22 +568,6 @@ void LLMediaCtrl::clearCache()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void LLMediaCtrl::set404RedirectUrl( std::string redirect_url )
-{
-	if(mMediaSource && mMediaSource->hasMedia())
-		mMediaSource->getMediaPlugin()->set_status_redirect( 404, redirect_url );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLMediaCtrl::clr404RedirectUrl()
-{
-	if(mMediaSource && mMediaSource->hasMedia())
-		mMediaSource->getMediaPlugin()->set_status_redirect(404, "");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
 void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type)
 {
 	// don't browse to anything that starts with secondlife:// or sl://
@@ -582,12 +583,9 @@ void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type)
 	
 	if (ensureMediaSourceExists())
 	{
-		if (mCurrentNavUrl != url_in)
-		{
-			mCurrentNavUrl = url_in;
-			mMediaSource->setSize(mTextureWidth, mTextureHeight);
-			mMediaSource->navigateTo(url_in, mime_type, mime_type.empty());
-		}
+		mCurrentNavUrl = url_in;
+		mMediaSource->setSize(mTextureWidth, mTextureHeight);
+		mMediaSource->navigateTo(url_in, mime_type, mime_type.empty());
 	}
 }
 
@@ -609,7 +607,6 @@ void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::str
 		mMediaSource->setSize(mTextureWidth, mTextureHeight);
 		mMediaSource->navigateTo(LLWeb::escapeURL(expanded_filename), "text/html", false);
 	}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -699,7 +696,13 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->addObserver( this );
 			mMediaSource->setBackgroundColor( getBackgroundColor() );
 			mMediaSource->setTrustedBrowser(mTrusted);
-			mMediaSource->setPageZoomFactor( LLUI::getScaleFactor().mV[ VX ] );
+
+			F32 scale_factor = LLUI::getScaleFactor().mV[ VX ];
+			if (scale_factor != mMediaSource->getPageZoomFactor())
+			{
+				mMediaSource->setPageZoomFactor( scale_factor );
+				mUpdateScrolls = true;
+			}
 
 			if(mClearCache)
 			{
@@ -721,7 +724,11 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 //
 void LLMediaCtrl::unloadMediaSource()
 {
-	mMediaSource = NULL;
+	if (mMediaSource)
+	{
+		mMediaSource->remObserver(this);
+		mMediaSource = nullptr;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -735,10 +742,11 @@ LLPluginClassMedia* LLMediaCtrl::getMediaPlugin()
 //
 void LLMediaCtrl::draw()
 {
-	if ( gRestoreGL == 1 )
+	if ( gRestoreGL == 1 || mUpdateScrolls)
 	{
 		LLRect r = getRect();
 		reshape( r.getWidth(), r.getHeight(), FALSE );
+		mUpdateScrolls = false;
 		return;
 	}
 
@@ -784,7 +792,12 @@ void LLMediaCtrl::draw()
 	{
 		gGL.pushUIMatrix();
 		{
-			mMediaSource->setPageZoomFactor( LLUI::getScaleFactor().mV[ VX ] );
+			F32 scale_factor = LLUI::getScaleFactor().mV[ VX ];
+			if (scale_factor != mMediaSource->getPageZoomFactor())
+			{
+				mMediaSource->setPageZoomFactor( scale_factor );
+				mUpdateScrolls = true;
+			}
 
 			// scale texture to fit the space using texture coords
 			gGL.getTexUnit(0)->bind(media_texture);
