@@ -503,7 +503,7 @@ bool LLScriptEdCore::writeToFile(const std::string& filename)
 				default: backslash = false; break;
 				}
 			}
-			if (quote) LLStringUtil::trimTail(line);
+			if (!quote) LLStringUtil::trimTail(line);
 			if (!utf8text.empty()) utf8text += '\n';
 			utf8text += line;
 		}
