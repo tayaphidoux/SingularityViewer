@@ -3346,7 +3346,7 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	<string name="AcctTypeResident">Residente</string>
 	<string name="AcctTypeTrial">Prueba</string>
 	<string name="AcctTypeCharterMember">Miembro Fundador</string>
-	<string name="AcctTypeEmployee">Empleado de Linden Lab</string>
+	<string name="AcctTypeEmployee">Empleado de [GRID_OWNER]</string>
 	<string name="PaymentInfoUsed">Información de Pago utilizada</string>
 	<string name="PaymentInfoOnFile">Información de Pago en Archivo</string>
 	<string name="NoPaymentInfoOnFile">Sin Información de Pago</string>
@@ -3560,10 +3560,10 @@ Se espera .wav, .tga, .bmp, .jpg, .jpeg, o .bvh
 	<string name="accel-mac-control">Ctrl-</string>
 	<string name="accel-mac-command">Cmd-</string>
 	<string name="accel-mac-option">Opt-</string>
-	<string name="accel-mac-shift">Mayús</string>
+	<string name="accel-mac-shift">Mayús-</string>
 	<string name="accel-win-control">Ctrl-</string>
 	<string name="accel-win-alt">Alt-</string>
-	<string name="accel-win-shift">Mayús</string>
+	<string name="accel-win-shift">Mayús-</string>
 	
 	<!-- Tab Containers -->
 	<string name="tab_tooltip_prev">[ALT]Flecha Izq. para pestaña previa</string>
