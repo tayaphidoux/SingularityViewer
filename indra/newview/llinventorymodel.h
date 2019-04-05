@@ -76,7 +76,7 @@ public:
 
 	typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
 	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
-	typedef std::set<LLUUID> changed_items_t;
+	typedef uuid_set_t changed_items_t;
 
 	class FetchItemHttpHandler : public LLHTTPClient::ResponderWithResult
 	{

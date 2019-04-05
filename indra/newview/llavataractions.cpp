@@ -162,9 +162,7 @@ void LLAvatarActions::offerTeleport(const LLUUID& invitee)
 	if (invitee.isNull())
 		return;
 
-	std::vector<LLUUID> ids;
-	ids.push_back(invitee);
-	offerTeleport(ids);
+	offerTeleport(uuid_vec_t{invitee});
 }
 
 // static

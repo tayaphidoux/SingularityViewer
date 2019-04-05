@@ -1046,9 +1046,9 @@ void LLFolderView::removeCutItems()
 		return;
 
 	// Get the list of clipboard item uuids and iterate through them
-	std::vector<LLUUID> objects;
+	uuid_vec_t objects;
 	LLInventoryClipboard::instance().retrieve(objects);
-	for (std::vector<LLUUID>::const_iterator iter = objects.begin();
+	for (auto iter = objects.begin();
 		 iter != objects.end();
 		 ++iter)
 	{

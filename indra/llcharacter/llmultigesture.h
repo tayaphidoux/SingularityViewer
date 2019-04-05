@@ -100,11 +100,11 @@ public:
 	std::function<void (LLMultiGesture*)> mDoneCallback;
 
 	// Animations that we requested to start
-	boost::unordered_set<LLUUID> mRequestedAnimIDs;
+	uuid_set_t mRequestedAnimIDs;
 
 	// Once the animation starts playing (sim says to start playing)
 	// the ID is moved from mRequestedAnimIDs to here.
-	boost::unordered_set<LLUUID> mPlayingAnimIDs;
+	uuid_set_t mPlayingAnimIDs;
 };
 
 

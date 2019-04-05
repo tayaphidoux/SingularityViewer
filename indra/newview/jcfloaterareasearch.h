@@ -91,7 +91,7 @@ private:
 		LLUUID owner_id;
 		LLUUID group_id;
 	};
-	std::set<LLUUID> mPendingObjects;
+	uuid_set_t mPendingObjects;
 	std::map<LLUUID, ObjectData> mCachedObjects;
 
 	std::string mFilterStrings[LIST_OBJECT_COUNT];

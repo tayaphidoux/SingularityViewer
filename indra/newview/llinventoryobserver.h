@@ -178,7 +178,7 @@ protected:
 	virtual void onAssetAdded(const LLUUID& asset_id) {}
 	virtual void done() = 0;
 
-	typedef std::vector<LLUUID> item_ref_t;
+	typedef uuid_vec_t item_ref_t;
 	item_ref_t mAddedItems;
 	item_ref_t mWatchedAssets;
 

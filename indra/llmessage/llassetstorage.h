@@ -249,7 +249,7 @@ public:
 	// note that your callback may get called BEFORE the function returns
 	void getAssetData(const LLUUID uuid, LLAssetType::EType atype, LLGetAssetCallback cb, void *user_data, BOOL is_priority = FALSE);
 	
-	std::vector<LLUUID> mBlackListedAsset;
+	uuid_vec_t mBlackListedAsset;
 
 	/*
 	 * TransactionID version

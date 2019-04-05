@@ -520,7 +520,7 @@ struct LLBeginIMSession : public inventory_panel_listener_t
 		std::string name;
 		static int session_num = 1;
 
-		std::vector<LLUUID> members;
+		uuid_vec_t members;
 		EInstantMessage type = IM_SESSION_CONFERENCE_START;
 
 // [RLVa:KB] - Checked: 2013-05-08 (RLVa-1.4.9)

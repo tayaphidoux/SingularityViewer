@@ -645,18 +645,14 @@ void LLMeshRepoThread::runQueue(std::deque<std::pair<std::shared_ptr<MeshRequest
 	}
 }
 
-void LLMeshRepoThread::runSet(std::set<LLUUID>& set, std::function<bool(const LLUUID& mesh_id)> fn)
+void LLMeshRepoThread::runSet(uuid_set_t& set, std::function<bool(const LLUUID& mesh_id)> fn)
 {
-	std::set<LLUUID> incomplete;
-	for (std::set<LLUUID>::iterator iter = set.begin(); iter != set.end(); ++iter)
+	for (auto iter = set.begin(); iter != set.end();)
 	{
-		LLUUID mesh_id = *iter;
-		if (!fn(mesh_id))
-		{
-			incomplete.insert(mesh_id);
-		}
+		if (fn(*iter))
+			iter = set.erase(iter);
+		else ++iter;
 	}
-	set = incomplete;
 }
 
 void LLMeshRepoThread::run()
@@ -2694,7 +2690,7 @@ void LLMeshRepository::notifySkinInfoReceived(LLMeshSkinInfo& info)
 	skin_load_map::iterator iter = mLoadingSkins.find(info.mMeshID);
 	if (iter != mLoadingSkins.end())
 	{
-		for (std::set<LLUUID>::iterator obj_id = iter->second.begin(); obj_id != iter->second.end(); ++obj_id)
+		for (auto obj_id = iter->second.begin(); obj_id != iter->second.end(); ++obj_id)
 		{
 			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*obj_id);
 			if (vobj)
@@ -2834,7 +2830,7 @@ void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 		{
 			LLMutexLock lock(mMeshMutex);
 			//add volume to list of loading meshes
-			std::set<LLUUID>::iterator iter = mLoadingPhysicsShapes.find(mesh_id);
+			auto iter = mLoadingPhysicsShapes.find(mesh_id);
 			if (iter == mLoadingPhysicsShapes.end())
 			{	//no request pending for this skin info
 				mLoadingPhysicsShapes.insert(mesh_id);
@@ -2862,7 +2858,7 @@ LLModel::Decomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh_id
 		{
 			LLMutexLock lock(mMeshMutex);
 			//add volume to list of loading meshes
-			std::set<LLUUID>::iterator iter = mLoadingDecompositions.find(mesh_id);
+			auto iter = mLoadingDecompositions.find(mesh_id);
 			if (iter == mLoadingDecompositions.end())
 			{	//no request pending for this skin info
 				mLoadingDecompositions.insert(mesh_id);

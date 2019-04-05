@@ -719,11 +719,11 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 	return false;
 }
 
-static void highlight_inventory_objects_in_panel(const std::vector<LLUUID>& items, LLInventoryPanel *inventory_panel)
+static void highlight_inventory_objects_in_panel(const uuid_vec_t& items, LLInventoryPanel *inventory_panel)
 {
 	if (NULL == inventory_panel) return;
 
-	for (std::vector<LLUUID>::const_iterator item_iter = items.begin();
+	for (auto item_iter = items.begin();
 		item_iter != items.end();
 		++item_iter)
 	{
@@ -881,7 +881,7 @@ private:
 	}
 
 	LLHandle<LLPanel> mActivePanel;
-	typedef boost::unordered_set<LLUUID> selected_items_t;
+	typedef uuid_set_t selected_items_t;
 	selected_items_t mSelectedItems;
 
 	/**
@@ -951,18 +951,16 @@ void LLViewerInventoryMoveObserver::changed(U32 mask)
 
 	if((mask & (LLInventoryObserver::STRUCTURE)) != 0)
 	{
-		const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
+		const uuid_set_t& changed_items = gInventory.getChangedIDs();
 
-		std::set<LLUUID>::const_iterator id_it = changed_items.begin();
-		std::set<LLUUID>::const_iterator id_end = changed_items.end();
+		auto id_it = changed_items.begin();
+		auto id_end = changed_items.end();
 		for (;id_it != id_end; ++id_it)
 		{
 			if ((*id_it) == mObjectID)
 			{
 				active_panel->clearSelection();			
-				std::vector<LLUUID> items;
-				items.push_back(mObjectID);
-				highlight_inventory_objects_in_panel(items, active_panel);
+				highlight_inventory_objects_in_panel({mObjectID}, active_panel);
 				active_panel->getRootFolder()->scrollToShowSelection();
 				
 				gInventory.removeObserver(this);
@@ -8016,9 +8014,7 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 
 void handle_lure(const LLUUID& invitee)
 {
-	std::vector<LLUUID> ids;
-	ids.push_back(invitee);
-	handle_lure(ids);
+	handle_lure(uuid_vec_t{invitee});
 }
 
 // Prompt for a message to the invited user.

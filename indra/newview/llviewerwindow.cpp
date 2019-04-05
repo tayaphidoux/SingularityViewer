@@ -653,7 +653,7 @@ public:
 					}
 				}
 			}
-			for(std::set<LLUUID>::iterator it = gObjectList.mDeadObjects.begin();it!=gObjectList.mDeadObjects.end();++it)
+			for(auto it = gObjectList.mDeadObjects.begin();it!=gObjectList.mDeadObjects.end();++it)
 			{
 				LLViewerObject *obj = gObjectList.findObject(*it);
 				if(obj && obj->isAvatar())
