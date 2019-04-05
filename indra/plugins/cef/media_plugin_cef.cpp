@@ -167,6 +167,7 @@ MediaPluginCEF::MediaPluginCEF(LLPluginInstance::sendMessageFunction send_messag
 //
 MediaPluginCEF::~MediaPluginCEF()
 {
+	mCEFLib->shutdown();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
