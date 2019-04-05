@@ -220,7 +220,7 @@ public:
 	virtual void selectItem();
 
 	// gets multiple-element selection
-	virtual boost::unordered_set<LLUUID> getSelectionList() const;
+	virtual uuid_set_t getSelectionList() const;
 
 	// Returns true is this object and all of its children can be removed (deleted by user)
 	virtual BOOL isRemovable();

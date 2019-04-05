@@ -160,7 +160,7 @@ public:
 	// children, and keeps track of selected objects.
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
 
-	virtual boost::unordered_set<LLUUID> getSelectionList() const;
+	virtual uuid_set_t getSelectionList() const;
 
 	// Make sure if ancestor is selected, descendants are not
 	void sanitizeSelection();

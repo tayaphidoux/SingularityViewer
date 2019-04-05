@@ -186,7 +186,7 @@ private:
 	std::vector<LLMultiGesture*> mPlaying;	
 	bool mValid;
 
-	boost::unordered_set<LLUUID> mLoadingAssets;
+	uuid_set_t mLoadingAssets;
 };
 
 #endif

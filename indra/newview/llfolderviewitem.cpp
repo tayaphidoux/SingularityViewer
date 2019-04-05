@@ -378,9 +378,9 @@ void LLFolderViewItem::setSelectionFromRoot(LLFolderViewItem* selection,
 	getRoot()->setSelection(selection, openitem, take_keyboard_focus);
 }
 
-boost::unordered_set<LLUUID> LLFolderViewItem::getSelectionList() const
+uuid_set_t LLFolderViewItem::getSelectionList() const
 {
-	return boost::unordered_set<LLUUID>();
+	return uuid_set_t();
 }
 
 EInventorySortGroup LLFolderViewItem::getSortGroup()  const

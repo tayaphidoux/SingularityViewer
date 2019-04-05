@@ -23,7 +23,7 @@ LLFloaterBlacklist* LLFloaterBlacklist::sInstance;
 uuid_vec_t LLFloaterBlacklist::blacklist_textures;
 uuid_vec_t LLFloaterBlacklist::blacklist_objects;
 
-std::map<LLUUID,LLSD> LLFloaterBlacklist::blacklist_entries;
+boost::unordered_map<LLUUID,LLSD> LLFloaterBlacklist::blacklist_entries;
 
 LLFloaterBlacklist::LLFloaterBlacklist()
 :	LLFloater()

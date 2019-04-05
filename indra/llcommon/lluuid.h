@@ -31,6 +31,7 @@
 #include <vector>
 #include <functional>
 #include <boost/functional/hash.hpp>
+#include <boost/unordered_set.hpp>
 #include "stdtypes.h"
 #include "llpreprocessor.h"
 
@@ -289,7 +290,7 @@ inline U32 LLUUID::getCRC32() const
 }
 
 typedef std::vector<LLUUID> uuid_vec_t;
-typedef std::set<LLUUID> uuid_set_t;
+typedef boost::unordered_set<LLUUID> uuid_set_t;
 
 // Helper structure for ordering lluuids in stl containers.  eg:
 // std::map<LLUUID, LLWidget*, lluuid_less> widget_map;

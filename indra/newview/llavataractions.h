@@ -234,7 +234,7 @@ public:
 	 */
 	static void buildResidentsString(const uuid_vec_t& avatar_uuids, std::string& residents_string);
 
-	static boost::unordered_set<LLUUID> getInventorySelectedUUIDs();
+	static uuid_set_t getInventorySelectedUUIDs();
 
 	/**
 	 * Copy the selected avatar's UUID to clipboard
