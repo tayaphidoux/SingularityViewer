@@ -54,8 +54,8 @@
 class LLVBOPool
 {
 public:
-	static U32 sBytesPooled;
-	static U32 sIndexBytesPooled;
+	static U64 sBytesPooled;
+	static U64 sIndexBytesPooled;
 	static std::vector<U32> sPendingDeletions;
 
 	// Periodically call from render loop. Batches VBO deletions together in a single call.
@@ -347,8 +347,8 @@ public:
 	static bool sVBOActive;
 	static bool sIBOActive;
 	static U32 sLastMask;
-	static U32 sAllocatedBytes;
-	static U32 sAllocatedIndexBytes;
+	static U64 sAllocatedBytes;
+	static U64 sAllocatedIndexBytes;
 	static U32 sVertexCount;
 	static U32 sIndexCount;
 	static U32 sBindCount;

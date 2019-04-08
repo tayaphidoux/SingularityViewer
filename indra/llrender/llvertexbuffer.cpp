@@ -74,10 +74,10 @@ U32 vbo_block_size(U32 size)
 
 U32 vbo_block_index(U32 size)
 {
-	return vbo_block_size(size)/LL_VBO_BLOCK_SIZE;
+	return ((vbo_block_size(size)-1)/LL_VBO_BLOCK_SIZE);
 }
 
-const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE);
+const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE)+1;
 
 
 //============================================================================
@@ -88,14 +88,14 @@ LLVBOPool LLVertexBuffer::sDynamicVBOPool(GL_DYNAMIC_DRAW_ARB, GL_ARRAY_BUFFER_A
 LLVBOPool LLVertexBuffer::sStreamIBOPool(GL_STREAM_DRAW_ARB, GL_ELEMENT_ARRAY_BUFFER_ARB);
 LLVBOPool LLVertexBuffer::sDynamicIBOPool(GL_DYNAMIC_DRAW_ARB, GL_ELEMENT_ARRAY_BUFFER_ARB);
 
-U32 LLVBOPool::sBytesPooled = 0;
-U32 LLVBOPool::sIndexBytesPooled = 0;
+U64 LLVBOPool::sBytesPooled = 0;
+U64 LLVBOPool::sIndexBytesPooled = 0;
 std::vector<U32> LLVBOPool::sPendingDeletions;
 
 std::list<U32> LLVertexBuffer::sAvailableVAOName;
 U32 LLVertexBuffer::sCurVAOName = 1;
 
-U32 LLVertexBuffer::sAllocatedIndexBytes = 0;
+U64 LLVertexBuffer::sAllocatedIndexBytes = 0;
 U32 LLVertexBuffer::sIndexCount = 0;
 
 U32 LLVertexBuffer::sBindCount = 0;
@@ -111,7 +111,7 @@ U32 LLVertexBuffer::sGLRenderIndices = 0;
 U32 LLVertexBuffer::sLastMask = 0;
 bool LLVertexBuffer::sVBOActive = false;
 bool LLVertexBuffer::sIBOActive = false;
-U32 LLVertexBuffer::sAllocatedBytes = 0;
+U64 LLVertexBuffer::sAllocatedBytes = 0;
 U32 LLVertexBuffer::sVertexCount = 0;
 bool LLVertexBuffer::sMapped = false;
 bool LLVertexBuffer::sUseStreamDraw = true;
@@ -341,7 +341,7 @@ void LLVBOPool::seedPool()
 	{
 		if (mMissCount[i] > mFreeList[i].size())
 		{
-			U32 size = i * LL_VBO_BLOCK_SIZE;
+			U32 size = i * LL_VBO_BLOCK_SIZE + LL_VBO_BLOCK_SIZE;
 
 			S32 count = mMissCount[i] - mFreeList[i].size();
 			for (S32 j = 0; j < count; ++j)
