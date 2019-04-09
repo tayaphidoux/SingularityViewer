@@ -220,6 +220,17 @@ set(VIEWER_CHANNEL "${VIEWER_PRODUCT_NAME} ${VIEWER_CHANNEL_BASE}")
 string(TOLOWER ${VIEWER_CHANNEL} VIEWER_CHANNEL_LOWER)
 string(REPLACE " " "" VIEWER_CHANNEL_ONEWORD ${VIEWER_CHANNEL})
 
+option(VIEWER_CHANNEL_GRK "Greek character(s) to represent the viewer channel for support purposes, override only for special branches" "")
+if (NOT VIEWER_CHANNEL_GRK)
+    if (VIEWER_CHANNEL_BASE MATCHES "Test")
+        set(VIEWER_CHANNEL_GRK "τ")
+    elseif (VIEWER_CHANNEL_BASE MATCHES "Alpha")
+        set(VIEWER_CHANNEL_GRK "α")
+    elseif (VIEWER_CHANNEL_BASE MATCHES "Beta")
+        set(VIEWER_CHANNEL_GRK "β")
+    endif ()
+endif (NOT VIEWER_CHANNEL_GRK)
+
 if(VIEWER_CHANNEL_LOWER MATCHES "^${VIEWER_PRODUCT_NAME_LOWER} release")
   set(VIEWER_PACKAGE_ID "${VIEWER_PRODUCT_NAME}Release")
   set(VIEWER_EXE_STRING "${VIEWER_PRODUCT_NAME}Viewer")
@@ -229,7 +240,6 @@ else()
   set(VIEWER_EXE_STRING ${VIEWER_CHANNEL_ONEWORD})
   set(VIEWER_SHORTCUT_STRING ${VIEWER_CHANNEL})
 endif()
-
 
 set(VIEWER_CHANNEL_NOSPACE ${VIEWER_CHANNEL_ONEWORD} CACHE STRING "Prefix used for resulting artifacts.")
 
