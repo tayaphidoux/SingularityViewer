@@ -160,7 +160,7 @@ LLGroupRoleData::~LLGroupRoleData()
 {	
 }
 
-S32 LLGroupRoleData::getMembersInRole(uuid_vec_t members,
+S32 LLGroupRoleData::getMembersInRole(uuid_vec_t& members,
 									  BOOL needs_sort)
 {
 	if (mRoleID.isNull())
@@ -2083,7 +2083,7 @@ void GroupBanDataResponder::httpSuccess()
 void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type,
 										const LLUUID& group_id,
 										U32 ban_action, /* = BAN_NO_ACTION */
-										const uuid_vec_t ban_list) /* = uuid_vec_t() */
+										const uuid_vec_t& ban_list) /* = uuid_vec_t() */
 {
 	LLViewerRegion* currentRegion = gAgent.getRegion();
 	if (!currentRegion)
