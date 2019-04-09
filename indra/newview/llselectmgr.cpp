@@ -6850,7 +6850,6 @@ void LLSelectMgr::pauseAssociatedAvatars()
 			}
 			else
 			{
-				object->print();
 				// Is a regular attachment. Pause the avatar it's attached to.
 				LLVOAvatar* avatar = object->getAvatar();
 				if (avatar)

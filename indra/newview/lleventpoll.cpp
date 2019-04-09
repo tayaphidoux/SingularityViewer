@@ -183,10 +183,15 @@ namespace
 	{
 		if (mDone) return;
 
-		// A HTTP_BAD_GATEWAY (502) error is our standard timeout response
-		// we get this when there are no events.
-		if ( mStatus == HTTP_BAD_GATEWAY )	
-		{
+		// Timeout
+		if (is_internal_http_error_that_warrants_a_retry(mStatus))
+		{ // A standard timeout response we get this when there are no events.
+			mErrorCount = 0;
+			makeRequest();
+		}
+		else if ( mStatus == HTTP_BAD_GATEWAY )
+		{ // LEGACY: A HTTP_BAD_GATEWAY (502) error is our standard timeout response
+		  // we get this when there are no events.
 			mErrorCount = 0;
 			makeRequest();
 		}
