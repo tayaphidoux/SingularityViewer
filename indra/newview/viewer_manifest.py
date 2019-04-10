@@ -95,6 +95,7 @@ class ViewerManifest(LLManifest):
                 self.path("windlight")
 
                 # ... and the included spell checking dictionaries
+                pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
                 self.path("dictionaries")
 
                 # include the extracted packages information (see BuildPackagesInfo.cmake)
@@ -372,7 +373,7 @@ class WindowsManifest(ViewerManifest):
         # CEF runtime files - debug
         # CEF runtime files - not debug (release, relwithdebinfo etc.)
         config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
-        if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', config), dst="llplugin"):
+        if self.prefix(src=os.path.join(pkgdir, 'bin', config), dst="llplugin"):
                 self.path("chrome_elf.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
@@ -395,7 +396,7 @@ class WindowsManifest(ViewerManifest):
 
 
         # CEF files common to all configurations
-        if self.prefix(src=os.path.join(os.pardir, 'packages', 'resources'), dst="llplugin"):
+        if self.prefix(src=os.path.join(pkgdir, 'resources'), dst="llplugin"):
             self.path("cef.pak")
             self.path("cef_100_percent.pak")
             self.path("cef_200_percent.pak")
@@ -404,7 +405,7 @@ class WindowsManifest(ViewerManifest):
             self.path("icudtl.dat")
             self.end_prefix()
 
-        if self.prefix(src=os.path.join(os.pardir, 'packages', 'resources', 'locales'), dst=os.path.join('llplugin', 'locales')):
+        if self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('llplugin', 'locales')):
             self.path("am.pak")
             self.path("ar.pak")
             self.path("bg.pak")
