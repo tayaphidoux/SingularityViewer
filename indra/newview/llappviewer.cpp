@@ -1745,9 +1745,6 @@ bool LLAppViewer::cleanup()
 	removeDumpDir();   
 	writeDebugInfo();
 
-	if(!gDirUtilp->getLindenUserDir(true).empty())
-		LLViewerMedia::saveCookieFile();
-
 	// Stop the plugin read thread if it's running.
 	LLPluginProcessParent::setUseReadThread(false);
 	// Stop curl responder call backs.
