@@ -66,7 +66,7 @@
 		follows="left|top|right" border_visible="false" mouse_opaque="false"
 		drop_shadow_visible="true" border_drop_shadow_visible="false" />
   <button label="Refresh Grid URLs" enabled="true" name="btn_gridinfo"
-		height="18" width="100" left="120" bottom_delta="-22"
+		height="18" width="120" left="120" bottom_delta="-22"
 		halign="center" tool_tip="Retrieve all grid info from the given Login URI (overwriting the current URLs, see Advanced)"
 		follows="left|top" scale_image="true"
 	    font="SansSerifSmall" mouse_opaque="true" />

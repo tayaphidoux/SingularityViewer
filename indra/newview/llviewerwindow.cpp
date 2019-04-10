@@ -1635,6 +1635,17 @@ std::string LLViewerWindow::translateString(const char* tag,
 	return LLTrans::getString( std::string(tag), args_copy);
 }
 
+static const std::string font_dir()
+{
+	return gDirUtilp->getExecutableDir()
+        #if LL_DARWIN
+            + "../Resources/"
+        #elif !defined(LL_WINDOWS)
+            + "../"
+        #endif
+		;
+}
+
 //
 // Classes
 //
@@ -1803,7 +1814,7 @@ LLViewerWindow::LLViewerWindow(
 	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
 								mDisplayScale.mV[VX],
 								mDisplayScale.mV[VY],
-								gDirUtilp->getAppRODataDir());
+								font_dir());
 	}
 	// Create container for all sub-views
 	LLView::Params rvp;
@@ -5473,7 +5484,8 @@ void LLViewerWindow::initFonts(F32 zoom_factor)
 	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
 								mDisplayScale.mV[VX] * zoom_factor,
 								mDisplayScale.mV[VY] * zoom_factor,
-								gDirUtilp->getAppRODataDir());
+								font_dir());
+	// Force font reloads, which can be very slow
 	LLFontGL::loadDefaultFonts();
 }
 void LLViewerWindow::toggleFullscreen(BOOL show_progress)

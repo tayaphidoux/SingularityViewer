@@ -111,8 +111,16 @@ class ViewerManifest(LLManifest):
                 self.end_prefix("character")
 
             # Include our fonts
+            if self.prefix(src=os.path.join(pkgdir, "fonts"), dst="fonts"):
+                self.path("DejaVuSansCondensed*.ttf")
+                self.path("DejaVuSansMono.ttf")
+                self.path("DroidSans*.ttf")
+                self.path("NotoSansDisplay*.ttf")
+                self.path("SourceHanSans*.otf")
+                self.end_prefix()
+
+            # Include our font licenses
             if self.prefix(src="fonts"):
-                self.path("*.ttf")
                 self.path("*.txt")
                 self.end_prefix("fonts")
 

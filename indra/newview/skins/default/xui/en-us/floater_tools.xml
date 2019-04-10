@@ -189,8 +189,8 @@
 	    font="SansSerifSmall" height="15" initial_value="true" label="Use Grid"
 	    left_delta="0" mouse_opaque="true" name="checkbox snap to grid" width="134" />
 	<button bottom_delta="0" follows="left|top" font="SansSerifSmall" halign="center"
-		valign="center" height="18" label="Options..." label_selected="Options..."
-		left_delta="64" mouse_opaque="true" name="Options..." scale_image="TRUE" width="75" >
+		valign="center" height="18" label="Options"
+		left_delta="68" mouse_opaque="true" name="Options..." scale_image="TRUE" width="68" >
 	 	<button.commit_callback
 	     		function="BuildTool.gridOptions"/>
 	</button>
