@@ -128,6 +128,8 @@ void LLPluginClassMedia::reset_impl(void)
 
 	mClickEnforceTarget = false;
 
+	mZoomFactor = 1.0;
+
 	// media_time class
 	mCurrentTime = 0.0f;
 	mDuration = 0.0f;
