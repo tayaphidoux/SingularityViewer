@@ -47,6 +47,40 @@
         <key>version</key>
         <string>1.2.15</string>
       </map>
+      <key>abseil-cpp</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/alchemyviewer/3p-abseil-src</string>
+        <key>copyright</key>
+        <string>Copyright 2018 The Abseil Authors.</string>
+        <key>description</key>
+        <string>Abseil Common Libraries</string>
+        <key>license</key>
+        <string>Apache 2.0</string>
+        <key>license_file</key>
+        <string>LICENSES/abseil-cpp.txt</string>
+        <key>name</key>
+        <string>abseil-cpp</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b95e484e5b6cc0d10da48d3cf0ad37cd</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://depot.alchemyviewer.org/pub/packages/common/abseil_cpp-20190327.190862343-common-190862343.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>20190327.190862343</string>
+      </map>
       <key>apr_suite</key>
       <map>
         <key>copyright</key>
@@ -625,6 +659,30 @@
         <key>version</key>
         <string>1.1.1085-3.3497.1833.g13f506f</string>
       </map>
+      <key>elfio</key>
+      <map>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>license_file</key>
+        <string>LICENSES/elfio.txt</string>
+        <key>name</key>
+        <string>elfio</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>031e6315a5c0829c9b9a2ec18aeb7ae3</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-elfio/rev/222074/arch/Linux/installer/elfio-1.0.3-linux-20110225.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
+      </map>
       <key>expat</key>
       <map>
         <key>copyright</key>
@@ -842,6 +900,38 @@
         </map>
         <key>version</key>
         <string>2.11.0</string>
+      </map>
+      <key>fonts</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2003 by Bitstream, Inc. Copyright (c) 2012 Adobe, Inc.</string>
+        <key>description</key>
+        <string>Font collection</string>
+        <key>license</key>
+        <string>Various</string>
+        <key>license_file</key>
+        <string>LICENSES/fonts.txt</string>
+        <key>name</key>
+        <string>fonts</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b0172c35f6a8ac385c71604398966f80</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://depot.alchemyviewer.org/pub/packages/common/fonts-20190402.1-common-190922141.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>20190402.1</string>
       </map>
       <key>freeglut</key>
       <map>
