@@ -375,6 +375,7 @@ class WindowsManifest(ViewerManifest):
         config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
         if self.prefix(src=os.path.join(pkgdir, 'bin', config), dst="llplugin"):
                 self.path("chrome_elf.dll")
+                self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
@@ -383,17 +384,12 @@ class WindowsManifest(ViewerManifest):
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("v8_context_snapshot.bin")
-                self.path("widevinecdmadapter.dll")
-
                 self.end_prefix()
 
-        # CEF runtime files for software rendering - debug
-        # CEF runtime files for software rendering - not debug (release, relwithdebinfo etc.)
         if self.prefix(src=os.path.join(pkgdir, 'bin', config, 'swiftshader'), dst=os.path.join("llplugin", 'swiftshader')):
             self.path("libEGL.dll")
             self.path("libGLESv2.dll")
             self.end_prefix()
-
 
         # CEF files common to all configurations
         if self.prefix(src=os.path.join(pkgdir, 'resources'), dst="llplugin"):

@@ -594,24 +594,22 @@
         <key>license</key>
         <string>MPL</string>
         <key>license_file</key>
-        <string>LICENSES/dullahan.txt</string>
+        <string>LICENSES/LICENSE.txt</string>
         <key>name</key>
         <string>dullahan</string>
         <key>platforms</key>
         <map>
-          <key>darwin</key>
+          <key>darwin64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e447c0799438b1be850d7b589308d394</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>118987b1a5b56214cfdbd0c763e180da</string>
               <key>url</key>
-              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1085-3.3497.1833.g13f506f-darwin-201902131231.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15127/97748/dullahan-1.1.1080_3.3325.1750.gaabe4c4-darwin64-513449.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>darwin</string>
+            <string>darwin64</string>
           </map>
           <key>linux64</key>
           <map>
@@ -632,9 +630,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c3e093d40e93ff242e9b9c953ae7316c</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>2ecc71350b30a1057091b9cd7af18b1c</string>
               <key>url</key>
               <string>https://depot.alchemyviewer.org/pub/windows/lib-vc142/dullahan-1.1.930-3.3282.1733.g9091548-windows-201802202358.tar.bz2</string>
             </map>
@@ -646,18 +642,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9c9696168fcb640feb7d64988a759b25</string>
+              <string>414190fd1ce3876ee3efc682b06ae65c</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc1415/dullahan-1.1.1085-3.3497.1833.g13f506f-windows64-201809230539.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/packages/windows64/msvc-1920/dullahan-1.1.1320_73.1.12-gee4b49f-chromium-73.0.3683.75-windows64-190871757.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.1085-3.3497.1833.g13f506f</string>
+        <string>1.1.1320_73.1.12+gee4b49f+chromium-73.0.3683.75</string>
       </map>
       <key>elfio</key>
       <map>
