@@ -2700,6 +2700,9 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 			case 'C': mMediaSource->copy(); break;
 			case 'V': mMediaSource->paste(); break;
 			case 'X': mMediaSource->cut(); break;
+			case '=': setPageZoomFactor(mZoomFactor + .1); break;
+			case '-': setPageZoomFactor(mZoomFactor - .1);  break;
+			case '0': setPageZoomFactor(1.0);  break;
 
 			default: result = false; break;
 			}
