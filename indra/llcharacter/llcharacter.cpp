@@ -186,7 +186,7 @@ void LLCharacter::updateMotions(e_update_t update_type)
 		// It returns false if we need to keep updating anyway.
 		if (!mMotionController.hidden(true))
 		{
-			mMotionController.updateMotions(LLCharacter::NORMAL_UPDATE);
+			mMotionController.updateMotions();
 			return;
 		}
 		//</singu>

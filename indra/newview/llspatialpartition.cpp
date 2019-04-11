@@ -1963,7 +1963,7 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 	const LLVector4a* ext;
 	LLVector4a pos, size;
 
-	static LLCachedControl<bool> sh_override_rigged_bounds("SHOverrideRiggedBounds", false);
+	static LLCachedControl<bool> sh_override_rigged_bounds("SHOverrideRiggedBounds", true);
 	LLVOVolume* volume = drawable->getVOVolume();
 	if (volume && (!sh_override_rigged_bounds || !volume->isAttachment() || !(drawable->isState(LLDrawable::RIGGED) || volume->isRiggedMesh())))
 	{
@@ -3419,8 +3419,9 @@ public:
 	LLVector4a *mTangent;
 	LLDrawable* mHit;
 	BOOL mPickTransparent;
+	BOOL mPickRigged;
 
-	LLOctreeIntersect(const LLVector4a& start, const LLVector4a& end, BOOL pick_transparent,
+	LLOctreeIntersect(const LLVector4a& start, const LLVector4a& end, BOOL pick_transparent, BOOL pick_rigged,
 					  S32* face_hit, LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 		: mStart(start),
 		  mEnd(end),
@@ -3430,7 +3431,8 @@ public:
 		  mNormal(normal),
 		  mTangent(tangent),
 		  mHit(NULL),
-		  mPickTransparent(pick_transparent)
+		  mPickTransparent(pick_transparent),
+		  mPickRigged(pick_rigged)
 	{
 	}
 	
@@ -3512,9 +3514,9 @@ public:
 				if (vobj->isAvatar())
 				{
 					LLVOAvatar* avatar = (LLVOAvatar*) vobj;
-					if (gFloaterTools->getVisible() || LLFloaterInspect::findInstance())
+					if (mPickRigged)
 					{
-						LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mTangent);
+						LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mPickRigged, mFaceHit, &intersection, mTexCoord, mNormal, mTangent);
 						if (hit)
 						{
 							mEnd = intersection;
@@ -3534,7 +3536,7 @@ public:
 					}
 				}
 
-				if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mFaceHit, &intersection, mTexCoord, mNormal, mTangent))
+				if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1, mPickTransparent, mPickRigged, mFaceHit, &intersection, mTexCoord, mNormal, mTangent))
 				{
 					mEnd = intersection;  // shorten ray so we only find CLOSER hits
 					if (mIntersection)
@@ -3553,6 +3555,7 @@ public:
 
 LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 													 BOOL pick_transparent,													
+													 BOOL pick_rigged,
 													 S32* face_hit,                   // return the face hit
 													 LLVector4a* intersection,         // return the intersection point
 													 LLVector2* tex_coord,            // return the texture coordinates of the intersection point
@@ -3561,7 +3564,7 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, co
 	)
 
 {
-	LLOctreeIntersect intersect(start, end, pick_transparent, face_hit, intersection, tex_coord, normal, tangent);
+	LLOctreeIntersect intersect(start, end, pick_transparent, pick_rigged, face_hit, intersection, tex_coord, normal, tangent);
 	LLDrawable* drawable = intersect.check(mOctree);
 
 	return drawable;

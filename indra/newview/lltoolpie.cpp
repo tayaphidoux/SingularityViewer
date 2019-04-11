@@ -107,9 +107,11 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	mMouseOutsideSlop = FALSE;
 	mMouseDownX = x;
 	mMouseDownY = y;
-
+    //LLTimer pick_timer;
+    BOOL pick_rigged = true; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
 	//left mouse down always picks transparent (but see handleMouseUp)
-	mPick = gViewerWindow->pickImmediate(x, y, TRUE);
+	mPick = gViewerWindow->pickImmediate(x, y, TRUE, pick_rigged);
+    //LL_INFOS() << "pick_rigged is " << (S32) pick_rigged << " pick time elapsed " << pick_timer.getElapsedTimeF32() << LL_ENDL;
 	mPick.mKeyMask = mask;
 
 	mMouseButtonDown = true;
@@ -124,7 +126,10 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	// don't pick transparent so users can't "pay" transparent objects
-	mPick = gViewerWindow->pickImmediate(x, y, FALSE);
+	mPick = gViewerWindow->pickImmediate(x, y,
+                                         /*BOOL pick_transparent*/ FALSE,
+                                         /*BOOL pick_rigged*/ TRUE,
+                                         /*BOOL pick_particle*/ TRUE);
 	mPick.mKeyMask = mask;
 
 	// claim not handled so UI focus stays same
@@ -580,7 +585,8 @@ void LLToolPie::selectionPropertiesReceived()
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
-	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
+    BOOL pick_rigged = false;
+	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE, pick_rigged);
 	LLViewerObject *parent = NULL;
 	LLViewerObject *object = mHoverPick.getObject();
 	//LLSelectMgr::getInstance()->setHoverObject(object, mHoverPick.mObjectFace); // Singu TODO: remove llhoverview.cpp
@@ -633,7 +639,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	else
 	{
 		// perform a separate pick that detects transparent objects since they respond to 1-click actions
-		LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, TRUE);
+		LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, TRUE, pick_rigged);
 
 		LLViewerObject* click_action_object = click_action_pick.getObject();
 
@@ -704,9 +710,9 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
         // ignoring transparent objects
         LLPickInfo savedPick = mPick;
         mPick = gViewerWindow->pickImmediate(savedPick.mMousePt.mX, savedPick.mMousePt.mY,
-                                             FALSE /* ignore transparent *//*,
-                                             FALSE*/ /* ignore particles */); // Singu TODO: Particle picking
-
+                                             FALSE /* ignore transparent */,
+                                             FALSE /* ignore rigged */,
+                                             FALSE /* ignore particles */);
 		LLViewerObject* objp = mPick.getObject();
 		bool is_in_world = mPick.mObjectID.notNull() && objp && !objp->isHUDAttachment(); // We clicked on a non-hud object
 		bool is_land = mPick.mPickType == LLPickInfo::PICK_LAND; // or on land
@@ -792,8 +798,9 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 		// thought they were clicking on whatever they were seeing through it, so 
 		// recompute what was clicked on ignoring transparent objects
 		mPick = gViewerWindow->pickImmediate(savedPick.mMousePt.mX, savedPick.mMousePt.mY,
-			FALSE /* ignore transparent *//*,
-			FALSE*/ /* ignore particles */); // Singu TODO: Particle picking
+                                             FALSE /* ignore transparent */,
+                                             FALSE /* ignore rigged */,
+                                             FALSE /* ignore particles */);
 
 		LLViewerObject* objp = mPick.getObject();
 		LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;

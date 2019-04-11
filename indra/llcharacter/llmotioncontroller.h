@@ -162,7 +162,7 @@ public:
 	void pauseAllMotions();
 	void unpauseAllMotions();
 	BOOL isPaused() const { return mPaused; }
-	S32 getPausedFrame() const { return mPausedFrame; }
+	U32 getPausedFrame() const { return mPausedFrame; }
 	//<singu>
 	void requestPause(std::vector<LLAnimPauseRequest>& avatar_pause_handles);
 	void pauseAllSyncedCharacters(std::vector<LLAnimPauseRequest>& avatar_pause_handles);
@@ -252,7 +252,7 @@ protected:
 	F32					mLastTime;
 	BOOL				mHasRunOnce;
 	BOOL				mPaused;
-	S32					mPausedFrame;
+	U32					mPausedFrame;
 	F32					mTimeStep;
 	S32					mTimeStepCount;
 	F32					mLastInterp;

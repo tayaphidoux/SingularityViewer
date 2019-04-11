@@ -4284,7 +4284,7 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 }
 
 
-BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
+BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, S32 *face_hitp,
 									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
 {
@@ -4310,8 +4310,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
 	if (mDrawable->isState(LLDrawable::RIGGED))
 	{
-		static const LLCachedControl<bool> allow_mesh_picking("SGAllowRiggedMeshSelection");
-		if (allow_mesh_picking && (gFloaterTools->getVisible() || LLFloaterInspect::findInstance()))
+		if (pick_rigged)
 		{
 			updateRiggedVolume(true);
 			volume = mRiggedVolume;
@@ -4492,7 +4491,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
 bool LLVOVolume::treatAsRigged()
 {
-	return (gFloaterTools->getVisible() || LLFloaterInspect::findInstance()) &&
+	return isSelected() &&
 			(isAttachment() || isAnimatedObject()) && 
 			mDrawable.notNull() &&
 			mDrawable->isState(LLDrawable::RIGGED);
@@ -4574,22 +4573,20 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 		}
 	}
 
+	U32 frame = LLFrameTimer::getFrameCount();
 	if (copy)
 	{
 		copyVolumeFaces(volume);	
 	}
-    else
+    else if (avatar && avatar->areAnimationsPaused())
     {
-        bool is_paused = avatar && avatar->areAnimationsPaused();
-		if (is_paused)
-		{
-            S32 frames_paused = LLFrameTimer::getFrameCount() - avatar->getMotionController().getPausedFrame();
-            if (frames_paused > 2)
-            {
-                return;
-            }
-		}
+		frame = avatar->getMotionController().getPausedFrame();
     }
+	if (frame == mFrame)
+	{
+		return;
+	}
+	mFrame = frame;
 
 	//build matrix palette
 	static const size_t kMaxJoints = LL_MAX_JOINTS_PER_MESH_OBJECT;

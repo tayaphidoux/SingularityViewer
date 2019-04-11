@@ -657,16 +657,15 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 		}
 	}
 
-	// TODO: add this after resolving _WIN32_WINNT issue
-	//	if (!fullscreen)
-	//	{
-	//		TRACKMOUSEEVENT track_mouse_event;
-	//		track_mouse_event.cbSize = sizeof( TRACKMOUSEEVENT );
-	//		track_mouse_event.dwFlags = TME_LEAVE;
-	//		track_mouse_event.hwndTrack = mWindowHandle;
-	//		track_mouse_event.dwHoverTime = HOVER_DEFAULT;
-	//		TrackMouseEvent( &track_mouse_event ); 
-	//	}
+	if (!fullscreen)
+	{
+		TRACKMOUSEEVENT track_mouse_event;
+		track_mouse_event.cbSize = sizeof( TRACKMOUSEEVENT );
+		track_mouse_event.dwFlags = TME_LEAVE;
+		track_mouse_event.hwndTrack = mWindowHandle;
+		track_mouse_event.dwHoverTime = HOVER_DEFAULT;
+		TrackMouseEvent( &track_mouse_event ); 
+	}
 
 
 	//-----------------------------------------------------------------------
@@ -2624,21 +2623,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				}
 				return 0;
 			}
-			/*
-			// TODO: add this after resolving _WIN32_WINNT issue
-			case WM_MOUSELEAVE:
+		case WM_MOUSELEAVE:
 			{
-			window_imp->mCallbacks->handleMouseLeave(window_imp);
-
-			//				TRACKMOUSEEVENT track_mouse_event;
-			//				track_mouse_event.cbSize = sizeof( TRACKMOUSEEVENT );
-			//				track_mouse_event.dwFlags = TME_LEAVE;
-			//				track_mouse_event.hwndTrack = h_wnd;
-			//				track_mouse_event.dwHoverTime = HOVER_DEFAULT;
-			//				TrackMouseEvent( &track_mouse_event ); 
-			return 0;
+				window_imp->mCallbacks->handleMouseLeave(window_imp);
+				return 0;
 			}
-			*/
 			// Handle mouse movement within the window
 		case WM_MOUSEMOVE:
 			{
