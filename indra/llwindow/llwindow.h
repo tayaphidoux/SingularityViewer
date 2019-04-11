@@ -168,7 +168,7 @@ public:
 	virtual void updateLanguageTextInputArea() {}
 	virtual void interruptLanguageTextInput() {}
 	virtual void spawnWebBrowser(const std::string& escaped_url, bool async) {};
-	virtual void ShellEx(const std::string& command) {};
+	static int ShellEx(const std::string& command);
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 	
@@ -290,11 +290,7 @@ public:
 //
 extern BOOL gDebugWindowProc;
 
-// Protocols, like "http" and "https" we support in URLs
-extern const S32 gURLProtocolWhitelistCount;
-extern const std::string gURLProtocolWhitelist[];
-//extern const std::string gURLProtocolWhitelistHandler[];
-
+bool isWhitelistedProtocol(const std::string& escaped_url);
 void simpleEscapeString ( std::string& stringIn  );
 
 #endif // _LL_window_h_

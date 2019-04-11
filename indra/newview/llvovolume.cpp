@@ -4283,7 +4283,6 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 	return ret;
 }
 
-
 BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, S32 *face_hitp,
 									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
@@ -4317,7 +4316,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 			transform = false;
 		}
 		else
-		{ //cannot pick rigged attachments on other avatars or when not in build mode
+		{
 			return FALSE;
 		}
 	}
