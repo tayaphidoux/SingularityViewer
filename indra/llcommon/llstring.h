@@ -27,8 +27,6 @@
 #ifndef LL_LLSTRING_H
 #define LL_LLSTRING_H
 
-#include "llwin32headerslean.h"
-
 #include <boost/optional/optional.hpp>
 #include <string>
 #include <cstdio>
@@ -37,9 +35,8 @@
 #include <algorithm>
 #include <vector>
 #include <map>
-#include "llfasttimer.h"
-#include "llformat.h"
-#include "llsd.h"
+#include "stdtypes.h"
+#include "llpreprocessor.h"
 // [RLVa:KB] - Checked: RLVa-2.1.0
 #include <list>
 // [/RLVa:KB]
