@@ -1676,7 +1676,6 @@ LLViewerWindow::LLViewerWindow(
 	mHideCursorPermanent( FALSE ),
 	mCursorHidden(FALSE),
 	mIgnoreActivate( FALSE ),
-	mHoverPick(),
 	mResDirty(false),
 	//mStatesDirty(false),	//Singu Note: No longer needed. State update is now in restoreGL.
 	mIsFullscreenChecked(false),
@@ -3416,38 +3415,7 @@ void LLViewerWindow::updateUI()
 	{
 		LLSelectMgr::getInstance()->deselectUnused();
 	}
-
-	// per frame picking - for tooltips and changing cursor over interactive objects
-	static S32 previous_x = -1;
-	static S32 previous_y = -1;
-	static BOOL mouse_moved_since_pick = FALSE;
-
-	if ((previous_x != x) || (previous_y != y))
-		mouse_moved_since_pick = TRUE;
-
-	static const LLCachedControl<F32> picks_moving("PicksPerSecondMouseMoving",5.f);
-	static const LLCachedControl<F32> picks_stationary("PicksPerSecondMouseStationary",0.f);
-	if(	!getCursorHidden() 
-		// When in-world media is in focus, pick every frame so that browser mouse-overs, dragging scrollbars, etc. work properly.
-		&& (LLViewerMediaFocus::getInstance()->getFocus()
-		|| ((mouse_moved_since_pick) && (picks_moving > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_moving)) 
-		|| ((!mouse_moved_since_pick) && (picks_stationary > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_stationary))))
-	{
-		mouse_moved_since_pick = FALSE;
-		mPickTimer.reset();
-		pickAsync(getCurrentMouseX(), getCurrentMouseY(), mask, hoverPickCallback, TRUE, TRUE);
-	}
-
-	previous_x = x;
-	previous_y = y;
-
 	return;
-}
-
-/* static */
-void LLViewerWindow::hoverPickCallback(const LLPickInfo& pick_info)
-{
-	gViewerWindow->mHoverPick = pick_info;
 }
 
 void LLViewerWindow::updateLayout()
