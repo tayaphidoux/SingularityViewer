@@ -1131,6 +1131,17 @@ Changing this setting only affects new text.</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SinguAlwaysUnderlineLinks</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable to always underline new links in text editors (and any you hover over after enabling this)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>SingularitySplashPagePrefix</key>
     <map>
       <key>Comment</key>

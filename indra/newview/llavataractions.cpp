@@ -771,21 +771,21 @@ namespace action_give_inventory
 		std::string items;
 		build_items_string(inventory_selected_uuids, items);
 
-		bool folders_count = false; // Singu Note: Was a count, but break right after == 1, so bool.
+		auto folders_count = 0;
 		//traverse through selected inventory items and count folders among them
 		for (const auto& id : inventory_selected_uuids)
 		{
 			if (gInventory.getCategory(id))
 			{
-				folders_count = true;
-				break;
+				if (++folders_count == 2)
+					break;
 			}
 		}
 
 		// EXP-1599
 		// In case of sharing multiple folders, make the confirmation
 		// dialog contain a warning that only one folder can be shared at a time.
-		std::string notification = folders_count ? "ShareFolderConfirmation" : "ShareItemsConfirmation";
+		std::string notification = folders_count == 2 ? "ShareFolderConfirmation" : "ShareItemsConfirmation";
 		LLSD substitutions;
 		substitutions["RESIDENTS"] = residents;
 		substitutions["ITEMS"] = items;

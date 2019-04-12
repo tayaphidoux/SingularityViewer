@@ -423,6 +423,7 @@ viewer_media_t LLViewerMedia::newMediaImpl(
 		media_impl->mMediaAutoScale = media_auto_scale;
 		media_impl->mMediaLoop = media_loop;
 	}
+	media_impl->setPageZoomFactor(media_impl->mZoomFactor);
 
 	return media_impl;
 }
@@ -1711,6 +1712,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			media_source->setTarget(target);
 			media_source->setSize(default_width, default_height);
 			media_source->setZoomFactor(zoom_factor);
+			media_source->set_page_zoom_factor(zoom_factor);
 						
 			return media_source;
 		}
@@ -2700,6 +2702,9 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 			case 'C': mMediaSource->copy(); break;
 			case 'V': mMediaSource->paste(); break;
 			case 'X': mMediaSource->cut(); break;
+			case '=': setPageZoomFactor(mZoomFactor + .1); break;
+			case '-': setPageZoomFactor(mZoomFactor - .1);  break;
+			case '0': setPageZoomFactor(1.0);  break;
 
 			default: result = false; break;
 			}
