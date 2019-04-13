@@ -108,8 +108,6 @@ typedef U8 LLPCode;
 
 #define	LL_ARRAY_SIZE( _kArray ) ( sizeof( (_kArray) ) / sizeof( _kArray[0] ) )
 
-#endif
-
 #if __GNUG__ && __GNUC__ < 5
 namespace std
 {
@@ -120,4 +118,6 @@ namespace std
         operator bool() { return value; }
     };
 }
+#endif
+
 #endif
