@@ -271,7 +271,7 @@ inline U32 LLUUID::getCRC32() const
 	// </alchemy>
 }
 
-static_assert(std::is_trivially_copyable<LLUUID>{}, "LLUUID must be a trivially copyable type");
+static_assert(std::is_trivially_copyable<LLUUID>::value, "LLUUID must be a trivially copyable type");
 
 typedef std::vector<LLUUID> uuid_vec_t;
 typedef boost::unordered_set<LLUUID> uuid_set_t;

@@ -137,7 +137,7 @@ class LLVector4
 		friend LLVector4 operator-(const LLVector4 &a);					// Return vector -a
 };
 
-static_assert(std::is_trivially_copyable<LLVector4>{}, "LLVector4 must be a trivially copyable type");
+static_assert(std::is_trivially_copyable<LLVector4>::value, "LLVector4 must be a trivially copyable type");
 
 // Non-member functions 
 F32 angle_between(const LLVector4 &a, const LLVector4 &b);		// Returns angle (radians) between a and b

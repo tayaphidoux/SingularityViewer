@@ -222,7 +222,7 @@ class LLColor4
 		inline void clamp();
 };
 
-static_assert(std::is_trivially_copyable<LLColor4>{}, "LLColor4 must be a trivially copyable type");
+static_assert(std::is_trivially_copyable<LLColor4>::value, "LLColor4 must be a trivially copyable type");
 
 // Non-member functions 
 F32		distVec(const LLColor4 &a, const LLColor4 &b);			// Returns distance between a and b

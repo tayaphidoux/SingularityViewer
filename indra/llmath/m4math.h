@@ -246,7 +246,7 @@ public:
 	friend std::ostream&	 operator<<(std::ostream& s, const LLMatrix4 &a);	// Stream a
 };
 
-static_assert(std::is_trivially_copyable<LLMatrix4>{}, "LLMatrix4 must be a trivially copyable type");
+static_assert(std::is_trivially_copyable<LLMatrix4>::value, "LLMatrix4 must be a trivially copyable type");
 
 inline const LLMatrix4&	LLMatrix4::setIdentity()
 {

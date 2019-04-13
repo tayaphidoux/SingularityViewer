@@ -346,5 +346,5 @@ inline std::ostream& operator<<(std::ostream& s, const LLVector4a& v)
 	return s;
 }
 
-static_assert(std::is_trivially_copyable<LLVector4a>{}, "LLVector4a must be a trivially copyable type");
+static_assert(std::is_trivially_copyable<LLVector4a>::value, "LLVector4a must be a trivially copyable type");
 #endif

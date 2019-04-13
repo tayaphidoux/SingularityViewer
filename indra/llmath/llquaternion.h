@@ -191,7 +191,7 @@ inline void LLQuaternion::setValue(const LLSD& sd)
     mQ[3] = sd[3].asReal();
 }
 
-static_assert(std::is_trivially_copyable<LLQuaternion>{}, "LLQuaternion must be a trivially copyable type");
+static_assert(std::is_trivially_copyable<LLQuaternion>::value, "LLQuaternion must be a trivially copyable type");
 
 // checker
 inline BOOL	LLQuaternion::isFinite() const
