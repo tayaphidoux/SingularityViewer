@@ -1163,6 +1163,12 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 void show_log_browser(const std::string& name, const std::string& id)
 {
 	const std::string file(LLLogChat::makeLogFileName(name));
+	if (!LLFile::isfile(file))
+	{
+		make_ui_sound("UISndBadKeystroke");
+		LL_WARNS() << "File not present: " << file << LL_ENDL;
+		return;
+	}
 	if (gSavedSettings.getBOOL("LiruLegacyLogLaunch"))
 	{
 		if (!LLWindow::ShellEx(file)) // 0 = success, otherwise fallback on internal browser.
