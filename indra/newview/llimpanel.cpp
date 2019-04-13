@@ -1490,11 +1490,7 @@ void LLFloaterIMPanel::sessionInitReplyReceived(const LLUUID& session_id)
 	mVoiceChannel->updateSessionID(session_id);
 	mSessionInitialized = true;
 
-	//we assume the history editor hasn't moved at all since
-	//we added the starting session message
-	//so, we count how many characters to remove
-	S32 chars_to_remove = mHistoryEditor->getWText().length() - mSessionStartMsgPos;
-	mHistoryEditor->removeTextFromEnd(chars_to_remove);
+	mHistoryEditor->remove(mSessionStartMsgPos, sSessionStartString.size(), true);
 
 	//and now, send the queued msg
 	for (LLSD::array_iterator iter = mQueuedMsgsForInit.beginArray();
