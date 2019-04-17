@@ -71,6 +71,9 @@
 #endif
 
 #include "cef/dullahan.h"
+#if VLCPLUGIN
+#include "vlc/libvlc_version.h"
+#endif // LL_WINDOWS
 
 extern LLMemoryInfo gSysMemory;
 extern U32 gPacketsIn;
@@ -295,9 +298,20 @@ LLFloaterAbout::LLFloaterAbout()
 			<< DULLAHAN_VERSION_BUILD
 
 			<< " / CEF: " << CEF_VERSION
-			<< " / Chrome: " << CHROME_VERSION_MAJOR;
+			<< " / Chrome: " << CHROME_VERSION_MAJOR
+			<< '\n';
+
+#if VLCPLUGIN
+	supportstrm << "LibVLC: ";
+	supportstrm << LIBVLC_VERSION_MAJOR;
+	supportstrm << '.';
+	supportstrm << LIBVLC_VERSION_MINOR;
+	supportstrm << '.';
+	supportstrm << LIBVLC_VERSION_REVISION;
+	supportstrm << '\n';
+#endif
+
 	support += supportstrm.str();
-	support += '\n';
 
 	if (gPacketsIn > 0)
 	{
