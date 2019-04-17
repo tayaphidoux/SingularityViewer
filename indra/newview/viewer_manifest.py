@@ -1061,11 +1061,11 @@ class LinuxManifest(ViewerManifest):
             self.end_prefix(icon_path)
 
         # plugins
-        if self.prefix(src="", dst="bin/llplugin"):
-            self.path2basename("../plugins/filepicker", "libbasic_plugin_filepicker.so")
-            self.path("../plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
-            self.path("../plugins/cef/libmedia_plugin_cef.so", "libmedia_plugin_cef.so")
-            self.end_prefix("bin/llplugin")
+        if self.prefix(src="../plugins", dst="bin/llplugin"):
+            self.path2basename("filepicker", "libbasic_plugin_filepicker.so")
+            self.path("gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
+            self.path("cef/libmedia_plugin_cef.so", "libmedia_plugin_cef.so")
+            self.end_prefix()
 
         # CEF files 
         if self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="bin"):
