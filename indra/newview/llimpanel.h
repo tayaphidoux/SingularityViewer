@@ -191,8 +191,8 @@ private:
 
 	bool mSessionInitialized;
 
-	// Where does the "Starting session..." line start?
-	S32 mSessionStartMsgPos;
+	// Where does the "Starting session..." line start and how long is it?
+	std::pair<S32, S32> mSessionStartMsgPos;
 
 	SType mSessionType;
 

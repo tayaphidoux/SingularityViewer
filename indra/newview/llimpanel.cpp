@@ -288,7 +288,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	mInputEditor(NULL),
 	mHistoryEditor(NULL),
 	mSessionInitialized(false),
-	mSessionStartMsgPos(0),
+	mSessionStartMsgPos({0, 0}),
 	mSessionType(P2P_SESSION),
 	mSessionUUID(session_id),
 	mLogLabel(log_label),
@@ -396,12 +396,14 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 			LLUIString session_start = sSessionStartString;
 
 			session_start.setArg("[NAME]", getTitle());
-			mSessionStartMsgPos = mHistoryEditor->getWText().length();
+			mSessionStartMsgPos.first = mHistoryEditor->getLength();
 
 			addHistoryLine(
 				session_start,
 				gSavedSettings.getColor4("SystemChatColor"),
 				false);
+
+			mSessionStartMsgPos.second = mHistoryEditor->getLength() - mSessionStartMsgPos.first;
 		}
 	}
 }
@@ -1490,7 +1492,7 @@ void LLFloaterIMPanel::sessionInitReplyReceived(const LLUUID& session_id)
 	mVoiceChannel->updateSessionID(session_id);
 	mSessionInitialized = true;
 
-	mHistoryEditor->remove(mSessionStartMsgPos, sSessionStartString.size(), true);
+	mHistoryEditor->remove(mSessionStartMsgPos.first, mSessionStartMsgPos.second, true);
 
 	//and now, send the queued msg
 	for (LLSD::array_iterator iter = mQueuedMsgsForInit.beginArray();
