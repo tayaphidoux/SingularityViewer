@@ -223,11 +223,11 @@ string(REPLACE " " "" VIEWER_CHANNEL_ONEWORD ${VIEWER_CHANNEL})
 option(VIEWER_CHANNEL_GRK "Greek character(s) to represent the viewer channel for support purposes, override only for special branches" "")
 if (NOT VIEWER_CHANNEL_GRK)
     if (VIEWER_CHANNEL_BASE MATCHES "Test")
-        set(VIEWER_CHANNEL_GRK "τ")
+        set(VIEWER_CHANNEL_GRK "\\u03C4") # "τ"
     elseif (VIEWER_CHANNEL_BASE MATCHES "Alpha")
-        set(VIEWER_CHANNEL_GRK "α")
+        set(VIEWER_CHANNEL_GRK "\\u03B1") # "α"
     elseif (VIEWER_CHANNEL_BASE MATCHES "Beta")
-        set(VIEWER_CHANNEL_GRK "β")
+        set(VIEWER_CHANNEL_GRK "\\u03B2") # "β"
     endif ()
 endif (NOT VIEWER_CHANNEL_GRK)
 
