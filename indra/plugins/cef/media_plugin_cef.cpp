@@ -571,6 +571,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.proxy_type = mProxyType;
 				settings.proxy_host = mProxyHost;
 				settings.proxy_port = mProxyPort;
+				settings.autoplay_without_gesture = true;
 
 				std::vector<std::string> custom_schemes;
 				custom_schemes.emplace_back("secondlife");
