@@ -310,10 +310,10 @@ protected:
 
 	LLHandle<LLView>					mPopupMenuHandle;
 
-	S32				getLength() const { return mWText.length(); }
 	void			getSegmentAndOffset( S32 startpos, S32* segidxp, S32* offsetp ) const;
 	void			drawPreeditMarker();
 public:
+	S32				getLength() const { return mWText.length(); }
 	void			updateLineStartList(S32 startpos = 0);
 protected:
 	void			updateScrollFromCursor();
