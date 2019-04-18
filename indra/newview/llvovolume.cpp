@@ -1529,7 +1529,7 @@ void LLVOVolume::regenFaces()
 
 BOOL LLVOVolume::genBBoxes(BOOL force_global)
 {
-	BOOL res = TRUE;
+	bool res = true;
 
 	LLVector4a min,max;
 
