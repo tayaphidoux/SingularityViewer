@@ -4690,8 +4690,58 @@ S32 LLTextEditor::insertStringNoUndo(const S32 pos, const LLWString &wstr)
 
 S32 LLTextEditor::removeStringNoUndo(S32 pos, S32 length)
 {
+	auto seg_iter = getSegIterContaining(pos);
+	while(seg_iter != mSegments.end())
+	{
+		LLTextSegmentPtr segmentp = *seg_iter;
+		S32 end = pos + length;
+		if (segmentp->getStart() < pos)
+		{
+			// deleting from middle of segment
+			if (segmentp->getEnd() > end)
+			{
+				segmentp->setEnd(segmentp->getEnd() - length);
+			}
+			// truncating segment
+			else
+			{
+				segmentp->setEnd(pos);
+			}
+		}
+		else if (segmentp->getStart() < end)
+		{
+			// deleting entire segment
+			if (segmentp->getEnd() <= end)
+			{
+				// remove segment
+				auto seg_to_erase(seg_iter++);
+				mSegments.erase(seg_to_erase);
+				continue;
+			}
+			// deleting head of segment
+			else
+			{
+				segmentp->setStart(pos);
+				segmentp->setEnd(segmentp->getEnd() - length);
+			}
+		}
+		else
+		{
+			// shifting segments backward to fill deleted portion
+			segmentp->setStart(segmentp->getStart() - length);
+			segmentp->setEnd(segmentp->getEnd() - length);
+		}
+		++seg_iter;
+	}
+
 	mWText.erase(pos, length);
+
+	// recreate default segment in case we erased everything
+	createDefaultSegment();
+
 	mTextIsUpToDate = FALSE;
+	needsReflow(/*pos*/);
+
 	return -length;	// This will be wrong if someone calls removeStringNoUndo with an excessive length
 }
 
@@ -4965,6 +5015,34 @@ BOOL LLTextEditor::handleMouseUpOverSegment(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
+
+LLTextEditor::segment_list_t::iterator LLTextEditor::getSegIterContaining(S32 index)
+{
+	S32 text_len = getLength();
+
+	if (index > text_len) { return mSegments.end(); }
+
+	// when there are no segments, we return the end iterator, which must be checked by caller
+	if (mSegments.size() <= 1) { return mSegments.begin(); }
+
+	LLPointer<LLTextSegment> index_segment = new LLTextSegment(index);
+	auto it = std::upper_bound(mSegments.begin(), mSegments.end(), index_segment);
+	return it;
+}
+
+LLTextEditor::segment_list_t::const_iterator LLTextEditor::getSegIterContaining(S32 index) const
+{
+	S32 text_len = getLength();
+
+	if (index > text_len) { return mSegments.end(); }
+
+	// when there are no segments, we return the end iterator, which must be checked by caller
+	if (mSegments.size() <= 1) { return mSegments.begin(); }
+
+	LLPointer<LLTextSegment> index_segment = new LLTextSegment(index);
+	auto it = std::upper_bound(mSegments.begin(), mSegments.end(), index_segment);
+	return it;
+}
 
 // Finds the text segment (if any) at the give local screen position
 LLTextSegment* LLTextEditor::getSegmentAtLocalPos( S32 x, S32 y ) const

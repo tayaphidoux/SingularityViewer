@@ -465,6 +465,10 @@ protected:
 	BOOL			mParseHighlights;
 
 	typedef std::vector<LLTextSegmentPtr> segment_list_t;
+
+	segment_list_t::iterator			getSegIterContaining(S32 index);
+	segment_list_t::const_iterator		getSegIterContaining(S32 index) const;
+
 	segment_list_t mSegments;
 	LLTextSegmentPtr	mHoverSegment;
 	
