@@ -562,6 +562,11 @@ void LLInventoryPanel::modelChanged(U32 mask)
 				}
 				// Singu note: Needed to propagate name change to wearables.
 				view_item->nameOrDescriptionChanged();
+				LLFolderViewFolder* parent = view_item->getParentFolder();
+				if(parent)
+				{
+					parent->dirtyFilter();
+				}
 			}
 		}
 
@@ -629,11 +634,13 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			{
 				// Add the UI element for this item.
 				buildNewViews(item_id);
+				if (auto parent = view_item->getParentFolder()) parent->dirtyFilter();
 				// Select any newly created object that has the auto rename at top of folder root set.
 				if(mFolderRoot.get()->getRoot()->needsAutoRename())
 				{
 					setSelection(item_id, FALSE);
 				}
+				//updateFolderLabel(model_item->getParentUUID());
 			}
 
 			//////////////////////////////
@@ -645,6 +652,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 				// Don't process the item if it is the root
 				if (view_item->getRoot() != view_item)
 				{
+					//auto* viewmodel_folder = old_parent->getListener();
 					LLFolderViewFolder* new_parent = (LLFolderViewFolder*)getItemByID(model_item->getParentUUID());
 					// Item has been moved.
 					if (old_parent != new_parent)
@@ -663,6 +671,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 									setSelection(item_id, FALSE);
 								}
 							}
+							//updateFolderLabel(model_item->getParentUUID());
 						}
 						else
 						{
@@ -674,6 +683,11 @@ void LLInventoryPanel::modelChanged(U32 mask)
 							// doesn't include trash).  Just remove the item's UI.
 							view_item->destroyView();
 						}
+						/*if(viewmodel_folder)
+						{
+							updateFolderLabel(viewmodel_folder->getUUID());
+						}*/
+						old_parent->dirtyFilter();
 					}
 				}
 			}
@@ -684,9 +698,18 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			else if (!model_item && view_item)
 			{
 				// Remove the item's UI.
-				//LLFolderViewFolder* parent = view_item->getParentFolder();
+				LLFolderViewFolder* parent = view_item->getParentFolder();
 				removeItemID(view_item->getListener()->getUUID());
 				view_item->destroyView();
+				if(parent)
+				{
+					parent->dirtyFilter();
+					/*auto* viewmodel_folder = parent->getListener();
+					if(viewmodel_folder)
+					{
+						updateFolderLabel(viewmodel_folder->getUUID());
+					}*/
+				}
 			}
 		}
 	}
