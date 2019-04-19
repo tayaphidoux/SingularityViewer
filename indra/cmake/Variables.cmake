@@ -31,7 +31,8 @@ option(UNATTENDED "Disable use of uneeded tooling for automated builds" OFF)
 
 # Media Plugins
 option(ENABLE_MEDIA_PLUGINS "Turn off building media plugins if they are imported by third-party library mechanism" ON)
-option(LIBVLCPLUGIN "Turn off building support for libvlc plugin" OFF)
+option(LIBVLCPLUGIN "Turn off building support for libvlc plugin" ON)
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LIBVLCPLUGIN OFF)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -39,6 +40,7 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Dar
 # Mallocs
 set(DISABLE_TCMALLOC OFF CACHE BOOL "Disable linkage of TCMalloc. (64bit builds automatically disable TCMalloc)")
 set(DISABLE_FATAL_WARNINGS TRUE CACHE BOOL "Set this to FALSE to enable fatal warnings.")
+
 # Audio Engines
 option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" ON)
 

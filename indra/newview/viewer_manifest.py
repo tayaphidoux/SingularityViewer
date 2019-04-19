@@ -398,9 +398,9 @@ class WindowsManifest(ViewerManifest):
             self.path("basic_plugin_filepicker.dll")
             self.end_prefix()
 
-        # Media plugins - QuickTime
-        if self.prefix(src='../plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_quicktime.dll")
+        # Media plugins - LibVLC
+        if self.prefix(src='../plugins/libvlc/%s' % self.args['configuration'], dst="llplugin"):
+            self.path("media_plugin_libvlc.dll")
             self.end_prefix()
 
         # Media plugins - CEF
@@ -494,6 +494,12 @@ class WindowsManifest(ViewerManifest):
             self.path("zh-CN.pak")
             self.path("zh-TW.pak")
             self.end_prefix()
+
+            if self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+                self.path("libvlc.dll")
+                self.path("libvlccore.dll")
+                self.path("plugins/")
+                self.end_prefix()
 
 
         if not self.is_packaging_viewer():
@@ -1095,6 +1101,7 @@ class LinuxManifest(ViewerManifest):
             self.path2basename("filepicker", "libbasic_plugin_filepicker.so")
             self.path("gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
             self.path("cef/libmedia_plugin_cef.so", "libmedia_plugin_cef.so")
+            self.path2basename("libvlc", "libmedia_plugin_libvlc.so")
             self.end_prefix()
 
         # CEF files 
