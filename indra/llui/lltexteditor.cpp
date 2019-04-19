@@ -4691,10 +4691,10 @@ S32 LLTextEditor::insertStringNoUndo(const S32 pos, const LLWString &wstr)
 S32 LLTextEditor::removeStringNoUndo(S32 pos, S32 length)
 {
 	auto seg_iter = getSegIterContaining(pos);
+	S32 end = pos + length;
 	while(seg_iter != mSegments.end())
 	{
 		LLTextSegmentPtr segmentp = *seg_iter;
-		S32 end = pos + length;
 		if (segmentp->getStart() < pos)
 		{
 			// deleting from middle of segment
@@ -4714,8 +4714,7 @@ S32 LLTextEditor::removeStringNoUndo(S32 pos, S32 length)
 			if (segmentp->getEnd() <= end)
 			{
 				// remove segment
-				auto seg_to_erase(seg_iter++);
-				mSegments.erase(seg_to_erase);
+				seg_iter = mSegments.erase(seg_iter);
 				continue;
 			}
 			// deleting head of segment
@@ -5026,7 +5025,7 @@ LLTextEditor::segment_list_t::iterator LLTextEditor::getSegIterContaining(S32 in
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
 
 	LLPointer<LLTextSegment> index_segment = new LLTextSegment(index);
-	auto it = std::upper_bound(mSegments.begin(), mSegments.end(), index_segment);
+	auto it = std::lower_bound(mSegments.begin(), mSegments.end(), index_segment, LLTextSegment::compare());
 	return it;
 }
 
@@ -5040,7 +5039,7 @@ LLTextEditor::segment_list_t::const_iterator LLTextEditor::getSegIterContaining(
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
 
 	LLPointer<LLTextSegment> index_segment = new LLTextSegment(index);
-	auto it = std::upper_bound(mSegments.begin(), mSegments.end(), index_segment);
+	auto it = std::lower_bound(mSegments.begin(), mSegments.end(), index_segment, LLTextSegment::compare());
 	return it;
 }
 
