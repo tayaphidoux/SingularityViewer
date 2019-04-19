@@ -585,6 +585,40 @@
         <key>version</key>
         <string>1</string>
       </map>
+      <key>discord-rpc</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/alchemyviewer/3p-discord-rpc</string>
+        <key>copyright</key>
+        <string>Copyright 2017 Discord, Inc.</string>
+        <key>description</key>
+        <string>Discord Remote Procedure Call library</string>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/discord-rpc.txt</string>
+        <key>name</key>
+        <string>discord-rpc</string>
+        <key>platforms</key>
+        <map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>76bd78e14034e9c518c1a201074d568a</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://depot.alchemyviewer.org/pub/packages/windows64/msvc-1916/discord_rpc-3.4.0.190570542-windows64-190570542.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>3.4.0.190570542</string>
+      </map>
       <key>dullahan</key>
       <map>
         <key>copyright</key>
@@ -768,7 +802,7 @@
       <key>fmodstudio</key>
       <map>
         <key>copyright</key>
-        <string>FMOD Studio, copyright © Firelight Technologies Pty, Ltd., 1994-2015.</string>
+        <string>FMOD Studio, copyright (c) Firelight Technologies Pty, Ltd., 2012-2017.</string>
         <key>description</key>
         <string>FMOD Studio audio system library</string>
         <key>license</key>
@@ -784,11 +818,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a2badcf46277f7547bab0963fe262696</string>
+              <string>a3ccf7916d1e0b6f01370978b661c139</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/alchemyviewer/publiclibs-darwin/downloads/fmodstudio-1.08.01-darwin-201604080928.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/darwin/lib/fmodstudio-1.10.02-darwin-201712262058.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -812,11 +846,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>be09dc1f144c936790236b94190815b4</string>
+              <string>54dbd41322a08a1fc333ca6d96af5502</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/linux64/lib/fmodstudio-1.08.04-linux64-201605301500.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/linux64/lib/fmodstudio-1.10.00-linux64-201709282320.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -840,18 +874,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c2c45c2ebd9fd930098aa2a3b85bbe5f</string>
+              <string>779ae33c6b84656295bd6cf50a69c830</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows64/lib/fmodstudio-1.10.02-windows64-201712251435.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/packages/windows64/msvc/fmodstudio-1.10.10.190360453-windows64-190360453.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.10.02</string>
+        <string>1.10.10.190360453</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -1128,13 +1162,13 @@
       <key>glod</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns Hopkins University and David Luebke, Brenden Schubert, University of Virginia. All rights reserved.</string>
+        <string>Copyright 2003 Jonathan Cohen, Nat Duca, David Luebke, Brenden Schubert - Johns Hopkins University and University of Virginia</string>
         <key>description</key>
         <string>Geometric Level of Detail library</string>
         <key>license</key>
-        <string>GLOD Open-Source License 1.0</string>
+        <string>GLOD Open-Source License   Version 1.0</string>
         <key>license_file</key>
-        <string>LICENSES/glod.txt</string>
+        <string>LICENSES/GLOD.txt</string>
         <key>name</key>
         <string>glod</string>
         <key>platforms</key>
@@ -1144,23 +1178,37 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6c6b3b06a4305c2da0aad1de132e6a07</string>
+              <string>71e678d70e276fc42a56926fc28a7abd</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/alchemyviewer/publiclibs-darwin/downloads/glod-1.0pre4-darwin-201511222034.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glod_3p-update-glod/rev/296895/arch/Darwin/installer/glod-1.0pre4.296895-darwin-296895.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>017ef34ddf14293099a90c6eaa3615ca</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1626/3627/glod-1.0pre3.501614-darwin64-501614.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
           </map>
           <key>linux</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>176736c52b3cde6ca8e7d9e173d91731</string>
+              <string>58113bcbbacbaeb2d278f745867ae6f0</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/268002/arch/Linux/installer/glod-1.0pre4-linux-20121212.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-glod/rev/314201/arch/Linux/installer/glod-1.0pre4.314201-linux-314201.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1170,11 +1218,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f7172928ba2201d4b9aeb2c70d7a55b9</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>9aef5cd576ace19568da01d9bc3db29c</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-trusty/glod-1.0pre4-linux64-201603240031.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1625/3628/glod-1.0pre3.501614-linux64-501614.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1184,11 +1230,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>37035aad7d066dfe6f26dc009aa9dcea</string>
+              <string>573e68f46f825a1c040daa4994ee2a61</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc141/glod-1.0pre4-windows-201703090622.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1627/3633/glod-1.0pre3.501614-windows-501614.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1198,18 +1244,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c5c04c164ff057a43928de2f2b83470e</string>
+              <string>c122ba644e8ec146b4742428b799d749</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc142/glod-1.0pre4-windows64-201712251340.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/packages/windows64/msvc-1916/glod-1.0pre3.190390340-windows64-190390340.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0pre4</string>
+        <string>1.0pre3.190390340</string>
       </map>
       <key>google_breakpad</key>
       <map>
@@ -1218,7 +1264,7 @@
         <key>description</key>
         <string>Breakpad is a crossplatform library for capturing crash callstacks and runtime data.</string>
         <key>license</key>
-        <string>BSD</string>
+        <string>bsd</string>
         <key>license_file</key>
         <string>LICENSES/google_breakpad.txt</string>
         <key>name</key>
@@ -1238,6 +1284,18 @@
             </map>
             <key>name</key>
             <string>darwin</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2d43c6a149cd9c89ba19e884579b1e25</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1836/4096/google_breakpad-1413.501824-darwin64-501824.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
           </map>
           <key>linux</key>
           <map>
@@ -2821,7 +2879,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DWORD_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Singularity</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -2842,7 +2900,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DWORD_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Singularity</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -3031,7 +3089,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc141</string>
+          <string>build-vc$AUTOBUILD_WIN_VSVER-$AUTOBUILD_ADDRSIZE</string>
           <key>configurations</key>
           <map>
             <key>RelWithDebInfo</key>
@@ -3063,9 +3121,11 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 15"</string>
-                  <string>-DCMAKE_SYSTEM_VERSION="10.0.16299.0"</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>-A</string>
+                  <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>-T</string>
+                  <string>host=${AUTOBUILD_WIN_VSHOST|NOTWIN}</string>
                 </array>
               </map>
               <key>default</key>
@@ -3086,7 +3146,7 @@
                 <key>options</key>
                 <array>
                   <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=Win32</string>
+                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
@@ -3102,96 +3162,11 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 15"</string>
-                  <string>-DCMAKE_SYSTEM_VERSION="10.0.16299.0"</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>Release</string>
-            </map>
-          </map>
-          <key>name</key>
-          <string>windows</string>
-        </map>
-        <key>windows64</key>
-        <map>
-          <key>build_directory</key>
-          <string>build-vc141-x86_64</string>
-          <key>configurations</key>
-          <map>
-            <key>RelWithDebInfo</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>Singularity.sln</string>
-                </array>
-                <key>command</key>
-                <string>msbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>/p:Configuration=RelWithDebInfo</string>
-                  <string>/p:Platform=x64</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:normal</string>
-                  <string>/m</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 15 Win64"</string>
-                  <string>-DCMAKE_SYSTEM_VERSION="10.0.16299.0"</string>
-                  <string>-DWORD_SIZE:STRING=64</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                </array>
-              </map>
-              <key>default</key>
-              <string>True</string>
-              <key>name</key>
-              <string>RelWithDebInfo</string>
-            </map>
-            <key>Release</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>Singularity.sln</string>
-                </array>
-                <key>command</key>
-                <string>msbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=x64</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:normal</string>
-                  <string>/m</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 15 Win64"</string>
-                  <string>-DCMAKE_SYSTEM_VERSION="10.0.16299.0"</string>
-                  <string>-DWORD_SIZE:STRING=64</string>
+                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>-A</string>
+                  <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>-T</string>
+                  <string>host=${AUTOBUILD_WIN_VSHOST|NOTWIN}</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
               </map>

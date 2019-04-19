@@ -31,13 +31,10 @@ import re
 import subprocess
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument(
-        '-p', '--platform',
-        default=None,
-        dest='platform',
-        help='Override the automatically determined platform.')
-parsedargs = parser.parse_args()
+parser = argparse.ArgumentParser(description='Format dependency version and copyright information for the viewer About box content')
+parser.add_argument('channel', help='viewer channel name')
+parser.add_argument('version', help='viewer version number')
+args = parser.parse_args()
 
 _autobuild=os.getenv('AUTOBUILD', 'autobuild')
 
@@ -49,10 +46,7 @@ def autobuild(*args):
     Return its stdout pipe from which the caller can read.
     """
     # subprocess wants a list, not a tuple
-    temp = list(args)
-    if parsedargs.platform is not None :
-        temp.append("-p=" + str(parsedargs.platform))
-    command = [_autobuild] + temp
+    command = [_autobuild] + list(args)
     try:
         child = subprocess.Popen(command,
                                  stdin=None, stdout=subprocess.PIPE,
@@ -62,14 +56,15 @@ def autobuild(*args):
             # Don't attempt to interpret anything but ENOENT
             raise
         # Here it's ENOENT: subprocess can't find the autobuild executable.
-        print >>sys.stderr, "packages-formatter on %s: can't run autobuild:\n%s\n%s" % \
-              (sys.platform, ' '.join(command), err)
-        sys.exit(1)
+        sys.exit("packages-formatter on %s: can't run autobuild:\n%s\n%s" % \
+                 (sys.platform, ' '.join(command), err))
 
     # no exceptions yet, let caller read stdout
     return child.stdout
 
 version={}
+
+
 versions=autobuild('install', '--versions')
 for line in versions:
     pkg_info = pkg_line.match(line)

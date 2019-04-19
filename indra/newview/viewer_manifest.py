@@ -258,6 +258,8 @@ class WindowsManifest(ViewerManifest):
         # This is used to test a dll manifest.
         # It is used as a temporary override during the construct method
         from test_win32_manifest import test_assembly_binding
+        # TODO: This is redundant with LLManifest.copy_action(). Why aren't we
+        # calling copy_action() in conjunction with test_assembly_binding()?
         if src and (os.path.exists(src) or os.path.islink(src)):
             # ensure that destination path exists
             self.cmakedirs(os.path.dirname(dst))
@@ -278,6 +280,8 @@ class WindowsManifest(ViewerManifest):
         # It is used as a temporary override during the construct method
         from test_win32_manifest import test_assembly_binding
         from test_win32_manifest import NoManifestException, NoMatchingAssemblyException
+        # TODO: This is redundant with LLManifest.copy_action(). Why aren't we
+        # calling copy_action() in conjunction with test_assembly_binding()?
         if src and (os.path.exists(src) or os.path.islink(src)):
             # ensure that destination path exists
             self.cmakedirs(os.path.dirname(dst))
@@ -289,9 +293,9 @@ class WindowsManifest(ViewerManifest):
                     else:
                         test_assembly_binding(src, "Microsoft.VC80.CRT", "")
                     raise Exception("Unknown condition")
-                except NoManifestException, err:
+                except NoManifestException as err:
                     pass
-                except NoMatchingAssemblyException, err:
+                except NoMatchingAssemblyException as err:
                     pass
 
                 self.ccopy(src,dst)
@@ -327,16 +331,25 @@ class WindowsManifest(ViewerManifest):
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
 
-            except RuntimeError, err:
+            except RuntimeError as err:
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
             # Mesh 3rd party libs needed for auto LOD and collada reading
             try:
                 self.path("glod.dll")
-            except RuntimeError, err:
+            except RuntimeError as err:
                 print err.message
                 print "Skipping GLOD library (assumming linked statically)"
+
+            # Get fmodstudio dll, continue if missing
+            try:
+                if(self.is_win64()):
+                    self.path("fmod64.dll")
+                else:
+                    self.path("fmod.dll")
+            except:
+                print "Skipping fmodstudio audio library(assuming other audio engine)"
 
             # Vivox runtimes
             self.path("SLVoice.exe")
@@ -345,6 +358,23 @@ class WindowsManifest(ViewerManifest):
             self.path("libsndfile-1.dll")
             self.path("vivoxoal.dll")
             self.path("ca-bundle.crt")
+            
+            # Security
+            if(self.is_win64()):
+                self.path("libcrypto-1_1-x64.dll")
+                self.path("libssl-1_1-x64.dll")
+                if not self.is_packaging_viewer():
+                    self.path("libcrypto-1_1-x64.pdb")
+                    self.path("libssl-1_1-x64.pdb")
+            else:
+                self.path("libcrypto-1_1.dll")
+                self.path("libssl-1_1.dll")
+                if not self.is_packaging_viewer():
+                    self.path("libcrypto-1_1.pdb")
+                    self.path("libssl-1_1.pdb")
+
+            # HTTP/2
+            self.path("nghttp2.dll")
 
             # Hunspell
             self.path("libhunspell.dll")
