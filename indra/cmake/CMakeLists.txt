@@ -85,7 +85,6 @@ set(cmake_SOURCE_FILES
     Prebuilt.cmake
     PulseAudio.cmake
     Python.cmake
-    RunBuildTest.cmake
     StateMachine.cmake
     TemplateCheck.cmake
     Tut.cmake
