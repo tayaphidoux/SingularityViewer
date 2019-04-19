@@ -6,6 +6,8 @@
 
 include(CMakeCopyIfDifferent)
 include(Linking)
+include(Variables)
+include(LLCommon)
 
 ###################################################################
 # set up platform specific lists of files that need to be copied
@@ -46,7 +48,7 @@ if(WINDOWS)
         libhunspell.dll
         )
 
-    if(WORD_SIZE STREQUAL 64)
+    if(ADDRESS_SIZE EQUAL 64)
       list(APPEND debug_files
            libcrypto-1_1-x64.dll
            libssl-1_1-x64.dll
@@ -55,7 +57,7 @@ if(WINDOWS)
            libcrypto-1_1-x64.dll
            libssl-1_1-x64.dll
            )
-    else(WORD_SIZE STREQUAL 64)
+    else(ADDRESS_SIZE EQUAL 64)
       list(APPEND debug_files
            libcrypto-1_1.dll
            libssl-1_1.dll
@@ -64,7 +66,7 @@ if(WINDOWS)
            libcrypto-1_1.dll
            libssl-1_1.dll
            )
-    endif(WORD_SIZE STREQUAL 64)
+    endif(ADDRESS_SIZE EQUAL 64)
 		
     if(NOT DISABLE_TCMALLOC)
       set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
@@ -72,14 +74,15 @@ if(WINDOWS)
     endif(NOT DISABLE_TCMALLOC)
 
     if (FMODSTUDIO)
-      if(WORD_SIZE STREQUAL 64)
+      if(ADDRESS_SIZE STREQUAL 64)
         set(debug_files ${debug_files} fmodL64.dll)
         set(release_files ${release_files} fmod64.dll)
-      else(WORD_SIZE STREQUAL 64)
+      else(ADDRESS_SIZE STREQUAL 64)
         set(debug_files ${debug_files} fmodL.dll)
         set(release_files ${release_files} fmod.dll)
-      endif(WORD_SIZE STREQUAL 64)
+      endif(ADDRESS_SIZE STREQUAL 64)
     endif (FMODSTUDIO)
+
 elseif(DARWIN)
     set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug/Resources")
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Resources")
@@ -113,8 +116,8 @@ elseif(DARWIN)
        )
 
     if (FMODSTUDIO)
-      set(debug_files ${debug_files} libfmodL.dylib)
-      set(release_files ${release_files} libfmod.dylib)
+      list(APPEND debug_files libfmodL.dylib)
+      list(APPEND release_files libfmod.dylib)
     endif (FMODSTUDIO)
 
 elseif(LINUX)
@@ -132,7 +135,6 @@ elseif(LINUX)
         libvivoxplatform.so
         libvivoxsdk.so
         SLVoice
-        # ca-bundle.crt   #No cert for linux.  It is actually still 3.2SDK.
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     # or ARCH_PREBUILT_DIRS
@@ -221,13 +223,13 @@ set(third_party_targets ${third_party_targets} ${out_targets})
 
 
 
-copy_if_different(
-    ${debug_src_dir}
-    "${SHARED_LIB_STAGING_DIR_DEBUG}"
-    out_targets
-    ${debug_files}
-    )
-set(third_party_targets ${third_party_targets} ${out_targets})
+#copy_if_different(
+#    ${debug_src_dir}
+#    "${SHARED_LIB_STAGING_DIR_DEBUG}"
+#    out_targets
+#    ${debug_files}
+#    )
+#set(third_party_targets ${third_party_targets} ${out_targets})
 
 copy_if_different(
     ${release_src_dir}
