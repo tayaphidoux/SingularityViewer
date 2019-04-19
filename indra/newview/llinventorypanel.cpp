@@ -634,7 +634,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			{
 				// Add the UI element for this item.
 				buildNewViews(item_id);
-				if (auto parent = view_item->getParentFolder()) parent->dirtyFilter();
+				if (auto parent = getItemByID(model_item->getParentUUID())) parent->dirtyFilter();
 				// Select any newly created object that has the auto rename at top of folder root set.
 				if(mFolderRoot.get()->getRoot()->needsAutoRename())
 				{
