@@ -315,6 +315,14 @@ class WindowsManifest(ViewerManifest):
             # Find singularity-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/%s-bin.exe' % (self.args['configuration'],self.viewer_branding_id()), dst=self.final_exe())
 
+            if self.prefix(src=os.path.join(pkgdir, "redist")):
+                # include the compiled launcher scripts so that it gets included in the file_list
+                if(self.is_win64()):
+                    self.path('vc_redist.x64.exe')
+                else:
+                    self.path('vc_redist.x86.exe')
+                self.end_prefix()
+
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),

@@ -1,7 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; secondlife setup.nsi
-;; Copyright 2004-2011, Linden Research, Inc.
-;; Copyright 2013-2015 Alchemy Viewer Project
+;; Second Life setup.nsi
+;; Copyright 2004-2015, Linden Research, Inc.
 ;;
 ;; This library is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public
@@ -19,8 +18,7 @@
 ;;
 ;; Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 ;;
-;; NSIS Unicode 2.46.5 or higher required
-;; http://www.scratchpaper.com/
+;; NSIS 3 or higher required for Unicode support
 ;;
 ;; Author: James Cook, Don Kjer, Callum Prentice, Drake Arconis
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -34,6 +32,8 @@
   !include "LogicLib.nsh"
   !include "StdUtils.nsh"
   !include "FileFunc.nsh"
+  !insertmacro GetParameters
+  !insertmacro GetOptions
   !include "x64.nsh"
   !include "WinVer.nsh"
   !include "MUI2.nsh"
@@ -44,8 +44,8 @@
   %%INST_VARS%%
   %%WIN64_BIN_BUILD%%
 
-  Var INSTPROG
   Var INSTEXE
+  Var INSTPROG
   Var INSTSHORTCUT
   Var AUTOSTART
   Var COMMANDLINE         ; command line passed to this installer, set in .onInit
@@ -54,6 +54,14 @@
                           ; GUI and the defaults.
   Var SKIP_AUTORUN        ; skip automatic launch of viewer after install
   Var STARTMENUFOLDER
+
+;--------------------------------
+;Registry Keys
+  !define ALCHEMY_KEY      "SOFTWARE\${VENDORSTR}"
+  !define INSTNAME_KEY    "${ALCHEMY_KEY}\${APPNAMEONEWORD}"
+  !define MSCURRVER_KEY   "SOFTWARE\Microsoft\Windows\CurrentVersion"
+  !define MSNTCURRVER_KEY "SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+  !define MSUNINSTALL_KEY "${MSCURRVER_KEY}\Uninstall\${APPNAMEONEWORD}"
 
 ;--------------------------------
 ;General
@@ -73,7 +81,7 @@
 
   ;Get installation folder from registry if available and 32bit otherwise do it in init
 !ifndef WIN64_BIN_BUILD
-  InstallDirRegKey HKLM "SOFTWARE\${VENDORSTR}\${APPNAMEONEWORD}" ""
+  InstallDirRegKey HKLM "${INSTNAME_KEY}" ""
 !endif
 
   ;Request application privileges for Windows UAC
@@ -90,12 +98,13 @@
 ;Version Information
 
   VIProductVersion "${VERSION_LONG}"
-  VIAddVersionKey "ProductName" "Singularity Viewer"
+  VIAddVersionKey "ProductName" "Singularity Viewer Installer"
   VIAddVersionKey "Comments" "A viewer for the meta-verse!"
   VIAddVersionKey "CompanyName" "${VENDORSTR}"
-  VIAddVersionKey "LegalCopyright" "Copyright © 2010-2016, ${VENDORSTR}"
+  VIAddVersionKey "LegalCopyright" "Copyright © 2010-2019, ${VENDORSTR}"
   VIAddVersionKey "FileDescription" "${APPNAME} Installer"
   VIAddVersionKey "ProductVersion" "${VERSION_LONG}"
+  VIAddVersionKey "FileVersion" "${VERSION_LONG}"
 
 ;--------------------------------
 ;Interface Settings
@@ -118,7 +127,7 @@
 
   ;Remember the installer language
   !define MUI_LANGDLL_REGISTRY_ROOT "HKLM" 
-  !define MUI_LANGDLL_REGISTRY_KEY "SOFTWARE\${VENDORSTR}\${APPNAMEONEWORD}" 
+  !define MUI_LANGDLL_REGISTRY_KEY "${INSTNAME_KEY}" 
   !define MUI_LANGDLL_REGISTRY_VALUENAME "InstallerLanguage"
   
   ;Always show the dialog
@@ -140,7 +149,7 @@
 
   ;Start Menu Folder Page
   !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKLM" 
-  !define MUI_STARTMENUPAGE_REGISTRY_KEY "SOFTWARE\${VENDORSTR}\${APPNAMEONEWORD}" 
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "${INSTNAME_KEY}" 
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
   !define MUI_PAGE_CUSTOMFUNCTION_PRE check_skip
 !ifdef WIN64_BIN_BUILD
@@ -177,10 +186,9 @@
 ;Languages
 
   !include "%%SOURCE%%\installers\windows\lang_en-us.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_fr.nsi"
   !include "%%SOURCE%%\installers\windows\lang_de.nsi"
   !include "%%SOURCE%%\installers\windows\lang_es.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_zh.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_fr.nsi"
   !include "%%SOURCE%%\installers\windows\lang_ja.nsi"
   !include "%%SOURCE%%\installers\windows\lang_pl.nsi"
   !include "%%SOURCE%%\installers\windows\lang_it.nsi"
@@ -188,6 +196,7 @@
   !include "%%SOURCE%%\installers\windows\lang_da.nsi"
   !include "%%SOURCE%%\installers\windows\lang_ru.nsi"
   !include "%%SOURCE%%\installers\windows\lang_tr.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_zh.nsi"
 
 ;--------------------------------
 ;Reserve Files
@@ -197,7 +206,7 @@
   ;because this will make your installer start faster.
   
   !insertmacro MUI_RESERVEFILE_LANGDLL
-  ReserveFile "${NSISDIR}\Plugins\x86-unicode\NSISdl.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\nsisdl.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\nsDialogs.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\StartMenu.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\StdUtils.dll"
@@ -374,39 +383,7 @@ Function un.CloseSecondLife
     Return
 FunctionEnd
 
-; Test our connection to secondlife.com
-; Also allows us to count attempted installs by examining web logs.
-; *TODO: Return current SL version info and have installer check
-; if it is up to date.
-Function CheckNetworkConnection
-  ; Uneeded - LD
-  Return 
-  Push $0
-  Push $1
-  Push $2	# Option value for GetOptions
-  DetailPrint $(CheckNetworkConnectionDP)
-  ; Look for a tag value from the stub installer, used for statistics
-  ; to correlate installs.  Default to "" if not found on command line.
-  StrCpy $2 ""
-  ${GetOptions} $COMMANDLINE "/STUBTAG=" $2
-  GetTempFileName $0
-  !define HTTP_TIMEOUT 5000 ; milliseconds
-  ; Don't show secondary progress bar, this will be quick.
-  NSISdl::download_quiet \
-    /TIMEOUT=${HTTP_TIMEOUT} \
-    "http://install.secondlife.com/check/?stubtag=$2&version=${VERSION_LONG}" \
-    $0
-  Pop $1 ; Return value, either "success", "cancel" or an error message
-  ; MessageBox MB_OK "Download result: $1"
-  ; Result ignored for now
-  ; StrCmp $1 "success" +2
-  ;	DetailPrint "Connection failed: $1"
-  Delete $0 ; temporary file
-  Pop $2
-  Pop $1
-  Pop $0
-  Return
-FunctionEnd
+
 
 ;--------------------------------
 ;Installer Sections
@@ -424,7 +401,6 @@ Section "Viewer"
 
   Call CheckIfAlreadyCurrent
   Call CloseSecondLife			    ; Make sure we're not running
-  Call CheckNetworkConnection		; ping secondlife.com
 
   SetOutPath "$INSTDIR"  
   ;Remove old shader files first so fallbacks will work.
@@ -455,7 +431,6 @@ Section "Viewer"
     WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Create Account.url" "InternetShortcut" "URL" "http://join.secondlife.com/"
     WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Your Account.url"	"InternetShortcut" "URL" "http://www.secondlife.com/account/"
     WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Scripting Language Help.url" "InternetShortcut" "URL" "http://wiki.secondlife.com/wiki/LSL_Portal"
-
   !insertmacro MUI_STARTMENU_WRITE_END
 
   ;Other shortcuts
@@ -473,28 +448,28 @@ Section "Viewer"
 !endif
     
   ;Write registry
-  WriteRegStr HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG" "" "$INSTDIR"
-  WriteRegStr HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG" "Version" "${VERSION_LONG}"
-  WriteRegStr HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
-  WriteRegStr HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG" "Exe" "$INSTEXE"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "Comments" "A viewer for the meta-verse!"
+  WriteRegStr HKLM "${INSTNAME_KEY}" "" "$INSTDIR"
+  WriteRegStr HKLM "${INSTNAME_KEY}" "Version" "${VERSION_LONG}"
+  WriteRegStr HKLM "${INSTNAME_KEY}" "Shortcut" "$INSTSHORTCUT"
+  WriteRegStr HKLM "${INSTNAME_KEY}" "Exe" "$INSTEXE"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "Comments" "A viewer for the meta-verse!"
 !ifdef WIN64_BIN_BUILD
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTSHORTCUT (64 bit) Viewer"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "DisplayName" "$INSTSHORTCUT (64 bit) Viewer"
 !else
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTSHORTCUT Viewer"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "DisplayName" "$INSTSHORTCUT Viewer"
 !endif
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayIcon" "$INSTDIR\$INSTEXE"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayVersion" "${VERSION_LONG}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "InstallLocation" "$INSTDIR"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "InstallSource" "$EXEDIR\"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "HelpLink" "http://www.singularityviewer.org"
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "NoRepair" 1
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "Publisher" "${VENDORSTR}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "URLInfoAbout" "http://www.singularityviewer.org"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "URLUpdateInfo" "http://www.singularityviewer.org/downloads"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" "$\"$INSTDIR\uninst.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "QuietUninstallString" "$\"$INSTDIR\uninst.exe$\" /S"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "DisplayIcon" "$INSTDIR\$INSTEXE"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "DisplayVersion" "${VERSION_LONG}"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "InstallLocation" "$INSTDIR"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "InstallSource" "$EXEDIR\"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "HelpLink" "http://www.singularityviewer.org"
+  WriteRegDWORD HKLM "${MSUNINSTALL_KEY}" "NoModify" 1
+  WriteRegDWORD HKLM "${MSUNINSTALL_KEY}" "NoRepair" 1
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "Publisher" "${VENDORSTR}"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "URLInfoAbout" "http://www.singularityviewer.org"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "URLUpdateInfo" "http://www.singularityviewer.org/downloads"
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "UninstallString" "$\"$INSTDIR\uninst.exe$\""
+  WriteRegStr HKLM "${MSUNINSTALL_KEY}" "QuietUninstallString" "$\"$INSTDIR\uninst.exe$\" /S"
   ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
   IntFmt $0 "0x%08X" $0
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "EstimatedSize" "$0"
@@ -533,6 +508,7 @@ Section "Viewer"
   WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "" "URL:Hypergrid legacy"
   WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "URL Protocol" ""
   WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" "$\"$INSTDIR\$INSTEXE$\""
+
   ;; URL param must be last item passed to viewer, it ignores subsequent params
   ;; to avoid parameter injection attacks.
   WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\shell" "" "open"
@@ -552,6 +528,9 @@ SectionEnd
 ;--------------------------------
 ;Installer Functions
 Function .onInit
+!ifdef WIN64_BIN_BUILD
+  SetRegView 64
+!endif
   ;Don't install on unsupported operating systems
   Call CheckWindowsVersion
   ;Don't install if not administator
@@ -563,7 +542,6 @@ Function .onInit
 
   ;Get installation folder from registry if available for 64bit
 !ifdef WIN64_BIN_BUILD
-  SetRegView 64
   ReadRegStr $0 HKLM "SOFTWARE\${VENDORSTR}\${APPNAMEONEWORD}" ""
   IfErrors +2 0 ; If error jump past setting SKIP_AUTORUN
   StrCpy $INSTDIR $0
@@ -582,6 +560,7 @@ Function .onInit
   ${GetOptions} $COMMANDLINE "/AUTOSTART" $0
   IfErrors +2 0 ; If error jump past setting AUTOSTART
   StrCpy $AUTOSTART "true"
+
 
   ${GetOptions} $COMMANDLINE "/LANGID=" $0   ; /LANGID=1033 implies US English
   ; If no language (error), then proceed
@@ -613,7 +592,6 @@ Section "Uninstall"
 !endif
   
   StrCpy $INSTPROG "${APPNAMEONEWORD}"
-  StrCpy $INSTEXE "${INSTEXE}"
   StrCpy $INSTSHORTCUT "${APPNAME}"
 
   Call un.CloseSecondLife
@@ -660,7 +638,9 @@ SectionEnd
 ;Uninstaller Functions
 
 Function un.onInit
-
+!ifdef WIN64_BIN_BUILD
+  SetRegView 64
+!endif
   Call un.CheckIfAdministrator
 
   !insertmacro MUI_UNGETLANGUAGE
