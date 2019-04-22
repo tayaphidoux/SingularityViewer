@@ -4274,7 +4274,7 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 		return;
 
 	std::string text = prepend_newline && !mWText.empty() ? ('\n' + new_text) : new_text;
-	appendTextImpl(text, style);
+	appendTextImpl(text, style, force_replace_links);
 
 	if (!allow_undo)
 	{
@@ -4340,7 +4340,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 
 			auto url = match.getUrl();
 			const auto& label = match.getLabel();
-			if (force_replace_links || replace_links || url == label)
+			if (force_replace_links || url == label)
 			{
 				// add icon before url if need
 				/* Singu TODO: Icons next to links?
