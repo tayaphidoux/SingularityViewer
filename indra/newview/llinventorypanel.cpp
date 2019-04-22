@@ -565,7 +565,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 				LLFolderViewFolder* parent = view_item->getParentFolder();
 				if(parent)
 				{
-					parent->dirtyFilter();
+					parent->requestSort();
 				}
 			}
 		}
@@ -634,7 +634,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			{
 				// Add the UI element for this item.
 				buildNewViews(item_id);
-				if (auto parent = getItemByID(model_item->getParentUUID())) parent->dirtyFilter();
+				if (auto parent = getFolderByID(model_item->getParentUUID())) parent->requestSort();
 				// Select any newly created object that has the auto rename at top of folder root set.
 				if(mFolderRoot.get()->getRoot()->needsAutoRename())
 				{
@@ -687,7 +687,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 						{
 							updateFolderLabel(viewmodel_folder->getUUID());
 						}*/
-						old_parent->dirtyFilter();
+						old_parent->requestSort();
 					}
 				}
 			}
@@ -703,7 +703,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 				view_item->destroyView();
 				if(parent)
 				{
-					parent->dirtyFilter();
+					parent->requestSort();
 					/*auto* viewmodel_folder = parent->getListener();
 					if(viewmodel_folder)
 					{
