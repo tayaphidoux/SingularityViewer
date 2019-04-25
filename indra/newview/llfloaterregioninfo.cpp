@@ -1599,7 +1599,7 @@ void LLPanelEstateInfo::onClickAddEstateManager()
 {
 	LLCtrlListInterface *list = childGetListInterface("estate_manager_name_list");
 	if (!list) return;
-	if (list->getItemCount() >= ESTATE_MAX_MANAGERS)
+	if (gHippoGridManager->getConnectedGrid()->isSecondLife() && list->getItemCount() >= ESTATE_MAX_MANAGERS)
 	{	// Tell user they can't add more managers
 		LLSD args;
 		args["MAX_MANAGER"] = llformat("%d",ESTATE_MAX_MANAGERS);
