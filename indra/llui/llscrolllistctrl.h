@@ -320,6 +320,8 @@ public:
 	void updateStaticColumnWidth(LLScrollListColumn* col, S32 new_width);
 	S32 getTotalStaticColumnWidth() { return mTotalStaticColumnWidth; }
 
+	typedef std::pair<S32, bool> sort_column_t;
+	const std::vector<sort_column_t>& getSortColumns() const { return mSortColumns; }
 	std::string     getSortColumnName();
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
 	BOOL			hasSortOrder() const;
@@ -354,7 +356,7 @@ public:
 	void			setNeedsSortColumn(S32 col)
 	{
 		if(!isSorted())return;
-		for(std::vector<std::pair<S32, BOOL> >::iterator it=mSortColumns.begin();it!=mSortColumns.end();++it)
+		for(auto it=mSortColumns.begin();it!=mSortColumns.end();++it)
 		{
 			if((*it).first == col)
 			{
@@ -482,7 +484,6 @@ private:
 	typedef std::vector<LLScrollListColumn*> ordered_columns_t;
 	ordered_columns_t	mColumnsIndexed;
 
-	typedef std::pair<S32, BOOL> sort_column_t;
 	std::vector<sort_column_t>	mSortColumns;
 
 	sort_signal_t*	mSortCallback;
