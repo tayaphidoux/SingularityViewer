@@ -257,6 +257,14 @@ LLFloaterAvatarList::LLFloaterAvatarList() :  LLFloater(std::string("radar")),
 LLFloaterAvatarList::~LLFloaterAvatarList()
 {
 	mCleanup = true;
+	LLSD sort;
+	for (const auto& col : mAvatarList->getSortColumns())
+	{
+		sort.append(mAvatarList->getColumn(col.first)->mName);
+		sort.append(col.second);
+	}
+
+	gSavedSettings.setLLSD("RadarSortOrder", sort);
 	mAvatars.clear();
 }
 
@@ -425,7 +433,13 @@ BOOL LLFloaterAvatarList::postBuild()
 
 	// Get a pointer to the scroll list from the interface
 	mAvatarList = getChild<LLScrollListCtrl>("avatar_list");
-	mAvatarList->sortByColumn("distance", true);
+	const LLSD sort = gSavedSettings.getLLSD("RadarSortOrder");
+	for (auto it = sort.beginArray(), end = sort.endArray(); it < end; ++it)
+	{
+		const auto& column_name = (*it);
+		const auto& ascending = (*++it);
+		mAvatarList->sortByColumn(column_name.asStringRef(), ascending.asBoolean());
+	}
 	mAvatarList->setCommitOnSelectionChange(true);
 	mAvatarList->setCommitCallback(boost::bind(&LLFloaterAvatarList::onSelectName,this));
 	mAvatarList->setDoubleClickCallback(boost::bind(&LLFloaterAvatarList::onClickFocus,this));

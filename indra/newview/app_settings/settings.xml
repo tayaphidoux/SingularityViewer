@@ -8048,6 +8048,20 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RadarSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Sort order for the radar, map of column names to ascending boolean</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array>
+        <string>distance</string>
+        <boolean>1</boolean>
+      </array>
+    </map>
     <key>FloaterLandRect5</key>
     <map>
       <key>Comment</key>
