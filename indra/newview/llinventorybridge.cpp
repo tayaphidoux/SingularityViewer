@@ -2961,7 +2961,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		LLInventoryModel* model = getInventoryModel();
 		LLViewerInventoryCategory* cat = getCategory();
 		if (!model || !cat) return;
-		LFFloaterInvPanel::show(mUUID, model, cat->getName());
+		LFFloaterInvPanel::show(LLSD().with("id", mUUID), cat->getName(), model);
 		return;
 	}
 	else if ("paste" == action)

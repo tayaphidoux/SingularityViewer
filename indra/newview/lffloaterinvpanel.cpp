@@ -26,19 +26,19 @@
 #include "lluictrlfactory.h"
 
 
-LFFloaterInvPanel::LFFloaterInvPanel(const LLUUID& cat_id, LLInventoryModel* model, const std::string& name)
-: LLInstanceTracker<LFFloaterInvPanel, LLUUID>(cat_id)
+LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, LLInventoryModel* model)
+: LLInstanceTracker<LFFloaterInvPanel, LLSD>(cat)
 {
 	mCommitCallbackRegistrar.add("InvPanel.Search", boost::bind(&LLInventoryPanel::setFilterSubString, boost::ref(mPanel), _2));
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inv_panel.xml");
 	LLPanel* panel = getChild<LLPanel>("placeholder_panel");
-	mPanel = new LLInventoryPanel("inv_panel", LLInventoryPanel::DEFAULT_SORT_ORDER, LLSD().with("id", cat_id), panel->getRect(), model, true);
+	mPanel = new LLInventoryPanel("inv_panel", LLInventoryPanel::DEFAULT_SORT_ORDER, cat, panel->getRect(), model ? model : &gInventory, true);
 	mPanel->postBuild();
 	mPanel->setFollows(FOLLOWS_ALL);
 	mPanel->setEnabled(true);
 	addChild(mPanel);
 	removeChild(panel);
-	setTitle(name);
+	setTitle(name.empty() ? mPanel->getRootFolder()->getLabel() : name);
 }
 
 LFFloaterInvPanel::~LFFloaterInvPanel()
@@ -47,10 +47,10 @@ LFFloaterInvPanel::~LFFloaterInvPanel()
 }
 
 // static
-void LFFloaterInvPanel::show(const LLUUID& cat_id, LLInventoryModel* model, const std::string& name)
+void LFFloaterInvPanel::show(const LLSD& cat, const std::string& name, LLInventoryModel* model)
 {
-	LFFloaterInvPanel* floater = LFFloaterInvPanel::getInstance(cat_id);
-	if (!floater) floater = new LFFloaterInvPanel(cat_id, model, name);
+	LFFloaterInvPanel* floater = LFFloaterInvPanel::getInstance(cat);
+	if (!floater) floater = new LFFloaterInvPanel(cat, name, model);
 	floater->open();
 }
 
@@ -63,10 +63,10 @@ void LFFloaterInvPanel::closeAll()
 	{
 		cache.push_back(&*i);
 	}
-	// Now close all panels, without using instance_iter iterators.
-	for (std::vector<LFFloaterInvPanel*>::iterator i = cache.begin(); i != cache.end(); ++i)
+	// Now close all, without using instance_iter iterators.
+	for (auto& floater : cache)
 	{
-		(*i)->close();
+		floater->close();
 	}
 }
 
