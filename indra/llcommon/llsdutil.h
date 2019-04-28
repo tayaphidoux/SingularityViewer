@@ -144,6 +144,11 @@ LL_COMMON_API std::string llsd_matches(const LLSD& prototype, const LLSD& data, 
 /// is_approx_equal_fraction().
 LL_COMMON_API bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits=-1);
 
+inline bool operator==(const LLSD& lhs, const LLSD& rhs)
+{
+	return llsd_equals(lhs, rhs, 8);
+}
+
 // Simple function to copy data out of input & output iterators if
 // there is no need for casting.
 template<typename Input> LLSD llsd_copy_array(Input iter, Input end)
