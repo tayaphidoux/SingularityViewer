@@ -4739,7 +4739,11 @@ S32 LLTextEditor::removeStringNoUndo(S32 pos, S32 length)
 	createDefaultSegment();
 
 	mTextIsUpToDate = FALSE;
-	needsReflow(/*pos*/);
+
+	/*needsReflow(pos);*/
+	// Singu Note: This kinda sucks for performance of delete, fix this later (with LLTextBase merge?)
+	updateLineStartList();
+	mReflowNeeded = false;
 
 	return -length;	// This will be wrong if someone calls removeStringNoUndo with an excessive length
 }
