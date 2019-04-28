@@ -1501,10 +1501,13 @@ void LLPanelAvatar::processProperties(void* data, EAvatarProcessorType type)
 		const LLAvatarNotes* pAvatarNotes = static_cast<const LLAvatarNotes*>( data );
 		if (pAvatarNotes && (mAvatarID == pAvatarNotes->target_id) && (pAvatarNotes->target_id != LLUUID::null))
 		{
-			auto notes = getChildView("notes edit");
-			notes->setEnabled(true);
-			notes->setValue(pAvatarNotes->notes);
-			mHaveNotes = true;
+			if (!mHaveNotes) // Only update the UI if we don't already have the notes, we could be editing them now!
+			{
+				auto notes = getChildView("notes edit");
+				notes->setEnabled(true);
+				notes->setValue(pAvatarNotes->notes);
+				mHaveNotes = true;
+			}
 			mLastNotes = pAvatarNotes->notes;
 		}
 	}
