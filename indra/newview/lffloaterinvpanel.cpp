@@ -22,6 +22,8 @@
 
 #include "lffloaterinvpanel.h"
 
+#include <boost/algorithm/string/erase.hpp>
+
 #include "llinventorypanel.h"
 #include "lluictrlfactory.h"
 
@@ -39,6 +41,19 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 	addChild(mPanel);
 	removeChild(panel);
 	setTitle(name.empty() ? mPanel->getRootFolder()->getLabel() : name);
+
+	// Figure out a unique name for our rect control
+	const auto rect_control = llformat("FloaterInv%sRect",
+		cat.has("name") ? boost::algorithm::erase_all_copy(cat["name"].asStringRef(), " ").data() :
+		cat.has("id") ? cat["id"].asStringRef().data() :
+		cat["type"].asStringRef().data());
+
+	if (gSavedSettings.controlExists(rect_control)) // Set our initial rect to the stored control
+		setRect(gSavedSettings.getRect(rect_control));
+	else // Or create the rect control if it doesn't exist
+		gSavedSettings.declareRect(rect_control, getRect(), "Rectangle for " + getTitle() + " window");
+
+	setRectControl(rect_control);
 }
 
 LFFloaterInvPanel::~LFFloaterInvPanel()
