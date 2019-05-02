@@ -455,7 +455,7 @@ class WindowsManifest(ViewerManifest):
                            "SLplugin.exe")
 
         # Get shared libs from the shared libs staging directory
-        with self.prefix(src=os.path.join(os.pardir,
+        with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                           'sharedlibs', self.args['configuration'])):
 
             # Get llcommon and deps. If missing assume static linkage and continue.
@@ -493,8 +493,14 @@ class WindowsManifest(ViewerManifest):
 
             # Vivox runtimes
             self.path("SLVoice.exe")
-            self.path("vivoxsdk.dll")
-            self.path("ortp.dll")
+            if (self.address_size == 64):
+                self.path("vivoxsdk_x64.dll")
+                self.path("ortp_x64.dll")
+            else:
+                self.path("vivoxsdk.dll")
+                self.path("ortp.dll")
+            self.path("libsndfile-1.dll")
+            self.path("vivoxoal.dll")
             
             # Security
             if(self.address_size == 64):
