@@ -8938,7 +8938,7 @@ class SinguUrlAction : public view_listener_t
 
 void show_inv_floater(const LLSD& userdata, const std::string& field)
 {
-	LFFloaterInvPanel::show(LLSD().with(field, userdata));
+	LFFloaterInvPanel::toggle(LLSD().with(field, userdata));
 }
 
 static void visible_inv_floater(const LLSD& userdata, const std::string& field)

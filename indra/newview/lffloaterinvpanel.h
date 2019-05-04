@@ -33,6 +33,13 @@ class LFFloaterInvPanel : public LLFloater, public LLInstanceTracker<LFFloaterIn
 
 public:
 	static void show(const LLSD& cat, const std::string& name = LLStringUtil::null, LLInventoryModel* model = nullptr); // Show the floater for cat (create with other params if necessary)
+	static void toggle(const LLSD& cat)
+	{
+		if (auto instance = getInstance(cat))
+			instance->close();
+		else
+			show(cat);
+	}
 	static void closeAll(); // Called when not allowed to have inventory open
 
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
