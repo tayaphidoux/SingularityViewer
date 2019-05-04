@@ -40,7 +40,8 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 	mPanel->setEnabled(true);
 	addChild(mPanel);
 	removeChild(panel);
-	setTitle(name.empty() ? mPanel->getRootFolder()->getLabel() : name);
+	const auto& title = name.empty() ? mPanel->getRootFolder()->getName() : name;
+	setTitle(title);
 
 	// Figure out a unique name for our rect control
 	const auto rect_control = llformat("FloaterInv%sRect",
@@ -51,7 +52,7 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 	if (gSavedSettings.controlExists(rect_control)) // Set our initial rect to the stored control
 		setRect(gSavedSettings.getRect(rect_control));
 	else // Or create the rect control if it doesn't exist
-		gSavedSettings.declareRect(rect_control, getRect(), "Rectangle for " + getTitle() + " window");
+		gSavedSettings.declareRect(rect_control, getRect(), "Rectangle for " + title + " window");
 
 	setRectControl(rect_control);
 }
