@@ -95,7 +95,8 @@ class ViewerManifest(LLManifest):
 
                 # ... and the included spell checking dictionaries
                 pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-                self.path("dictionaries")
+                with self.prefix(src=pkgdir):
+                    self.path("dictionaries")
 
                 # include the extracted packages information (see BuildPackagesInfo.cmake)
                 self.path(src=os.path.join(self.args['build'],"packages-info.txt"), dst="packages-info.txt")
