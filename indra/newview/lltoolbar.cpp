@@ -125,17 +125,6 @@ BOOL LLToolBar::postBuild()
 	mRadarBtn.connect(this, "radar_btn");
 	mInventoryBtn.connect(this, "inventory_btn");
 
-	for (child_list_const_iter_t child_iter = getChildList()->begin();
-		 child_iter != getChildList()->end(); ++child_iter)
-	{
-		LLView *view = *child_iter;
-		LLButton* buttonp = dynamic_cast<LLButton*>(view);
-		if(buttonp)
-		{
-			buttonp->setSoundFlags(LLView::SILENT);
-		}
-	}
-
 #if LL_DARWIN
 	LLResizeHandle::Params p;
 	p.rect(LLRect(0, 0, RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT));
