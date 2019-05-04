@@ -2831,6 +2831,10 @@ void LLView::initFromXML(LLXMLNodePtr node, LLView* parent)
 	node->getAttributeBOOL("mouse_opaque", mMouseOpaque);
 
 	node->getAttributeS32("default_tab_group", mDefaultTabGroup);
+	if (node->hasAttribute("sound_flags"))
+	{
+		node->getAttributeU8("sound_flags", mSoundFlags);
+	}
 	
 	reshape(view_rect.getWidth(), view_rect.getHeight());
 }
