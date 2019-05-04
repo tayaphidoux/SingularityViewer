@@ -44,10 +44,7 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 	setTitle(title);
 
 	// Figure out a unique name for our rect control
-	const auto rect_control = llformat("FloaterInv%sRect",
-		cat.has("name") ? boost::algorithm::erase_all_copy(cat["name"].asStringRef(), " ").data() :
-		cat.has("id") ? cat["id"].asStringRef().data() :
-		cat["type"].asStringRef().data());
+	const auto rect_control = llformat("FloaterInv%sRect", boost::algorithm::erase_all_copy(title, " ").data());
 
 	if (gSavedSettings.controlExists(rect_control)) // Set our initial rect to the stored control
 		setRect(gSavedSettings.getRect(rect_control));
