@@ -31,17 +31,9 @@
 LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, LLInventoryModel* model)
 : LLInstanceTracker<LFFloaterInvPanel, LLSD>(cat)
 {
-	mCommitCallbackRegistrar.add("InvPanel.Search", boost::bind(&LLInventoryPanel::setFilterSubString, boost::ref(mPanel), _2));
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inv_panel.xml");
-	LLPanel* panel = getChild<LLPanel>("placeholder_panel");
-	mPanel = new LLInventoryPanel("inv_panel", LLInventoryPanel::DEFAULT_SORT_ORDER, cat, panel->getRect(), model ? model : &gInventory, true);
-	mPanel->postBuild();
-	mPanel->setFollows(FOLLOWS_ALL);
-	mPanel->setEnabled(true);
-	addChild(mPanel);
-	removeChild(panel);
-	const auto& title = name.empty() ? mPanel->getRootFolder()->getName() : name;
-	setTitle(title);
+	// Setup the floater first
+	mPanel = new LLInventoryPanel("inv_panel", LLInventoryPanel::DEFAULT_SORT_ORDER, cat, LLRect(), model ? model : &gInventory, true);
+	const auto& title = name.empty() ? gInventory.getCategory(mPanel->getRootFolderID())->getName() : name;
 
 	// Figure out a unique name for our rect control
 	const auto rect_control = llformat("FloaterInv%sRect", boost::algorithm::erase_all_copy(title, " ").data());
@@ -52,6 +44,22 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 		gSavedSettings.declareRect(rect_control, getRect(), "Rectangle for " + title + " window");
 
 	setRectControl(rect_control);
+
+	// Load from XUI
+	mCommitCallbackRegistrar.add("InvPanel.Search", boost::bind(&LLInventoryPanel::setFilterSubString, boost::ref(mPanel), _2));
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inv_panel.xml");
+
+	// Now set the title
+	setTitle(title);
+
+	// Now take care of the children
+	LLPanel* panel = getChild<LLPanel>("placeholder_panel");
+	mPanel->setRect(panel->getRect());
+	mPanel->postBuild();
+	mPanel->setFollows(FOLLOWS_ALL);
+	mPanel->setEnabled(true);
+	addChild(mPanel);
+	removeChild(panel);
 }
 
 LFFloaterInvPanel::~LFFloaterInvPanel()
