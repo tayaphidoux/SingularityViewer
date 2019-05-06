@@ -1599,7 +1599,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 
 	struct f : public LLSelectedTEFunctor
 	{
-		LLViewerInventoryItem* mItem;
+		LLPointer<LLViewerInventoryItem> mItem;
 		LLUUID mImageID;
 		f(LLViewerInventoryItem* item, const LLUUID& id) : mItem(item), mImageID(id) {}
 		bool apply(LLViewerObject* objectp, S32 te) override
