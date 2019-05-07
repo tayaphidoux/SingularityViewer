@@ -4627,7 +4627,7 @@ void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 h
 		}	
 		endOfDoc();
 	}
-	else if( selection_start != selection_end )
+	else if (was_selecting || selection_start != selection_end)
 	{
 		mSelectionStart = selection_start;
 		mSelectionEnd = selection_end;
