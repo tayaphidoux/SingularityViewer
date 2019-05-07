@@ -4317,7 +4317,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 			if (always_underline) link_style->mUnderline = true;
 			appendAndHighlightText(link, part, link_style, !always_underline/*match.underlineOnHoverOnly()*/);
 		};
-		const auto&& cb = force_replace_links ? boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3) : LLUrlLabelCallback::slot_function_type();
+		const auto&& cb = force_replace_links ? boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3) : LLUrlLabelCallback();
 		while (!text.empty() && LLUrlRegistry::instance().findUrl(text, match, cb))
 		{
 			start = match.getStart();
