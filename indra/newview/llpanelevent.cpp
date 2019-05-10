@@ -151,7 +151,7 @@ void LLPanelEvent::processEventInfoReply(LLMessageSystem *msg, void **)
 		self->mTBName->setText(self->mEventInfo.mName);
 		self->mTBCategory->setText(self->mEventInfo.mCategoryStr);
 		self->mTBDate->setText(self->mEventInfo.mTimeStr);
-		self->mTBDesc->setText(self->mEventInfo.mDesc);
+		self->mTBDesc->setText(self->mEventInfo.mDesc, false);
 
 		self->mTBDuration->setText(llformat("%d:%.2d", self->mEventInfo.mDuration / 60, self->mEventInfo.mDuration % 60));
 

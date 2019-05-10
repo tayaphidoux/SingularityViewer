@@ -761,7 +761,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 
 		if (mEditCharter)
 		{
-			mEditCharter->setText(gdatap->mCharter);
+			mEditCharter->setText(gdatap->mCharter, false);
 			mEditCharter->resetDirty();
 		}
 	}
