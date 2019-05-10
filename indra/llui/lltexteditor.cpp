@@ -741,7 +741,7 @@ LLMenuGL* LLTextEditor::createUrlContextMenu(S32 x, S32 y, const std::string &in
 	return menu;
 }
 
-void LLTextEditor::setText(const LLStringExplicit &utf8str)
+void LLTextEditor::setText(const LLStringExplicit &utf8str, bool force_replace_links)
 {
 	// clear out the existing text and segments
 	mWText.clear();
@@ -756,7 +756,7 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 	//LLStringUtil::removeCRLF(text);
 
 	// appendText modifies mCursorPos...
-	appendText(utf8str, false, false);
+	appendText(utf8str, false, false, nullptr, force_replace_links);
 	// ...so move cursor to top after appending text
 	setCursorPos(0);
 
@@ -766,9 +766,9 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 	mTextIsUpToDate = true;
 }
 
-void LLTextEditor::setWText(const LLWString& text)
+void LLTextEditor::setWText(const LLWString& text, bool force_replace_links)
 {
-	setText(wstring_to_utf8str(text));
+	setText(wstring_to_utf8str(text), force_replace_links);
 }
 
 // virtual
