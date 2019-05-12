@@ -4552,39 +4552,27 @@ void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 h
 	// This is where we appendHighlightedText
 	// If LindenUserDir is empty then we didn't login yet.
 	// In that case we can't instantiate LLTextParser, which is initialized per user.
-	if (mParseHighlights && !gDirUtilp->getLindenUserDir(true).empty())
+	LLTextParser* highlight = mParseHighlights && stylep && !gDirUtilp->getLindenUserDir(true).empty() ? LLTextParser::getInstance() : nullptr;
+	if (highlight)
 	{
-		LLTextParser* highlight = LLTextParser::getInstance();
-
-		if (highlight && stylep)
+		const LLSD pieces = highlight->parsePartialLineHighlights(new_text, stylep->getColor(), (LLTextParser::EHighlightPosition)highlight_part);
+		auto cur_length = getLength();
+		for (auto i = pieces.beginArray(), end = pieces.endArray(); i < end; ++i)
 		{
-			LLStyleSP highlight_params(new LLStyle(*stylep));
-			LLSD pieces = highlight->parsePartialLineHighlights(new_text, highlight_params->getColor(), (LLTextParser::EHighlightPosition)highlight_part);
-			for (S32 i=0;i<pieces.size();i++)
-			{
-				LLSD color_llsd = pieces[i]["color"];
-				LLColor4 lcolor;
-				lcolor.setValue(color_llsd);
-				highlight_params->setColor(lcolor);
+			const auto& piece = *i;
+			LLWString wide_text = utf8str_to_wstring(piece["text"].asString());
 
-				LLWString wide_text;
-				wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
-
-				S32 cur_length = getLength();
-				insertStringNoUndo(cur_length, wide_text);
-				LLStyleSP sp(new LLStyle(*highlight_params));
-				LLTextSegmentPtr segmentp;
-				segmentp = new LLTextSegment(sp, cur_length, cur_length + wide_text.size());
-				if (underline_on_hover) segmentp->setUnderlineOnHover(true);
-				mSegments.push_back(segmentp);
-			}
-			return;
+			insertStringNoUndo(cur_length, wide_text);
+			LLStyleSP sp(new LLStyle(*stylep));
+			sp->setColor(piece["color"]);
+			LLTextSegmentPtr segmentp = new LLTextSegment(sp, cur_length, cur_length += wide_text.size());
+			if (underline_on_hover) segmentp->setUnderlineOnHover(true);
+			mSegments.push_back(segmentp);
 		}
 	}
-	//else
+	else
 	{
-		LLWString wide_text;
-		wide_text = utf8str_to_wstring(new_text);
+		LLWString wide_text = utf8str_to_wstring(new_text);
 
 		auto length = getLength();
 		auto insert_len = length + insertStringNoUndo(length, utf8str_to_wstring(new_text));
