@@ -293,6 +293,8 @@ LLTextEditor::LLTextEditor(
 	mMouseDownY(0),
 	mLastSelectionX(-1),
 	mLastSelectionY(-1),
+	mParseHTML(parse_html),
+	mParseHighlights(false),
 	mLastContextMenuX(-1),
 	mLastContextMenuY(-1),
 	mReflowNeeded(FALSE),
@@ -343,7 +345,6 @@ LLTextEditor::LLTextEditor(
 	mBorder = new LLViewBorder(std::string("text ed border"), LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, UI_TEXTEDITOR_BORDER);
 	addChild(mBorder);
 
-	mParseHTML = parse_html;
 	appendText(default_text, FALSE, FALSE);
 
 	resetDirty();		// Update saved text state
