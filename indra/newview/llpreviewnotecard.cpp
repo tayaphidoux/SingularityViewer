@@ -405,7 +405,7 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 				else
 				{
 					// Version 0 (just text, doesn't include version number)
-					previewEditor->setText(LLStringExplicit(buffer));
+					previewEditor->setText(LLStringExplicit(buffer), false);
 				}
 
 				previewEditor->makePristine();

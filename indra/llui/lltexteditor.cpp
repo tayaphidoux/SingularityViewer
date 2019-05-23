@@ -293,6 +293,8 @@ LLTextEditor::LLTextEditor(
 	mMouseDownY(0),
 	mLastSelectionX(-1),
 	mLastSelectionY(-1),
+	mParseHTML(parse_html),
+	mParseHighlights(false),
 	mLastContextMenuX(-1),
 	mLastContextMenuY(-1),
 	mReflowNeeded(FALSE),
@@ -343,7 +345,6 @@ LLTextEditor::LLTextEditor(
 	mBorder = new LLViewBorder(std::string("text ed border"), LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, UI_TEXTEDITOR_BORDER);
 	addChild(mBorder);
 
-	mParseHTML = parse_html;
 	appendText(default_text, FALSE, FALSE);
 
 	resetDirty();		// Update saved text state
@@ -741,7 +742,7 @@ LLMenuGL* LLTextEditor::createUrlContextMenu(S32 x, S32 y, const std::string &in
 	return menu;
 }
 
-void LLTextEditor::setText(const LLStringExplicit &utf8str)
+void LLTextEditor::setText(const LLStringExplicit &utf8str, bool force_replace_links)
 {
 	// clear out the existing text and segments
 	mWText.clear();
@@ -756,7 +757,7 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 	//LLStringUtil::removeCRLF(text);
 
 	// appendText modifies mCursorPos...
-	appendText(utf8str, false, false);
+	appendText(utf8str, false, false, nullptr, force_replace_links);
 	// ...so move cursor to top after appending text
 	setCursorPos(0);
 
@@ -766,9 +767,9 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 	mTextIsUpToDate = true;
 }
 
-void LLTextEditor::setWText(const LLWString& text)
+void LLTextEditor::setWText(const LLWString& text, bool force_replace_links)
 {
-	setText(wstring_to_utf8str(text));
+	setText(wstring_to_utf8str(text), force_replace_links);
 }
 
 // virtual
@@ -4552,39 +4553,27 @@ void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 h
 	// This is where we appendHighlightedText
 	// If LindenUserDir is empty then we didn't login yet.
 	// In that case we can't instantiate LLTextParser, which is initialized per user.
-	if (mParseHighlights && !gDirUtilp->getLindenUserDir(true).empty())
+	LLTextParser* highlight = mParseHighlights && stylep && !gDirUtilp->getLindenUserDir(true).empty() ? LLTextParser::getInstance() : nullptr;
+	if (highlight)
 	{
-		LLTextParser* highlight = LLTextParser::getInstance();
-
-		if (highlight && stylep)
+		const LLSD pieces = highlight->parsePartialLineHighlights(new_text, stylep->getColor(), (LLTextParser::EHighlightPosition)highlight_part);
+		auto cur_length = getLength();
+		for (auto i = pieces.beginArray(), end = pieces.endArray(); i < end; ++i)
 		{
-			LLStyleSP highlight_params(new LLStyle(*stylep));
-			LLSD pieces = highlight->parsePartialLineHighlights(new_text, highlight_params->getColor(), (LLTextParser::EHighlightPosition)highlight_part);
-			for (S32 i=0;i<pieces.size();i++)
-			{
-				LLSD color_llsd = pieces[i]["color"];
-				LLColor4 lcolor;
-				lcolor.setValue(color_llsd);
-				highlight_params->setColor(lcolor);
+			const auto& piece = *i;
+			LLWString wide_text = utf8str_to_wstring(piece["text"].asString());
 
-				LLWString wide_text;
-				wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
-
-				S32 cur_length = getLength();
-				insertStringNoUndo(cur_length, wide_text);
-				LLStyleSP sp(new LLStyle(*highlight_params));
-				LLTextSegmentPtr segmentp;
-				segmentp = new LLTextSegment(sp, cur_length, cur_length + wide_text.size());
-				if (underline_on_hover) segmentp->setUnderlineOnHover(true);
-				mSegments.push_back(segmentp);
-			}
-			return;
+			insertStringNoUndo(cur_length, wide_text);
+			LLStyleSP sp(new LLStyle(*stylep));
+			sp->setColor(piece["color"]);
+			LLTextSegmentPtr segmentp = new LLTextSegment(sp, cur_length, cur_length += wide_text.size());
+			if (underline_on_hover) segmentp->setUnderlineOnHover(true);
+			mSegments.push_back(segmentp);
 		}
 	}
-	//else
+	else
 	{
-		LLWString wide_text;
-		wide_text = utf8str_to_wstring(new_text);
+		LLWString wide_text = utf8str_to_wstring(new_text);
 
 		auto length = getLength();
 		auto insert_len = length + insertStringNoUndo(length, utf8str_to_wstring(new_text));

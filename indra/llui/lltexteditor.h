@@ -276,8 +276,8 @@ public:
 	LLMenuGL*		createUrlContextMenu(S32 x, S32 y, const std::string &url); // create a popup context menu for the given Url
 
 	// Non-undoable
-	void			setText(const LLStringExplicit &utf8str);
-	void			setWText(const LLWString &wtext);
+	void			setText(const LLStringExplicit &utf8str, bool force_replace_links = true);
+	void			setWText(const LLWString &wtext, bool force_replace_links = true);
 	
 	// Returns byte length limit
 	S32				getMaxLength() const 			{ return mMaxTextByteLength; }

@@ -500,8 +500,8 @@ class WindowsManifest(ViewerManifest):
             else:
                 self.path("vivoxsdk.dll")
                 self.path("ortp.dll")
-            self.path("libsndfile-1.dll")
-            self.path("vivoxoal.dll")
+            #self.path("libsndfile-1.dll")
+            #self.path("vivoxoal.dll")
             
             # Security
             if(self.address_size == 64):

@@ -2776,7 +2776,7 @@ void LLPanelEstateCovenant::updateCovenantText(const std::string& string, const 
 	LLPanelEstateCovenant* panelp = LLFloaterRegionInfo::getPanelCovenant();
 	if( panelp )
 	{
-		panelp->mEditor->setText(string);
+		panelp->mEditor->setText(string, false);
 		panelp->setCovenantID(asset_id);
 	}
 }
@@ -2823,7 +2823,7 @@ void LLPanelEstateCovenant::setOwnerName(const std::string& name)
 
 void LLPanelEstateCovenant::setCovenantTextEditor(const std::string& text)
 {
-	mEditor->setText(text);
+	mEditor->setText(text, false);
 }
 
 // key = "estateupdateinfo"

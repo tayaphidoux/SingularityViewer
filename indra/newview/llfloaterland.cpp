@@ -715,7 +715,7 @@ void LLPanelLandGeneral::refresh()
 									);
 
 		mEditName->setText( parcel->getName() );
-		mEditDesc->setText( parcel->getDesc() );
+		mEditDesc->setText( parcel->getDesc(), false );
 
 		BOOL for_sale = parcel->getForSale();
 				
@@ -3070,7 +3070,7 @@ void LLPanelLandCovenant::updateCovenantText(const std::string &string)
 	{
 		LLViewerTextEditor* editor = self->getChild<LLViewerTextEditor>("covenant_editor");
 		editor->setHandleEditKeysDirectly(TRUE);
-		editor->setText(string);
+		editor->setText(string, false);
 	}
 }
 

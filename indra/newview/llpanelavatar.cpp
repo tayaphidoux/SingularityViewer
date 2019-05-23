@@ -290,7 +290,7 @@ void LLPanelAvatarFirstLife::processProperties(void* data, EAvatarProcessorType 
 		if (pAvatarData && (mAvatarID == pAvatarData->avatar_id) && (pAvatarData->avatar_id != LLUUID::null))
 		{
 			// Teens don't get these
-			getChildView("about")->setValue(pAvatarData->fl_about_text);
+			getChild<LLTextEditor>("about")->setText(pAvatarData->fl_about_text, false);
 			getChild<LLTextureCtrl>("img")->setImageAssetID(pAvatarData->fl_image_id);
 		}
 	}
@@ -1493,7 +1493,7 @@ void LLPanelAvatar::processProperties(void* data, EAvatarProcessorType type)
 				timeStructToFormattedString(&t, gSavedSettings.getString("ShortDateFormat"), born_on);
 			}*/
 			setOnlineStatus(pAvatarData->flags & AVATAR_ONLINE ? ONLINE_STATUS_YES : ONLINE_STATUS_NO);
-			childSetValue("about", pAvatarData->about_text);
+			getChild<LLTextEditor>("about")->setText(pAvatarData->about_text, false);
 		}
 	}
 	else if (type == APT_NOTES)
