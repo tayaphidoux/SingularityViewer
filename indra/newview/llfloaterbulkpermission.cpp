@@ -342,12 +342,13 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, LLInve
 					//status_text.setArg("[STATUS]", getString("status_ok_text"));
 					status_text.setArg("[STATUS]", "");
 				}
+#if 0
 				else
 				{
 					//status_text.setArg("[STATUS]", getString("status_bad_text"));
 					status_text.setArg("[STATUS]", "");
 				}
-				
+#endif
 				list->addSimpleElement(status_text.getString());
 
 				//TODO if we are an object inside an object we should check a recuse flag and if set
