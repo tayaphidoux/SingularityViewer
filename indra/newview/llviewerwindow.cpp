@@ -1644,9 +1644,9 @@ static const std::string font_dir()
 {
 	return gDirUtilp->getExecutableDir()
         #if LL_DARWIN
-            + "../Resources/"
+            + "/../Resources"
         #elif !defined(LL_WINDOWS)
-            + "../"
+            + "/.."
         #endif
 		;
 }
