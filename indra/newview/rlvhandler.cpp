@@ -2237,7 +2237,7 @@ ERlvCmdRet RlvHandler::onGetInvWorn(const RlvCommand& rlvCmd, std::string& strRe
 	RlvWearableItemCollector f(pFolder, RlvForceWear::ACTION_WEAR_REPLACE, RlvForceWear::FLAG_MATCHALL);
 	gInventory.collectDescendentsIf(pFolder->getUUID(), folders, items, FALSE, f, true);
 
-	rlv_wear_info wi = {0};
+	rlv_wear_info wi = {};
 
 	// Add all the folders to a lookup map 
 	std::map<LLUUID, rlv_wear_info> mapFolders;
