@@ -441,7 +441,7 @@ class WindowsManifest(ViewerManifest):
 
         if True: #self.is_packaging_viewer():
             # Find singularity-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
-            self.path(src='%s/%s-bin.exe' % (self.args['configuration'],self.viewer_branding_id()), dst=self.final_exe())
+            self.path(src='%s\\%s-bin.exe' % (self.args['configuration'],self.viewer_branding_id()), dst=self.final_exe())
 
             with self.prefix(src=os.path.join(pkgdir, "redist")):
                 # include the compiled launcher scripts so that it gets included in the file_list
