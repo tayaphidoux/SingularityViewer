@@ -38,12 +38,9 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 	// Figure out a unique name for our rect control
 	const auto rect_control = llformat("FloaterInv%sRect", boost::algorithm::erase_all_copy(title, " ").data());
 
-	if (gSavedSettings.controlExists(rect_control)) // Set our initial rect to the stored control
-		setRect(gSavedSettings.getRect(rect_control));
-	else // Or create the rect control if it doesn't exist
-		gSavedSettings.declareRect(rect_control, getRect(), "Rectangle for " + title + " window");
-
-	setRectControl(rect_control);
+	bool existed = gSavedSettings.controlExists(rect_control);
+	if (existed) // Set our initial rect to the stored control
+		setRectControl(rect_control);
 
 	// Load from XUI
 	mCommitCallbackRegistrar.add("InvPanel.Search", boost::bind(&LLInventoryPanel::setFilterSubString, boost::ref(mPanel), _2));
@@ -51,6 +48,18 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 
 	// Now set the title
 	setTitle(title);
+
+	// If we haven't existed before, create and set our rect control now
+	if (!existed)
+	{
+		S32 left, top;
+		gFloaterView->getNewFloaterPosition(&left, &top);
+		LLRect rect = getRect();
+		rect.translate(left - rect.mLeft, top - rect.mTop);
+		setRect(rect);
+		gSavedSettings.declareRect(rect_control, rect, "Rectangle for " + title + " window");
+		setRectControl(rect_control);
+	}
 
 	// Now take care of the children
 	LLPanel* panel = getChild<LLPanel>("placeholder_panel");
