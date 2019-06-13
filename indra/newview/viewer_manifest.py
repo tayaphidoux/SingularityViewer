@@ -723,11 +723,13 @@ class WindowsManifest(ViewerManifest):
         substitution_strings['installer_file'] = installer_file
 
         # Packaging the installer takes forever, dodge it if we can.
-        binary_mod = os.path.getmtime(os.path.join(self.args['configuration'], self.final_exe()))
-        installer_mod = os.path.getmtime(os.path.join(self.args['configuration'], installer_file))
-        if binary_mod <= installer_mod:
-            print("Binary is unchanged since last package, touch the binary to trigger repackage.")
-            exit();
+        installer_path = os.path.join(self.args['configuration'], installer_file);
+        if os.path.isfile(installer_path):
+            binary_mod = os.path.getmtime(os.path.join(self.args['configuration'], self.final_exe()))
+            installer_mod = os.path.getmtime(installer_path)
+            if binary_mod <= installer_mod:
+                print("Binary is unchanged since last package, touch the binary or delete installer to trigger repackage.")
+                exit();
 
         version_vars = """
         !define INSTEXE  "%(final_exe)s"
