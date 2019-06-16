@@ -160,7 +160,7 @@ void LLFloaterTeleportHistory::addEntry(std::string parcelName)
 		if (max_entries <= 0)
 		{
 			if (!max_entries)
-				mPlaces->clearRows();
+				mPlacesList->clearRows();
 		}
 		else while(num_entries >= max_entries)
 		{
