@@ -131,7 +131,7 @@ public:
 	void addDataFast(char *blockname, char *varname, const void *data, S32 size, EMsgVariableType type, S32 data_size = -1);
 
 public:
-	typedef LLIndexedVector<LLMsgBlkData*, char*> msg_blk_data_map_t;
+	typedef boost::unordered_map<char*, LLMsgBlkData*> msg_blk_data_map_t;
 	msg_blk_data_map_t					mMemberBlocks;
 	char								*mName;
 	S32									mTotalSize;
