@@ -4566,7 +4566,9 @@ void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 h
 			insertStringNoUndo(cur_length, wide_text);
 			LLStyleSP sp(new LLStyle(*stylep));
 			sp->setColor(piece["color"]);
-			LLTextSegmentPtr segmentp = new LLTextSegment(sp, cur_length, cur_length += wide_text.size());
+			auto wide_size = wide_text.size();
+			LLTextSegmentPtr segmentp = new LLTextSegment(sp, cur_length, cur_length + wide_size);
+			cur_length += wide_size;
 			if (underline_on_hover) segmentp->setUnderlineOnHover(true);
 			mSegments.push_back(segmentp);
 		}
