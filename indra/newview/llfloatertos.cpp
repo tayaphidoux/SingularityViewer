@@ -63,30 +63,34 @@ LLFloaterTOS* LLFloaterTOS::sInstance = NULL;
 // static
 LLFloaterTOS* LLFloaterTOS::show(ETOSType type, const std::string & message)
 {
-	if( !LLFloaterTOS::sInstance )
+	if (sInstance)
 	{
-		LLFloaterTOS::sInstance = new LLFloaterTOS(type, message);
+		delete sInstance;
 	}
-
-	if (type == TOS_TOS)
-	{
-		LLUICtrlFactory::getInstance()->buildFloater(LLFloaterTOS::sInstance, "floater_tos.xml");
-	}
-	else
-	{
-		LLUICtrlFactory::getInstance()->buildFloater(LLFloaterTOS::sInstance, "floater_critical.xml");
-	}
-
-	return LLFloaterTOS::sInstance;
+	return sInstance = new LLFloaterTOS(type, message);
 }
 
 
-LLFloaterTOS::LLFloaterTOS(ETOSType type, const std::string & message)
+LLFloaterTOS::LLFloaterTOS(ETOSType type, const std::string& message)
 :	LLModalDialog( std::string(" "), 100, 100 ),
 	mType(type),
-	mMessage(message),
 	mLoadCompleteCount( 0 )
 {
+	LLUICtrlFactory::getInstance()->buildFloater(this,
+		mType == TOS_CRITICAL_MESSAGE ? "floater_critical.xml"
+			: mType == TOS_TOS ? "floater_tos.xml"
+			: "floater_voice_license.xml");
+
+	if (mType == TOS_CRITICAL_MESSAGE)
+	{
+		// this displays the critical message
+		LLTextEditor *editor = getChild<LLTextEditor>("tos_text");
+		editor->setHandleEditKeysDirectly( TRUE );
+		editor->setEnabled( FALSE );
+		editor->setWordWrap(TRUE);
+		editor->setFocus(TRUE);
+		editor->setValue(LLSD(message));
+	}
 }
 
 // helper class that trys to download a URL from a web site and calls a method 
@@ -146,16 +150,8 @@ BOOL LLFloaterTOS::postBuild()
 	childSetAction("Cancel", onCancel, this);
 	childSetCommitCallback("agree_chk", updateAgree, this);
 
-	if ( mType != TOS_TOS )
+	if ( mType == TOS_CRITICAL_MESSAGE )
 	{
-		// this displays the critical message
-		LLTextEditor *editor = getChild<LLTextEditor>("tos_text");
-		editor->setHandleEditKeysDirectly( TRUE );
-		editor->setEnabled( FALSE );
-		editor->setWordWrap(TRUE);
-		editor->setFocus(TRUE);
-		editor->setValue(LLSD(mMessage));
-
 		return TRUE;
 	}
 
@@ -164,15 +160,21 @@ BOOL LLFloaterTOS::postBuild()
 	tos_agreement->setEnabled( false );
 
 	// hide the SL text widget if we're displaying TOS with using a browser widget.
-	LLTextEditor *editor = getChild<LLTextEditor>("tos_text");
+	LLTextEditor *editor = getChild<LLTextEditor>(mType == TOS_VOICE ? "license_text" : "tos_text");
 	editor->setVisible( FALSE );
 
-	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("tos_html");
+	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>(mType == TOS_VOICE ? "license_html" : "tos_html");
 	if ( web_browser )
 	{
 		web_browser->addObserver(this);
-		gResponsePtr = LLIamHere::build( this );
-		LLHTTPClient::get( getString( "real_url" ), gResponsePtr );
+		std::string url = getString( "real_url" );
+
+		if (mType != TOS_VOICE || url.substr(0,4) == "http") {
+			gResponsePtr = LLIamHere::build( this );
+			LLHTTPClient::get(url, gResponsePtr);
+		} else {
+			setSiteIsAlive(false);
+		}
 	}
 
 	return TRUE;
@@ -181,9 +183,9 @@ BOOL LLFloaterTOS::postBuild()
 void LLFloaterTOS::setSiteIsAlive( bool alive )
 {
 	// only do this for TOS pages
-	if ( mType == TOS_TOS )
+	if ( mType != TOS_CRITICAL_MESSAGE )
 	{
-		LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("tos_html");
+		LLMediaCtrl* web_browser = getChild<LLMediaCtrl>(mType == TOS_VOICE ? "license_html" : "tos_html");
 		// if the contents of the site was retrieved
 		if ( alive )
 		{
@@ -191,21 +193,21 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 			{
 				// navigate to the "real" page 
 				web_browser->navigateTo( getString( "real_url" ) );
-			};
+			}
 		}
 		else
 		{
+			if (mType == TOS_VOICE) web_browser->navigateToLocalPage("license", getString("fallback_html"));
 			// normally this is set when navigation to TOS page navigation completes (so you can't accept before TOS loads)
 			// but if the page is unavailable, we need to do this now
 			LLCheckBoxCtrl* tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
 			tos_agreement->setEnabled( true );
-		};
-	};
+		}
+	}
 }
 
 LLFloaterTOS::~LLFloaterTOS()
 {
-
 	// tell the responder we're not here anymore
 	if ( gResponsePtr )
 		gResponsePtr->setParent( 0 );
@@ -232,8 +234,18 @@ void LLFloaterTOS::updateAgree(LLUICtrl*, void* userdata )
 void LLFloaterTOS::onContinue( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
-	LL_INFOS() << "User agrees with TOS." << LL_ENDL;
-	if (self->mType == TOS_TOS)
+	bool voice = self->mType == TOS_VOICE;
+	LL_INFOS() << (voice ? "User agreed to the Vivox personal license" : "User agrees with TOS.") << LL_ENDL;
+	if (voice)
+	{
+		// enabling voice by default here seems like the best behavior
+		gSavedSettings.setBOOL("EnableVoiceChat", TRUE);
+		gSavedSettings.setBOOL("VivoxLicenseAccepted", TRUE);
+
+		// save these settings in case something bad happens later
+		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
+	}
+	else if (self->mType == TOS_TOS)
 	{
 		gAcceptTOS = TRUE;
 	}
@@ -242,16 +254,19 @@ void LLFloaterTOS::onContinue( void* userdata )
 		gAcceptCriticalMessage = TRUE;
 	}
 
+	auto state = LLStartUp::getStartupState();
 	// Testing TOS dialog
-	#if ! LL_RELEASE_FOR_DOWNLOAD		
-	if ( LLStartUp::getStartupState() == STATE_LOGIN_WAIT )
+	#if ! LL_RELEASE_FOR_DOWNLOAD
+	if (!voice && state == STATE_LOGIN_WAIT)
 	{
 		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 	}
 	else 
 	#endif
-
-	LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );			// Go back and finish authentication
+	if (!voice || state == STATE_LOGIN_VOICE_LICENSE)
+	{
+		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );			// Go back and finish authentication
+	}
 	self->close(); // destroys this object
 }
 
@@ -259,9 +274,23 @@ void LLFloaterTOS::onContinue( void* userdata )
 void LLFloaterTOS::onCancel( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
-	LL_INFOS() << "User disagrees with TOS." << LL_ENDL;
-	LLNotificationsUtil::add("MustAgreeToLogIn", LLSD(), LLSD(), login_alert_done);
-	LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+	if (self->mType == TOS_VOICE)
+	{
+		LL_INFOS() << "User disagreed with the vivox personal license" << LL_ENDL;
+		gSavedSettings.setBOOL("EnableVoiceChat", FALSE);
+		gSavedSettings.setBOOL("VivoxLicenseAccepted", FALSE);
+
+		if (LLStartUp::getStartupState() == STATE_LOGIN_VOICE_LICENSE)
+		{
+			LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );			// Go back and finish authentication
+		}
+	}
+	else
+	{
+		LL_INFOS() << "User disagrees with TOS." << LL_ENDL;
+		LLNotificationsUtil::add("MustAgreeToLogIn", LLSD(), LLSD(), login_alert_done);
+		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+	}
 	self->mLoadCompleteCount = 0;  // reset counter for next time we come to TOS
 	self->close(); // destroys this object
 }

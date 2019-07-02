@@ -54,11 +54,12 @@ public:
 	enum ETOSType
 	{
 		TOS_TOS = 0,
-		TOS_CRITICAL_MESSAGE = 1
+		TOS_CRITICAL_MESSAGE = 1,
+		TOS_VOICE = 2
 	};
 
 	// Asset_id is overwritten with LLUUID::null when agree is clicked.
-	static LLFloaterTOS* show(ETOSType type, const std::string & message);
+	static LLFloaterTOS* show(ETOSType type, const std::string& message = LLStringUtil::null);
 
 	BOOL postBuild();
 	
