@@ -1,34 +1,33 @@
 /** 
- * @file llfloatertos.cpp
- * @brief Terms of Service Agreement dialog
- *
- * $LicenseInfo:firstyear=2003&license=viewergpl$
- * 
- * Copyright (c) 2003-2009, Linden Research, Inc.
- * 
- * Second Life Viewer Source Code
- * The source code in this file ("Source Code") is provided by Linden Lab
- * to you under the terms of the GNU General Public License, version 2.0
- * ("GPL"), unless you have obtained a separate licensing agreement
- * ("Other License"), formally executed by you and Linden Lab.  Terms of
- * the GPL can be found in doc/GPL-license.txt in this distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
- * 
- * There are special exceptions to the terms and conditions of the GPL as
- * it is applied to this Source Code. View the full text of the exception
- * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at
- * http://secondlifegrid.net/programs/open_source/licensing/flossexception
- * 
- * By copying, modifying or distributing this software, you acknowledge
- * that you have read and understood your obligations described above,
- * and agree to abide by those obligations.
- * 
- * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
- * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
- * COMPLETENESS OR PERFORMANCE.
- * $/LicenseInfo$
- */
+* @file llfloatertos.cpp
+* @brief Terms of Service Agreement dialog
+*
+* $LicenseInfo:firstyear=2003&license=viewergpl$
+* 
+* Copyright (c) 2003-2009, Linden Research, Inc.; 2010, McCabe Maxsted; 2019, Liru Faers
+* 
+* Second Life Viewer Source Code
+* The source code in this file ("Source Code") is provided by Linden Lab
+* to you under the terms of the GNU General Public License, version 2.0
+* ("GPL"), unless you have obtained a separate licensing agreement
+* ("Other License"), formally executed by you and Linden Lab.  Terms of
+* the GPL can be found in doc/GPL-license.txt in this distribution, or
+* online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+* 
+* There are special exceptions to the terms and conditions of the GPL as
+* it is applied to this Source Code. View the full text of the exception
+* in the file doc/FLOSS-exception.txt in this software distribution, or
+* online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+* 
+* By copying, modifying or distributing this software, you acknowledge
+* that you have read and understood your obligations described above,
+* and agree to abide by those obligations.
+* 
+* ALL SOURCE CODE IS PROVIDED "AS IS." THE AUTHOR MAKES NO
+* WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+* COMPLETENESS OR PERFORMANCE.
+* $/LicenseInfo$
+*/
 
 #include "llviewerprecompiledheaders.h"
 
@@ -58,23 +57,20 @@ class AIHTTPTimeoutPolicy;
 extern AIHTTPTimeoutPolicy iamHere_timeout;
 
 // static 
-LLFloaterTOS* LLFloaterTOS::sInstance = NULL;
+LLFloaterTOS* LLFloaterTOS::sInstance = nullptr;
 
 // static
 LLFloaterTOS* LLFloaterTOS::show(ETOSType type, const std::string & message)
 {
-	if (sInstance)
-	{
-		delete sInstance;
-	}
+	if (sInstance) delete sInstance;
 	return sInstance = new LLFloaterTOS(type, message);
 }
 
 
 LLFloaterTOS::LLFloaterTOS(ETOSType type, const std::string& message)
-:	LLModalDialog( std::string(" "), 100, 100 ),
+:	LLModalDialog(std::string(" "), 100, 100),
 	mType(type),
-	mLoadCompleteCount( 0 )
+	mLoadCompleteCount(0)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this,
 		mType == TOS_CRITICAL_MESSAGE ? "floater_critical.xml"
@@ -85,11 +81,11 @@ LLFloaterTOS::LLFloaterTOS(ETOSType type, const std::string& message)
 	{
 		// this displays the critical message
 		LLTextEditor *editor = getChild<LLTextEditor>("tos_text");
-		editor->setHandleEditKeysDirectly( TRUE );
-		editor->setEnabled( FALSE );
+		editor->setHandleEditKeysDirectly(TRUE);
+		editor->setEnabled(FALSE);
 		editor->setWordWrap(TRUE);
 		editor->setFocus(TRUE);
-		editor->setValue(LLSD(message));
+		editor->setValue(message);
 	}
 }
 
@@ -98,50 +94,49 @@ LLFloaterTOS::LLFloaterTOS(ETOSType type, const std::string& message)
 class LLIamHere : public LLHTTPClient::ResponderWithResult
 {
 	private:
-		LLIamHere( LLFloaterTOS* parent ) :
-		   mParent( parent )
+		LLIamHere(LLFloaterTOS* parent) :
+		   mParent(parent->getDerivedHandle<LLFloaterTOS>())
 		{}
 
-		LLFloaterTOS* mParent;
+		LLHandle<LLFloaterTOS> mParent;
 
 	public:
-
-		static boost::intrusive_ptr< LLIamHere > build( LLFloaterTOS* parent )
+		static boost::intrusive_ptr<LLIamHere> build(LLFloaterTOS* parent)
 		{
-			return boost::intrusive_ptr< LLIamHere >( new LLIamHere( parent ) );
-		};
+			return boost::intrusive_ptr<LLIamHere>(new LLIamHere(parent));
+		}
 		
-		virtual void  setParent( LLFloaterTOS* parentIn )
+		virtual void setParent(LLFloaterTOS* parentIn)
 		{
-			mParent = parentIn;
-		};
+			mParent = parentIn->getDerivedHandle<LLFloaterTOS>();
+		}
 		
-		/*virtual*/ void httpSuccess(void)
+		/*virtual*/ void httpSuccess()
 		{
-			if ( mParent )
-				mParent->setSiteIsAlive( true );
-		};
+			if (!mParent.isDead())
+				mParent.get()->setSiteIsAlive( true );
+		}
 
-		/*virtual*/ void httpFailure(void)
+		/*virtual*/ void httpFailure()
 		{
-			if ( mParent )
+			if (!mParent.isDead())
 			{
 				// *HACK: For purposes of this alive check, 302 Found
 				// (aka Moved Temporarily) is considered alive.  The web site
 				// redirects this link to a "cache busting" temporary URL. JC
 				bool alive = (mStatus == HTTP_FOUND);
-				mParent->setSiteIsAlive( alive );
+				mParent.get()->setSiteIsAlive(alive);
 			}
-		};
+		}
 
-		/*virtual*/  AIHTTPTimeoutPolicy const& getHTTPTimeoutPolicy(void) const { return iamHere_timeout; }
-		/*virtual*/ bool pass_redirect_status(void) const { return true; }
-		/*virtual*/ char const* getName(void) const { return "LLIamHere"; }
+		/*virtual*/  AIHTTPTimeoutPolicy const& getHTTPTimeoutPolicy() const { return iamHere_timeout; }
+		/*virtual*/ bool pass_redirect_status() const { return true; }
+		/*virtual*/ char const* getName() const { return "LLIamHere"; }
 };
 
 // this is global and not a class member to keep crud out of the header file
 namespace {
-	boost::intrusive_ptr< LLIamHere > gResponsePtr = 0;
+	boost::intrusive_ptr<LLIamHere> gResponsePtr = 0;
 };
 
 BOOL LLFloaterTOS::postBuild()
@@ -150,28 +145,23 @@ BOOL LLFloaterTOS::postBuild()
 	childSetAction("Cancel", onCancel, this);
 	childSetCommitCallback("agree_chk", updateAgree, this);
 
-	if ( mType == TOS_CRITICAL_MESSAGE )
-	{
-		return TRUE;
-	}
+	if (mType == TOS_CRITICAL_MESSAGE) return TRUE;
 
 	// disable Agree to TOS radio button until the page has fully loaded
 	LLCheckBoxCtrl* tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
-	tos_agreement->setEnabled( false );
+	tos_agreement->setEnabled(false);
 
+	bool voice = mType == TOS_VOICE;
 	// hide the SL text widget if we're displaying TOS with using a browser widget.
-	LLTextEditor *editor = getChild<LLTextEditor>(mType == TOS_VOICE ? "license_text" : "tos_text");
-	editor->setVisible( FALSE );
+	getChild<LLTextEditor>(voice ? "license_text" : "tos_text")->setVisible(FALSE);
 
-	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>(mType == TOS_VOICE ? "license_html" : "tos_html");
-	if ( web_browser )
+	if (LLMediaCtrl* web_browser = getChild<LLMediaCtrl>(voice ? "license_html" : "tos_html"))
 	{
+		// start to observe it so we see navigate complete events
 		web_browser->addObserver(this);
 		std::string url = getString( "real_url" );
-
-		if (mType != TOS_VOICE || url.substr(0,4) == "http") {
-			gResponsePtr = LLIamHere::build( this );
-			LLHTTPClient::get(url, gResponsePtr);
+		if (!voice || url.substr(0,4) == "http") {
+			LLHTTPClient::get(url, gResponsePtr = LLIamHere::build(this));
 		} else {
 			setSiteIsAlive(false);
 		}
@@ -180,28 +170,28 @@ BOOL LLFloaterTOS::postBuild()
 	return TRUE;
 }
 
-void LLFloaterTOS::setSiteIsAlive( bool alive )
+void LLFloaterTOS::setSiteIsAlive(bool alive)
 {
 	// only do this for TOS pages
-	if ( mType != TOS_CRITICAL_MESSAGE )
+	if (mType != TOS_CRITICAL_MESSAGE)
 	{
-		LLMediaCtrl* web_browser = getChild<LLMediaCtrl>(mType == TOS_VOICE ? "license_html" : "tos_html");
+		bool voice = mType == TOS_VOICE;
+		LLMediaCtrl* web_browser = getChild<LLMediaCtrl>(voice ? "license_html" : "tos_html");
 		// if the contents of the site was retrieved
-		if ( alive )
+		if (alive)
 		{
-			if ( web_browser )
+			if (web_browser)
 			{
 				// navigate to the "real" page 
-				web_browser->navigateTo( getString( "real_url" ) );
+				web_browser->navigateTo(getString("real_url"));
 			}
 		}
 		else
 		{
-			if (mType == TOS_VOICE) web_browser->navigateToLocalPage("license", getString("fallback_html"));
+			if (voice) web_browser->navigateToLocalPage("license", getString("fallback_html"));
 			// normally this is set when navigation to TOS page navigation completes (so you can't accept before TOS loads)
 			// but if the page is unavailable, we need to do this now
-			LLCheckBoxCtrl* tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
-			tos_agreement->setEnabled( true );
+			getChild<LLCheckBoxCtrl>("agree_chk")->setEnabled(true);
 		}
 	}
 }
@@ -209,10 +199,8 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 LLFloaterTOS::~LLFloaterTOS()
 {
 	// tell the responder we're not here anymore
-	if ( gResponsePtr )
-		gResponsePtr->setParent( 0 );
-
-	LLFloaterTOS::sInstance = NULL;
+	if (gResponsePtr) gResponsePtr->setParent(0);
+	sInstance = nullptr;
 }
 
 // virtual
@@ -231,7 +219,7 @@ void LLFloaterTOS::updateAgree(LLUICtrl*, void* userdata )
 }
 
 // static
-void LLFloaterTOS::onContinue( void* userdata )
+void LLFloaterTOS::onContinue(void* userdata)
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	bool voice = self->mType == TOS_VOICE;
@@ -271,7 +259,7 @@ void LLFloaterTOS::onContinue( void* userdata )
 }
 
 // static
-void LLFloaterTOS::onCancel( void* userdata )
+void LLFloaterTOS::onCancel(void* userdata)
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	if (self->mType == TOS_VOICE)

@@ -88,7 +88,6 @@ set(viewer_SOURCE_FILES
     daeexport.cpp
     floaterao.cpp
     floaterlocalassetbrowse.cpp
-    floatervoicelicense.cpp
     generichandlers.cpp
     groupchatlistener.cpp
     hbfloatergrouptitles.cpp
@@ -625,7 +624,6 @@ set(viewer_HEADER_FILES
     daeexport.h
     floaterao.h
     floaterlocalassetbrowse.h
-    floatervoicelicense.h
     generichandlers.h
     groupchatlistener.h
     hbfloatergrouptitles.h

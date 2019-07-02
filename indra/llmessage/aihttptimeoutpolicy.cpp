@@ -927,7 +927,6 @@ P2(groupProposalBallotResponder,				transfer_300s);
 P(homeLocationResponder);
 P2(HTTPGetResponder,							reply_15s);
 P(iamHere);
-P(iamHereVoice);
 P2(BGFolderHttpHandler, transfer_300s);
 P(BGItemHttpHandler);
 P(lcl_responder);
