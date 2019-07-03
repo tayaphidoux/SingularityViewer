@@ -61,8 +61,6 @@ public:
 	static LLFloaterTOS* show(ETOSType type, const std::string& message = LLStringUtil::null);
 
 	BOOL postBuild();
-	
-	virtual void draw();
 
 	static void		updateAgree( LLUICtrl *, void* userdata );
 	static void		onContinue( void* userdata );

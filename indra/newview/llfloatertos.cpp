@@ -62,7 +62,7 @@ LLFloaterTOS* LLFloaterTOS::sInstance = nullptr;
 // static
 LLFloaterTOS* LLFloaterTOS::show(ETOSType type, const std::string & message)
 {
-	if (sInstance) delete sInstance;
+	if (sInstance) sInstance->close();
 	return sInstance = new LLFloaterTOS(type, message);
 }
 
@@ -93,50 +93,35 @@ LLFloaterTOS::LLFloaterTOS(ETOSType type, const std::string& message)
 // on parent class indicating if the web server is working or not
 class LLIamHere : public LLHTTPClient::ResponderWithResult
 {
-	private:
-		LLIamHere(LLFloaterTOS* parent) :
-		   mParent(parent->getDerivedHandle<LLFloaterTOS>())
-		{}
+	LLIamHere(LLFloaterTOS* parent) : mParent(parent->getDerivedHandle<LLFloaterTOS>()) {}
+	LLHandle<LLFloaterTOS> mParent;
 
-		LLHandle<LLFloaterTOS> mParent;
-
-	public:
-		static boost::intrusive_ptr<LLIamHere> build(LLFloaterTOS* parent)
-		{
-			return boost::intrusive_ptr<LLIamHere>(new LLIamHere(parent));
-		}
+public:
+	static boost::intrusive_ptr<LLIamHere> build(LLFloaterTOS* parent)
+	{
+		return boost::intrusive_ptr<LLIamHere>(new LLIamHere(parent));
+	}
 		
-		virtual void setParent(LLFloaterTOS* parentIn)
-		{
-			mParent = parentIn->getDerivedHandle<LLFloaterTOS>();
-		}
-		
-		/*virtual*/ void httpSuccess()
-		{
-			if (!mParent.isDead())
-				mParent.get()->setSiteIsAlive( true );
-		}
+	void httpSuccess() override
+	{
+		if (!mParent.isDead())
+			mParent.get()->setSiteIsAlive(true);
+	}
 
-		/*virtual*/ void httpFailure()
+	void httpFailure() override
+	{
+		if (!mParent.isDead())
 		{
-			if (!mParent.isDead())
-			{
-				// *HACK: For purposes of this alive check, 302 Found
-				// (aka Moved Temporarily) is considered alive.  The web site
-				// redirects this link to a "cache busting" temporary URL. JC
-				bool alive = (mStatus == HTTP_FOUND);
-				mParent.get()->setSiteIsAlive(alive);
-			}
+			// *HACK: For purposes of this alive check, 302 Found
+			// (aka Moved Temporarily) is considered alive.  The web site
+			// redirects this link to a "cache busting" temporary URL. JC
+			mParent.get()->setSiteIsAlive(mStatus == HTTP_FOUND);
 		}
+	}
 
-		/*virtual*/  AIHTTPTimeoutPolicy const& getHTTPTimeoutPolicy() const { return iamHere_timeout; }
-		/*virtual*/ bool pass_redirect_status() const { return true; }
-		/*virtual*/ char const* getName() const { return "LLIamHere"; }
-};
-
-// this is global and not a class member to keep crud out of the header file
-namespace {
-	boost::intrusive_ptr<LLIamHere> gResponsePtr = 0;
+	AIHTTPTimeoutPolicy const& getHTTPTimeoutPolicy() const override { return iamHere_timeout; }
+	bool pass_redirect_status() const override { return true; }
+	char const* getName() const override { return "LLIamHere"; }
 };
 
 BOOL LLFloaterTOS::postBuild()
@@ -161,7 +146,7 @@ BOOL LLFloaterTOS::postBuild()
 		web_browser->addObserver(this);
 		std::string url = getString( "real_url" );
 		if (!voice || url.substr(0,4) == "http") {
-			LLHTTPClient::get(url, gResponsePtr = LLIamHere::build(this));
+			LLHTTPClient::get(url, LLIamHere::build(this));
 		} else {
 			setSiteIsAlive(false);
 		}
@@ -198,16 +183,7 @@ void LLFloaterTOS::setSiteIsAlive(bool alive)
 
 LLFloaterTOS::~LLFloaterTOS()
 {
-	// tell the responder we're not here anymore
-	if (gResponsePtr) gResponsePtr->setParent(0);
 	sInstance = nullptr;
-}
-
-// virtual
-void LLFloaterTOS::draw()
-{
-	// draw children
-	LLModalDialog::draw();
 }
 
 // static
@@ -244,16 +220,16 @@ void LLFloaterTOS::onContinue(void* userdata)
 
 	auto state = LLStartUp::getStartupState();
 	// Testing TOS dialog
-	#if ! LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	if (!voice && state == STATE_LOGIN_WAIT)
 	{
-		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+		LLStartUp::setStartupState(STATE_LOGIN_SHOW);
 	}
 	else 
-	#endif
+#endif
 	if (!voice || state == STATE_LOGIN_VOICE_LICENSE)
 	{
-		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );			// Go back and finish authentication
+		LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);			// Go back and finish authentication
 	}
 	self->close(); // destroys this object
 }
@@ -264,37 +240,35 @@ void LLFloaterTOS::onCancel(void* userdata)
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	if (self->mType == TOS_VOICE)
 	{
-		LL_INFOS() << "User disagreed with the vivox personal license" << LL_ENDL;
+		LL_INFOS() << "User disagreed with the Vivox personal license" << LL_ENDL;
 		gSavedSettings.setBOOL("EnableVoiceChat", FALSE);
 		gSavedSettings.setBOOL("VivoxLicenseAccepted", FALSE);
 
 		if (LLStartUp::getStartupState() == STATE_LOGIN_VOICE_LICENSE)
 		{
-			LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );			// Go back and finish authentication
+			LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);			// Go back and finish authentication
 		}
 	}
 	else
 	{
 		LL_INFOS() << "User disagrees with TOS." << LL_ENDL;
 		LLNotificationsUtil::add("MustAgreeToLogIn", LLSD(), LLSD(), login_alert_done);
-		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+		LLStartUp::setStartupState(STATE_LOGIN_SHOW);
 	}
-	self->mLoadCompleteCount = 0;  // reset counter for next time we come to TOS
 	self->close(); // destroys this object
 }
 
 //virtual 
 void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent event)
 {
-	if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
+	if (event == MEDIA_EVENT_NAVIGATE_COMPLETE)
 	{
 		// skip past the loading screen navigate complete
-		if ( ++mLoadCompleteCount == 2 )
+		if (++mLoadCompleteCount == 2)
 		{
 			LL_INFOS() << "NAVIGATE COMPLETE" << LL_ENDL;
 			// enable Agree to TOS radio button now that page has loaded
-			LLCheckBoxCtrl * tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
-			tos_agreement->setEnabled( true );
+			getChild<LLCheckBoxCtrl>("agree_chk")->setEnabled(true);
 		}
 	}
 }
