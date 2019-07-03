@@ -818,11 +818,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a3ccf7916d1e0b6f01370978b661c139</string>
+              <string>d1ede6c7be5db022897b44830cb5b095</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/darwin/lib/fmodstudio-1.10.02-darwin-201712262058.tar.bz2</string>
+              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/fmodstudio-2.00.02.191841858-darwin64-191841858.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -860,11 +860,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b23a30967666da49346983658ed50e92</string>
+              <string>2e18d5c43fad15d869dd96860f1e1871</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows/lib/fmodstudio-1.10.00-windows-201709290225.tar.bz2</string>
+              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/fmodstudio-2.00.02-windows-191832253.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -874,11 +874,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>779ae33c6b84656295bd6cf50a69c830</string>
+              <string>6146c96719680c2f1a8aaab1dabdef8e</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/packages/windows64/msvc/fmodstudio-1.10.10.190360453-windows64-190360453.tar.bz2</string>
+              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/fmodstudio-2.00.02-windows64-191832321.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
