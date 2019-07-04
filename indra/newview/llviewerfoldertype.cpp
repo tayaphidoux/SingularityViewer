@@ -133,7 +133,7 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 	addEntry(LLFolderType::FT_MY_OUTFITS, 			new ViewerFolderEntry("My Outfits",				"inv_folder_outfit.tga",			"inv_folder_outfit.tga",		TRUE,		false));
 	addEntry(LLFolderType::FT_MESH, 				new ViewerFolderEntry("Meshes",					"inv_folder_mesh.tga",				"inv_folder_mesh.tga",			FALSE,		false));
 
-	bool boxes_invisible = !gSavedSettings.getBOOL("InventoryOutboxMakeVisible");
+	//bool boxes_invisible = !gSavedSettings.getBOOL("InventoryOutboxMakeVisible");
 	addEntry(LLFolderType::FT_INBOX, 				new ViewerFolderEntry("Received Items",			"inv_folder_inbox.tga",				"inv_folder_inbox.tga",			FALSE,		false));
 	addEntry(LLFolderType::FT_OUTBOX, 				new ViewerFolderEntry("Merchant Outbox",		"inv_folder_outbox.tga",			"inv_folder_outbox.tga",		FALSE,		true));
 
