@@ -664,9 +664,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c3e093d40e93ff242e9b9c953ae7316c</string>
+              <string>e19b664ad8cf9e7f4a7bf649d28faa76</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc142/dullahan-1.1.930-3.3282.1733.g9091548-windows-201802202358.tar.bz2</string>
+              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1320_73.1.12+gee4b49f+chromium-73.0.3683.75-windows-191102212.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
