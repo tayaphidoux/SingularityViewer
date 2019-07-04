@@ -1579,7 +1579,6 @@ if (WINDOWS)
 
     add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat)
 
-
     if(EXISTS ${VISUAL_STUDIO_REDISTRIBUTABLE_PATH})
       add_custom_command(
         OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/redist
@@ -1598,10 +1597,12 @@ if (WINDOWS)
       )
 
       add_custom_target(copy_w_redist ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/redist/${VISUAL_STUDIO_REDISTRIBUTABLE_NAME})
+
+	  add_dependencies(${VIEWER_BINARY_NAME} copy_w_redist)
     endif()
 
 
-    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest copy_w_redist)
+    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest)
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)

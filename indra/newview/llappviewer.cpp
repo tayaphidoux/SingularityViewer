@@ -3346,16 +3346,15 @@ bool LLAppViewer::initCache()
 	
 	// Init the texture cache
 	// Allocate 80% of the cache size for textures
-	const U32 MB = 1024 * 1024;
-	const U64 MIN_CACHE_SIZE = 64 * MB;
-	const U64 MAX_CACHE_SIZE = 9984ll * MB;
-	const U64 MAX_VFS_SIZE = 1024 * MB; // 1 GB
+	const U64Bytes MIN_CACHE_SIZE = U32Megabytes(64);
+	const U64Bytes MAX_CACHE_SIZE = U32Megabytes(9984);
+	const U64Bytes MAX_VFS_SIZE = U32Gigabytes(1);
 
-	U64 cache_size = (U64)(gSavedSettings.getU32("CacheSize")) * MB;
+	U64Bytes cache_size = U32Megabytes(gSavedSettings.getU32("CacheSize"));
 	cache_size = llclamp(cache_size, MIN_CACHE_SIZE, MAX_CACHE_SIZE);
 
-	U64 texture_cache_size = ((cache_size * 8) / 10);
-	U64 vfs_size = cache_size - texture_cache_size;
+	U64Bytes texture_cache_size = ((cache_size * 8) / 10);
+	U64Bytes vfs_size = U64Bytes(cache_size) - U64Bytes(texture_cache_size);
 
 	if (vfs_size > MAX_VFS_SIZE)
 	{
@@ -3365,7 +3364,7 @@ bool LLAppViewer::initCache()
 		texture_cache_size = cache_size - MAX_VFS_SIZE;
 	}
 
-	U64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
+	U64Bytes extra(LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch));
 	texture_cache_size -= extra;
 
 	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion()) ;
@@ -3374,15 +3373,14 @@ bool LLAppViewer::initCache()
 	
 	// Init the VFS
 	vfs_size = llmin(vfs_size + extra, MAX_VFS_SIZE);
-	vfs_size = (vfs_size / MB) * MB; // make sure it is MB aligned
-	U32 vfs_size_u32 = (U32)vfs_size;
-	U32 old_vfs_size = gSavedSettings.getU32("VFSOldSize") * MB;
-	bool resize_vfs = (vfs_size_u32 != old_vfs_size);
+	vfs_size = U32Megabytes(vfs_size + U32Bytes(1048575)); // make sure it is MB aligned
+	U32Megabytes old_vfs_size(gSavedSettings.getU32("VFSOldSize"));
+	bool resize_vfs = (vfs_size != old_vfs_size);
 	if (resize_vfs)
 	{
-		gSavedSettings.setU32("VFSOldSize", vfs_size_u32 / MB);
+		gSavedSettings.setU32("VFSOldSize", U32Megabytes(vfs_size));
 	}
-	LL_INFOS("AppCache") << "VFS CACHE SIZE: " << vfs_size / (1024*1024) << " MB" << LL_ENDL;
+	LL_INFOS("AppCache") << "VFS CACHE SIZE: " << U32Megabytes(vfs_size) << LL_ENDL;
 	
 	// This has to happen BEFORE starting the vfs
 	// time_t	ltime;
@@ -3492,7 +3490,7 @@ bool LLAppViewer::initCache()
 	gSavedSettings.setU32("VFSSalt", new_salt);
 
 	// Don't remove VFS after viewer crashes.  If user has corrupt data, they can reinstall. JC
-	gVFS = LLVFS::createLLVFS(new_vfs_index_file, new_vfs_data_file, false, vfs_size_u32, false);
+	gVFS = LLVFS::createLLVFS(new_vfs_index_file, new_vfs_data_file, false, U32Bytes(vfs_size), false);
 	if (!gVFS)
 	{
 		return false;
