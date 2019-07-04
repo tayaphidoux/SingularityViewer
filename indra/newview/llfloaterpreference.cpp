@@ -441,6 +441,8 @@ void LLFloaterPreference::onBtnOK()
 		close(false);
 
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+		if (gAgentID.notNull())
+			gSavedPerAccountSettings.saveToFile( gSavedSettings.getString("PerAccountSettingsFile"), TRUE );
 	}
 	else
 	{

@@ -288,7 +288,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	mInputEditor(NULL),
 	mHistoryEditor(NULL),
 	mSessionInitialized(false),
-	mSessionStartMsgPos(0),
+	mSessionStartMsgPos({0, 0}),
 	mSessionType(P2P_SESSION),
 	mSessionUUID(session_id),
 	mLogLabel(log_label),
@@ -396,12 +396,14 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 			LLUIString session_start = sSessionStartString;
 
 			session_start.setArg("[NAME]", getTitle());
-			mSessionStartMsgPos = mHistoryEditor->getWText().length();
+			mSessionStartMsgPos.first = mHistoryEditor->getLength();
 
 			addHistoryLine(
 				session_start,
 				gSavedSettings.getColor4("SystemChatColor"),
 				false);
+
+			mSessionStartMsgPos.second = mHistoryEditor->getLength() - mSessionStartMsgPos.first;
 		}
 	}
 }
@@ -1163,6 +1165,12 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 void show_log_browser(const std::string& name, const std::string& id)
 {
 	const std::string file(LLLogChat::makeLogFileName(name));
+	if (!LLFile::isfile(file))
+	{
+		make_ui_sound("UISndBadKeystroke");
+		LL_WARNS() << "File not present: " << file << LL_ENDL;
+		return;
+	}
 	if (gSavedSettings.getBOOL("LiruLegacyLogLaunch"))
 	{
 		if (!LLWindow::ShellEx(file)) // 0 = success, otherwise fallback on internal browser.
@@ -1362,7 +1370,7 @@ void LLFloaterIMPanel::onSendMsg()
 
 			if (mSessionType == SUPPORT_SESSION && getChildView("Support Check")->getValue())
 			{
-				utf8_text.insert(action ? 3 : 0, llformat(action ? " (%d%s)" : "(%d%s): ", LL_VIEWER_VERSION_BUILD, LL_VIEWER_CHANNEL_GRK));
+				utf8_text.insert(action ? 3 : 0, llformat(action ? " (%d%s)" : "(%d%s): ", LL_VIEWER_VERSION_BUILD, wstring_to_utf8str(LL_VIEWER_CHANNEL_GRK).data()));
 			}
 
 			if ( mSessionInitialized )
@@ -1484,11 +1492,7 @@ void LLFloaterIMPanel::sessionInitReplyReceived(const LLUUID& session_id)
 	mVoiceChannel->updateSessionID(session_id);
 	mSessionInitialized = true;
 
-	//we assume the history editor hasn't moved at all since
-	//we added the starting session message
-	//so, we count how many characters to remove
-	S32 chars_to_remove = mHistoryEditor->getWText().length() - mSessionStartMsgPos;
-	mHistoryEditor->removeTextFromEnd(chars_to_remove);
+	mHistoryEditor->remove(mSessionStartMsgPos.first, mSessionStartMsgPos.second, true);
 
 	//and now, send the queued msg
 	for (LLSD::array_iterator iter = mQueuedMsgsForInit.beginArray();

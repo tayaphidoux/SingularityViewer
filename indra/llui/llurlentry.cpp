@@ -41,6 +41,7 @@
 //#include "lluicolortable.h"
 #include "message.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/format.hpp> // <alchemy/>
 
 #define APP_HEADER_REGEX "((((x-grid-info://)|(x-grid-location-info://))[-\\w\\.]+(:\\d+)?/app)|(secondlife:///app))"
@@ -120,11 +121,11 @@ std::string LLUrlEntryBase::getLabelFromWikiLink(const std::string &url) const
 	size_t start = 0;
 	while (! isspace(text[start]))
 	{
-		start++;
+		++start;
 	}
 	while (text[start] == ' ' || text[start] == '\t')
 	{
-		start++;
+		++start;
 	}
 	return unescapeUrl(url.substr(start, url.size()-start-1));
 }
@@ -136,7 +137,7 @@ std::string LLUrlEntryBase::getUrlFromWikiLink(const std::string &string) const
 	size_t end = 0;
 	while (! isspace(text[end]))
 	{
-		end++;
+		++end;
 	}
 	return escapeUrl(string.substr(1, end-1));
 }
@@ -273,7 +274,7 @@ std::string LLUrlEntryHTTP::getTooltip(const std::string &url) const
 //
 LLUrlEntryHTTPLabel::LLUrlEntryHTTPLabel()
 {
-	mPattern = boost::regex("\\[https?://\\S+[ \t]+[^\\]]+\\]",
+	mPattern = boost::regex("\\[(https?://\\S+|\\S+\\.([^\\s<]*)?)[ \t]+[^\\]]+\\]",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
 	mTooltip = LLTrans::getString("TooltipHttpUrl");
@@ -292,7 +293,10 @@ std::string LLUrlEntryHTTPLabel::getTooltip(const std::string &string) const
 
 std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string) const
 {
-	return getUrlFromWikiLink(string);
+	auto url = getUrlFromWikiLink(string);
+	if (!boost::istarts_with(url, "http"))
+		return "http://" + url;
+	return url;
 }
 
 //
@@ -334,7 +338,7 @@ std::string LLUrlEntryHTTPNoProtocol::getTooltip(const std::string &url) const
 LLUrlEntryInvalidSLURL::LLUrlEntryInvalidSLURL()
 	: LLUrlEntryBase()
 {
-	mPattern = boost::regex("(http://(maps.secondlife.com|slurl.com)/secondlife/|secondlife://(/app/(worldmap|teleport)/)?)[^ /]+(/-?[0-9]+){1,3}(/?(\\?title|\\?img|\\?msg)=\\S*)?/?",
+	mPattern = boost::regex("(https?://(maps.secondlife.com|slurl.com)/secondlife/|secondlife://(/app/(worldmap|teleport)/)?)[^ /]+(/-?[0-9]+){1,3}(/?(\\?\\S*)?)?",
 									boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
 	mTooltip = LLTrans::getString("TooltipHttpUrl");
@@ -421,7 +425,7 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
 LLUrlEntrySLURL::LLUrlEntrySLURL()
 {
 	// see http://slurl.com/about.php for details on the SLURL format
-	mPattern = boost::regex("http://(maps.secondlife.com|slurl.com)/secondlife/[^ /]+(/\\d+){0,3}(/?(\\?title|\\?img|\\?msg)=\\S*)?/?",
+	mPattern = boost::regex("https?://(maps.secondlife.com|slurl.com)/secondlife/[^ /]+(/\\d+){0,3}(/?(\\?\\S*)?)?",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_slurl.xml";
 	mTooltip = LLTrans::getString("TooltipSLURL");
@@ -669,9 +673,12 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		auto connection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2));
-		mAvatarNameCacheConnections.emplace(agent_id, connection);
-		addObserver(agent_id_string, url, cb);
+		if (cb)
+		{
+			auto connection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2));
+			mAvatarNameCacheConnections.emplace(agent_id, connection);
+			addObserver(agent_id_string, url, cb);
+		}
 		return LLTrans::getString("LoadingData");
 	}
 }
@@ -781,9 +788,12 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 	}
 	else
 	{
-		auto connection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2));
-		mAvatarNameCacheConnections.emplace(agent_id, connection);
-		addObserver(agent_id_string, url, cb);
+		if (cb)
+		{
+			auto connection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2));
+			mAvatarNameCacheConnections.emplace(agent_id, connection);
+			addObserver(agent_id_string, url, cb);
+		}
 		return LLTrans::getString("LoadingData");
 	}
 }
@@ -917,10 +927,13 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		gCacheName->getGroup(group_id,
-			boost::bind(&LLUrlEntryGroup::onGroupNameReceived,
-				this, _1, _2, _3));
-		addObserver(group_id_string, url, cb);
+		if (cb)
+		{
+			gCacheName->getGroup(group_id,
+				boost::bind(&LLUrlEntryGroup::onGroupNameReceived,
+					this, _1, _2, _3));
+			addObserver(group_id_string, url, cb);
+		}
 		return LLTrans::getString("LoadingData");
 	}
 }
@@ -1024,7 +1037,7 @@ std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelC
 	std::string parcel_id_string = unescapeUrl(path_array[2]); // parcel id
 
 	// Add an observer to call LLUrlLabelCallback when we have parcel name.
-	addObserver(parcel_id_string, url, cb);
+	if (cb) addObserver(parcel_id_string, url, cb);
 
 	LLUUID parcel_id(parcel_id_string);
 

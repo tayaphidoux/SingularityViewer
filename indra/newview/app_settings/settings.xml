@@ -7493,22 +7493,6 @@ This should be as low as possible, but too low may break functionality</string>
         <integer>0</integer>
       </array>
     </map>
-    <key>FloaterFavoritesRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for favorites window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>250</integer>
-        <integer>0</integer>
-      </array>
-    </map>
     <key>FloaterFindRect2</key>
     <map>
       <key>Comment</key>
@@ -8048,6 +8032,20 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RadarSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Sort order for the radar, map of column names to ascending boolean</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array>
+        <string>distance</string>
+        <boolean>1</boolean>
+      </array>
+    </map>
     <key>FloaterLandRect5</key>
     <map>
       <key>Comment</key>
@@ -8157,22 +8155,6 @@ This should be as low as possible, but too low may break functionality</string>
         <integer>0</integer>
         <integer>300</integer>
         <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterMyOutfitsRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for My Outfits window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>250</integer>
         <integer>0</integer>
       </array>
     </map>

@@ -73,7 +73,7 @@ private:
 } ;
 
 static_assert(sizeof(LLMaterialID) == MATERIAL_ID_SIZE, "LLMaterialID must be sizeof(mID)");
-static_assert(std::is_trivially_copyable<LLMaterialID>{}, "LLMaterialID must be a trivially copyable type");
+static_assert(std::is_trivially_copyable<LLMaterialID>::value, "LLMaterialID must be a trivially copyable type");
 
 #endif // LL_LLMATERIALID_H
 

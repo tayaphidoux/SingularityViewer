@@ -293,6 +293,8 @@ LLTextEditor::LLTextEditor(
 	mMouseDownY(0),
 	mLastSelectionX(-1),
 	mLastSelectionY(-1),
+	mParseHTML(parse_html),
+	mParseHighlights(false),
 	mLastContextMenuX(-1),
 	mLastContextMenuY(-1),
 	mReflowNeeded(FALSE),
@@ -343,7 +345,6 @@ LLTextEditor::LLTextEditor(
 	mBorder = new LLViewBorder(std::string("text ed border"), LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, UI_TEXTEDITOR_BORDER);
 	addChild(mBorder);
 
-	mParseHTML = parse_html;
 	appendText(default_text, FALSE, FALSE);
 
 	resetDirty();		// Update saved text state
@@ -741,7 +742,7 @@ LLMenuGL* LLTextEditor::createUrlContextMenu(S32 x, S32 y, const std::string &in
 	return menu;
 }
 
-void LLTextEditor::setText(const LLStringExplicit &utf8str)
+void LLTextEditor::setText(const LLStringExplicit &utf8str, bool force_replace_links)
 {
 	// clear out the existing text and segments
 	mWText.clear();
@@ -756,7 +757,7 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 	//LLStringUtil::removeCRLF(text);
 
 	// appendText modifies mCursorPos...
-	appendText(utf8str, false, false);
+	appendText(utf8str, false, false, nullptr, force_replace_links);
 	// ...so move cursor to top after appending text
 	setCursorPos(0);
 
@@ -766,9 +767,9 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 	mTextIsUpToDate = true;
 }
 
-void LLTextEditor::setWText(const LLWString& text)
+void LLTextEditor::setWText(const LLWString& text, bool force_replace_links)
 {
-	setText(wstring_to_utf8str(text));
+	setText(wstring_to_utf8str(text), force_replace_links);
 }
 
 // virtual
@@ -4274,7 +4275,7 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 		return;
 
 	std::string text = prepend_newline && !mWText.empty() ? ('\n' + new_text) : new_text;
-	appendTextImpl(text, style);
+	appendTextImpl(text, style, force_replace_links);
 
 	if (!allow_undo)
 	{
@@ -4317,7 +4318,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 			if (always_underline) link_style->mUnderline = true;
 			appendAndHighlightText(link, part, link_style, !always_underline/*match.underlineOnHoverOnly()*/);
 		};
-		const auto&& cb = force_replace_links ? boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3) : LLUrlLabelCallback::slot_function_type();
+		const auto&& cb = force_replace_links ? boost::bind(&LLTextEditor::replaceUrl, this, _1, _2, _3) : LLUrlLabelCallback();
 		while (!text.empty() && LLUrlRegistry::instance().findUrl(text, match, cb))
 		{
 			start = match.getStart();
@@ -4340,7 +4341,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 
 			auto url = match.getUrl();
 			const auto& label = match.getLabel();
-			if (force_replace_links || replace_links || url == label)
+			if (force_replace_links || url == label)
 			{
 				// add icon before url if need
 				/* Singu TODO: Icons next to links?
@@ -4552,39 +4553,29 @@ void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 h
 	// This is where we appendHighlightedText
 	// If LindenUserDir is empty then we didn't login yet.
 	// In that case we can't instantiate LLTextParser, which is initialized per user.
-	if (mParseHighlights && !gDirUtilp->getLindenUserDir(true).empty())
+	LLTextParser* highlight = mParseHighlights && stylep && !gDirUtilp->getLindenUserDir(true).empty() ? LLTextParser::getInstance() : nullptr;
+	if (highlight)
 	{
-		LLTextParser* highlight = LLTextParser::getInstance();
-
-		if (highlight && stylep)
+		const LLSD pieces = highlight->parsePartialLineHighlights(new_text, stylep->getColor(), (LLTextParser::EHighlightPosition)highlight_part);
+		auto cur_length = getLength();
+		for (auto i = pieces.beginArray(), end = pieces.endArray(); i < end; ++i)
 		{
-			LLStyleSP highlight_params(new LLStyle(*stylep));
-			LLSD pieces = highlight->parsePartialLineHighlights(new_text, highlight_params->getColor(), (LLTextParser::EHighlightPosition)highlight_part);
-			for (S32 i=0;i<pieces.size();i++)
-			{
-				LLSD color_llsd = pieces[i]["color"];
-				LLColor4 lcolor;
-				lcolor.setValue(color_llsd);
-				highlight_params->setColor(lcolor);
+			const auto& piece = *i;
+			LLWString wide_text = utf8str_to_wstring(piece["text"].asString());
 
-				LLWString wide_text;
-				wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
-
-				S32 cur_length = getLength();
-				insertStringNoUndo(cur_length, wide_text);
-				LLStyleSP sp(new LLStyle(*highlight_params));
-				LLTextSegmentPtr segmentp;
-				segmentp = new LLTextSegment(sp, cur_length, cur_length + wide_text.size());
-				if (underline_on_hover) segmentp->setUnderlineOnHover(true);
-				mSegments.push_back(segmentp);
-			}
-			return;
+			insertStringNoUndo(cur_length, wide_text);
+			LLStyleSP sp(new LLStyle(*stylep));
+			sp->setColor(piece["color"]);
+			auto wide_size = wide_text.size();
+			LLTextSegmentPtr segmentp = new LLTextSegment(sp, cur_length, cur_length + wide_size);
+			cur_length += wide_size;
+			if (underline_on_hover) segmentp->setUnderlineOnHover(true);
+			mSegments.push_back(segmentp);
 		}
 	}
-	//else
+	else
 	{
-		LLWString wide_text;
-		wide_text = utf8str_to_wstring(new_text);
+		LLWString wide_text = utf8str_to_wstring(new_text);
 
 		auto length = getLength();
 		auto insert_len = length + insertStringNoUndo(length, utf8str_to_wstring(new_text));
@@ -4627,7 +4618,7 @@ void LLTextEditor::appendAndHighlightTextImpl(const std::string& new_text, S32 h
 		}	
 		endOfDoc();
 	}
-	else if( selection_start != selection_end )
+	else if (was_selecting || selection_start != selection_end)
 	{
 		mSelectionStart = selection_start;
 		mSelectionEnd = selection_end;
@@ -4690,8 +4681,61 @@ S32 LLTextEditor::insertStringNoUndo(const S32 pos, const LLWString &wstr)
 
 S32 LLTextEditor::removeStringNoUndo(S32 pos, S32 length)
 {
+	auto seg_iter = getSegIterContaining(pos);
+	S32 end = pos + length;
+	while(seg_iter != mSegments.end())
+	{
+		LLTextSegmentPtr segmentp = *seg_iter;
+		if (segmentp->getStart() < pos)
+		{
+			// deleting from middle of segment
+			if (segmentp->getEnd() > end)
+			{
+				segmentp->setEnd(segmentp->getEnd() - length);
+			}
+			// truncating segment
+			else
+			{
+				segmentp->setEnd(pos);
+			}
+		}
+		else if (segmentp->getStart() < end)
+		{
+			// deleting entire segment
+			if (segmentp->getEnd() <= end)
+			{
+				// remove segment
+				seg_iter = mSegments.erase(seg_iter);
+				continue;
+			}
+			// deleting head of segment
+			else
+			{
+				segmentp->setStart(pos);
+				segmentp->setEnd(segmentp->getEnd() - length);
+			}
+		}
+		else
+		{
+			// shifting segments backward to fill deleted portion
+			segmentp->setStart(segmentp->getStart() - length);
+			segmentp->setEnd(segmentp->getEnd() - length);
+		}
+		++seg_iter;
+	}
+
 	mWText.erase(pos, length);
+
+	// recreate default segment in case we erased everything
+	createDefaultSegment();
+
 	mTextIsUpToDate = FALSE;
+
+	/*needsReflow(pos);*/
+	// Singu Note: This kinda sucks for performance of delete, fix this later (with LLTextBase merge?)
+	updateLineStartList();
+	mReflowNeeded = false;
+
 	return -length;	// This will be wrong if someone calls removeStringNoUndo with an excessive length
 }
 
@@ -4965,6 +5009,34 @@ BOOL LLTextEditor::handleMouseUpOverSegment(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
+
+LLTextEditor::segment_list_t::iterator LLTextEditor::getSegIterContaining(S32 index)
+{
+	S32 text_len = getLength();
+
+	if (index > text_len) { return mSegments.end(); }
+
+	// when there are no segments, we return the end iterator, which must be checked by caller
+	if (mSegments.size() <= 1) { return mSegments.begin(); }
+
+	LLPointer<LLTextSegment> index_segment = new LLTextSegment(index);
+	auto it = std::lower_bound(mSegments.begin(), mSegments.end(), index_segment, LLTextSegment::compare());
+	return it;
+}
+
+LLTextEditor::segment_list_t::const_iterator LLTextEditor::getSegIterContaining(S32 index) const
+{
+	S32 text_len = getLength();
+
+	if (index > text_len) { return mSegments.end(); }
+
+	// when there are no segments, we return the end iterator, which must be checked by caller
+	if (mSegments.size() <= 1) { return mSegments.begin(); }
+
+	LLPointer<LLTextSegment> index_segment = new LLTextSegment(index);
+	auto it = std::lower_bound(mSegments.begin(), mSegments.end(), index_segment, LLTextSegment::compare());
+	return it;
+}
 
 // Finds the text segment (if any) at the give local screen position
 LLTextSegment* LLTextEditor::getSegmentAtLocalPos( S32 x, S32 y ) const

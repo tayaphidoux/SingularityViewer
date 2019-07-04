@@ -809,7 +809,7 @@ wchar_t* ll_convert_string_to_wide(const std::string& in, unsigned int code_page
 	w_out[real_output_str_len] = 0;
 
 	return w_out;
-	return {&w_out[0]};
+//	return {&w_out[0]};
 }
 
 S32 wchartchars_to_llwchar(const std::wstring::value_type* inchars, llwchar* outchar)

@@ -2961,7 +2961,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		LLInventoryModel* model = getInventoryModel();
 		LLViewerInventoryCategory* cat = getCategory();
 		if (!model || !cat) return;
-		LFFloaterInvPanel::show(mUUID, model, cat->getName());
+		LFFloaterInvPanel::show(LLSD().with("id", mUUID), cat->getName(), model);
 		return;
 	}
 	else if ("paste" == action)
@@ -3142,7 +3142,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		}
 		return;
 	}
-	else if ("marketplace_copy_id")
+	else if ("marketplace_copy_id" == action)
 	{
 		auto id = LLMarketplaceData::instance().getListingID(mUUID);
 		gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(std::to_string(id)));

@@ -709,5 +709,5 @@ inline std::ostream& operator<<(std::ostream& s, const LLMatrix4a& m)
 
 void matMulBoundBox(const LLMatrix4a &a, const LLVector4a *in_extents, LLVector4a *out_extents);
 
-static_assert(std::is_trivially_copyable<LLMatrix4a>{}, "LLMatrix4a must be a trivially copyable type");
+static_assert(std::is_trivially_copyable<LLMatrix4a>::value, "LLMatrix4a must be a trivially copyable type");
 #endif

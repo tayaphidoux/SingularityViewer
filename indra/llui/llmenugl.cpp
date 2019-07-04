@@ -5264,30 +5264,30 @@ void LLPieMenu::draw()
 		mHoverIndex = -1;
 	}
 
-	F32 width = (F32) getRect().getWidth();
-	F32 height = (F32) getRect().getHeight();
-	mCurRadius = PIE_SCALE_FACTOR * llmax( width/2, height/2 );
+	const auto& rect = getRect();
+	// correct for non-square pixels
+	F32 center_x = ((F32) rect.getWidth())/2;
+	F32 center_y = ((F32) rect.getHeight())/2;
+	constexpr S32 steps = 100;
+	mCurRadius = PIE_SCALE_FACTOR * llmax(center_x, center_y);
 
 	mOuterRingAlpha = mUseInfiniteRadius ? 0.f : 1.f;
 	if (mShrinkBorderTimer.getStarted())
 	{
-		mOuterRingAlpha = clamp_rescale(mShrinkBorderTimer.getElapsedTimeF32(), 0.f, PIE_SHRINK_TIME, 0.f, 1.f);
-		mCurRadius *= clamp_rescale(mShrinkBorderTimer.getElapsedTimeF32(), 0.f, PIE_SHRINK_TIME, 1.f, 1.f / PIE_SCALE_FACTOR);
+		const auto& elapsed = mShrinkBorderTimer.getElapsedTimeF32();
+		mOuterRingAlpha = clamp_rescale(elapsed, 0.f, PIE_SHRINK_TIME, 0.f, 1.f);
+		mCurRadius *= clamp_rescale(elapsed, 0.f, PIE_SHRINK_TIME, 1.f, 1.f / PIE_SCALE_FACTOR);
 	}
 
-	// correct for non-square pixels
-	F32 center_x = width/2;
-	F32 center_y = height/2;
-	S32 steps = 100;
 
 	gGL.pushUIMatrix();
 	{
 		gGL.translateUI(center_x, center_y, 0.f);
 
-		F32 line_width = LLUI::sConfigGroup->getF32("PieMenuLineWidth");
-		LLColor4 line_color = LLUI::sColorsGroup->getColor("PieMenuLineColor");
-		LLColor4 bg_color = LLUI::sColorsGroup->getColor("PieMenuBgColor");
-		LLColor4 selected_color = LLUI::sColorsGroup->getColor("PieMenuSelectedColor");
+		static const LLUICachedControl<F32> line_width("PieMenuLineWidth");
+		static const LLCachedControl<LLColor4> line_color(*LLUI::sColorsGroup, "PieMenuLineColor");
+		static const LLCachedControl<LLColor4> bg_color(*LLUI::sColorsGroup, "PieMenuBgColor");
+		static const LLCachedControl<LLColor4> selected_color(*LLUI::sColorsGroup, "PieMenuSelectedColor");
 
 		// main body
 		LLColor4 outer_color = bg_color;
@@ -5297,7 +5297,7 @@ void LLPieMenu::draw()
 		// selected wedge
 		if (mHoverItem)
 		{
-			F32 arc_size = F_PI * 0.25f;
+			constexpr F32 arc_size = F_PI * 0.25f;
 
 			F32 start_radians = (mHoverIndex * arc_size) - (arc_size * 0.5f);
 			F32 end_radians = start_radians + arc_size;
@@ -5315,7 +5315,7 @@ void LLPieMenu::draw()
 		gl_washer_spokes_2d( mCurRadius, (F32)PIE_CENTER_SIZE, 8, line_color, outer_color );
 
 		// inner circle
-		gGL.color4fv( line_color.mV );
+		gGL.color4fv( line_color().mV );
 		gl_circle_2d( 0, 0, (F32)PIE_CENTER_SIZE, steps, FALSE );
 
 		// outer circle

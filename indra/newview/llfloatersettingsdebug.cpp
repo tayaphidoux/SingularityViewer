@@ -39,6 +39,7 @@
 #include "llfloater.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
+#include "llsdserialize.h"
 #include "llspinctrl.h"
 #include "lltexteditor.h"
 #include "lluictrlfactory.h"
@@ -215,6 +216,19 @@ void LLFloaterSettingsDebug::onCommitSettings()
 		col4U.mV[VALPHA] = getChild<LLUICtrl>("val_spinner_4")->getValue().asInteger();
 		mCurrentControlVariable->set(col4U.getValue());
 		break;
+	  case TYPE_LLSD:
+	  {
+		auto val = getChild<LLUICtrl>("val_text")->getValue().asString();
+		LLSD sd;
+		if (!val.empty())
+		{
+			std::istringstream str(val);
+			if (LLSDSerialize::fromXML(sd, str) == LLSDParser::PARSE_FAILURE)
+				break;
+		}
+		mCurrentControlVariable->set(sd);
+		break;
+	  }
 	  default:
 		break;
 	}
@@ -522,6 +536,14 @@ void LLFloaterSettingsDebug::updateControl()
 
 			break;
 		  }
+		  case TYPE_LLSD:
+			getChildView("val_text")->setVisible(true);
+			{
+				std::ostringstream str;
+				LLSDSerialize::toPrettyXML(sd, str);
+				getChild<LLUICtrl>("val_text")->setValue(str.str());
+			}
+			break;
 		  default:
 			mComment->setText(std::string("unknown"));
 			break;

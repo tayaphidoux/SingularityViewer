@@ -9,9 +9,9 @@ include(BuildVersion)
 include(BuildBranding)
 include(CMakeCopyIfDifferent)
 include(DBusGlib)
+include(FindVCRedist)
 include(FMODSTUDIO)
 include(GLOD)
-include(FindOpenGL)
 include(Hunspell)
 include(Json)
 include(LLAddBuildTest)
@@ -36,6 +36,7 @@ include(Linking)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
+include(OpenGL)
 include(OpenSSL)
 include(StateMachine)
 include(TemplateCheck)
@@ -44,10 +45,6 @@ include(ViewerMiscLibs)
 include(WinManifest)
 include(ZLIB)
 include(URIPARSER)
-
-if (MSVC)
-    use_prebuilt_binary(vcredist)
-endif (MSVC)
 
 include_directories(
     ${STATEMACHINE_INCLUDE_DIRS}
@@ -1434,6 +1431,12 @@ endif (WINDOWS)
 
 set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
 
+if (LIBVLCPLUGIN)
+    set_source_files_properties(llfloaterabout.cpp PROPERTIES COMPILE_DEFINITIONS "VLCPLUGIN=1")
+else (LIBVLCPLUGIN)
+    set_source_files_properties(llfloaterabout.cpp PROPERTIES COMPILE_DEFINITIONS "VLCPLUGIN=0")
+endif (LIBVLCPLUGIN)
+
 list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 
 set_source_files_properties(${viewer_HEADER_FILES}
@@ -1505,12 +1508,7 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/SLVoice.exe
-      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk.dll
-      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp.dll
-      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libsndfile-1.dll
-      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/zlib1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxplatform.dll
-      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxoal.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ca-bundle.crt
       ${GOOGLE_PERF_TOOLS_SOURCE}
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
@@ -1525,6 +1523,18 @@ if (WINDOWS)
       media_plugin_cef
       windows-crash-logger
       )
+
+    if (ADDRESS_SIZE EQUAL 64)
+        list(APPEND COPY_INPUT_DEPENDENCIES
+            ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk_x64.dll
+            ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp_x64.dll
+            )
+    else (ADDRESS_SIZE EQUAL 64)
+        list(APPEND COPY_INPUT_DEPENDENCIES
+            ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk.dll
+            ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp.dll
+            )
+    endif (ADDRESS_SIZE EQUAL 64)
 
     if (FMODSTUDIO)
       if (WORD_SIZE EQUAL 64)
@@ -1571,7 +1581,29 @@ if (WINDOWS)
 
     add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat)
 
-    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest)
+
+    if(EXISTS ${VISUAL_STUDIO_REDISTRIBUTABLE_PATH})
+      add_custom_command(
+        OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/redist
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/redist"
+        DEPENDS copy_w_viewer_manifest
+        COMMENT "Creating redist dir"
+      )
+      add_custom_command(
+        OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/redist/${VISUAL_STUDIO_REDISTRIBUTABLE_NAME}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		ARGS
+		${VISUAL_STUDIO_REDISTRIBUTABLE_PATH}
+		${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/redist/${VISUAL_STUDIO_REDISTRIBUTABLE_NAME}
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/redist
+        COMMENT "Copying ${VISUAL_STUDIO_REDISTRIBUTABLE_PATH} to redist dir"
+      )
+
+      add_custom_target(copy_w_redist ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/redist/${VISUAL_STUDIO_REDISTRIBUTABLE_NAME})
+    endif()
+
+
+    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest copy_w_redist)
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)

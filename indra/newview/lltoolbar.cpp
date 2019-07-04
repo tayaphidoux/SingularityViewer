@@ -101,6 +101,7 @@ F32	LLToolBar::sInventoryAutoOpenTime = 1.f;
 // Functions
 //
 void show_floater(const std::string& floater_name);
+void show_inv_floater(const LLSD& userdata, const std::string& field);
 
 LLToolBar::LLToolBar()
 :	LLLayoutPanel()
@@ -108,6 +109,9 @@ LLToolBar::LLToolBar()
 	setIsChrome(TRUE);
 	setFocusRoot(TRUE);
 	mCommitCallbackRegistrar.add("ShowFloater", boost::bind(show_floater, _2));
+	mCommitCallbackRegistrar.add("ShowInvFloater.ID", boost::bind(show_inv_floater, _2, "id"));
+	mCommitCallbackRegistrar.add("ShowInvFloater.Name", boost::bind(show_inv_floater, _2, "name"));
+	mCommitCallbackRegistrar.add("ShowInvFloater.Type", boost::bind(show_inv_floater, _2, "type"));
 }
 
 
@@ -120,17 +124,6 @@ BOOL LLToolBar::postBuild()
 	mMapBtn.connect(this, "map_btn");
 	mRadarBtn.connect(this, "radar_btn");
 	mInventoryBtn.connect(this, "inventory_btn");
-
-	for (child_list_const_iter_t child_iter = getChildList()->begin();
-		 child_iter != getChildList()->end(); ++child_iter)
-	{
-		LLView *view = *child_iter;
-		LLButton* buttonp = dynamic_cast<LLButton*>(view);
-		if(buttonp)
-		{
-			buttonp->setSoundFlags(LLView::SILENT);
-		}
-	}
 
 #if LL_DARWIN
 	LLResizeHandle::Params p;

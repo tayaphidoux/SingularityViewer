@@ -199,7 +199,7 @@ void LLPanelPick::processProperties(void* data, EAvatarProcessorType type)
 
 	// Update UI controls
     mNameEditor->setText(pick_info->name);
-    mDescEditor->setText(pick_info->desc);
+    mDescEditor->setText(pick_info->desc, false);
     mSnapshotCtrl->setImageAssetID(pick_info->snapshot_id);
     mLocationEditor->setText(location_text);
 }

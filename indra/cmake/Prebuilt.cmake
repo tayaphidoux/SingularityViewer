@@ -4,7 +4,6 @@ if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
 include(FindAutobuild)
-include(Variables)
 if(INSTALL_PROPRIETARY)
   include(FindSCP)
 endif(INSTALL_PROPRIETARY)
@@ -40,14 +39,13 @@ macro (use_prebuilt_binary _binary)
 
     if(${PREBUILD_TRACKING_DIR}/sentinel_installed IS_NEWER_THAN ${PREBUILD_TRACKING_DIR}/${_binary}_installed OR NOT ${${_binary}_installed} EQUAL 0)
       if(DEBUG_PREBUILT)
-        message("cd ${CMAKE_SOURCE_DIR} && ${AUTOBUILD_EXECUTABLE} install
+        message(STATUS "cd ${CMAKE_SOURCE_DIR} && ${AUTOBUILD_EXECUTABLE} install
         --install-dir=${AUTOBUILD_INSTALL_DIR}
         ${_binary} ")
       endif(DEBUG_PREBUILT)
       execute_process(COMMAND "${AUTOBUILD_EXECUTABLE}"
         install
         --install-dir=${AUTOBUILD_INSTALL_DIR}
-        -p ${AUTOBUILD_PLATFORM_NAME}
         ${_binary}
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
         RESULT_VARIABLE ${_binary}_installed

@@ -48,6 +48,7 @@
 #include "statemachine/aifilepicker.h"
 
 // newview includes
+#include "lffloaterinvpanel.h"
 #include "lfsimfeaturehandler.h"
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -8935,6 +8936,70 @@ class SinguUrlAction : public view_listener_t
 	}
 };
 
+void show_inv_floater(const LLSD& userdata, const std::string& field)
+{
+	LFFloaterInvPanel::toggle(LLSD().with(field, userdata));
+}
+
+static void visible_inv_floater(const LLSD& userdata, const std::string& field)
+{
+	gMenuHolder->findControl(userdata["control"].asString())->setValue(!!LFFloaterInvPanel::getInstance(LLSD().with(field, userdata["data"])));
+}
+
+class ShowInvFloaterID : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		show_inv_floater(userdata, "id");
+		return true;
+	}
+};
+
+class VisibleInvFloaterID : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		visible_inv_floater(userdata, "id");
+		return true;
+	}
+};
+
+class ShowInvFloaterName : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		show_inv_floater(userdata, "name");
+		return true;
+	}
+};
+
+class VisibleInvFloaterName : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		visible_inv_floater(userdata, "name");
+		return true;
+	}
+};
+
+class ShowInvFloaterType : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		show_inv_floater(userdata, "type");
+		return true;
+	}
+};
+
+class VisibleInvFloaterType : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		visible_inv_floater(userdata, "type");
+		return true;
+	}
+};
+
 class VisibleSecondLife : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9666,6 +9731,13 @@ void initialize_menus()
 	addMenu(new SinguVisibleDebugConsole(), "VisibleRegionDebugConsole");
 	addMenu(new SinguUrlAction(), "URLAction");
 	addMenu(new LLSyncAnimations(), "Tools.ResyncAnimations");
+
+	addMenu(new ShowInvFloaterID, "ShowInvFloater.ID");
+	addMenu(new ShowInvFloaterName, "ShowInvFloater.Name");
+	addMenu(new ShowInvFloaterType, "ShowInvFloater.Type");
+	addMenu(new VisibleInvFloaterID, "InvFloaterVisible.ID");
+	addMenu(new VisibleInvFloaterName, "InvFloaterVisible.Name");
+	addMenu(new VisibleInvFloaterType, "InvFloaterVisible.Type");
 
 // [RLVa:KB] - Checked: 2010-01-18 (RLVa-1.1.0m) | Added: RLVa-1.1.0m | OK
 	if (rlv_handler_t::isEnabled())

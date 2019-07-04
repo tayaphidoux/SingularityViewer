@@ -34,7 +34,7 @@ LFSimFeatureHandler::LFSimFeatureHandler()
 {
 	if (!gHippoGridManager->getCurrentGrid()->isSecondLife()) // Remove this line if we ever handle SecondLife sim features
 		gAgent.addRegionChangedCallback(boost::bind(&LFSimFeatureHandler::handleRegionChange, this));
-	LLMuteList::instance().mGodLastNames.insert("Linden");
+	LLMuteList::instance().mGodLastNames = { "Linden", "ProductEngine" };
 }
 
 ExportPolicy LFSimFeatureHandler::exportPolicy() const
@@ -138,7 +138,7 @@ void LFSimFeatureHandler::setSupportedFeatures()
 		}
 		else
 		{
-			mute_list.mGodLastNames.insert("Linden");
+			mute_list.mGodLastNames = { "Linden", "ProductEngine" };
 		}
 	}
 }

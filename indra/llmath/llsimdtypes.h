@@ -121,7 +121,7 @@ private:
 	LLQuad mQ;
 };
 
-static_assert(std::is_trivially_copyable<LLBool32>{}, "LLBool32 must be a trivially copyable type");
-static_assert(std::is_trivially_copyable<LLSimdScalar>{}, "LLSimdScalar must be a trivially copyable type");
+static_assert(std::is_trivially_copyable<LLBool32>::value, "LLBool32 must be a trivially copyable type");
+static_assert(std::is_trivially_copyable<LLSimdScalar>::value, "LLSimdScalar must be a trivially copyable type");
 
 #endif //LL_SIMD_TYPES_H

@@ -18,16 +18,15 @@ set(cmake_SOURCE_FILES
     CARes.cmake
     CEFPlugin.cmake
     CMakeCopyIfDifferent.cmake
-    CURL.cmake
     Colladadom.cmake
     ConfigurePkgConfig.cmake
+    CURL.cmake
     Copy3rdPartyLibs.cmake
     Cwdebug.cmake
     DBusGlib.cmake
     DeploySharedLibs.cmake
     EXPAT.cmake
     ExamplePlugin.cmake
-    FMODSTUDIO.cmake
     FindAPR.cmake
     FindAutobuild.cmake
     FindCARes.cmake
@@ -39,8 +38,10 @@ set(cmake_SOURCE_FILES
     FindNDOF.cmake
     FindOpenJPEG.cmake
     FindTut.cmake
+    FindVCRedist.cmake
     FindURIPARSER.cmake
     FindXmlRpcEpi.cmake
+    FMODSTUDIO.cmake
     FreeType.cmake
     GLOD.cmake
     GStreamer010Plugin.cmake
@@ -85,8 +86,6 @@ set(cmake_SOURCE_FILES
     Prebuilt.cmake
     PulseAudio.cmake
     Python.cmake
-    QuickTimePlugin.cmake
-    RunBuildTest.cmake
     StateMachine.cmake
     TemplateCheck.cmake
     Tut.cmake
@@ -96,6 +95,7 @@ set(cmake_SOURCE_FILES
     Variables.cmake
     ViewerMiscLibs.cmake
     WinManifest.cmake
+    LibVLCPlugin.cmake
     XmlRpcEpi.cmake
     ZLIB.cmake
     )

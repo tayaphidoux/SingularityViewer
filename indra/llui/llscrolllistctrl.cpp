@@ -62,7 +62,7 @@ std::vector<LLMenuGL*> LLScrollListCtrl::sMenus = {}; // List menus that recur, 
 // local structures & classes.
 struct SortScrollListItem
 {
-	SortScrollListItem(const std::vector<std::pair<S32, BOOL> >& sort_orders,const LLScrollListCtrl::sort_signal_t*	sort_signal)
+	SortScrollListItem(const std::vector<LLScrollListCtrl::sort_column_t >& sort_orders,const LLScrollListCtrl::sort_signal_t*	sort_signal)
 	:	mSortOrders(sort_orders)
 	,   mSortSignal(sort_signal)
 	{}
@@ -102,7 +102,7 @@ struct SortScrollListItem
 	}
 	
 
-	typedef std::vector<std::pair<S32, BOOL> > sort_order_t;
+	typedef std::vector<LLScrollListCtrl::sort_column_t > sort_order_t;
 	const LLScrollListCtrl::sort_signal_t* mSortSignal;
 	const sort_order_t& mSortOrders;
 };
@@ -2294,7 +2294,7 @@ struct SameSortColumn
 	SameSortColumn(S32 column) : mColumn(column) {}
 	S32 mColumn;
 
-	bool operator()(std::pair<S32, BOOL> sort_column) { return sort_column.first == mColumn; }
+	bool operator()(LLScrollListCtrl::sort_column_t sort_column) { return sort_column.first == mColumn; }
 };
 
 BOOL LLScrollListCtrl::setSort(S32 column_idx, BOOL ascending)
@@ -2392,7 +2392,7 @@ void LLScrollListCtrl::updateSort() const
 // for one-shot sorts, does not save sort column/order
 void LLScrollListCtrl::sortOnce(S32 column, BOOL ascending)
 {
-	std::vector<std::pair<S32, BOOL> > sort_column;
+	std::vector<sort_column_t > sort_column;
 	sort_column.push_back(std::make_pair(column, ascending));
 
 	// do stable sort to preserve any previous sorts
@@ -2733,15 +2733,15 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 					std::string value = row_child->getTextContents();
 					row["columns"][column_idx]["value"] = value;
 
-					std::string columnname("");
+					std::string columnname;
 					if (row_child->getAttributeString("name", columnname))
 						row["columns"][column_idx]["column"] = columnname;
 
-					std::string font("");
+					std::string font;
 					if (row_child->getAttributeString("font", font))
 						row["columns"][column_idx]["font"] = font;
 
-					std::string font_style("");
+					std::string font_style;
 					if (row_child->getAttributeString("font-style", font_style))
 						row["columns"][column_idx]["font-style"] = font_style;
 
@@ -2771,12 +2771,9 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 void	LLScrollListCtrl::copy()
 {
 	std::string buffer;
-
-	std::vector<LLScrollListItem*> items = getAllSelected();
-	std::vector<LLScrollListItem*>::iterator itor;
-	for (itor = items.begin(); itor != items.end(); ++itor)
+	for (auto item : getAllSelected())
 	{
-		buffer += (*itor)->getContentsCSV() + "\n";
+		buffer += item->getContentsCSV() + '\n';
 	}
 	gClipboard.copyFromSubstring(utf8str_to_wstring(buffer), 0, buffer.length());
 }

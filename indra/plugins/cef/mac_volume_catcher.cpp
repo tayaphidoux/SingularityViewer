@@ -45,67 +45,47 @@
 
 struct VolumeCatcherStorage;
 
-class VolumeCatcherImpl
+class VolumeCatcherImpl : public LLSingleton<VolumeCatcherImpl>
 {
+	friend LLSingleton<VolumeCatcherImpl>;
+	VolumeCatcherImpl();
+	// This is a singleton class -- both callers and the component implementation should use getInstance() to find the instance.
+	~VolumeCatcherImpl();
+
 public:
 
 	void setVolume(F32 volume);
 	void setPan(F32 pan);
 	
-	void setInstanceVolume(VolumeCatcherStorage *instance);
-	
 	std::list<VolumeCatcherStorage*> mComponentInstances;
 	Component mOriginalDefaultOutput;
 	Component mVolumeAdjuster;
-	
-	static VolumeCatcherImpl *getInstance();
+
 private:
-	// This is a singleton class -- both callers and the component implementation should use getInstance() to find the instance.
-	VolumeCatcherImpl();
-	static VolumeCatcherImpl *sInstance;
-	
-	// The singlar instance of this class is expected to last until the process exits.
-	// To ensure this, we declare the destructor here but never define it, so any code which attempts to destroy the instance will not link.
-	~VolumeCatcherImpl();	
-	
 	F32 mVolume;
 	F32 mPan;
 };
 
-VolumeCatcherImpl *VolumeCatcherImpl::sInstance = NULL;;
-
 struct VolumeCatcherStorage
 {
-	ComponentInstance self;
-	ComponentInstance delegate;
+	ComponentInstance self, delegate;
 };
 
 static ComponentResult volume_catcher_component_entry(ComponentParameters *cp, Handle componentStorage);
 static ComponentResult volume_catcher_component_open(VolumeCatcherStorage *storage, ComponentInstance self);
 static ComponentResult volume_catcher_component_close(VolumeCatcherStorage *storage, ComponentInstance self);
 
-VolumeCatcherImpl *VolumeCatcherImpl::getInstance()
-{
-	if(!sInstance)
-	{
-		sInstance = new VolumeCatcherImpl;
-	}
-	
-	return sInstance;
-}
-
 VolumeCatcherImpl::VolumeCatcherImpl()
+:	mVolume(1.0f),			// default volume is max
+	mPan(0.f)				// default pan is centered
 {
-	mVolume = 1.0;	// default to full volume
-	mPan = 0.0;		// and center pan
-		
 	ComponentDescription desc;
 	desc.componentType = kAudioUnitType_Output;
 	desc.componentSubType = kAudioUnitSubType_DefaultOutput;
 	desc.componentManufacturer = kAudioUnitManufacturer_Apple;
 	desc.componentFlags = 0;
 	desc.componentFlagsMask = 0;
-	
+
 	// Find the original default output component
 	mOriginalDefaultOutput = FindNextComponent(NULL, &desc);
 
@@ -114,7 +94,6 @@ VolumeCatcherImpl::VolumeCatcherImpl()
 
 	// Capture the original component, so we always get found instead.
 	CaptureComponent(mOriginalDefaultOutput, mVolumeAdjuster);
-
 }
 
 static ComponentResult volume_catcher_component_entry(ComponentParameters *cp, Handle componentStorage)
@@ -146,20 +125,18 @@ static ComponentResult volume_catcher_component_entry(ComponentParameters *cp, H
 
 static ComponentResult volume_catcher_component_open(VolumeCatcherStorage *storage, ComponentInstance self)
 {
-	ComponentResult result = noErr;
 	VolumeCatcherImpl *impl = VolumeCatcherImpl::getInstance();	
 	
 	storage = new VolumeCatcherStorage;
 
 	storage->self = self;
-	storage->delegate = NULL;
+	storage->delegate = nullptr;
 
-	result = OpenAComponent(impl->mOriginalDefaultOutput, &(storage->delegate));
+	ComponentResult result = OpenAComponent(impl->mOriginalDefaultOutput, &(storage->delegate));
 	
 	if(result != noErr)
 	{
 //		std::cerr << "OpenAComponent result = " << result << ", component ref = " << storage->delegate << std::endl;
-		
 		// If we failed to open the delagate component, our open is going to fail.  Clean things up.
 		delete storage;
 	}
@@ -172,7 +149,7 @@ static ComponentResult volume_catcher_component_open(VolumeCatcherStorage *stora
 		impl->mComponentInstances.push_back(storage);	
 		
 		// and set up the initial volume
-		impl->setInstanceVolume(storage);
+		impl->setVolume(storage);
 	}
 
 	return result;
@@ -180,14 +157,12 @@ static ComponentResult volume_catcher_component_open(VolumeCatcherStorage *stora
 
 static ComponentResult volume_catcher_component_close(VolumeCatcherStorage *storage, ComponentInstance self)
 {
-	ComponentResult result = noErr;
-	
 	if(storage)
 	{
 		if(storage->delegate)
 		{
 			CloseComponent(storage->delegate);
-			storage->delegate = NULL;
+			storage->delegate = nullptr;
 		}
 		
 		VolumeCatcherImpl *impl = VolumeCatcherImpl::getInstance();	
@@ -195,18 +170,30 @@ static ComponentResult volume_catcher_component_close(VolumeCatcherStorage *stor
 		delete[] storage;
 	}
 		
-	return result;
+	return noErr;
 }
 
 void VolumeCatcherImpl::setVolume(F32 volume)
 {
-	VolumeCatcherImpl *impl = VolumeCatcherImpl::getInstance();	
-	impl->mVolume = volume;
-	
+	mVolume = volume;
+
 	// Iterate through all known instances, setting the volume on each.
-	for(std::list<VolumeCatcherStorage*>::iterator iter = mComponentInstances.begin(); iter != mComponentInstances.end(); ++iter)
+	for(auto& instance : mComponentInstances)
 	{
-		impl->setInstanceVolume(*iter);
+//		std::cerr << "Setting volume on component instance: " << (instance->delegate) << " to " << mVolume << std::endl;
+		if (instance && instance->delegate)
+		{
+			if (OSStatus err = AudioUnitSetParameter(
+					instance->delegate,
+					kHALOutputParam_Volume,
+					kAudioUnitScope_Global,
+					0,
+					mVolume,
+					0))
+			{
+//				std::cerr << "    AudioUnitSetParameter returned " << err << std::endl;
+			}
+		}
 	}
 }
 
@@ -214,33 +201,10 @@ void VolumeCatcherImpl::setPan(F32 pan)
 {
 	VolumeCatcherImpl *impl = VolumeCatcherImpl::getInstance();	
 	impl->mPan = pan;
-	
+
 	// TODO: implement this.
 	// This will probably require adding a "panner" audio unit to the chain somehow.
 	// There's also a "3d mixer" component that we might be able to use...
-}
-
-void VolumeCatcherImpl::setInstanceVolume(VolumeCatcherStorage *instance)
-{
-//	std::cerr << "Setting volume on component instance: " << (instance->delegate) << " to " << mVolume << std::endl;
-	
-	OSStatus err = noErr;
-	
-	if(instance && instance->delegate)
-	{
-		err = AudioUnitSetParameter(
-				instance->delegate, 
-				kHALOutputParam_Volume, 
-				kAudioUnitScope_Global,
-				0, 
-				mVolume, 
-				0);
-	}
-	
-	if(err)
-	{
-//		std::cerr << "    AudioUnitSetParameter returned " << err << std::endl;
-	}
 }
 
 /////////////////////////////////////////////////////
