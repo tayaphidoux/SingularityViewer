@@ -585,7 +585,7 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 void LLFolderViewItem::openItem( void )
 {
 	if (!mListener) return;
-	if (mAllowWear || mListener->isItemWearable())
+	//if (mAllowWear || mListener->isItemWearable()) // Singu Note: This will do nothing if can't do anything, so just call it
 	{
 		mListener->openItem();
 	}
