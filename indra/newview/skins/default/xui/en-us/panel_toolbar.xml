@@ -406,6 +406,10 @@
       <button sound_flags="0" bottom="0" height="24" label="Favorites" image_overlay="icn_toolbar_favorites.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="favs_btn" width="50" follows="left|right">
         <button.commit_callback function="ShowInvFloater.Type" parameter="favorite"/>
       </button>
+    </layout_panel>
+    <layout_panel name="panelreceiveditems" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleInventoryReceivedItems">
+      <button sound_flags="0" bottom="0" height="24" label="Received Items" image_overlay="icn_toolbar_received_items.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="received_items_btn" width="50" follows="left|right">
+        <button.commit_callback function="ShowInvFloater.Type" parameter="inbox"/>
       </button>
     </layout_panel>
     <layout_panel name="panelmarketplacelistings" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleMarketplaceListings">

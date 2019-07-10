@@ -625,6 +625,10 @@
             <on_click function="ShowInvFloater.Type" userdata="favorite"/>
             <on_check function="InvFloaterVisible.Type" userdata="favorite"/>
         </menu_item_check>
+        <menu_item_check label="Received Items" name="Received Items">
+            <on_click function="ShowInvFloater.Type" userdata="inbox"/>
+            <on_check function="InvFloaterVisible.Type" userdata="inbox"/>
+        </menu_item_check>
         <menu_item_check label="Default Avatars" name="Avatar Picker">
             <on_click function="ShowFloater" userdata="avatar"/>
             <on_check function="FloaterVisible" userdata="avatar"/>
