@@ -32,7 +32,7 @@
 #include "llstl.h"
 #include "llindexedvector.h"
 
-#include <unordered_map>
+#include <map>
 
 extern U32 sMsgDataAllocSize;
 extern U32 sMsgdataAllocCount;
@@ -134,7 +134,7 @@ public:
 	void addDataFast(char *blockname, char *varname, const void *data, S32 size, EMsgVariableType type, S32 data_size = -1);
 
 public:
-	typedef std::unordered_map<char*, LLMsgBlkData*> msg_blk_data_map_t;
+	typedef std::map<char*, LLMsgBlkData*> msg_blk_data_map_t;
 	msg_blk_data_map_t					mMemberBlocks;
 	char								*mName;
 	S32									mTotalSize;
