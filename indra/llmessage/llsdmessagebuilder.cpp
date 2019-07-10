@@ -257,7 +257,7 @@ void LLSDMessageBuilder::copyFromMessageData(const LLMsgData& data)
 		
 		for(; dit != dend; ++dit)
 		{
-			const LLMsgVarData& mvci = dit->second;
+			const LLMsgVarData& mvci = mbci->mMemberVarData.toValue(dit);
 			const char* varname = mvci.getName();
 
 			switch(mvci.getType())
