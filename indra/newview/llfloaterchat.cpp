@@ -510,7 +510,7 @@ LLColor4 get_text_color(const LLChat& chat, bool from_im)
 	}
 
 	static const LLCachedControl<bool> sKeywordsChangeColor(gSavedPerAccountSettings, "KeywordsChangeColor", false);
-	if (sKeywordsChangeColor && gAgentID != chat.mFromID && chat.mSourceType != CHAT_SOURCE_SYSTEM && AscentKeyword::hasKeyword(boost::starts_with(chat.mText, chat.mFromName) ? chat.mText.substr(chat.mFromName.length()) : chat.mText, 1))
+	if (sKeywordsChangeColor && gAgentID != chat.mFromID && AscentKeyword::hasKeyword((chat.mSourceType != CHAT_SOURCE_SYSTEM && boost::starts_with(chat.mText, chat.mFromName)) ? chat.mText.substr(chat.mFromName.length()) : chat.mText, 1))
 	{
 		static const LLCachedControl<LLColor4> sKeywordsColor(gSavedPerAccountSettings, "KeywordsColor", LLColor4(1.f, 1.f, 1.f, 1.f));
 		text_color = sKeywordsColor;
