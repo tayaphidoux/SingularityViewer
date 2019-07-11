@@ -153,7 +153,7 @@ void LLPrefsAscentChat::onCommitTimeDate(LLUICtrl* ctrl)
     }
     else
     {
-        short_date = "%D";
+        short_date = "%m/%d/%Y";
         long_date  = "%A, %B %d %Y";
         timestamp  = "%a %b %d %Y" + timestamp;
     }
