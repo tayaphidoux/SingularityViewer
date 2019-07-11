@@ -12685,11 +12685,11 @@ This should be as low as possible, but too low may break functionality</string>
   <key>AlwaysRenderFriends</key>
     <map>
       <key>Comment</key>
-      <string>Always render friends regardless of max complexity</string>
+      <string>Always render friends regardless of max complexity, a value of 2 will only render friends</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
