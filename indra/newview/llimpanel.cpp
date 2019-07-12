@@ -45,6 +45,7 @@
 #include "llfloateravatarpicker.h"
 #include "llfloaterchat.h"
 #include "llfloaterinventory.h"
+#include "llfloaterreporter.h"
 #include "llfloaterwebcontent.h" // For web browser display of logs
 #include "llgroupactions.h"
 #include "llhttpclient.h"
@@ -1138,6 +1139,7 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 	case -2: LLAvatarActions::showOnMap(mOtherParticipantUUID); break;
 	case -3: gAgentCamera.lookAtObject(mOtherParticipantUUID); break;
 	case -4: onAddButtonClicked(); break;
+	case -5: LLFloaterReporter::showFromAvatar(mOtherParticipantUUID, mLogLabel); break;
 	default: // Options >= 6 use dynamic items
 	{
 		// First remove them all

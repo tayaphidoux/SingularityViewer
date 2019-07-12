@@ -20,6 +20,7 @@
       <flyout_button_item label="Invite To Group" name="group_invite_item" value="5"/>
       <flyout_button_item label="Copy SLURL" name="copy_slurl_item" value="-1"/>
       <flyout_button_item label="Add to Conference" name="conference" value="-4"/>
+      <flyout_button_item label="Report Abuse" name="report" value="-5"/>
     </flyout_button>
     <string name="find on map" value="Find on Map"/>
     <string name="ding on" value="Ding on new messages (On)"/>
