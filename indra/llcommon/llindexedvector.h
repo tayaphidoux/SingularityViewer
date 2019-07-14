@@ -189,7 +189,7 @@ public:
 		}
 	}
 
-	typedef DeletePointer DeletePointer;
+	typedef ::DeletePointer DeletePointer;
 };
 
 template <typename Type, typename Key, int BlockSize = 32>
