@@ -1334,7 +1334,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 	LL_INFOS() << "system_ram: " << system_ram << LL_ENDL;
 	LL_INFOS() << "max_texmem: " << max_texmem << LL_ENDL;
 	if (get_recommended)
-		max_texmem = llmin(max_texmem, system_ram/2);
+		max_texmem = llmin(S32Megabytes(max_texmem * .7f), system_ram/2);
 	else
 		max_texmem = llmin(max_texmem, system_ram);
 
@@ -1348,7 +1348,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 
 const S32Megabytes VIDEO_CARD_FRAMEBUFFER_MEM_MIN(12);
 const S32Megabytes VIDEO_CARD_FRAMEBUFFER_MEM_MAX(512);
-const S32Megabytes MIN_MEM_FOR_NON_TEXTURE(512);
+const S32Megabytes MIN_MEM_FOR_NON_TEXTURE(16);
 void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 {
 	// Initialize the image pipeline VRAM settings

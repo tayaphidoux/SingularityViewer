@@ -455,7 +455,7 @@ void LLTexUnit::unbind(eTextureType type)
 	{
 		gGL.flush();
 		mCurrTexture = 0;
-		if (LLGLSLShader::sNoFixedFunction && type == LLTexUnit::TT_TEXTURE)
+		if (/*LLGLSLShader::sNoFixedFunction && */type == LLTexUnit::TT_TEXTURE)
 		{
 			//if (sWhiteTexture)
 			//	validate_bind_texture(sWhiteTexture);

@@ -106,6 +106,17 @@ void APIENTRY gl_debug_callback(GLenum source,
 		}
 		else if (severity == GL_DEBUG_SEVERITY_LOW_ARB)
 		{
+			if (type == GL_DEBUG_TYPE_OTHER_ARB)
+			{
+				if (id == 0x20004 || // Silence nvidia glClear noop messages
+					id == 0x20043 || // Silence nvidia CSAA messages.
+					id == 0x20084	 // Silence nvidia texture mapping with no base level messages.
+					)
+				{
+					return;
+				}
+			}
+
 			LL_WARNS() << "----- GL WARNING LOW --------" << LL_ENDL;
 		}
 		else if (severity == 0x826b && id == 0x20071 && type == GL_DEBUG_TYPE_OTHER_ARB && source == GL_DEBUG_SOURCE_API_ARB)
