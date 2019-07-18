@@ -546,6 +546,7 @@ BOOL LLDXHardware::getInfo(BOOL vram_only, S32Megabytes system_ram)
 		  mVRAM -= ((S32)system_ram/2) + 1; // Ignore shared memory pool.
 		  if (mVRAM <= 0)
 		  {
+			  LL_INFOS("AppInit") << "No dedicated VRAM. Using system memory instead." << LL_ENDL;
 			  mVRAM = (S32)system_ram / 2; // Integrated graphics perhaps? Use half system ram.
 		  }
 		  LL_INFOS("AppInit") << "VRAM Detected: " << mVRAM << " DX9 string: " << ram_str << LL_ENDL;
