@@ -110,7 +110,7 @@ void APIENTRY gl_debug_callback(GLenum source,
 			{
 				if (id == 0x20004 || // Silence nvidia glClear noop messages
 					id == 0x20043 || // Silence nvidia CSAA messages.
-					id == 0x20084	 // Silence nvidia textumre mapping with no base level messages.
+					id == 0x20084	 // Silence nvidia texture mapping with no base level messages.
 					)
 				{
 					return;

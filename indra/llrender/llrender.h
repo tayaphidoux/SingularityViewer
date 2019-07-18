@@ -391,7 +391,7 @@ public:
 		Context() :
 			texUnit(0),
 			color{ 1.f,1.f,1.f,1.f },
-			colorMask{ true },
+			colorMask{ 0xf },
 			alphaFunc(CF_ALWAYS),
 			alphaVal(0.f),
 			blendColorSFactor(BF_ONE),
