@@ -207,6 +207,7 @@ public:
 	LLScrollListItem*	getFirstData() const;
 	LLScrollListItem*	getLastData() const;
 	std::vector<LLScrollListItem*>	getAllData() const;
+	uuid_vec_t getAllIDs() const; //Helper. Much like getAllData, but just provides a LLUUID vec
 
 	LLScrollListItem*	getItem(const LLSD& sd) const;
 	

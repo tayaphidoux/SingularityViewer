@@ -312,12 +312,12 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
 
 uuid_vec_t LLScrollListCtrl::getSelectedIDs()
 {
-	LLUUID selected_id;
 	uuid_vec_t ids;
-	std::vector<LLScrollListItem*> selected = this->getAllSelected();
-	for(std::vector<LLScrollListItem*>::iterator itr = selected.begin(); itr != selected.end(); ++itr)
+	if (!getCanSelect()) return ids;
+
+	for(const auto& item : mItemList)
 	{
-		ids.push_back((*itr)->getUUID());
+		if (item->getSelected()) ids.push_back(item->getUUID());
 	}
 	return ids;
 }
@@ -396,6 +396,17 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
 	{
 		LLScrollListItem* item  = *iter;
 		ret.push_back(item);
+	}
+	return ret;
+}
+
+uuid_vec_t LLScrollListCtrl::getAllIDs() const
+{
+	uuid_vec_t ret;
+	ret.reserve(mItemList.size()); //Optimization
+	for(const auto& item : mItemList)
+	{
+		ret.push_back(item->getUUID());
 	}
 	return ret;
 }
