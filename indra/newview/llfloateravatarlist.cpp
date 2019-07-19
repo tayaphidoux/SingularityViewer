@@ -1430,7 +1430,7 @@ static void cmd_eject(const LLAvatarListEntry* entry)		{ send_eject(entry->getID
 static void cmd_ban(const LLAvatarListEntry* entry)			{ send_eject(entry->getID(), true); }
 static void cmd_estate_eject(const LLAvatarListEntry* entry){ send_estate_message("kickestate", {entry->getID().asString()}); }
 static void cmd_estate_tp_home(const LLAvatarListEntry* entry){ send_estate_message("teleporthomeuser", {gAgentID.asString(), entry->getID().asString()}); }
-static void cmd_estate_ban(const LLAvatarListEntry* entry)	{ LLPanelEstateInfo::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, entry->getID()); }
+static void cmd_estate_ban(const LLAvatarListEntry* entry)	{ LLPanelEstateAccess::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, entry->getID()); }
 
 void LLFloaterAvatarList::doCommand(avlist_command_t func, bool single/*=false*/) const
 {

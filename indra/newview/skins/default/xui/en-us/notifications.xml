@@ -3390,6 +3390,69 @@ You can only have [MAX_MANAGER] Estate Managers.
    type="alertmodal">
 Can&apos;t add estate owner to estate &apos;Banned Resident&apos; list.
   </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="ProblemAddingEstateManagerBanned"
+   type="alertmodal">
+Unable to add banned resident to estate manager list.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="ProblemBanningEstateManager"
+   type="alertmodal">
+Unable to add estate manager [AGENT] to banned list.
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="GroupIsAlreadyInList"
+   type="alertmodal">
+&lt;nolink&gt;[GROUP]&lt;/nolink&gt; is already in the Allowed Groups list.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="AgentIsAlreadyInList"
+   type="alertmodal">
+[AGENT] is already in your [LIST_TYPE] list.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="AgentsAreAlreadyInList"
+   type="alertmodal">
+[AGENT] are already in your [LIST_TYPE] list.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="AgentWasAddedToList"
+   type="alertmodal">
+[AGENT] was added to [LIST_TYPE] list of [ESTATE].
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="AgentsWereAddedToList"
+   type="alertmodal">
+[AGENT] were added to [LIST_TYPE] list of [ESTATE].
+
+  </notification>
+      <notification
+   icon="alertmodal.tga"
+   name="AgentWasRemovedFromList"
+   type="alertmodal">
+[AGENT] was removed from [LIST_TYPE] list of [ESTATE].
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="AgentsWereRemovedFromList"
+   type="alertmodal">
+[AGENT] were removed from [LIST_TYPE] list of [ESTATE].
+  </notification>
 
   <notification
    icon="alertmodal.tga"

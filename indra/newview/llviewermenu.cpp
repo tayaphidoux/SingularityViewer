@@ -9371,7 +9371,7 @@ void estate_bulk_eject(const uuid_vec_t& ids, bool ban, S32 option)
 		else
 			strings.push_back(idstr);
 		if (ban)
-			LLPanelEstateInfo::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, id);
+			LLPanelEstateAccess::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, id);
 	}
 	if (!tphome) send_estate_message("kickestate", strings);
 }
