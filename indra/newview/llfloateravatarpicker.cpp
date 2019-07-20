@@ -257,16 +257,21 @@ void LLFloaterAvatarPicker::onBtnSelect()
 			uuid_vec_t			avatar_ids;
 			std::vector<LLAvatarName>	avatar_names;
 			getSelectedAvatarData(list, avatar_ids, avatar_names);
+			if (mCloseOnSelect) // Singu Note: Close before callback if we get here first, makes potential next dialog floater position correctly
+			{
+				mCloseOnSelect = FALSE;
+				close();
+			}
 			mSelectionCallback(avatar_ids, avatar_names);
 		}
 	}
 	getChild<LLScrollListCtrl>("SearchResults")->deselectAllItems(TRUE);
 	getChild<LLScrollListCtrl>("NearMe")->deselectAllItems(TRUE);
 	getChild<LLScrollListCtrl>("Friends")->deselectAllItems(TRUE);
-	if(mCloseOnSelect)
+	if (mCloseOnSelect)
 	{
 		mCloseOnSelect = FALSE;
-		close();		
+		close();
 	}
 }
 
