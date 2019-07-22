@@ -4146,6 +4146,7 @@ void LLPanelEstateAccess::onEstateAccessReceived(const LLSD& result)
 
 		banned_agent_name_list->clearSortOrder();
 		banned_agent_name_list->deleteAllItems();
+		static const auto na = LLTrans::getString("na");
 		for (LLSD::array_const_iterator it = result["BannedAgents"].beginArray(); it != result["BannedAgents"].endArray(); ++it)
 		{
 			LLSD item;
@@ -4159,14 +4160,14 @@ void LLPanelEstateAccess::onEstateAccessReceived(const LLSD& result)
 
 			std::string ban_date = (*it)["ban_date"].asString();
 			columns[2]["column"] = "ban_date";
-			columns[2]["value"] = ban_date[0] != '0' ? ban_date.substr(0, 16) : LLTrans::getString("na"); // server returns the "0000-00-00 00:00:00" date in case it doesn't know it
+			columns[2]["value"] = ban_date[0] != '0' ? ban_date.substr(0, 16) : na; // server returns the "0000-00-00 00:00:00" date in case it doesn't know it
 
 			columns[3]["column"] = "bannedby";
 			LLUUID banning_id = (*it)["banning_id"].asUUID();
 			LLAvatarName av_name;
 			if (banning_id.isNull())
 			{
-				columns[3]["value"] = LLTrans::getString("na");
+				columns[3]["value"] = na;
 			}
 			else if (LLAvatarNameCache::get(banning_id, &av_name))
 			{

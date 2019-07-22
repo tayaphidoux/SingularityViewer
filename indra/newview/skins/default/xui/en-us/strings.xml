@@ -4828,6 +4828,9 @@ Try enclosing path to the editor with double quotes.
   <string name="ExperiencePermissionShort12">Permission</string>
   <string name="ExperiencePermissionShortUnknown">Unknown: [Permission]</string>
 
+  <!-- Statistics -->
+  <string name="na">n/a</string>
+
   <!-- teleport_strings.xml's strings we need -->
   <string name="completed_from">Teleport completed from</string>
   
