@@ -4250,16 +4250,7 @@ void LLPanelEstateAccess::onBannedSearchEdit(const std::string& search_string)
 void LLPanelEstateAccess::searchAgent(LLNameListCtrl* listCtrl, const std::string& search_string)
 {
 	if (!listCtrl) return;
-
-	if (!search_string.empty())
-	{
-		listCtrl->setSearchColumn(0); // name column
-		listCtrl->selectItemByPrefix(search_string, FALSE);
-	}
-	else
-	{
-		listCtrl->deselectAllItems(TRUE);
-	}
+	listCtrl->setFilter(search_string);
 }
 
 void LLPanelEstateAccess::copyListToClipboard(std::string list_name)

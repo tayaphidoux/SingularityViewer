@@ -249,6 +249,9 @@ public:
 
 	void			clearSearchString() { mSearchString.clear(); }
 
+	void			filterItem(LLScrollListItem* item);
+	void			setFilter(const std::string& filter);
+
 	// support right-click context menus for avatar/group lists
 	void setContextMenu(LLMenuGL* menu) { mPopupMenu = menu; }
 	void setContextMenu(S32 index) { mPopupMenu = sMenus[index]; }
@@ -468,6 +471,8 @@ private:
 
 	LLWString		mSearchString;
 	LLFrameTimer	mSearchTimer;
+
+	std::string		mFilter;
 	
 	S32				mSearchColumn;
 	S32				mNumDynamicWidthColumns;
