@@ -479,78 +479,112 @@ BOOL LLDXHardware::getInfo(BOOL vram_only, S32Megabytes system_ram)
 		gWriteDebug("No DXDiag provider found!  DirectX 9 not installed!\n");
 		goto LCleanup;
 	}
-    if (SUCCEEDED(hr)) // if FAILED(hr) then dx9 is not installed
-    {
-        // Fill out a DXDIAG_INIT_PARAMS struct and pass it to IDxDiagContainer::Initialize
-        // Passing in TRUE for bAllowWHQLChecks, allows dxdiag to check if drivers are 
-        // digital signed as logo'd by WHQL which may connect via internet to update 
-        // WHQL certificates.    
-        DXDIAG_INIT_PARAMS dx_diag_init_params;
-        ZeroMemory(&dx_diag_init_params, sizeof(DXDIAG_INIT_PARAMS));
+	if (SUCCEEDED(hr)) // if FAILED(hr) then dx9 is not installed
+	{
+		// Fill out a DXDIAG_INIT_PARAMS struct and pass it to IDxDiagContainer::Initialize
+		// Passing in TRUE for bAllowWHQLChecks, allows dxdiag to check if drivers are 
+		// digital signed as logo'd by WHQL which may connect via internet to update 
+		// WHQL certificates.    
+		DXDIAG_INIT_PARAMS dx_diag_init_params;
+		ZeroMemory(&dx_diag_init_params, sizeof(DXDIAG_INIT_PARAMS));
 
-        dx_diag_init_params.dwSize                  = sizeof(DXDIAG_INIT_PARAMS);
-        dx_diag_init_params.dwDxDiagHeaderVersion   = DXDIAG_DX9_SDK_VERSION;
-        dx_diag_init_params.bAllowWHQLChecks        = TRUE;
-        dx_diag_init_params.pReserved               = NULL;
+		dx_diag_init_params.dwSize = sizeof(DXDIAG_INIT_PARAMS);
+		dx_diag_init_params.dwDxDiagHeaderVersion = DXDIAG_DX9_SDK_VERSION;
+		dx_diag_init_params.bAllowWHQLChecks = TRUE;
+		dx_diag_init_params.pReserved = NULL;
 
 		LL_DEBUGS("AppInit") << "dx_diag_providerp->Initialize" << LL_ENDL;
-        hr = dx_diag_providerp->Initialize(&dx_diag_init_params);
-        if(FAILED(hr))
+		hr = dx_diag_providerp->Initialize(&dx_diag_init_params);
+		if (FAILED(hr))
 		{
-            goto LCleanup;
+			goto LCleanup;
 		}
 
 		LL_DEBUGS("AppInit") << "dx_diag_providerp->GetRootContainer" << LL_ENDL;
-        hr = dx_diag_providerp->GetRootContainer( &dx_diag_rootp );
-        if(FAILED(hr) || !dx_diag_rootp)
+		hr = dx_diag_providerp->GetRootContainer(&dx_diag_rootp);
+		if (FAILED(hr) || !dx_diag_rootp)
 		{
-            goto LCleanup;
+			goto LCleanup;
 		}
 
 		// Get display driver information
 		LL_DEBUGS("AppInit") << "dx_diag_rootp->GetChildContainer" << LL_ENDL;
 		hr = dx_diag_rootp->GetChildContainer(L"DxDiag_DisplayDevices", &devices_containerp);
-		if(FAILED(hr) || !devices_containerp)
+		if (FAILED(hr) || !devices_containerp)
 		{
-            goto LCleanup;
+			goto LCleanup;
 		}
 
-		// Get device 0
+		DWORD device_count;
+		devices_containerp->GetNumberOfChildContainers(&device_count);
+
+		// Get devices
 		LL_DEBUGS("AppInit") << "devices_containerp->GetChildContainer" << LL_ENDL;
-		hr = devices_containerp->GetChildContainer(L"0", &device_containerp);
-		if(FAILED(hr) || !device_containerp)
+
+		S32 vram_max = -1;
+		std::string gpu_string_max;
+		for (DWORD i = 0; i < device_count; ++i)
 		{
-            goto LCleanup;
+			std::wstring str = L"";
+			str += std::to_wstring(i);
+			hr = devices_containerp->GetChildContainer(str.data(), &device_containerp);
+			if (FAILED(hr) || !device_containerp)
+			{
+				continue;
+			}
+
+			DWORD vram = 0;
+			S32 detected_ram;
+			std::string ram_str;
+
+			WCHAR deviceID[512];
+
+			get_wstring(device_containerp, L"szDeviceID", deviceID, 512);
+
+			if (SUCCEEDED(GetVideoMemoryViaWMI(deviceID, &vram)))
+			{
+				detected_ram = vram / (1024 * 1024);
+				LL_INFOS("AppInit") << "VRAM  for device[" << i << "]: " << detected_ram << " WMI" << LL_ENDL;
+			}
+			else
+			{
+				// Get the English VRAM string
+				ram_str = get_string(device_containerp, L"szDisplayMemoryEnglish");
+
+				// We don't need the device any more
+				SAFE_RELEASE(device_containerp);
+
+				// Dump the string as an int into the structure
+				char* stopstring;
+				detected_ram = strtol(ram_str.c_str(), &stopstring, 10);
+				detected_ram = llmax(0, detected_ram - ((S32)(system_ram / (2 * device_count)) + 1)); // Ignore shared memory pool.
+
+				LL_INFOS("AppInit") << "VRAM for device[" << i << "]: " << detected_ram << " DX9 string: " << ram_str << LL_ENDL;
+			}
+
+			if (detected_ram > vram_max)
+			{
+				gpu_string_max = ram_str;
+				vram_max = detected_ram;
+			}
 		}
-		
-		DWORD vram = 0;
 
-		WCHAR deviceID[512];
-
-		get_wstring(device_containerp, L"szDeviceID", deviceID, 512);
-
-		if (SUCCEEDED(GetVideoMemoryViaWMI(deviceID, &vram)))
+		if (vram_max <= 0)
 		{
-			mVRAM = vram/(1024*1024);
+			gpu_string_max = "<No sutable gpu device>";
+			LL_INFOS("AppInit") << "No dedicated VRAM. Using system memory instead." << LL_ENDL;
+			vram_max = (S32)system_ram / 2; // Integrated graphics perhaps? Use half system ram.
 		}
-		else
-		{ // Get the English VRAM string
-		  std::string ram_str = get_string(device_containerp, L"szDisplayMemoryEnglish");
 
-		  // We don't need the device any more
-		  SAFE_RELEASE(device_containerp);
+		LL_INFOS("AppInit") << "VRAM Detected: " << vram_max << " DX9 string: " << gpu_string_max << LL_ENDL;
 
-		  // Dump the string as an int into the structure
-		  char *stopstring;
-		  mVRAM = strtol(ram_str.c_str(), &stopstring, 10); 
-		  mVRAM -= ((S32)system_ram/2) + 1; // Ignore shared memory pool.
-		  if (mVRAM <= 0)
-		  {
-			  LL_INFOS("AppInit") << "No dedicated VRAM. Using system memory instead." << LL_ENDL;
-			  mVRAM = (S32)system_ram / 2; // Integrated graphics perhaps? Use half system ram.
-		  }
-		  LL_INFOS("AppInit") << "VRAM Detected: " << mVRAM << " DX9 string: " << ram_str << LL_ENDL;
+		if (vram_max == -1)
+		{
+			goto LCleanup;
 		}
+
+
+		mVRAM = vram_max;
 
 		if (vram_only)
 		{
@@ -559,15 +593,17 @@ BOOL LLDXHardware::getInfo(BOOL vram_only, S32Megabytes system_ram)
 		}
 
 
+
+
 		/* for now, we ONLY do vram_only the rest of this
 		   is commented out, to ensure no-one is tempted
 		   to use it
-		
+
 		// Now let's get device and driver information
 		// Get the IDxDiagContainer object called "DxDiag_SystemDevices".
 		// This call may take some time while dxdiag gathers the info.
 		DWORD num_devices = 0;
-	    WCHAR wszContainer[256];
+		WCHAR wszContainer[256];
 		LL_DEBUGS("AppInit") << "dx_diag_rootp->GetChildContainer DxDiag_SystemDevices" << LL_ENDL;
 		hr = dx_diag_rootp->GetChildContainer(L"DxDiag_SystemDevices", &system_device_containerp);
 		if (FAILED(hr))
@@ -690,7 +726,7 @@ BOOL LLDXHardware::getInfo(BOOL vram_only, S32Megabytes system_ram)
 			SAFE_RELEASE(device_containerp);
 		}
 		*/
-    }
+	}
 
     // dumpDevices();
     ok = TRUE;
