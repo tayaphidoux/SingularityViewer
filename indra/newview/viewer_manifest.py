@@ -1287,7 +1287,7 @@ class Linux_i686_Manifest(LinuxManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
-        with self.prefix(relpkgdir, dst="lib"):
+        if (not self.standalone()) and self.prefix(src=relpkgdir, dst="lib"):
             self.path("libapr-1.so*")
             self.path("libaprutil-1.so*")
             self.path("libexpat.so.*")
@@ -1295,11 +1295,22 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libSDL-1.2.so.*")
             self.path("libalut.so")
             self.path("libopenal.so.1")
-            self.path("libfmod.so*")
 
-            self.path("libtcmalloc_minimal.so.0")
-            self.path("libtcmalloc_minimal.so.0.2.2")
+            try:
+                self.path("libtcmalloc_minimal.so.0")
+                self.path("libtcmalloc_minimal.so.0.2.2")
+                pass
+            except:
+                print "tcmalloc files not found, skipping"
+                pass
 
+            try:
+                self.path("libfmod.so*")
+                pass
+            except:
+                print "Skipping libfmod.so - not found"
+                pass
+            self.end_prefix()
 
         # Vivox runtimes
         with self.prefix(src=relpkgdir, dst="bin"):
@@ -1329,7 +1340,7 @@ class Linux_x86_64_Manifest(LinuxManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
-        with self.prefix(relpkgdir, dst="lib64"):
+        if (not self.standalone()) and self.prefix(relpkgdir, dst="lib64"):
             self.path("libapr-1.so*")
             self.path("libaprutil-1.so*")
             self.path("libexpat.so*")
@@ -1338,10 +1349,22 @@ class Linux_x86_64_Manifest(LinuxManifest):
             self.path("libhunspell*.so*")
             self.path("libalut.so*")
             self.path("libopenal.so*")
-            self.path("libfmod.so*")
 
-            self.path("libtcmalloc.so*") #formerly called google perf tools
+            try:
+                self.path("libtcmalloc.so*") #formerly called google perf tools
+                pass
+            except:
+                print "tcmalloc files not found, skipping"
+                pass
 
+            try:
+                self.path("libfmod.so*")
+                pass
+            except:
+                print "Skipping libfmod.so - not found"
+                pass
+
+            self.end_prefix()
 
         # Vivox runtimes
         with self.prefix(src=relpkgdir, dst="bin"):
