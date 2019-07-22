@@ -650,11 +650,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2f44b376e436f37cbad5c7567edddebd</string>
+              <string>06746b78827e9a0c6b666bd2528d36ad</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/router_gray/rg_3p-dullahan/downloads/dullahan-1.1.1085-3.3497.1833.g13f506f-linux64-201902042123.tar.bz2</string>
+              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1320_73.1.12+gee4b49f+chromium-73.0.3683.75-linux64-192030536.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -846,11 +846,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>54dbd41322a08a1fc333ca6d96af5502</string>
+              <string>602e798cc969f2d46315775f1dd43c41</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/linux64/lib/fmodstudio-1.10.00-linux64-201709282320.tar.bz2</string>
+              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/fmodstudio-2.00.02.191991250-linux64-191991250.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
