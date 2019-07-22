@@ -306,7 +306,9 @@ void LLFloaterRegionInfo::requestRegionInfo()
 	tab->getChild<LLPanel>("Debug")->setCtrlsEnabled(FALSE);
 	tab->getChild<LLPanel>("Terrain")->setCtrlsEnabled(FALSE);
 	tab->getChild<LLPanel>("Estate")->setCtrlsEnabled(FALSE);
-	tab->getChild<LLPanel>("Access")->setCtrlsEnabled(FALSE);
+	auto panel = tab->getChild<LLPanel>("Access");
+	panel->setCtrlsEnabled(FALSE);
+	panel->getChildView("tabs")->setEnabled(true);
 
 	// Must allow anyone to request the RegionInfo data
 	// so non-owners/non-gods can see the values. 
@@ -1755,14 +1757,10 @@ BOOL LLPanelEstateInfo::postBuild()
 	initCtrl("limit_payment");
 	initCtrl("limit_age_verified");
 	initCtrl("voice_chat_check");
-	initHelpBtn("estate_manager_help",			"HelpEstateEstateManager");
 	initHelpBtn("use_global_time_help",			"HelpEstateUseGlobalTime");
 	initHelpBtn("fixed_sun_help",				"HelpEstateFixedSun");
 	initHelpBtn("externally_visible_help",		"HelpEstateExternallyVisible");
 	initHelpBtn("allow_direct_teleport_help",	"HelpEstateAllowDirectTeleport");
-	initHelpBtn("allow_resident_help",			"HelpEstateAllowResident");
-	initHelpBtn("allow_group_help",				"HelpEstateAllowGroup");
-	initHelpBtn("ban_resident_help",			"HelpEstateBanResident");
 	initHelpBtn("voice_chat_help",                  "HelpEstateVoiceChat");
 
 	// Set up the Legacy Estate Environment checkboxes
@@ -2449,11 +2447,14 @@ bool LLDispatchSetEstateAccess::operator()(
 		}
 	}
 
-	if (panel && panel->getPendingUpdate())
+	if (panel)
 	{
-		panel->setPendingUpdate(false);
 		panel->onEstateAccessReceived(result); // Until HTTP response use UDP Result
-		panel->updateLists();
+		if (panel->getPendingUpdate())
+		{
+			panel->setPendingUpdate(false);
+			panel->updateLists();
+		}
 	}
 	return true;
 }
@@ -3331,6 +3332,12 @@ LLPanelEstateAccess::LLPanelEstateAccess()
 
 BOOL LLPanelEstateAccess::postBuild()
 {
+	// set up the callbacks for the generic controls
+	initHelpBtn("estate_manager_help", "HelpEstateEstateManager");
+	initHelpBtn("allow_resident_help", "HelpEstateAllowResident");
+	initHelpBtn("allow_group_help", "HelpEstateAllowGroup");
+	initHelpBtn("ban_resident_help", "HelpEstateBanResident");
+
 	getChild<LLUICtrl>("allowed_avatar_name_list")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));
 	LLNameListCtrl *avatar_name_list = getChild<LLNameListCtrl>("allowed_avatar_name_list");
 	if (avatar_name_list)
