@@ -126,36 +126,32 @@ void LLPrefsAscentChat::onCommitTimeDate(LLUICtrl* ctrl)
 
     std::string short_date, long_date, short_time, long_time, timestamp;
 
+	if (tempDateFormat < 3)
+	{
+		short_date = !tempDateFormat ? "%F" :
+				tempDateFormat == 1 ? "%Y/%m/%d" :
+				"%d/%m/%Y";
+		long_date  = "%A %d %B %Y";
+		timestamp  = "%a %d %b %Y";
+	}
+    else
+    {
+        short_date = "%m/%d/%Y";
+        long_date  = "%A, %B %d %Y";
+        timestamp  = "%a %b %d %Y";
+    }
+
 	if (tempTimeFormat == 0)
     {
         short_time = "%R";
         long_time  = "%T";
-        timestamp  = " %T";
+        timestamp += " %T";
     }
     else
     {
         short_time = "%I:%M %p";
         long_time  = "%I:%M:%S %p";
-        timestamp  = " %I:%M %p";
-    }
-
-	if (tempDateFormat == 0)
-    {
-        short_date = "%F";
-        long_date  = "%A %d %B %Y";
-        timestamp  = "%a %d %b %Y" + timestamp;
-    }
-	else if (tempDateFormat == 1)
-    {
-        short_date = "%d/%m/%Y";
-        long_date  = "%A %d %B %Y";
-        timestamp  = "%a %d %b %Y" + timestamp;
-    }
-    else
-    {
-        short_date = "%m/%d/%Y";
-        long_date  = "%A, %B %d %Y";
-        timestamp  = "%a %b %d %Y" + timestamp;
+        timestamp += " %I:%M %p";
     }
 
     gSavedSettings.setString("ShortDateFormat", short_date);
