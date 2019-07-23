@@ -1122,7 +1122,7 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 		switch (mSessionType)
 		{
 			case SUPPORT_SESSION:
-			case GROUP_SESSION: LLGroupActions::show(mOtherParticipantUUID); return;
+			case GROUP_SESSION: LLGroupActions::show(mSessionUUID); return;
 			case P2P_SESSION: LLAvatarActions::showProfile(mOtherParticipantUUID); return;
 			default: onClickHistory(); return; // If there's no profile for this type, we should be the history button.
 		}
