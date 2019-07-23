@@ -7110,7 +7110,7 @@ This area has building disabled. You can&apos;t build or rez objects here.
      name="PathfindingDirty"
      type="alert">
     <unique/>
-The region has pending pathfinding changes.  If you have build rights, you may rebake the region by clicking “Rebake E
+The region has pending pathfinding changes.  If you have build rights, you may rebake the region by clicking on the “Rebake region” button.
     <usetemplate
      name="okcancelbuttons"
      yestext="Rebake"
