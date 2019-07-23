@@ -159,6 +159,7 @@ LLScrollListCtrl::LLScrollListCtrl(const std::string& name, const LLRect& rect, 
 	mFgUnselectedColor(LLUI::sColorsGroup->getColor("ScrollUnselectedColor")),
 	mFgDisabledColor(LLUI::sColorsGroup->getColor("ScrollDisabledColor")),
 	mHighlightedColor(LLUI::sColorsGroup->getColor("ScrollHighlightedColor")),
+	mFilter(),
 	mSearchColumn(0),
 	mColumnPadding(5)
 {
@@ -829,22 +830,19 @@ BOOL LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
 			continue ;
 		}
 
-		if (itemp->getFiltered())
+		if (index >= first_index && index <= last_index)
 		{
-			if (index >= first_index && index <= last_index)
+			if (itemp->getEnabled())
 			{
-				if (itemp->getEnabled())
-				{
-					selectItem(itemp, FALSE);
-					success = TRUE;
-				}
+				selectItem(itemp, FALSE);
+				success = TRUE;
 			}
-			else
-			{
-				deselectItem(itemp);
-			}
-			index++;
 		}
+		else
+		{
+			deselectItem(itemp);
+		}
+		index++;
 		iter++ ;
 	}
 
@@ -1203,7 +1201,6 @@ LLScrollListItem* LLScrollListCtrl::getItemByLabel(const std::string& label, BOO
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
-		if (item->getFiltered()) continue;
 
 		std::string item_text = item->getColumn(column)->getValue().asString();	// Only select enabled items with matching names
 		if (!case_sensitive)
