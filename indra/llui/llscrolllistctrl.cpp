@@ -605,6 +605,7 @@ S32 LLScrollListCtrl::calcMaxContentWidth()
 	}
 	mColumnWidthsDirty = false;
 
+	mMaxContentWidth = max_item_width;
 	return max_item_width;
 }
 
