@@ -112,53 +112,71 @@ void LLPrefsAscentChat::onSpellBaseComboBoxCommit(const LLSD& value)
 	glggHunSpell->newDictSelection(value.asString());
 }
 
+void setTimeDateFormats(const S8& tempTimeFormat, const S8& tempDateFormat)
+{
+	std::string short_date, long_date, short_time, long_time, timestamp;
+
+	if (tempDateFormat == -1)
+	{
+		if (tempDateFormat < 3)
+		{
+			short_date = !tempDateFormat ? "%F" :
+				tempDateFormat == 1 ? "%Y/%m/%d" :
+				"%d/%m/%Y";
+			long_date  = "%A, %d %B %Y";
+			timestamp  = "%a %d %b %Y";
+		}
+		else
+		{
+			short_date = "%m/%d/%Y";
+			long_date  = "%A, %B %d %Y";
+			timestamp  = "%a %b %d %Y";
+		}
+	}
+
+	if (tempTimeFormat == -1)
+	{
+		if (tempTimeFormat == 0)
+		{
+			short_time = "%R";
+			long_time  = "%T";
+			timestamp += " %T";
+		}
+		else
+		{
+			short_time = "%I:%M %p";
+			long_time  = "%I:%M:%S %p";
+			timestamp += " %I:%M %p";
+		}
+	}
+
+	if (!short_date.empty())
+	{
+		gSavedSettings.setString("ShortDateFormat", short_date);
+		gSavedSettings.setString("LongDateFormat",  long_date);
+	}
+	if (!short_time.empty())
+	{
+		gSavedSettings.setString("ShortTimeFormat", short_time);
+		gSavedSettings.setString("LongTimeFormat",  long_time);
+	}
+	if (!timestamp.empty())
+		gSavedSettings.setString("TimestampFormat", timestamp);
+}
+
 void LLPrefsAscentChat::onCommitTimeDate(LLUICtrl* ctrl)
 {
 	LLComboBox* combo = static_cast<LLComboBox*>(ctrl);
-    if (ctrl->getName() == "time_format_combobox")
-    {
-		tempTimeFormat = combo->getCurrentIndex();
-    }
-    else if (ctrl->getName() == "date_format_combobox")
-    {
-		tempDateFormat = combo->getCurrentIndex();
-    }
-
-    std::string short_date, long_date, short_time, long_time, timestamp;
-
-	if (tempDateFormat < 3)
+	if (ctrl->getName() == "time_format_combobox")
 	{
-		short_date = !tempDateFormat ? "%F" :
-				tempDateFormat == 1 ? "%Y/%m/%d" :
-				"%d/%m/%Y";
-		long_date  = "%A, %d %B %Y";
-		timestamp  = "%a %d %b %Y";
+		tempTimeFormat = combo->getCurrentIndex();
 	}
-    else
-    {
-        short_date = "%m/%d/%Y";
-        long_date  = "%A, %B %d %Y";
-        timestamp  = "%a %b %d %Y";
-    }
+	else if (ctrl->getName() == "date_format_combobox")
+	{
+		tempDateFormat = combo->getCurrentIndex();
+	}
 
-	if (tempTimeFormat == 0)
-    {
-        short_time = "%R";
-        long_time  = "%T";
-        timestamp += " %T";
-    }
-    else
-    {
-        short_time = "%I:%M %p";
-        long_time  = "%I:%M:%S %p";
-        timestamp += " %I:%M %p";
-    }
-
-    gSavedSettings.setString("ShortDateFormat", short_date);
-    gSavedSettings.setString("LongDateFormat",  long_date);
-    gSavedSettings.setString("ShortTimeFormat", short_time);
-    gSavedSettings.setString("LongTimeFormat",  long_time);
-    gSavedSettings.setString("TimestampFormat", timestamp);
+	setTimeDateFormats(tempTimeFormat, tempDateFormat);
 }
 
 void LLPrefsAscentChat::onCommitKeywords(LLUICtrl* ctrl)
@@ -204,28 +222,16 @@ void LLPrefsAscentChat::refreshValues()
     mSecondsInLog                   = gSavedSettings.getBOOL("SecondsInLog");
 
     std::string format = gSavedSettings.getString("ShortTimeFormat");
-    if (format.find("%p") == std::string::npos)
-    {
-        mTimeFormat = 0;
-    }
-    else
-    {
-        mTimeFormat = 1;
-    }
+    mTimeFormat = format == "%R" ? 0
+	    : format == "%I:%M %p" ? 1
+	    : -1;
 
     format = gSavedSettings.getString("ShortDateFormat");
-    if (format.find("%D") != std::string::npos || format.find("%m/%d/%") != std::string::npos)
-    {
-        mDateFormat = 2;
-    }
-    else if (format.find("%d/%m/%") != std::string::npos)
-    {
-        mDateFormat = 1;
-    }
-    else
-    {
-        mDateFormat = 0;
-    }
+    mDateFormat = format == "%F" ? 0 :
+	    format == "%Y/%m/%d" ? 1 :
+	    format == "%d/%m/%Y" ? 2 :
+	    format == "%m/%d/%Y" ? 3 :
+	    -1;
 
     tempTimeFormat = mTimeFormat;
     tempDateFormat = mDateFormat;
@@ -312,20 +318,24 @@ void LLPrefsAscentChat::refreshValues()
 // Update controls based on current settings
 void LLPrefsAscentChat::refresh()
 {
-    //Chat --------------------------------------------------------------------------------
-    // time format combobox
-    LLComboBox* combo = getChild<LLComboBox>("time_format_combobox");
-    if (combo)
-    {
-        combo->setCurrentByIndex(mTimeFormat);
-    }
+	//Chat --------------------------------------------------------------------------------
+	// time format combobox
+	if (mTimeFormat != -1)
+	{
+		if (auto combo = getChild<LLComboBox>("time_format_combobox"))
+		{
+			combo->setCurrentByIndex(mTimeFormat);
+		}
+	}
 
-    // date format combobox
-    combo = getChild<LLComboBox>("date_format_combobox");
-    if (combo)
-    {
-        combo->setCurrentByIndex(mDateFormat);
-    }
+	// date format combobox
+	if (mDateFormat != -1)
+	{
+		if (auto combo = getChild<LLComboBox>("date_format_combobox"))
+		{
+			combo->setCurrentByIndex(mDateFormat);
+		}
+	}
 
 	//Chat UI -----------------------------------------------------------------------------
 	if (combo = getChild<LLComboBox>("chat_tabs_namesystem_combobox"))
@@ -430,45 +440,7 @@ void LLPrefsAscentChat::cancel()
     gSavedSettings.setBOOL("SecondsInChatAndIMs",                  mSecondsInChatAndIMs);
     gSavedSettings.setBOOL("SecondsInLog",                         mSecondsInLog);
 
-    std::string short_date, long_date, short_time, long_time, timestamp;
-
-    if (mTimeFormat == 0)
-    {
-        short_time = "%H:%M";
-        long_time  = "%H:%M:%S";
-        timestamp  = " %H:%M:%S";
-    }
-    else
-    {
-        short_time = "%I:%M %p";
-        long_time  = "%I:%M:%S %p";
-        timestamp  = " %I:%M %p";
-    }
-
-    if (mDateFormat == 0)
-    {
-        short_date = "%Y-%m-%d";
-        long_date  = "%A %d %B %Y";
-        timestamp  = "%a %d %b %Y" + timestamp;
-    }
-    else if (mDateFormat == 1)
-    {
-        short_date = "%d/%m/%Y";
-        long_date  = "%A %d %B %Y";
-        timestamp  = "%a %d %b %Y" + timestamp;
-    }
-    else
-    {
-        short_date = "%m/%d/%Y";
-        long_date  = "%A, %B %d %Y";
-        timestamp  = "%a %b %d %Y" + timestamp;
-    }
-
-    gSavedSettings.setString("ShortDateFormat", short_date);
-    gSavedSettings.setString("LongDateFormat",  long_date);
-    gSavedSettings.setString("ShortTimeFormat", short_time);
-    gSavedSettings.setString("LongTimeFormat",  long_time);
-    gSavedSettings.setString("TimestampFormat", timestamp);
+	setTimeDateFormats(mTimeFormat, mDateFormat);
 
 	//Chat UI -----------------------------------------------------------------------------
 	gSavedSettings.setBOOL("WoLfVerticalIMTabs",                   mWoLfVerticalIMTabs);
