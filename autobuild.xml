@@ -654,7 +654,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1320_73.1.12+gee4b49f+chromium-73.0.3683.75-linux64-192030536.tar.bz2</string>
+              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1320_73.1.12%252Bgee4b49f%252Bchromium-73.0.3683.75-linux64-192030536.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
