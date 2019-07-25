@@ -338,67 +338,58 @@ void LLPrefsAscentChat::refresh()
 	}
 
 	//Chat UI -----------------------------------------------------------------------------
-	if (combo = getChild<LLComboBox>("chat_tabs_namesystem_combobox"))
+	if (auto combo = getChild<LLComboBox>("chat_tabs_namesystem_combobox"))
 		combo->setCurrentByIndex(mChatTabNames);
-	if (combo = getChild<LLComboBox>("friends_namesystem_combobox"))
+	if (auto combo = getChild<LLComboBox>("friends_namesystem_combobox"))
 		combo->setCurrentByIndex(mFriendNames);
-	if (combo = getChild<LLComboBox>("group_members_namesystem_combobox"))
+	if (auto combo = getChild<LLComboBox>("group_members_namesystem_combobox"))
 		combo->setCurrentByIndex(mGroupMembersNames);
-	if (combo = getChild<LLComboBox>("land_management_namesystem_combobox"))
+	if (auto combo = getChild<LLComboBox>("land_management_namesystem_combobox"))
 		combo->setCurrentByIndex(mLandManagementNames);
-	if (combo = getChild<LLComboBox>("radar_namesystem_combobox"))
+	if (auto combo = getChild<LLComboBox>("radar_namesystem_combobox"))
 		combo->setCurrentByIndex(mRadarNames);
-	if (combo = getChild<LLComboBox>("speaker_namesystem_combobox"))
+	if (auto combo = getChild<LLComboBox>("speaker_namesystem_combobox"))
 		combo->setCurrentByIndex(mSpeakerNames);
 
     //Text Options ------------------------------------------------------------------------
-    combo = getChild<LLComboBox>("SpellBase");
-
-    if (combo != NULL) 
+    if (combo = getChild<LLComboBox>("SpellBase"))
     {
         combo->removeall();
-        std::vector<std::string> names = glggHunSpell->getDicts();
 
-        for (int i = 0; i < (int)names.size(); i++) 
+        for (const auto& name : glggHunSpell->getDicts())
         {
-            combo->add(names[i]);
+            combo->add(name);
         }
 
         combo->setSimple(gSavedSettings.getString("SpellBase"));
     }
 
-    combo = getChild<LLComboBox>("EmSpell_Avail");
-
-    if (combo != NULL) 
+    if (auto combo = getChild<LLComboBox>("EmSpell_Avail"))
     {
         combo->removeall();
 
-        combo->add("");
-        std::vector<std::string> names = glggHunSpell->getAvailDicts();
+        combo->add(LLStringUtil::null);
 
-        for (int i = 0; i < (int)names.size(); i++) 
+        for (const auto& name : glggHunSpell->getAvailDicts())
         {
-            combo->add(names[i]);
+            combo->add(name);
         }
 
-        combo->setSimple(std::string(""));
+        combo->setSimple(LLStringUtil::null);
     }
 
-    combo = getChild<LLComboBox>("EmSpell_Installed");
-
-    if (combo != NULL) 
+    if (auto combo = getChild<LLComboBox>("EmSpell_Installed"))
     {
         combo->removeall();
 
-        combo->add("");
-        std::vector<std::string> names = glggHunSpell->getInstalledDicts();
+        combo->add(LLStringUtil::null);
 
-        for (int i = 0; i < (int)names.size(); i++) 
+        for (const auto& name : glggHunSpell->getInstalledDicts())
         {
-            combo->add(names[i]);
+            combo->add(name);
         }
 
-        combo->setSimple(std::string(""));
+        combo->setSimple(LLStringUtil::null);
     }
 
     childSetEnabled("KeywordsList",        mKeywordsOn);
