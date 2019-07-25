@@ -352,7 +352,7 @@ void LLPrefsAscentChat::refresh()
 		combo->setCurrentByIndex(mSpeakerNames);
 
     //Text Options ------------------------------------------------------------------------
-    if (combo = getChild<LLComboBox>("SpellBase"))
+    if (auto combo = getChild<LLComboBox>("SpellBase"))
     {
         combo->removeall();
 
