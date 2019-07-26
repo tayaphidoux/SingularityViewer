@@ -72,17 +72,8 @@ void LLFloaterJoystick::draw()
 	for (U32 i = 0; i < 6; ++i)
 	{
 		F32 value = joystick->getJoystickAxis(i);
+		mAxisStatsBar[i]->fit(value);
 		mAxisStats[i]->addValue(value * gFrameIntervalSeconds);
-		auto& bar = mAxisStatsBar[i];
-
-		if (bar->mMinBar > value)
-		{
-			bar->mMinBar = value;
-		}
-		if (bar->mMaxBar < value)
-		{
-			bar->mMaxBar = value;
-		}
 	}
 
 	LLFloater::draw();
@@ -118,11 +109,12 @@ BOOL LLFloaterJoystick::postBuild()
 		axis.setArg("[NUM]", llformat("%d", i));
 		std::string stat_name(llformat("Joystick axis %d", i));
 		mAxisStats[i] = new LLStat(stat_name,4);
-		mAxisStatsBar[i] = mAxisStatsView->addStat(axis, mAxisStats[i]);
-		mAxisStatsBar[i]->mMinBar = -range;
-		mAxisStatsBar[i]->mMaxBar = range;
-		mAxisStatsBar[i]->mLabelSpacing = range * 0.5f;
-		mAxisStatsBar[i]->mTickSpacing = range * 0.25f;			
+		LLStatBar::Parameters params;
+		params.mMinBar = -range;
+		params.mMaxBar = range;
+		params.mLabelSpacing = range * 0.5f;
+		params.mTickSpacing = range * 0.25f;
+		mAxisStatsBar[i] = mAxisStatsView->addStat(axis, mAxisStats[i], params);
 	}
 
 	addChild(mAxisStatsView);
