@@ -4286,6 +4286,12 @@ void LLPanelEstateAccess::copyListToClipboard(std::string list_name)
 
 bool LLPanelEstateAccess::refreshFromRegion(LLViewerRegion* region)
 {
+	// Clear these out before we ask for an update
+	if (auto name_list = getChild<LLNameListCtrl>("allowed_avatar_name_list"))
+		name_list->deleteAllItems();
+	if (auto name_list = getChild<LLNameListCtrl>("banned_avatar_name_list"))
+		name_list->deleteAllItems();
+
 	updateLists();
 	return LLPanelRegionInfo::refreshFromRegion(region);
 }
