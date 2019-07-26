@@ -116,7 +116,7 @@ void setTimeDateFormats(const S8& tempTimeFormat, const S8& tempDateFormat)
 {
 	std::string short_date, long_date, short_time, long_time, timestamp;
 
-	if (tempDateFormat == -1)
+	if (tempDateFormat != -1)
 	{
 		if (tempDateFormat < 3)
 		{
@@ -134,7 +134,7 @@ void setTimeDateFormats(const S8& tempTimeFormat, const S8& tempDateFormat)
 		}
 	}
 
-	if (tempTimeFormat == -1)
+	if (tempTimeFormat != -1)
 	{
 		if (tempTimeFormat == 0)
 		{
