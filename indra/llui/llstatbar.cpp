@@ -254,14 +254,12 @@ void LLStatBar::draw()
 				if (mParameters.mPerSec)
 				{
 					left = (S32)((mStatp->getPrevPerSec(i) - (mParameters.mMinBar + mMinShift)) * value_scale);
-					right = (S32)((mStatp->getPrevPerSec(i) - (mParameters.mMinBar + mMinShift)) * value_scale) + 1;
-					gl_rect_2d(left, bottom+i+1, right, bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
+					gl_rect_2d(left, bottom+i+1, left+1, bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
 				}
 				else
 				{
 					left = (S32)((mStatp->getPrev(i) - (mParameters.mMinBar + mMinShift)) * value_scale);
-					right = (S32)((mStatp->getPrev(i) - (mParameters.mMinBar + mMinShift)) * value_scale) + 1;
-					gl_rect_2d(left, bottom+i+1, right, bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
+					gl_rect_2d(left, bottom+i+1, left + 1, bottom+i, LLColor4(1.f, 0.f, 0.f, 1.f));
 				}
 			}
 		}
@@ -269,16 +267,14 @@ void LLStatBar::draw()
 		{
 			// draw current
 			left = (S32) ((current - (mParameters.mMinBar + mMinShift)) * value_scale) - 1;
-			right = (S32) ((current - (mParameters.mMinBar + mMinShift)) * value_scale) + 1;
-			gl_rect_2d(left, top, right, bottom, LLColor4(1.f, 0.f, 0.f, 1.f));
+			gl_rect_2d(left, top, left + 2, bottom, LLColor4(1.f, 0.f, 0.f, 1.f));
 		}
 
 		// draw mean bar
 		top = bar_top + 2;
 		bottom = bar_top - bar_height - 2;
-		left = (S32) ((mean - (mParameters.mMinBar + mMinShift)) * value_scale) - 1;
-		right = (S32) ((mean - (mParameters.mMinBar + mMinShift)) * value_scale) + 1;
-		gl_rect_2d(left, top, right, bottom, LLColor4(0.f, 1.f, 0.f, 1.f));
+		left = (S32)((mean - (mParameters.mMinBar + mMinShift)) * value_scale) - 1;
+		gl_rect_2d(left, top, left + 2, bottom, LLColor4(0.f, 1.f, 0.f, 1.f));
 	}
 	
 	LLView::draw();
