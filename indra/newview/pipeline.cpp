@@ -4146,7 +4146,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 		{
 			updateHWLightMode(LIGHT_MODE_NORMAL);
-			llassert_always(LLGLState<GL_LIGHTING>::checkEnabled());
+			llassert(LLGLState<GL_LIGHTING>::checkEnabled());
 		}
 
 		BOOL occlude = sUseOcclusion > 1;
@@ -4422,8 +4422,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 	LLGLEnable<GL_MULTISAMPLE_ARB> multisample(RenderFSAASamples > 0);
 
 	updateHWLightMode(LIGHT_MODE_NORMAL);
-
-	llassert_always(LLGLState<GL_LIGHTING>::checkEnabled());
 
 	gGL.setColorMask(true, false);
 
@@ -8279,8 +8277,6 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 			mTransformedSunDir.load3(getSunDir().mV);
 			glh_get_current_modelview().rotate(mTransformedSunDir,mTransformedSunDir);
 		}
-
-		llassert_always(LLGLState<GL_LIGHTING>::checkEnabled());
 
 		gGL.pushMatrix();
 		gGL.loadIdentity();
