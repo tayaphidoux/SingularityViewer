@@ -40,7 +40,9 @@
 #include "lluictrlfactory.h"
 
 // project include
+#include "llavataractions.h"
 #include "llfloateravatarpicker.h"
+#include "llgroupactions.h"
 #include "llmutelist.h"
 #include "llnamelistctrl.h"
 
@@ -185,6 +187,22 @@ LLFloaterMute::LLFloaterMute(const LLSD& seed)
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_mute.xml", NULL, FALSE);
 }
 
+void LLFloaterMute::showProfile() const
+{
+	if (const auto item = mMuteList->getFirstSelected())
+	{
+		const auto type = item->getColumn(0)->getValue().asString();
+		if (type == mAvatarIcon->getName())
+		{
+			LLAvatarActions::showProfile(item->getUUID());
+		}
+		else if (type == mGroupIcon->getName())
+		{
+			LLGroupActions::show(item->getUUID());
+		}
+	}
+}
+
 BOOL LLFloaterMute::postBuild()
 {
 	childSetCommitCallback("mutes", boost::bind(&LLFloaterMute::updateButtons, this));
@@ -199,6 +217,7 @@ BOOL LLFloaterMute::postBuild()
 
 	mMuteList = getChild<LLNameListCtrl>("mutes");
 	mMuteList->setCommitOnSelectionChange(TRUE);
+	mMuteList->setDoubleClickCallback(boost::bind(&LLFloaterMute::showProfile, this));
 
 	LLMuteList::getInstance()->addObserver(this);
 	
