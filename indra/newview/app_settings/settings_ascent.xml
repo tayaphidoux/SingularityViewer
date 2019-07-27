@@ -950,9 +950,9 @@ Changing this setting only affects new text.</string>
 			<key>Persist</key>
 			<integer>1</integer>
 			<key>Type</key>
-			<string>Boolean</string>
+			<string>S32</string>
 			<key>Value</key>
-			<boolean>1</boolean>
+			<boolean>-1</boolean>
 		</map>
 		<key>WarnRecommendedUpdate</key>
 		<map>

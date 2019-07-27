@@ -575,8 +575,19 @@ BOOL LLFloaterIMPanel::postBuild()
 		}
 		break;
 		case SUPPORT_SESSION:
-			getChildView("Support Check")->setVisible(true);
+		{
+			auto support = getChildView("Support Check");
+			support->setVisible(true);
+			auto control = gSavedSettings.getControl(support->getControlName());
+			if (control->get().asInteger() == -1)
+			{
+				LLNotificationsUtil::add("SupportChatShowInfo", LLSD(), LLSD(), [control](const LLSD& p, const LLSD& f)
+				{
+					control->set(!LLNotificationsUtil::getSelectedOption(p, f));
+				});
+			}
 			// Singu Note: We could make a button feature for dumping Help->About contents for support, too.
+		}
 		break;
 		default:
 		break;

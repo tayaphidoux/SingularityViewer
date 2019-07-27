@@ -11461,6 +11461,17 @@ Object successfully exported to: [FILENAME]
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="SupportChatShowInfo"
+   type="alertmodal">
+You have just entered a [SHORT_APP_NAME] support group chat. To help provide support, [SHORT_APP_NAME] can prepend useful information to your messages. This can easily be toggled later via the checkbox in the support group chat.
+  <usetemplate
+   name="okcancelbuttons"
+   notext="Don't Bother"
+   yestext="I Consent!"/>
+  </notification>
+
+  <notification
     icon="notifytip.tga"
     label="Update Available"
     name="RecommendedUpdate"
