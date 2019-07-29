@@ -996,9 +996,9 @@ void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 {
 	LLLoadInfo* info = (LLLoadInfo*)user_data;
 
-	const LLUUID& item_id = info->mItemID;
-	const bool& inform_server = info->mInformServer;
-	const bool& deactivate_similar = info->mDeactivateSimilar;
+	const LLUUID item_id = info->mItemID;
+	const bool inform_server = info->mInformServer;
+	const bool deactivate_similar = info->mDeactivateSimilar;
 
 	delete info;
 	info = nullptr;
