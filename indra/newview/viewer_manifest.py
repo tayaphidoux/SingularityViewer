@@ -443,13 +443,6 @@ class WindowsManifest(ViewerManifest):
             # Find singularity-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s\\%s-bin.exe' % (self.args['configuration'],self.viewer_branding_id()), dst=self.final_exe())
 
-            with self.prefix(src=os.path.join(pkgdir, "redist")):
-                # include the compiled launcher scripts so that it gets included in the file_list
-                if(self.address_size == 64):
-                    self.path('vc_redist.x64.exe')
-                else:
-                    self.path('vc_redist.x86.exe')
-
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),
@@ -523,6 +516,17 @@ class WindowsManifest(ViewerManifest):
                         self.path('libtcmalloc_minimal.dll')
                 except:
                     print "Skipping libtcmalloc_minimal.dll"
+
+            # For msvc redist
+            try:
+                    self.path('api-ms*.dll')
+                    self.path('ucrt*.dll')
+                    self.path('concrt*.dll')
+                    self.path('msvc*.dll')
+                    self.path('vcruntime*.dll')
+                    self.path('vccor*.dll')
+            except:
+                print "Skipping msvc redist files"
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
