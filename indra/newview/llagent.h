@@ -621,7 +621,7 @@ private:
 	BOOL			mAutoPilotUseRotation;
 	LLVector3		mAutoPilotTargetFacing;
 	F32				mAutoPilotTargetDist;
-	S32				mAutoPilotNoProgressFrameCount;
+	U64				mAutoPilotNoProgressFrameCount;
 	F32				mAutoPilotRotationThreshold;
 	std::string		mAutoPilotBehaviorName;
 	void			(*mAutoPilotFinishedCallback)(BOOL, void *);

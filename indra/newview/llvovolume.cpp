@@ -4576,7 +4576,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 		}
 	}
 
-	U32 frame = LLFrameTimer::getFrameCount();
+	U64 frame = LLFrameTimer::getFrameCount();
 	if (copy)
 	{
 		copyVolumeFaces(volume);	

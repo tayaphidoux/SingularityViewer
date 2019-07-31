@@ -84,12 +84,12 @@ public:
 	}
 
 	// Return current frame number (the number of frames since application start).
-	static U32 getFrameCount(void)
+	static U64 getFrameCount(void)
 	{
 		// sFrameCount is only accessed by the main thread, so no locking is necessary.
 		llassert(is_main_thread());
 		//sGlobalMutex.lock();
-		U32 res = sFrameCount;
+		U64 res = sFrameCount;
 		//sGlobalMutex.unlock();
 		return res;
 	}
@@ -185,7 +185,7 @@ protected:
 	static F64 sTotalSeconds;
 
 	// Current frame number (number of frames since application start).
-	static S32 sFrameCount;
+	static U64 sFrameCount;
 
 	static bool sFirstFrameTimerCreated;
 

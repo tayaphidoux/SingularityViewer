@@ -61,7 +61,7 @@ enum LLVolumeInterfaceType
 
 class LLRiggedVolume : public LLVolume
 {
-	U32 mFrame;
+	U64 mFrame;
 public:
 	LLRiggedVolume(const LLVolumeParams& params)
 		: LLVolume(params, 0.f), mFrame(-1)
