@@ -1383,18 +1383,25 @@ LLWindow::LLWindowResolution* LLWindowSDL::getSupportedResolutions(S32 &num_reso
             {
                 modes--;
                 SDL_Rect *r = *modes;
-                int w = r->w;
-                int h = r->h;
+                S32 w = r->w;
+                S32 h = r->h;
                 if ((w >= 800) && (h >= 600))
                 {
                     // make sure we don't add the same resolution multiple times!
-                    if ( (mNumSupportedResolutions == 0) ||
-                         ((mSupportedResolutions[mNumSupportedResolutions-1].mWidth != w) &&
-                          (mSupportedResolutions[mNumSupportedResolutions-1].mHeight != h)) )
+                    bool resolution_exists = false;
+                    for (S32 i = 0; i < mNumSupportedResolutions; ++i)
+                    {
+                        if (mSupportedResolutions[i].mWidth == w &&
+                            mSupportedResolutions[i].mHeight == h)
+                        {
+                            resolution_exists = true;
+                            break;
+                        }
+                    }
+                    if (!resolution_exists)
                     {
                         mSupportedResolutions[mNumSupportedResolutions].mWidth = w;
-                        mSupportedResolutions[mNumSupportedResolutions].mHeight = h;
-                        mNumSupportedResolutions++;
+                        mSupportedResolutions[mNumSupportedResolutions++].mHeight = h;
                     }
                 }
             }
