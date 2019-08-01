@@ -1742,13 +1742,12 @@ if (LINUX)
       )
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_gstreamer010 basic_plugin_filepicker)
-  add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched)
 
   if (PACKAGE)
     add_custom_target(llpackage ALL DEPENDS ${product}.tar.xz)
-    # Make sure we don't run two instances of viewer_manifest.py at the same time.
-    add_dependencies(llpackage copy_l_viewer_manifest)
     check_message_template(llpackage)
+  else (PACKAGE)
+    add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched)
   endif (PACKAGE)
 endif (LINUX)
 
