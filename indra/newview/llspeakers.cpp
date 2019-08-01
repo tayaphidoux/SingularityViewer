@@ -1021,11 +1021,10 @@ LLActiveSpeakerMgr::LLActiveSpeakerMgr() : LLSpeakerMgr(NULL)
 void LLActiveSpeakerMgr::updateSpeakerList()
 {
 	// point to whatever the current voice channel is
-	const auto old_channel = mVoiceChannel;
 	mVoiceChannel = LLVoiceChannel::getCurrentVoiceChannel();
 
 	// always populate from active voice channel
-	if (mVoiceChannel != old_channel) //Singu Note: Don't let this always be false.
+	if (LLVoiceChannel::getCurrentVoiceChannel() != mVoiceChannel) //MA: seems this is always false
 	{
 		LL_DEBUGS("Speakers") << "Removed all speakers" << LL_ENDL;
 		fireEvent(new LLSpeakerListChangeEvent(this, LLUUID::null), "clear");
