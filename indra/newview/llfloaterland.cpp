@@ -2519,18 +2519,11 @@ void LLPanelLandAccess::refresh()
 	{
 		BOOL use_access_list = parcel->getParcelFlag(PF_USE_ACCESS_LIST);
 		BOOL use_group = parcel->getParcelFlag(PF_USE_ACCESS_GROUP);
-		BOOL public_access = !use_access_list;
+		BOOL public_access = !use_access_list && !use_group;
 		
-        if (parcel->getRegionAllowAccessOverride())
-        {
-			getChild<LLUICtrl>("public_access")->setValue(public_access );
-			getChild<LLUICtrl>("GroupCheck")->setValue(use_group );
-        }
-        else
-        {
-            getChild<LLUICtrl>("public_access")->setValue(TRUE);
-            getChild<LLUICtrl>("GroupCheck")->setValue(FALSE);
-        }
+		getChild<LLUICtrl>("public_access")->setValue(public_access);
+		getChild<LLUICtrl>("GroupCheck")->setValue(use_group);
+
 		std::string group_name;
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
 		getChild<LLUICtrl>("GroupCheck")->setLabelArg("[GROUP]", group_name );
@@ -2691,14 +2684,9 @@ void LLPanelLandAccess::refresh_ui()
 	LLParcel *parcel = mParcel->getParcel();
 	if (parcel && !gDisconnected)
 	{
-        BOOL can_manage_allowed = false;
+		BOOL can_manage_allowed = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_ALLOWED);
 		BOOL can_manage_banned = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_BANNED);
 	
-        if (parcel->getRegionAllowAccessOverride())
-        {   // Estate owner may have disabled allowing the parcel owner from managing access.
-            can_manage_allowed = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_ALLOWED);
-        }
-
 		getChildView("public_access")->setEnabled(can_manage_allowed);
 		BOOL public_access = getChild<LLUICtrl>("public_access")->getValue().asBoolean();
 		if (public_access)
@@ -2730,6 +2718,7 @@ void LLPanelLandAccess::refresh_ui()
 			{
 				getChildView("Only Allow")->setToolTip(std::string());
 			}
+			getChildView("GroupCheck")->setEnabled(FALSE);
 			getChildView("PassCheck")->setEnabled(FALSE);
 			getChildView("pass_combo")->setEnabled(FALSE);
 			getChildView("AccessList")->setEnabled(FALSE);
@@ -2739,7 +2728,11 @@ void LLPanelLandAccess::refresh_ui()
 			getChildView("limit_payment")->setEnabled(FALSE);
 			getChildView("limit_age_verified")->setEnabled(FALSE);
 
-
+			std::string group_name;
+			if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
+			{
+				getChildView("GroupCheck")->setEnabled(can_manage_allowed);
+			}
 			BOOL sell_passes = getChild<LLUICtrl>("PassCheck")->getValue().asBoolean();
 			getChildView("PassCheck")->setEnabled(can_manage_allowed);
 			if (sell_passes)
@@ -2748,11 +2741,6 @@ void LLPanelLandAccess::refresh_ui()
 				getChildView("PriceSpin")->setEnabled(can_manage_allowed);
 				getChildView("HoursSpin")->setEnabled(can_manage_allowed);
 			}
-		}
-		std::string group_name;
-		if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
-		{
-			getChildView("GroupCheck")->setEnabled(can_manage_allowed);
 		}
 		getChildView("AccessList")->setEnabled(true/*can_manage_allowed*/);
 		S32 allowed_list_count = parcel->mAccessList.size();
