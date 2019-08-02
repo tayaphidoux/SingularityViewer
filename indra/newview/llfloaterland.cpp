@@ -2544,8 +2544,8 @@ void LLPanelLandAccess::refresh()
 			getChild<LLUICtrl>("AllowedText")->setTextArg("[COUNT]", llformat("%d",count));
 			getChild<LLUICtrl>("AllowedText")->setTextArg("[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
-			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
-			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
+			mListAccess->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
+			mListAccess->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
 			for (access_map_const_iterator cit = parcel->mAccessList.begin();
 				 cit != parcel->mAccessList.end(); ++cit)
@@ -2581,8 +2581,8 @@ void LLPanelLandAccess::refresh()
 			getChild<LLUICtrl>("BanCheck")->setTextArg("[COUNT]", llformat("%d",count));
 			getChild<LLUICtrl>("BanCheck")->setTextArg("[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
-			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
-			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
+			mListBanned->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
+			mListBanned->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
 			for (access_map_const_iterator cit = parcel->mBanList.begin();
 				 cit != parcel->mBanList.end(); ++cit)
@@ -2657,10 +2657,10 @@ void LLPanelLandAccess::refresh()
 		getChild<LLUICtrl>("PassCheck")->setValue(FALSE);
 		getChild<LLUICtrl>("PriceSpin")->setValue((F32)PARCEL_PASS_PRICE_DEFAULT);
 		getChild<LLUICtrl>("HoursSpin")->setValue(PARCEL_PASS_HOURS_DEFAULT );
-		getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",0));
-		getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",0));
-		getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",0));
-		getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",0));
+		mListAccess->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",0));
+		mListAccess->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",0));
+		mListBanned->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",0));
+		mListBanned->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",0));
 	}	
 }
 
@@ -2674,8 +2674,8 @@ void LLPanelLandAccess::refresh_ui()
 	getChildView("pass_combo")->setEnabled(FALSE);
 	getChildView("PriceSpin")->setEnabled(FALSE);
 	getChildView("HoursSpin")->setEnabled(FALSE);
-	getChildView("AccessList")->setEnabled(FALSE);
-	getChildView("BannedList")->setEnabled(FALSE);
+	mListAccess->setEnabled(FALSE);
+	mListBanned->setEnabled(FALSE);
 	getChildView("add_allowed")->setEnabled(FALSE);
 	getChildView("remove_allowed")->setEnabled(FALSE);
 	getChildView("add_banned")->setEnabled(FALSE);
@@ -2721,7 +2721,7 @@ void LLPanelLandAccess::refresh_ui()
 			getChildView("GroupCheck")->setEnabled(FALSE);
 			getChildView("PassCheck")->setEnabled(FALSE);
 			getChildView("pass_combo")->setEnabled(FALSE);
-			getChildView("AccessList")->setEnabled(FALSE);
+			mListAccess->setEnabled(FALSE);
 		}
 		else
 		{
@@ -2742,13 +2742,13 @@ void LLPanelLandAccess::refresh_ui()
 				getChildView("HoursSpin")->setEnabled(can_manage_allowed);
 			}
 		}
-		getChildView("AccessList")->setEnabled(true/*can_manage_allowed*/);
+		mListAccess->setEnabled(true/*can_manage_allowed*/);
 		S32 allowed_list_count = parcel->mAccessList.size();
 		getChildView("add_allowed")->setEnabled(can_manage_allowed && allowed_list_count < PARCEL_MAX_ACCESS_LIST);
 		BOOL has_selected = (mListAccess && mListAccess->getSelectionInterface()->getFirstSelectedIndex() >= 0);
 		getChildView("remove_allowed")->setEnabled(can_manage_allowed && has_selected);
 		
-		getChildView("BannedList")->setEnabled(true/*can_manage_banned*/);
+		mListBanned->setEnabled(true/*can_manage_banned*/);
 		S32 banned_list_count = parcel->mBanList.size();
 		getChildView("add_banned")->setEnabled(can_manage_banned && banned_list_count < PARCEL_MAX_ACCESS_LIST);
 		has_selected = (mListBanned && mListBanned->getSelectionInterface()->getFirstSelectedIndex() >= 0);
