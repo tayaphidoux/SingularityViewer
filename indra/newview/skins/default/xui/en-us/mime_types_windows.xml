@@ -101,6 +101,27 @@
 			true
 		</allow_looping>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			No Content
+		</label>
+		<default_type>
+			none/none
+		</default_type>
+		<icon>
+			icn_media_web.tga
+		</icon>
+		<tooltip name="none_tooltip">
+			No media here
+		</tooltip>
+		<playtip name="none_playtip" />
+		<allow_resize>
+			false
+		</allow_resize>
+		<allow_looping>
+			false
+		</allow_looping>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Real Time Streaming
@@ -109,10 +130,21 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</scheme>
-	<mimetype name="blank">
+  <scheme name="libvlc">
+    <label name="libvlc_label">
+      LibVLC supported media
+    </label>
+    <widgettype>
+      movie
+    </widgettype>
+    <impl>
+      media_plugin_libvlc
+    </impl>
+  </scheme>
+  <mimetype name="blank">
 		<label name="blank_label">
 			- None -
 		</label>
@@ -142,7 +174,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="video/*">
@@ -153,7 +185,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="image/*">
@@ -175,8 +207,8 @@
 			movie
 		</widgettype>
 		<impl>
-      media_plugin_quicktime
-    </impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="application/javascript">
 		<label name="application/javascript_label">
@@ -197,7 +229,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="application/pdf">
@@ -235,7 +267,7 @@
 	</mimetype>
 	<mimetype name="application/smil">
 		<label name="application/smil_label">
-		    Synchronized Multimedia Integration Language (SMIL)
+			Synchronized Multimedia Integration Language (SMIL)
 		</label>
 		<widgettype>
 			movie
@@ -274,7 +306,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="audio/mpeg">
@@ -285,7 +317,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="audio/x-aiff">
@@ -296,7 +328,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="audio/x-wav">
@@ -307,7 +339,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_quicktime
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/bmp">
@@ -384,8 +416,8 @@
 			web
 		</widgettype>
 		<impl>
-      media_plugin_cef
-    </impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype menu="1" name="text/plain">
 		<label name="text/plain_label">
@@ -417,8 +449,8 @@
 			movie
 		</widgettype>
 		<impl>
-      media_plugin_quicktime
-    </impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
@@ -428,19 +460,30 @@
 			movie
 		</widgettype>
 		<impl>
-      media_plugin_quicktime
+			media_plugin_libvlc
+		</impl>
+	</mimetype>
+  <mimetype name="application/octet-stream">
+    <label name="video/octet-stream">
+      Movie
+    </label>
+    <widgettype>
+      movie
+    </widgettype>
+    <impl>
+      media_plugin_libvlc
     </impl>
 	</mimetype>
-	<mimetype menu="1" name="video/quicktime">
-		<label name="video/quicktime_label">
+	<mimetype menu="1" name="video/libvlc">
+		<label name="video/libvlc_label">
 			Movie (QuickTime)
 		</label>
 		<widgettype>
 			movie
 		</widgettype>
 		<impl>
-      media_plugin_quicktime
-    </impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
 		<label name="video/x-ms-asf_label">
@@ -450,8 +493,8 @@
 			movie
 		</widgettype>
 		<impl>
-      media_plugin_quicktime
-    </impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
 		<label name="video/x-ms-wmv_label">
@@ -461,8 +504,8 @@
 			movie
 		</widgettype>
 		<impl>
-      media_plugin_quicktime
-    </impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype menu="1" name="video/x-msvideo">
 		<label name="video/x-msvideo_label">
@@ -472,7 +515,7 @@
 			movie
 		</widgettype>
 		<impl>
-      media_plugin_quicktime
-    </impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 </mimetypes>

@@ -189,8 +189,8 @@
 		<widgettype>Film</widgettype>
 		<impl>media_plugin_gstreamer</impl>
 	</mimetype>
-	<mimetype name="video/quicktime">
-		<label name="video/quicktime_label">Video (QuickTime)</label>
+	<mimetype name="video/libvlc">
+		<label name="video/libvlc_label">Video (QuickTime)</label>
 		<widgettype>Film</widgettype>
 		<impl>media_plugin_gstreamer</impl>
 	</mimetype>

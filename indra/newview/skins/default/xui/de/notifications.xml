@@ -2000,7 +2000,7 @@ W&#xE4;hlen Sie eine kleinere Landfl&#xE4;che.</notification>
 [NAMES]</notification>
 
   <notification name="NoQuickTime">Apple QuickTime ist auf Ihrem System anscheinend nicht installiert.
-Laden Sie QuickTime von der QuickTime-Webseite (http://www.apple.com/de/quicktime) herunter, um auf Parzellen, die diese Funktion unterst&#xFC;tzen, Streaming-Inhalte wiederzugeben.</notification>
+Laden Sie QuickTime von der QuickTime-Webseite (http://www.apple.com/de/libvlc) herunter, um auf Parzellen, die diese Funktion unterst&#xFC;tzen, Streaming-Inhalte wiederzugeben.</notification>
   <notification name="NoPlugin">Kein Media Plugin wurde gefunden um "[MIME_TYPE]" an zu zeigen. Dieses Medium wird nicht verf&#xFC;gbar sein.</notification>
   <notification name="MediaPluginFailed">Das folgende Media Plugin konnte nicht gestartet werden
 [PLUGIN]

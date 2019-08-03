@@ -3631,7 +3631,7 @@ Inténtalo seleccionando un trozo más pequeño de terreno.
 	
 	<notification name="NoQuickTime">
 		No se ve como instalado en tu sistema el software QuickTime de Apple.
-Si quieres ver por streaming elementos multimedia en las parcelas que los tengan, debes ir al sitio web de QuickTime (http://www.apple.com/quicktime) e instalar el QuickTime Player.
+Si quieres ver por streaming elementos multimedia en las parcelas que los tengan, debes ir al sitio web de QuickTime (http://www.apple.com/libvlc) e instalar el QuickTime Player.
 	</notification>
 	
 	<notification name="NoPlugin">

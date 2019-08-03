@@ -6973,7 +6973,7 @@ Deactivated gestures with same trigger:
    persist="true"
    type="notify">
 Apple&apos;s QuickTime software does not appear to be installed on your system.
-If you want to view streaming media on parcels that support it you should go to the QuickTime site (http://www.apple.com/quicktime) and install the QuickTime Player.
+If you want to view streaming media on parcels that support it you should go to the QuickTime site (http://www.apple.com/libvlc) and install the QuickTime Player.
   <tag>fail</tag>
   </notification>
 
