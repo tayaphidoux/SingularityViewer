@@ -102,6 +102,7 @@ F32	LLToolBar::sInventoryAutoOpenTime = 1.f;
 //
 void show_floater(const std::string& floater_name);
 void show_inv_floater(const LLSD& userdata, const std::string& field);
+void show_web_floater(const std::string& type);
 
 LLToolBar::LLToolBar()
 :	LLLayoutPanel()
@@ -112,6 +113,7 @@ LLToolBar::LLToolBar()
 	mCommitCallbackRegistrar.add("ShowInvFloater.ID", boost::bind(show_inv_floater, _2, "id"));
 	mCommitCallbackRegistrar.add("ShowInvFloater.Name", boost::bind(show_inv_floater, _2, "name"));
 	mCommitCallbackRegistrar.add("ShowInvFloater.Type", boost::bind(show_inv_floater, _2, "type"));
+	mCommitCallbackRegistrar.add("ShowWebFloater", boost::bind(show_web_floater, _2));
 }
 
 

@@ -8988,6 +8988,37 @@ class VisibleInvFloaterType : public view_listener_t
 	}
 };
 
+void show_web_floater(const std::string& type)
+{
+	auto p = LLFloaterWebContent::Params();
+	if (!type.empty()) p.id = type;
+	if (type == "marketplace")
+	{
+		if (gHippoGridManager->getConnectedGrid()->isSecondLife())
+			p.url = "https://marketplace.secondlife.com";
+		else if (LLViewerRegion* region = gAgent.getRegion())
+		{
+			LLSD info;
+			region->getSimulatorFeatures(info);
+			p.url = info["MarketplaceURL"];
+		}
+	}
+	else if (!type.empty() && type != "dict web")
+	{
+		p.url = type; // Simple web floaters with direct urls
+	}
+	LLFloaterWebContent::showInstance(type, p);
+}
+
+class ShowWebFloater : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		show_web_floater(userdata.asStringRef());
+		return true;
+	}
+};
+
 class VisibleSecondLife : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9726,6 +9757,8 @@ void initialize_menus()
 	addMenu(new VisibleInvFloaterID, "InvFloaterVisible.ID");
 	addMenu(new VisibleInvFloaterName, "InvFloaterVisible.Name");
 	addMenu(new VisibleInvFloaterType, "InvFloaterVisible.Type");
+
+	addMenu(new ShowWebFloater, "ShowWebFloater");
 
 // [RLVa:KB] - Checked: 2010-01-18 (RLVa-1.1.0m) | Added: RLVa-1.1.0m | OK
 	if (rlv_handler_t::isEnabled())
