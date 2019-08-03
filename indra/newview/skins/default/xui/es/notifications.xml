@@ -3629,11 +3629,6 @@ Inténtalo seleccionando un trozo más pequeño de terreno.
 [NAMES]
 	</notification>
 	
-	<notification name="NoQuickTime">
-		No se ve como instalado en tu sistema el software QuickTime de Apple.
-Si quieres ver por streaming elementos multimedia en las parcelas que los tengan, debes ir al sitio web de QuickTime (http://www.apple.com/libvlc) e instalar el QuickTime Player.
-	</notification>
-	
 	<notification name="NoPlugin">
 		No se encontrado un plugin de Media que pueda manejar el tipo mime  "[MIME_TYPE]".  El contenido Media de este tipo no estará disponible.
 	</notification>
