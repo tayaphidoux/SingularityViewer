@@ -2425,6 +2425,12 @@ void LLScrollListCtrl::onScrollChange( S32 new_pos, LLScrollbar* scrollbar )
 }
 
 
+void LLScrollListCtrl::setSortOrder(const sort_order_t& order)
+{
+	mSortColumns = order;
+	updateSort();
+}
+
 void LLScrollListCtrl::sortByColumn(const std::string& name, BOOL ascending)
 {
 	column_map_t::iterator itor = mColumns.find(name);

@@ -258,7 +258,7 @@ LLFloaterAvatarList::~LLFloaterAvatarList()
 {
 	mCleanup = true;
 	LLSD sort;
-	for (const auto& col : mAvatarList->getSortColumns())
+	for (const auto& col : mAvatarList->getSortOrder())
 	{
 		sort.append(mAvatarList->getColumn(col.first)->mName);
 		sort.append(col.second);

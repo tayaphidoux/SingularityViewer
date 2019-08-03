@@ -325,10 +325,12 @@ public:
 	S32 getTotalStaticColumnWidth() { return mTotalStaticColumnWidth; }
 
 	typedef std::pair<S32, bool> sort_column_t;
-	const std::vector<sort_column_t>& getSortColumns() const { return mSortColumns; }
+	typedef std::vector<sort_column_t> sort_order_t;
+	const sort_order_t& getSortOrder() const { return mSortColumns; }
 	std::string     getSortColumnName();
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
 	BOOL			hasSortOrder() const;
+	void			setSortOrder(const sort_order_t& order);
 	void			clearSortOrder();
 	void			setSortEnabled(bool sort);
 
@@ -490,7 +492,7 @@ private:
 	typedef std::vector<LLScrollListColumn*> ordered_columns_t;
 	ordered_columns_t	mColumnsIndexed;
 
-	std::vector<sort_column_t>	mSortColumns;
+	sort_order_t	mSortColumns;
 
 	sort_signal_t*	mSortCallback;
 }; // end class LLScrollListCtrl
