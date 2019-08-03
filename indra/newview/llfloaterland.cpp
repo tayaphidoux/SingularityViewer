@@ -2538,6 +2538,7 @@ void LLPanelLandAccess::refresh()
 		if (mListAccess)
 		{
 			// Clear the sort order so we don't re-sort on every add.
+			const auto order = mListAccess->getSortOrder();
 			mListAccess->clearSortOrder();
 			mListAccess->deleteAllItems();
 			S32 count = parcel->mAccessList.size();
@@ -2568,13 +2569,14 @@ void LLPanelLandAccess::refresh()
 				}
 				mListAccess->addElement(item);
 			}
-			mListAccess->sortByName(TRUE);
+			mListAccess->setSortOrder(order);
 		}
 		
 		// Ban List
 		if(mListBanned)
 		{
 			// Clear the sort order so we don't re-sort on every add.
+			const auto order = mListBanned->getSortOrder();
 			mListBanned->clearSortOrder();
 			mListBanned->deleteAllItems();
 			S32 count = parcel->mBanList.size();
@@ -2605,7 +2607,7 @@ void LLPanelLandAccess::refresh()
 				}
 				mListBanned->addElement(item);
 			}
-			mListBanned->sortByName(TRUE);
+			mListBanned->setSortOrder(order);
 		}
 
 		if(parcel->getRegionDenyAnonymousOverride())
