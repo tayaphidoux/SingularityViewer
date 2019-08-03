@@ -295,6 +295,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	mLogLabel(log_label),
 	mQueuedMsgsForInit(),
 	mOtherParticipantUUID(other_participant_id),
+	mInitialTargetIDs(ids),
 	mDialog(dialog),
 	mTyping(false),
 	mTypingLineStartIndex(0),
