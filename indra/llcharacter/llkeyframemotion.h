@@ -387,101 +387,99 @@ public:
 
 	enum InterpolationType { IT_STEP, IT_LINEAR, IT_SPLINE };
 
-	//-------------------------------------------------------------------------
-	// ScaleKey
-	//-------------------------------------------------------------------------
-	class ScaleKey
-	{
-	public:
-		ScaleKey() { mTime = 0.0f; }
-		ScaleKey(F32 time, const LLVector3 &scale) { mTime = time; mScale = scale; }
-
-		F32			mTime;
-		LLVector3	mScale;
+	template<typename T>
+	struct lerp_op {
+		static T lerp(F32 t, const T& before, const T& after)
+		{
+			return ::lerp(before, after, t);
+		}
+	};
+	template<>
+	struct lerp_op<LLQuaternion> {
+		static LLQuaternion lerp(F32 t, const LLQuaternion& before, const LLQuaternion& after)
+		{
+			return ::nlerp(t, before, after);
+		}
 	};
 
-	//-------------------------------------------------------------------------
-	// RotationKey
-	//-------------------------------------------------------------------------
-	class RotationKey
+	template<typename T>
+	struct Curve
 	{
-	public:
-		RotationKey() { mTime = 0.0f; }
-		RotationKey(F32 time, const LLQuaternion &rotation) { mTime = time; mRotation = rotation; }
+		struct Key
+		{
+			Key() = default;
+			Key(F32 time, const T& value) { mTime = time; mValue = value; }
+			F32			mTime = 0;
+			T			mValue;
+		};
 
-		F32				mTime;
-		LLQuaternion	mRotation;
-	};
+		T interp(F32 u, Key& before, Key& after)
+		{
+			switch (mInterpolationType)
+			{
+			case IT_STEP:
+				return before.mValue;
+			default:
+			case IT_LINEAR:
+			case IT_SPLINE:
+				return lerp_op<T>::lerp(u, before.mValue, after.mValue);
+			}
+		}
 
-	//-------------------------------------------------------------------------
-	// PositionKey
-	//-------------------------------------------------------------------------
-	class PositionKey
-	{
-	public:
-		PositionKey() { mTime = 0.0f; }
-		PositionKey(F32 time, const LLVector3 &position) { mTime = time; mPosition = position; }
+		T getValue(F32 time, F32 duration)
+		{
+			if (mKeys.empty())
+			{
+				return T();
+			}
 
-		F32			mTime;
-		LLVector3	mPosition;
-	};
+			T value;
+			key_map_t::iterator right = std::lower_bound(mKeys.begin(), mKeys.end(), time, [](const auto& a, const auto& b) { return a.first < b; });
+			if (right == mKeys.end())
+			{
+				// Past last key
+				--right;
+				value = right->second.mValue;
+			}
+			else if (right == mKeys.begin() || right->first == time)
+			{
+				// Before first key or exactly on a key
+				value = right->second.mValue;
+			}
+			else
+			{
+				// Between two keys
+				key_map_t::iterator left = right; --left;
+				F32 index_before = left->first;
+				F32 index_after = right->first;
+				Key& pos_before = left->second;
+				Key& pos_after = right->second;
+				if (right == mKeys.end())
+				{
+					pos_after = mLoopInKey;
+					index_after = duration;
+				}
 
-	//-------------------------------------------------------------------------
-	// ScaleCurve
-	//-------------------------------------------------------------------------
-	class ScaleCurve
-	{
-	public:
-		ScaleCurve();
-		~ScaleCurve();
-		LLVector3 getValue(F32 time, F32 duration);
-		LLVector3 interp(F32 u, ScaleKey& before, ScaleKey& after);
+				F32 u = (time - index_before) / (index_after - index_before);
+				value = interp(u, pos_before, pos_after);
+			}
+			return value;
+		}
 
-		InterpolationType	mInterpolationType;
-		S32					mNumKeys;
-		typedef std::map<F32, ScaleKey> key_map_t;
+		InterpolationType	mInterpolationType = LLKeyframeMotion::IT_LINEAR;
+		S32					mNumKeys = 0;
+		typedef std::vector< std::pair<F32, Key> > key_map_t;
 		key_map_t 			mKeys;
-		ScaleKey			mLoopInKey;
-		ScaleKey			mLoopOutKey;
+		Key					mLoopInKey;
+		Key					mLoopOutKey;
 	};
 
-	//-------------------------------------------------------------------------
-	// RotationCurve
-	//-------------------------------------------------------------------------
-	class RotationCurve
-	{
-	public:
-		RotationCurve();
-		~RotationCurve();
-		LLQuaternion getValue(F32 time, F32 duration);
-		LLQuaternion interp(F32 u, RotationKey& before, RotationKey& after);
-
-		InterpolationType	mInterpolationType;
-		S32					mNumKeys;
-		typedef std::map<F32, RotationKey> key_map_t;
-		key_map_t		mKeys;
-		RotationKey		mLoopInKey;
-		RotationKey		mLoopOutKey;
-	};
-
-	//-------------------------------------------------------------------------
-	// PositionCurve
-	//-------------------------------------------------------------------------
-	class PositionCurve
-	{
-	public:
-		PositionCurve();
-		~PositionCurve();
-		LLVector3 getValue(F32 time, F32 duration);
-		LLVector3 interp(F32 u, PositionKey& before, PositionKey& after);
-
-		InterpolationType	mInterpolationType;
-		S32					mNumKeys;
-		typedef std::map<F32, PositionKey> key_map_t;
-		key_map_t		mKeys;
-		PositionKey		mLoopInKey;
-		PositionKey		mLoopOutKey;
-	};
+	typedef Curve<LLVector3> ScaleCurve;
+	typedef ScaleCurve::Key ScaleKey;
+	typedef Curve<LLQuaternion> RotationCurve;
+	typedef RotationCurve::Key RotationKey;
+	typedef Curve<LLVector3> PositionCurve;
+	typedef PositionCurve::Key PositionKey;
 
 	//-------------------------------------------------------------------------
 	// JointMotion
