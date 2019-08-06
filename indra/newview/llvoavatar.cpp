@@ -10623,8 +10623,12 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 		}
 	}
 
-	// Render Complexity
-	calculateUpdateRenderComplexity(); // Update mVisualComplexity if needed	
+	if (mComplexityTimer.getElapsedTimeF32() > 5.f)
+	{
+		// Render Complexity
+		calculateUpdateRenderComplexity(); // Update mVisualComplexity if needed
+		mComplexityTimer.start();
+	}
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
 	{
