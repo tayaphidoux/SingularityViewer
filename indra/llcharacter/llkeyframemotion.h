@@ -171,6 +171,22 @@ int AICachedPointerPtr<KEY, T>::sCnt;
 //-----------------------------------------------------------------------------
 // class LLKeyframeMotion
 //-----------------------------------------------------------------------------
+
+namespace LLKeyframeMotionLerp
+{
+	template<typename T>
+	T lerp(F32 t, const T& before, const T& after)
+	{
+		return ::lerp(before, after, t);
+	}
+
+	template<>
+	LLQuaternion lerp(F32 t, const LLQuaternion& before, const LLQuaternion& after)
+	{
+		return ::nlerp(t, before, after);
+	}
+}
+
 class LLKeyframeMotion :
 	public LLMotion
 {
@@ -388,21 +404,6 @@ public:
 	enum InterpolationType { IT_STEP, IT_LINEAR, IT_SPLINE };
 
 	template<typename T>
-	struct lerp_op {
-		static T lerp(F32 t, const T& before, const T& after)
-		{
-			return ::lerp(before, after, t);
-		}
-	};
-	template<>
-	struct lerp_op<LLQuaternion> {
-		static LLQuaternion lerp(F32 t, const LLQuaternion& before, const LLQuaternion& after)
-		{
-			return ::nlerp(t, before, after);
-		}
-	};
-
-	template<typename T>
 	struct Curve
 	{
 		struct Key
@@ -422,7 +423,7 @@ public:
 			default:
 			case IT_LINEAR:
 			case IT_SPLINE:
-				return lerp_op<T>::lerp(u, before.mValue, after.mValue);
+				return LLKeyframeMotionLerp::lerp(u, before.mValue, after.mValue);
 			}
 		}
 
@@ -434,7 +435,7 @@ public:
 			}
 
 			T value;
-			key_map_t::iterator right = std::lower_bound(mKeys.begin(), mKeys.end(), time, [](const auto& a, const auto& b) { return a.first < b; });
+			typename key_map_t::iterator right = std::lower_bound(mKeys.begin(), mKeys.end(), time, [](const auto& a, const auto& b) { return a.first < b; });
 			if (right == mKeys.end())
 			{
 				// Past last key
@@ -449,7 +450,7 @@ public:
 			else
 			{
 				// Between two keys
-				key_map_t::iterator left = right; --left;
+				typename key_map_t::iterator left = right; --left;
 				F32 index_before = left->first;
 				F32 index_after = right->first;
 				Key& pos_before = left->second;
