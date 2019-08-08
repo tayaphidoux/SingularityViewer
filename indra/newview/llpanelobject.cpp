@@ -130,10 +130,10 @@ LLVector3 LLPanelObject::mClipboardPos;
 LLVector3 LLPanelObject::mClipboardSize;
 LLVector3 LLPanelObject::mClipboardRot;
 LLVolumeParams LLPanelObject::mClipboardVolumeParams;
-LLFlexibleObjectData* LLPanelObject::mClipboardFlexiParams = NULL;
-LLLightParams* LLPanelObject::mClipboardLightParams = NULL;
-LLSculptParams* LLPanelObject::mClipboardSculptParams = NULL;
-LLLightImageParams* LLPanelObject::mClipboardLightImageParams = NULL;
+const LLFlexibleObjectData* LLPanelObject::mClipboardFlexiParams = NULL;
+const LLLightParams* LLPanelObject::mClipboardLightParams = NULL;
+const LLSculptParams* LLPanelObject::mClipboardSculptParams = NULL;
+const LLLightImageParams* LLPanelObject::mClipboardLightImageParams = NULL;
 BOOL LLPanelObject::hasParamClipboard = FALSE;
 
 BOOL	LLPanelObject::postBuild()
@@ -895,7 +895,7 @@ void LLPanelObject::getState( )
 		}
 
 
-		if (objectp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
+		if (objectp->getSculptParams())
 		{
 			selected_item = MI_SCULPT;
 			LLFirstUse::useSculptedPrim();
@@ -1398,7 +1398,7 @@ void LLPanelObject::getState( )
 
 
 		LLUUID id;
-		LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		const LLSculptParams *sculpt_params = objectp->getSculptParams();
 
 		
 		if (sculpt_params) // if we have a legal sculpt param block for this object:
@@ -1574,13 +1574,13 @@ void LLPanelObject::onCommitParametric( LLUICtrl* ctrl, void* userdata )
 	if (selected_type == MI_SCULPT)
 	{
 		self->mObject->setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, TRUE, TRUE);
-		LLSculptParams *sculpt_params = (LLSculptParams *)self->mObject->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		const LLSculptParams *sculpt_params = self->mObject->getSculptParams();
 		if (sculpt_params)
 			volume_params.setSculptID(sculpt_params->getSculptTexture(), sculpt_params->getSculptType());
 	}
 	else
 	{
-		LLSculptParams *sculpt_params = (LLSculptParams *)self->mObject->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		const LLSculptParams *sculpt_params = self->mObject->getSculptParams();
 		if (sculpt_params)
 			self->mObject->setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, FALSE, TRUE);
 	}
@@ -2463,16 +2463,16 @@ void LLPanelObject::onCopyParams(void* user_data)
 
 	LLViewerObject* objp = self->mObject;
 
-	mClipboardFlexiParams = objp->getParameterEntryInUse(LLNetworkData::PARAMS_FLEXIBLE) ? static_cast<LLFlexibleObjectData*>(objp->getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE)) : NULL;
-	mClipboardLightParams = objp->getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT) ? static_cast<LLLightParams*>(objp->getParameterEntry(LLNetworkData::PARAMS_LIGHT)) : NULL;
-	mClipboardSculptParams = objp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT) ? static_cast<LLSculptParams*>(objp->getParameterEntry(LLNetworkData::PARAMS_SCULPT)) : NULL;
+	mClipboardFlexiParams = objp->getFlexibleObjectData();
+	mClipboardLightParams = objp->getLightParams();
+	mClipboardSculptParams = objp->getSculptParams();
 	if (mClipboardSculptParams)
 	{
 		const LLUUID id = mClipboardSculptParams->getSculptTexture();
 		if (id != LLUUID(SCULPT_DEFAULT_TEXTURE) && !texturePermsCheck(id))
 			mClipboardSculptParams = NULL;
 	}
-	mClipboardLightImageParams = objp->getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE) ? static_cast<LLLightImageParams*>(objp->getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE)) : NULL;
+	mClipboardLightImageParams = objp->getLightImageParams();
 	if (mClipboardLightImageParams && texturePermsCheck(mClipboardLightImageParams->getLightTexture()))
 	{
 		mClipboardLightImageParams = NULL;

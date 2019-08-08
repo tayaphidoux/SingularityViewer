@@ -674,6 +674,7 @@ void LLHUDText::reshape()
 
 F32 LLHUDText::LLHUDTextSegment::getWidth(const LLFontGL* font)
 {
+	// Singu note: Reworked hotspot. Less indirection
 	if (mFontWidthMap[0].first == font)
 	{
 		return mFontWidthMap[0].second;

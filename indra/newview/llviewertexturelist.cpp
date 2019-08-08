@@ -601,6 +601,7 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 
 LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id)
 {
+	// Singu note: Reworked hotspot
 	auto& iter = mUUIDDict.find(image_id);
 	if(iter == mUUIDDict.end())
 		return NULL;

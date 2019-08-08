@@ -525,8 +525,7 @@ bool LLObjectBackup::validateNode(LLSelectNode* node)
 		}
 		else
 		{
-			LLSculptParams* params;
-			params = (LLSculptParams*)obj->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+			const LLSculptParams* params = obj->getSculptParams();
 			LLUUID sculpt_id = params->getSculptTexture();
 			return validateTexturePerms(sculpt_id);
 		}
@@ -871,23 +870,24 @@ LLSD LLObjectBackup::primsToLLSD(LLViewerObject::child_list_t child_list,
 		if (object->isFlexible())
 		{
 			// Flexible
-			LLFlexibleObjectData* flex;
-			flex = (LLFlexibleObjectData*)object->getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
-			prim_llsd["flexible"] = flex->asLLSD();
+			const LLFlexibleObjectData* flex = object->getFlexibleObjectData();
+			if (flex)
+			{
+				prim_llsd["flexible"] = flex->asLLSD();
+			}
 		}
 
-		if (object->getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT))
+		const LLLightParams* light = object->getLightParams();
+		if (light)
 		{
 			// Light
-			LLLightParams* light;
-			light = (LLLightParams*)object->getParameterEntry(LLNetworkData::PARAMS_LIGHT);
 			prim_llsd["light"] = light->asLLSD();
 		}
-		if (object->getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
+
+		const LLLightImageParams* light_param = object->getLightImageParams();
+		if (light_param)
 		{
 			// Light image
-			LLLightImageParams* light_param;
-			light_param = (LLLightImageParams*)object->getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
 			t_id = validateTextureID(light_param->getLightTexture());
 			if (mTexturesList.count(t_id) == 0)
 			{
@@ -898,11 +898,10 @@ LLSD LLObjectBackup::primsToLLSD(LLViewerObject::child_list_t child_list,
 			prim_llsd["light_texture"] = light_param->asLLSD();
 		}
 
-		if (object->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
+		const LLSculptParams* sculpt = object->getSculptParams();
+		if (sculpt)
 		{
 			// Sculpt
-			LLSculptParams* sculpt;
-			sculpt = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 			prim_llsd["sculpt"] = sculpt->asLLSD();
 			if ((sculpt->getSculptType() & LL_SCULPT_TYPE_MASK) != LL_SCULPT_TYPE_MESH)
 			{
