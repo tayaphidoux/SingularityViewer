@@ -734,7 +734,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 
 
 // changing fullscreen resolution, or switching between windowed and fullscreen mode.
-BOOL LLWindowSDL::switchContext(BOOL fullscreen, const LLCoordScreen &size, const S32 vsync_mode, const LLCoordScreen * const posp)
+BOOL LLWindowSDL::switchContext(BOOL fullscreen, const LLCoordScreen &size, const S32 vsync_mode, std::function<void()> stopFn, std::function<void(bool)> restoreFn, const LLCoordScreen * const posp)
 {
 	const BOOL needsRebuild = TRUE;  // Just nuke the context and start over.
 	BOOL result = true;
@@ -743,6 +743,7 @@ BOOL LLWindowSDL::switchContext(BOOL fullscreen, const LLCoordScreen &size, cons
 	stop_glerror();
 	if(needsRebuild)
 	{
+		if (stopFn) stopFn();
 		destroyContext();
 		result = createContext(0, 0, size.mX, size.mY, 0, fullscreen, vsync_mode);
 		if (result)
@@ -751,6 +752,7 @@ BOOL LLWindowSDL::switchContext(BOOL fullscreen, const LLCoordScreen &size, cons
 			initCursors();
 			setCursor( UI_CURSOR_ARROW );
 		}
+		if (restoreFn) restoreFn(true);
 	}
 
 	stop_glerror();

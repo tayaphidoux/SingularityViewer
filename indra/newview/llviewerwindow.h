@@ -414,11 +414,11 @@ private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
 	static bool onAlert(const LLSD& notify);
 	
-	void			switchToolByMask(MASK mask);
 	void			destroyWindow();
 	void			drawMouselookInstructions();
 	void			stopGL(BOOL save_state = TRUE);
-	void			restoreGL(const std::string& progress_message = LLStringUtil::null);
+	void			restoreGLState();
+	void			restoreGL(bool full_restore, const std::string& progress_message = LLStringUtil::null);
 	void			initFonts(F32 zoom_factor = 1.f);
 	void			schedulePick(LLPickInfo& pick_info);
 	S32				getChatConsoleBottomPad(); // Vertical padding for child console rect, varied by bottom clutter

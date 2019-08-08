@@ -5395,26 +5395,39 @@ void LLViewerWindow::stopGL(BOOL save_state)
 	}
 }
 
-void LLViewerWindow::restoreGL(const std::string& progress_message)
+void LLViewerWindow::restoreGLState()
+{
+	gGL.init();
+	stop_glerror();
+	initGLDefaults();
+	stop_glerror();
+	gGL.refreshState();	//Singu Note: Call immediately. Cached states may have prevented initGLDefaults from actually applying changes.
+	stop_glerror();
+	LLGLStateValidator::restoreGL();
+	stop_glerror();
+}
+
+void LLViewerWindow::restoreGL(bool full_restore, const std::string& progress_message)
 {
 	//Note: --bao
 	//if not necessary, do not change the order of the function calls in this function.
 	//if change something, make sure it will not break anything. 
 	//especially, be careful to put something before gTextureList.restoreGL();
+	if (!gGLManager.mIsDisabled && !full_restore)
+	{
+		LL_INFOS() << "Restoring GL state..." << LL_ENDL;
+		restoreGLState();
+		gPipeline.releaseOcclusionBuffers(); // Occlusion handles must be invalidated
+		return;
+	}
 	if (gGLManager.mIsDisabled)
 	{
 		stop_glerror();
 		LL_INFOS() << "Restoring GL..." << LL_ENDL;
 		gGLManager.mIsDisabled = FALSE;
 		
-		gGL.init();
-		stop_glerror();
-		initGLDefaults();
-		stop_glerror();
-		gGL.refreshState();	//Singu Note: Call immediately. Cached states may have prevented initGLDefaults from actually applying changes.
-		stop_glerror();
-		LLGLStateValidator::restoreGL();
-		stop_glerror();
+		restoreGLState();
+
 		gTextureList.restoreGL();
 		stop_glerror();
 
@@ -5617,11 +5630,11 @@ void LLViewerWindow::restartDisplay(BOOL show_progress_bar)
 	stopGL();
 	if (show_progress_bar)
 	{
-		restoreGL(LLTrans::getString("ProgressChangingResolution"));
+		restoreGL(true, LLTrans::getString("ProgressChangingResolution"));
 	}
 	else
 	{
-		restoreGL();
+		restoreGL(true);
 	}
 }
 
@@ -5669,7 +5682,7 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 	send_agent_pause();
 	LL_INFOS() << "Stopping GL during changeDisplaySettings" << LL_ENDL;
-	stopGL();
+	//stopGL();
 	mIgnoreActivate = TRUE;
 	LLCoordScreen old_size;
 	LLCoordScreen old_pos;
@@ -5695,12 +5708,18 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	mWindow->setFSAASamples(fsaa);
 	mWindow->setVsyncMode(vsync_mode);
 
-	result_first_try = mWindow->switchContext(fullscreen, size, vsync_mode, &new_pos);
+	auto stopfn = [this]() { this->stopGL(); };
+	auto restoreFn = [this, show_progress_bar](bool full_restore) { 
+		LL_INFOS() << "Restoring GL during resolution change" << LL_ENDL; 
+		this->restoreGL(full_restore, show_progress_bar ? LLTrans::getString("ProgressChangingResolution") : "");
+	};
+
+	result_first_try = mWindow->switchContext(fullscreen, size, vsync_mode, stopfn, restoreFn, &new_pos);
 	if (!result_first_try)
 	{
 		// try to switch back
 		mWindow->setFSAASamples(old_fsaa);
-		result_second_try = mWindow->switchContext(old_fullscreen, old_size, vsync_mode, &new_pos);
+		result_second_try = mWindow->switchContext(old_fullscreen, old_size, vsync_mode, stopfn, restoreFn, &new_pos);
 
 		if (!result_second_try)
 		{
@@ -5711,16 +5730,6 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 		}
 	}
 	send_agent_resume();
-
-	LL_INFOS() << "Restoring GL during resolution change" << LL_ENDL;
-	if (show_progress_bar)
-	{
-		restoreGL(LLTrans::getString("ProgressChangingResolution"));
-	}
-	else
-	{
-		restoreGL();
-	}
 
 	if (!result_first_try)
 	{

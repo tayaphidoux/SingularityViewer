@@ -978,6 +978,22 @@ void LLPipeline::refreshCachedSettings()
 			&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
 }
 
+void LLPipeline::releaseOcclusionBuffers()
+{
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+		iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+	{
+		LLViewerRegion* region = *iter;
+		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+		{
+			LLSpatialPartition* part = region->getSpatialPartition(i);
+			if (part)
+			{
+				part->resetVertexBuffers();
+			}
+		}
+	}
+}
 void LLPipeline::releaseVertexBuffers()
 {
 	mCubeVB = NULL;
