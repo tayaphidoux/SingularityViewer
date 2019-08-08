@@ -277,6 +277,7 @@ AMD RV770 (HD 4800)				.*RV770.*									3		1
 AMD RV790 (HD 4800)				.*RV790.*									3		1
 AMD Vega						.*(AMD|ATI).*Vega.*							3		1
 AMD Radeon VII					.*AMD.*Radeon ?VII.*						3		1
+AMD Radeon RX Series			.*ATI.*(Radeon|ASUS).* RX.*					3		1
 ATI 760G/Radeon 3000			.*ATI.*AMD 760G.*							1		1
 ATI 780L/Radeon 3000			.*ATI.*AMD 780L.*							1		1
 ATI Radeon DDR					.*ATI.*Radeon ?DDR.*						0		1
