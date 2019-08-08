@@ -1269,6 +1269,7 @@ public:
 		group->destroyGL();
 
 		{OctreeGuard guard(group->getOctreeNode());
+		if (!mNoRebuild) // Singu note: No need to iterate if not rebuilding...
 		for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 		{
 			LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
