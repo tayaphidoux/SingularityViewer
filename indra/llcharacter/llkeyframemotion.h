@@ -175,13 +175,13 @@ int AICachedPointerPtr<KEY, T>::sCnt;
 namespace LLKeyframeMotionLerp
 {
 	template<typename T>
-	T lerp(F32 t, const T& before, const T& after)
+	inline T lerp(F32 t, const T& before, const T& after)
 	{
 		return ::lerp(before, after, t);
 	}
 
 	template<>
-	LLQuaternion lerp(F32 t, const LLQuaternion& before, const LLQuaternion& after)
+	inline LLQuaternion lerp(F32 t, const LLQuaternion& before, const LLQuaternion& after)
 	{
 		return ::nlerp(t, before, after);
 	}
