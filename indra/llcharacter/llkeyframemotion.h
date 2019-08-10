@@ -183,7 +183,7 @@ namespace LLKeyframeMotionLerp
 	template<>
 	inline LLQuaternion lerp(F32 t, const LLQuaternion& before, const LLQuaternion& after)
 	{
-		return ::nlerp(t, before, after);
+		return nlerp(t, before, after);
 	}
 }
 
