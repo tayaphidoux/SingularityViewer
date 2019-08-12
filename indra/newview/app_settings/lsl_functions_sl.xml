@@ -305,6 +305,10 @@
    <map/>
    <key>llStopAnimation</key>
    <map/>
+   <key>llStartObjectAnimation</key>
+   <map/>
+   <key>llStopObjectAnimation</key>
+   <map/>
    <key>llPointAt</key>
    <map/>
    <key>llStopPointAt</key>
