@@ -238,7 +238,7 @@ namespace
 		LLViewerObject* obj = node->getObject();
 		if (obj->isSculpted() && !obj->isMesh())
 		{
-			LLSculptParams *sculpt_params = (LLSculptParams *)obj->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+			const LLSculptParams *sculpt_params = obj->getSculptParams();
 			LLUUID sculpt_id = sculpt_params->getSculptTexture();
 
 			// Find inventory items with asset id of the sculpt map

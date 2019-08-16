@@ -123,13 +123,24 @@ class LLViewerObject
 protected:
 	~LLViewerObject(); // use unref()
 
-	// TomY: Provide for a list of extra parameter structures, mapped by structure name
+private:
 	struct ExtraParameter
 	{
-		BOOL in_use;
-		std::unique_ptr<LLNetworkData> data;
+		bool is_invalid = false;
+		bool* in_use = nullptr;
+		LLNetworkData* data = nullptr;
 	};
-	std::vector<std::unique_ptr<ExtraParameter> > mExtraParameterList;
+	std::vector<ExtraParameter> mExtraParameterList;
+	bool mFlexibleObjectDataInUse = false;
+	bool mLightParamsInUse = false;
+	bool mSculptParamsInUse = false;
+	bool mLightImageParamsInUse = false;
+	bool mExtendedMeshParamsInUse = false;
+	LLFlexibleObjectData mFlexibleObjectData;
+	LLLightParams mLightParams;
+	LLSculptParams mSculptParams;
+	LLLightImageParams mLightImageParams;
+	LLExtendedMeshParams mExtendedMeshParams;
 
 public:
 	typedef std::list<LLPointer<LLViewerObject> > child_list_t;
@@ -587,10 +598,15 @@ public:
 	virtual void dirtySpatialGroup(BOOL priority = FALSE) const;
 	virtual void dirtyMesh();
 
-	virtual LLNetworkData* getParameterEntry(U16 param_type) const;
-	virtual bool setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin);
-	virtual BOOL getParameterEntryInUse(U16 param_type) const;
-	virtual bool setParameterEntryInUse(U16 param_type, BOOL in_use, bool local_origin);
+	const LLFlexibleObjectData* getFlexibleObjectData() const { return mFlexibleObjectDataInUse ? &mFlexibleObjectData : nullptr; }
+	const LLLightParams* getLightParams() const { return mLightParamsInUse ? &mLightParams : nullptr; }
+	const LLSculptParams* getSculptParams() const { return mSculptParamsInUse ? &mSculptParams : nullptr; }
+	const LLLightImageParams* getLightImageParams() const { return mLightImageParamsInUse ? &mLightImageParams : nullptr; }
+	const LLExtendedMeshParams* getExtendedMeshParams() const { return mExtendedMeshParamsInUse ? &mExtendedMeshParams : nullptr; }
+
+	bool setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin);
+	bool setParameterEntryInUse(U16 param_type, BOOL in_use, bool local_origin);
+
 	// Called when a parameter is changed
 	virtual void parameterChanged(U16 param_type, bool local_origin);
 	virtual void parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_use, bool local_origin);
@@ -617,9 +633,32 @@ public:
 
 private:
 	ExtraParameter* createNewParameterEntry(U16 param_type);
-	ExtraParameter* getExtraParameterEntry(U16 param_type) const;
-	ExtraParameter* getExtraParameterEntryCreate(U16 param_type);
-	bool unpackParameterEntry(U16 param_type, LLDataPacker *dp);
+	const ExtraParameter& getExtraParameterEntry(U16 param_type) const
+	{
+		return mExtraParameterList[U32(param_type >> 4) - 1];
+	}
+	ExtraParameter& getExtraParameterEntry(U16 param_type)
+	{
+		return mExtraParameterList[U32(param_type >> 4) - 1];
+	}
+	ExtraParameter* getExtraParameterEntryCreate(U16 param_type)
+	{
+		if (param_type <= LLNetworkData::PARAMS_MAX)
+		{
+			ExtraParameter& param = getExtraParameterEntry(param_type);
+			if (!param.is_invalid)
+			{
+				if (!param.data)
+				{
+					ExtraParameter* new_entry = createNewParameterEntry(param_type);
+					return new_entry;
+				}
+				return &param;
+			}
+		}
+		return nullptr;
+	}
+	bool unpackParameterEntry(U16 param_type, LLDataPacker* dp);
 
     // This function checks to see if the given media URL has changed its version
     // and the update wasn't due to this agent's last action.

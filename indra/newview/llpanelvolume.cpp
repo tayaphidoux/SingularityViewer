@@ -410,7 +410,7 @@ void LLPanelVolume::getState( )
 		getChildView("FlexForceY")->setEnabled(true);
 		getChildView("FlexForceZ")->setEnabled(true);
 
-		LLFlexibleObjectData *attributes = (LLFlexibleObjectData *)objectp->getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
+		const LLFlexibleObjectData *attributes = objectp->getFlexibleObjectData();
 		
 		getChild<LLUICtrl>("FlexNumSections")->setValue((F32)attributes->getSimulateLOD());
 		getChild<LLUICtrl>("FlexGravity")->setValue(attributes->getGravity());
@@ -462,7 +462,7 @@ void LLPanelVolume::getState( )
 	mComboPhysicsShapeType->add(getString("None"), LLSD(1));
 
 	BOOL isMesh = FALSE;
-	LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+	const LLSculptParams *sculpt_params = objectp->getSculptParams();
 	if (sculpt_params)
 	{
 		U8 sculpt_type = sculpt_params->getSculptType();
@@ -777,7 +777,7 @@ void LLPanelVolume::onCommitFlexible( LLUICtrl* ctrl, void* userdata )
 		return;
 	}
 	
-	LLFlexibleObjectData *attributes = (LLFlexibleObjectData *)objectp->getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
+	const LLFlexibleObjectData *attributes = objectp->getFlexibleObjectData();
 	if (attributes)
 	{
 		LLFlexibleObjectData new_attributes;

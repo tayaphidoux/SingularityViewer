@@ -326,6 +326,7 @@ void LLViewerTextureList::shutdown()
 	mCreateTextureList.clear();
 	
 	mUUIDMap.clear();
+	mUUIDDict.clear();
 	
 	mImageList.clear();
 
@@ -600,8 +601,9 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 
 LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id)
 {
-	uuid_map_t::iterator iter = mUUIDMap.find(image_id);
-	if(iter == mUUIDMap.end())
+	// Singu note: Reworked hotspot
+	auto& iter = mUUIDDict.find(image_id);
+	if(iter == mUUIDDict.end())
 		return NULL;
 	return iter->second;
 }
@@ -648,8 +650,8 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 			<< " but doesn't have mInImageList set"
 			<< " ref count is " << image->getNumRefs()
 			<< LL_ENDL;
-		uuid_map_t::iterator iter = mUUIDMap.find(image->getID());
-		if(iter == mUUIDMap.end())
+		auto& iter = mUUIDDict.find(image->getID());
+		if(iter == mUUIDDict.end())
 		{
 			LL_INFOS() << "Image  " << image->getID() << " is also not in mUUIDMap!" << LL_ENDL ;
 		}
@@ -690,7 +692,8 @@ void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image)
 	sNumImages++;
 	
 	addImageToList(new_image);
-	mUUIDMap[image_id] = new_image;
+	mUUIDMap.emplace(image_id, new_image);
+	mUUIDDict.emplace(image_id, new_image);
 }
 
 
@@ -703,7 +706,9 @@ void LLViewerTextureList::deleteImage(LLViewerFetchedTexture *image)
 			mCallbackList.erase(image);
 		}
 
-		llverify(mUUIDMap.erase(image->getID()) == 1);
+		const LLUUID& id = image->getID();
+		llverify(mUUIDMap.erase(id) == 1);
+		llverify(mUUIDDict.erase(id) == 1);
 		sNumImages--;
 		removeImageFromList(image);
 	}

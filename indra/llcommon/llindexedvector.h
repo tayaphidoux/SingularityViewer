@@ -79,7 +79,7 @@ public:
 		return std::find_if(mVector.begin(), mVector.end(), [&k](const typename vec_type_t::value_type& e) { return e.first == k; });
 	}
 
-	typedef DeletePairedPointer DeletePointer;
+	using DeletePointer = ::DeletePairedPointer;
 };
 
 template <typename Type, typename Key, int BlockSize = 32>
@@ -189,7 +189,7 @@ public:
 		}
 	}
 
-	typedef ::DeletePointer DeletePointer;
+	using DeletePointer = ::DeletePointer;
 };
 
 template <typename Type, typename Key, int BlockSize = 32>

@@ -2189,7 +2189,7 @@ public:
 					LLVOVolume* volume = (*(img->getVolumeList()))[i];
 					if (volume && volume->isSculpted())
 					{
-						LLSculptParams *sculpt_params = (LLSculptParams *)volume->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+						const LLSculptParams *sculpt_params = volume->getSculptParams();
 						if(sculpt_params->getSculptTexture() == id)
 							volume->notifyMeshLoaded();
 					}
@@ -2226,7 +2226,7 @@ void reload_objects(LLTextureReloader& texture_list, LLViewerObject::const_child
 
 		if(object->isSculpted() && !object->isMesh())
 		{
-			LLSculptParams *sculpt_params = (LLSculptParams *)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+			const LLSculptParams *sculpt_params = object->getSculptParams();
 			if(sculpt_params)
 			{
 				texture_list.addTexture(LLViewerTextureManager::getFetchedTexture(sculpt_params->getSculptTexture()));

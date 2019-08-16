@@ -1048,6 +1048,14 @@ Starts animation anim for agent that granted PERMISSION_TRIGGER_ANIMATION if the
 llStopAnimation(string anim)
 Stops animation anim for agent that granted permission
 	</string>
+  <string name="LSLTipText_llStartObjectAnimation">
+llStartObjectAnimation(string anim)
+Start animation for the current object
+  </string>
+  <string name="LSLTipText_llStopObjectAnimation">
+llStopObjectAnimation(string anim)
+Stop an animation for the current object
+  </string>
 	<string name="LSLTipText_llPointAt">
 llPointAt(vector pos)
 Makes agent that owns object point at pos

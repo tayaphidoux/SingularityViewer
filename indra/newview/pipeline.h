@@ -117,6 +117,7 @@ public:
 	void resetVertexBuffers();
 	void doResetVertexBuffers(bool forced = false);
 	void resizeScreenTexture();
+	void releaseOcclusionBuffers();
 	void releaseVertexBuffers();
 	void releaseGLBuffers();
 	void releaseLUTBuffers();

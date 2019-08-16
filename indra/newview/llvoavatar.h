@@ -1171,6 +1171,8 @@ public:
 private:
 	S32				mIdleMinute;
 
+	LLTimer			mComplexityTimer;
+
 //CCS Nametag
 public:
 	void setNameFromChat(const std::string &text);
