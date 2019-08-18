@@ -467,7 +467,7 @@ void LLScrollListCtrl::adjustScrollbar(S32 doc_size)
 	// how many lines of content in a single "page"
 	S32 page_lines = getLinesPerPage();
 
-	BOOL scrollbar_visible = mLineHeight * doc_size > mItemListRect.getHeight();
+	bool scrollbar_visible = mLineHeight * doc_size > mItemListRect.getHeight();
 	if (scrollbar_visible)
 	{
 		// provide space on the right for scrollbar
