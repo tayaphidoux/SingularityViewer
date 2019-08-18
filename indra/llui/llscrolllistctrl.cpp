@@ -457,10 +457,16 @@ void LLScrollListCtrl::updateLayout()
 
 	mCommentTextView->setShape(mItemListRect);
 
-	// how many lines of content in a single "page"
-	S32 page_lines =  getLinesPerPage();
+	adjustScrollbar(mFilter.empty() ? getItemCount() : mScrollbar->getDocSize()); // Doc size is the item count without a filter, otherwise it's calculated whenever filter is updated
+	dirtyColumns();
+}
 
-	BOOL scrollbar_visible = mLineHeight * getItemCount() > mItemListRect.getHeight();
+void LLScrollListCtrl::adjustScrollbar(S32 doc_size)
+{
+	// how many lines of content in a single "page"
+	S32 page_lines = getLinesPerPage();
+
+	BOOL scrollbar_visible = mLineHeight * doc_size > mItemListRect.getHeight();
 	if (scrollbar_visible)
 	{
 		// provide space on the right for scrollbar
@@ -470,10 +476,8 @@ void LLScrollListCtrl::updateLayout()
 	}
 
 	mScrollbar->setPageSize(page_lines);
-	mScrollbar->setDocSize( getItemCount() );
+	mScrollbar->setDocSize(doc_size);
 	mScrollbar->setVisible(scrollbar_visible);
-
-	dirtyColumns();
 }
 
 // Attempt to size the control to show all items.
@@ -507,7 +511,9 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 	BOOL not_too_big = getItemCount() < mMaxItemCount;
 	if (not_too_big)
 	{
-		if (!mFilter.empty()) filterItem(item);
+
+		if (!mFilter.empty() && !filterItem(item)) // If we're filtering, filter this item if needed, if not, bump the document size.
+			mScrollbar->setDocSize(mScrollbar->getDocSize()+1);
 
 		switch( pos )
 		{
@@ -1976,7 +1982,7 @@ S32 LLScrollListCtrl::getRowOffsetFromIndex(S32 index)
 	return row_bottom;
 }
 
-void LLScrollListCtrl::filterItem(LLScrollListItem* item)
+bool LLScrollListCtrl::filterItem(LLScrollListItem* item)
 {
 	for (const auto& column : item->mColumns)
 	{
@@ -1984,10 +1990,11 @@ void LLScrollListCtrl::filterItem(LLScrollListItem* item)
 		if (column->isText() && boost::icontains(column->getToolTip(), mFilter))
 		{
 			item->setFiltered(false);
-			return;
+			return false;
 		}
 	}
 	item->setFiltered(true);
+	return true;
 }
 
 void LLScrollListCtrl::setFilter(const std::string& filter)
@@ -1999,14 +2006,28 @@ void LLScrollListCtrl::setFilter(const std::string& filter)
 	bool expanded = !no_filter && !mFilter.empty() && boost::icontains(filter, mFilter);
 
 	mFilter = filter;
+	S32 unfiltered_count = no_filter ? mItemList.size() // No filter, doc size is all items
+		: expanded ? mScrollbar->getDocSize() // Expanded filter, start with the current doc size and remove
+		: 0; // Different filter, count up from 0;
 	for (auto& item : mItemList)
 	{
 		if (no_filter) item->setFiltered(false);
-		else if (!expanded || !item->getFiltered())
+		else if (expanded && !item->getFiltered()) // Filter has been expanded and we are not yet filtered
 		{
-			filterItem(item);
+			if (filterItem(item)) --unfiltered_count; // We are now filtered, lower the count
+		}
+		else if (!expanded) // Filter isn't expanded, find out if we should be filtered
+		{
+			if (!filterItem(item)) ++unfiltered_count; // Wasn't filltered, bump count
 		}
 	}
+
+	if (mLastSelected && mLastSelected->getFiltered()) // Remove selection if filtered.
+		mLastSelected = nullptr;
+
+	// Scrollbar needs adjusted
+	setScrollPos(0); // Changing the filter resets scroll position
+	adjustScrollbar(unfiltered_count);
 }
 
 
@@ -2413,7 +2434,8 @@ S32	LLScrollListCtrl::getLinesPerPage()
 	}
 	else
 	{
-		return mLineHeight ? mItemListRect.getHeight() / mLineHeight : getItemCount();
+		return mLineHeight ? mItemListRect.getHeight() / mLineHeight :
+			mFilter.empty() ? getItemCount() : mScrollbar->getDocSize();
 	}
 }
 

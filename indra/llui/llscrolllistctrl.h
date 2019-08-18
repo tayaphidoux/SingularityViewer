@@ -249,7 +249,7 @@ public:
 
 	void			clearSearchString() { mSearchString.clear(); }
 
-	void			filterItem(LLScrollListItem* item);
+	bool			filterItem(LLScrollListItem* item);
 	void			setFilter(const std::string& filter);
 
 	// support right-click context menus for avatar/group lists
@@ -279,6 +279,7 @@ public:
 	virtual void	resetDirty();		// Clear dirty state
 
 	virtual void	updateLayout();
+	void			adjustScrollbar(S32 doc_size);
 	virtual void	fitContents(S32 max_width, S32 max_height);
 
 	virtual LLRect	getRequiredRect();
