@@ -2004,10 +2004,13 @@ void LLScrollListCtrl::setFilter(const std::string& filter)
 	bool no_filter = filter.empty();
 	// If our filter string has been expanded, we can skip already filtered items
 	bool expanded = !no_filter && !mFilter.empty() && boost::icontains(filter, mFilter);
+	// If our filter string has been contracted, we can skip already unfiltered items
+	bool contracted = !no_filter && !mFilter.empty() && !expanded && boost::icontains(mFilter, filter);
+	bool unique = !expanded && !contracted;
 
 	mFilter = filter;
 	S32 unfiltered_count = no_filter ? mItemList.size() // No filter, doc size is all items
-		: expanded ? mScrollbar->getDocSize() // Expanded filter, start with the current doc size and remove
+		: !unique ? mScrollbar->getDocSize() // Expanded/contracted filter, start with the current doc size and remove/add respectively
 		: 0; // Different filter, count up from 0;
 	for (auto& item : mItemList)
 	{
@@ -2016,7 +2019,8 @@ void LLScrollListCtrl::setFilter(const std::string& filter)
 		{
 			if (filterItem(item)) --unfiltered_count; // We are now filtered, lower the count
 		}
-		else if (!expanded) // Filter isn't expanded, find out if we should be filtered
+		else if (unique	||							 // Filter isn't expanded, find out if we should be filtered or
+				(contracted && item->getFiltered())) // Filter has contracted and we were filtered before, should we still be?
 		{
 			if (!filterItem(item)) ++unfiltered_count; // Wasn't filltered, bump count
 		}
