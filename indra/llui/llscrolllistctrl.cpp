@@ -1520,7 +1520,10 @@ void LLScrollListCtrl::drawItems()
 					}
 
 					should_continue |= item->draw(pass, item_rect, fg_color, bg_color, highlight_color, mColumnPadding);
-					if (++line >= last_line) break; // Don't draw any more than needed.
+					if (++line > last_line)
+					{
+						break; // Don't draw any more than needed.
+					}
 				}
 			}
 			done = !should_continue;
