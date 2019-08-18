@@ -1426,9 +1426,6 @@ void LLScrollListCtrl::drawItems()
 	S32 x = mItemListRect.mLeft;
 	S32 y = mItemListRect.mTop - mLineHeight;
 
-	// allow for partial line at bottom
-	S32 num_page_lines = getLinesPerPage();
-
 	LLRect item_rect;
 
 	LLGLSUIDefault gls_ui;
@@ -1453,6 +1450,9 @@ void LLScrollListCtrl::drawItems()
 			return;
 		}
 		S32 list_size = mItemList.size() - 1;
+
+		// allow for partial line at bottom
+		S32 num_page_lines = mFilter.empty() ? getLinesPerPage() : mScrollbar->getDocSize() + 1;
 		S32 last_line = llmin(list_size, mScrollLines + num_page_lines);
 
 		S32 max_columns = 0;
@@ -2441,8 +2441,7 @@ S32	LLScrollListCtrl::getLinesPerPage()
 	}
 	else
 	{
-		return mLineHeight ? mItemListRect.getHeight() / mLineHeight :
-			mFilter.empty() ? getItemCount() : mScrollbar->getDocSize();
+		return mLineHeight ? mItemListRect.getHeight() / mLineHeight : getItemCount();
 	}
 }
 
