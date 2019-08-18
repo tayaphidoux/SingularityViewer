@@ -1448,7 +1448,8 @@ void LLScrollListCtrl::drawItems()
 		highlight_color.mV[VALPHA] = clamp_rescale(mSearchTimer.getElapsedTimeF32(), type_ahead_timeout * 0.7f, type_ahead_timeout, 0.4f, 0.f);
 
 		S32 first_line = mScrollLines;
-		S32 last_line = llmin((S32)mItemList.size() - 1, mScrollLines + getLinesPerPage());
+		S32 list_size = mItemList.size() - 1;
+		S32 last_line = llmin(list_size, mScrollLines + num_page_lines);
 
 		if ((item_list::size_type)first_line >= mItemList.size())
 		{
@@ -1459,7 +1460,7 @@ void LLScrollListCtrl::drawItems()
 		{
 			bool should_continue = false; // False until all passes are done for all row cells.
 			S32 cur_y = y;
-			for (S32 index = first_line, line = first_line; index <= last_line; ++index)
+			for (S32 index = first_line, line = first_line; index <= list_size; ++index)
 			{
 				LLScrollListItem* item = mItemList[index];
 				if (item->getFiltered()) continue; // Skip filtered
@@ -1478,7 +1479,6 @@ void LLScrollListCtrl::drawItems()
 				LLColor4 fg_color;
 				LLColor4 bg_color(LLColor4::transparent);
 
-				if (mScrollLines <= line && line < mScrollLines + num_page_lines)
 				{
 					cur_y -= mLineHeight;
 
@@ -1514,8 +1514,8 @@ void LLScrollListCtrl::drawItems()
 					}
 
 					should_continue |= item->draw(pass, item_rect, fg_color, bg_color, highlight_color, mColumnPadding);
+					if (++line >= last_line) break; // Don't draw any more than needed.
 				}
-				++line;
 			}
 			done = !should_continue;
 		}
