@@ -198,7 +198,8 @@ LLScrollListCtrl::LLScrollListCtrl(const std::string& name, const LLRect& rect, 
 		addChild(mBorder);
 	}
 
-	LLTextBox* textBox = new LLTextBox("comment_text",mItemListRect,std::string());
+	LLTextBox* textBox = new LLTextBox("comment_text",mItemListRect, LLStringUtil::null);
+	mCommentTextView = textBox;
 	textBox->setBorderVisible(false);
 	textBox->setFollows(FOLLOWS_ALL);
 	textBox->setFontShadow(LLFontGL::NO_SHADOW);
@@ -511,7 +512,6 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 	BOOL not_too_big = getItemCount() < mMaxItemCount;
 	if (not_too_big)
 	{
-
 		if (!mFilter.empty() && !filterItem(item)) // If we're filtering, filter this item if needed, if not, bump the document size.
 			mScrollbar->setDocSize(mScrollbar->getDocSize()+1);
 
@@ -1153,7 +1153,7 @@ void LLScrollListCtrl::deselectAllItems(BOOL no_commit_on_change)
 
 void LLScrollListCtrl::setCommentText(const std::string& comment_text)
 {
-	getChild<LLTextBox>("comment_text")->setWrappedText(comment_text);
+	static_cast<LLTextBox*>(mCommentTextView)->setWrappedText(comment_text);
 }
 
 LLScrollListItem* LLScrollListCtrl::addSeparator(EAddPosition pos)
@@ -1447,20 +1447,20 @@ void LLScrollListCtrl::drawItems()
 			clip_rect.intersectWith(scissor);
 		}
 
+		S32 first_line = mScrollLines;
+		if ((item_list::size_type)first_line >= mItemList.size())
+		{
+			return;
+		}
+		S32 list_size = mItemList.size() - 1;
+		S32 last_line = llmin(list_size, mScrollLines + num_page_lines);
+
 		S32 max_columns = 0;
 
 		LLColor4 highlight_color = LLColor4::white;
 		static const LLUICachedControl<F32> type_ahead_timeout("TypeAheadTimeout");
 		highlight_color.mV[VALPHA] = clamp_rescale(mSearchTimer.getElapsedTimeF32(), type_ahead_timeout * 0.7f, type_ahead_timeout, 0.4f, 0.f);
 
-		S32 first_line = mScrollLines;
-		S32 list_size = mItemList.size() - 1;
-		S32 last_line = llmin(list_size, mScrollLines + num_page_lines);
-
-		if ((item_list::size_type)first_line >= mItemList.size())
-		{
-			return;
-		}
 		bool done = false;
 		for (S32 pass = 0; !done; ++pass)
 		{
@@ -1553,7 +1553,7 @@ void LLScrollListCtrl::draw()
 
 	updateColumns();
 
-	getChildView("comment_text")->setVisible(mItemList.empty());
+	mCommentTextView->setVisible(mItemList.empty());
 
 	drawItems();
 
