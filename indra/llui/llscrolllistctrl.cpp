@@ -1912,14 +1912,16 @@ LLScrollListItem* LLScrollListCtrl::hitItem( S32 x, S32 y )
 
 	// allow for partial line at bottom
 	S32 num_page_lines = getLinesPerPage();
+	S32 list_size = mItemList.size() - 1;
+	S32 last_line = llmin(list_size, mScrollLines + num_page_lines);
 
-	S32 line = 0;
-	for(LLScrollListItem* item : mItemList)
+	for (S32 index = mScrollLines, line = mScrollLines; index <= list_size; ++index)
 	{
+		LLScrollListItem* item = mItemList[index];
 		if (item->getFiltered()) continue;
-		if( mScrollLines <= line && line < mScrollLines + num_page_lines )
+
 		{
-			if( item->getEnabled() && item_rect.pointInRect( x, y ) )
+			if (item->getEnabled() && item_rect.pointInRect( x, y ))
 			{
 				hit_item = item;
 				break;
@@ -1927,7 +1929,7 @@ LLScrollListItem* LLScrollListCtrl::hitItem( S32 x, S32 y )
 
 			item_rect.translate(0, -mLineHeight);
 		}
-		++line;
+		if (++line > last_line) break; // Don't try to hit any undrawn items
 	}
 
 	return hit_item;
