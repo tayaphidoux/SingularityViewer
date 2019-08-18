@@ -465,10 +465,10 @@ void LLScrollListCtrl::updateLayout()
 	{
 		// provide space on the right for scrollbar
 		mItemListRect.mRight = getRect().getWidth() - mBorderThickness - SCROLLBAR_SIZE;
+		mScrollbar->setOrigin(mItemListRect.mRight, mItemListRect.mBottom);
+		mScrollbar->reshape(SCROLLBAR_SIZE, mItemListRect.getHeight() + (mDisplayColumnHeaders ? mHeadingHeight : 0));
 	}
 
-	mScrollbar->setOrigin(getRect().getWidth() - mBorderThickness - SCROLLBAR_SIZE, mItemListRect.mBottom);
-	mScrollbar->reshape(SCROLLBAR_SIZE, mItemListRect.getHeight() + (mDisplayColumnHeaders ? mHeadingHeight : 0));
 	mScrollbar->setPageSize(page_lines);
 	mScrollbar->setDocSize( getItemCount() );
 	mScrollbar->setVisible(scrollbar_visible);
