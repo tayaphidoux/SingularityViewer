@@ -1829,17 +1829,19 @@ BOOL LLScrollListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		// Offer the click to the children, even if we aren't enabled
 		// so the scroll bars will work.
-		if (NULL == LLView::childrenHandleDoubleClick(x, y, mask))
+		handled = LLView::childrenHandleDoubleClick(x, y, mask) != nullptr;
+		if (!handled)
 		{
 			// Run the callback only if an item is being double-clicked.
-			if( mCanSelect && hitItem(x, y) && mOnDoubleClickCallback )
+			if (mCanSelect && mOnDoubleClickCallback && hitItem(x, y))
 			{
 				mOnDoubleClickCallback();
+				handled = true;
 			}
 		}
 	}
 
-	return TRUE;
+	return handled;
 }
 
 BOOL LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
