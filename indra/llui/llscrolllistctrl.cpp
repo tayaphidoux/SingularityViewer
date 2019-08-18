@@ -1450,7 +1450,7 @@ void LLScrollListCtrl::drawItems()
 		S32 max_columns = 0;
 
 		LLColor4 highlight_color = LLColor4::white;
-		F32 type_ahead_timeout = LLUI::sConfigGroup->getF32("TypeAheadTimeout");
+		static const LLUICachedControl<F32> type_ahead_timeout("TypeAheadTimeout");
 		highlight_color.mV[VALPHA] = clamp_rescale(mSearchTimer.getElapsedTimeF32(), type_ahead_timeout * 0.7f, type_ahead_timeout, 0.4f, 0.f);
 
 		S32 first_line = mScrollLines;
