@@ -1639,7 +1639,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
 		LLNameListCtrl::NameItem item_params;
 		item_params.value = owner_id;
-		item_params.target = is_group_owned ? LLNameListCtrl::GROUP : LLNameListCtrl::INDIVIDUAL;
+		item_params.target = is_group_owned ? LLNameListItem::GROUP : LLNameListItem::INDIVIDUAL;
 
 		if (is_group_owned)
 		{
