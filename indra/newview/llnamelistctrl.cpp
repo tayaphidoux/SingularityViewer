@@ -33,6 +33,8 @@
 #include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "llagent.h"
+#include "llavataractions.h"
+#include "llgroupactions.h"
 #include "llinventory.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcolumn.h"
@@ -121,6 +123,24 @@ BOOL LLNameListCtrl::handleDragAndDrop(
 	return handled;
 }
 
+BOOL LLNameListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	bool handled = LLScrollListCtrl::handleDoubleClick(x, y, mask);
+	if (!handled)
+	{
+		if (auto item = static_cast<LLNameListItem*>(hitItem(x, y)))
+		{
+			switch (item->getNameType())
+			{
+				case LLNameListItem::INDIVIDUAL: LLAvatarActions::showProfile(item->getValue()); break;
+				case LLNameListItem::GROUP: LLGroupActions::show(item->getValue()); break;
+				default: return false;
+			}
+			handled = true;
+		}
+	}
+	return handled;
+}
 
 // public
 void LLNameListCtrl::addGroupNameItem(const LLUUID& group_id, EAddPosition pos,

@@ -147,6 +147,7 @@ public:
 									  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 									  EAcceptance *accept,
 									  std::string& tooltip_msg);
+	BOOL handleDoubleClick(S32 x, S32 y, MASK mask) override;
 
 	void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
 
