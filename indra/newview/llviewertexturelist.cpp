@@ -602,7 +602,7 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id)
 {
 	// Singu note: Reworked hotspot
-	auto& iter = mUUIDDict.find(image_id);
+	const auto& iter = mUUIDDict.find(image_id);
 	if(iter == mUUIDDict.end())
 		return NULL;
 	return iter->second;
@@ -650,7 +650,7 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 			<< " but doesn't have mInImageList set"
 			<< " ref count is " << image->getNumRefs()
 			<< LL_ENDL;
-		auto& iter = mUUIDDict.find(image->getID());
+		const auto& iter = mUUIDDict.find(image->getID());
 		if(iter == mUUIDDict.end())
 		{
 			LL_INFOS() << "Image  " << image->getID() << " is also not in mUUIDMap!" << LL_ENDL ;
