@@ -57,7 +57,7 @@
      height="18"
      label="?"
      name="estate_manager_help"
-     right="-10"
+     right="-8"
      width="18" />
     <!-- Estate Managers box -->
     <view_border
@@ -67,7 +67,7 @@
      layout="topleft"
      left="10"
      bottom_delta="-408"
-     width="498" />
+     width="453" />
     <name_list
      follows="left|top"
      height="400"
@@ -75,16 +75,17 @@
      left_delta="0"
      multi_select="true"
      draw_heading="false"
+     draw_border="false"
      name="estate_manager_name_list"
      menu_num="0"
      sort_column="0"
      name_system="LandManagementNameSystem"
      bottom_delta="0"
-     width="498">
+     width="453">
         <column
          label="Name"
          name="name"
-         width="498" />
+         width="453" />
     </name_list>
     <!-- Estate Managers buttons -->
     <button
@@ -140,7 +141,7 @@
      height="18"
      label="?"
      name="allow_resident_help"
-     right="-10"
+     right="-8"
      width="18" />
        <panel
         follows="left|top|right"
@@ -172,24 +173,25 @@
      layout="topleft"
      left="10"
      bottom_delta="-381"
-     width="498" />
+     width="453" />
     <name_list
      follows="left|top"
-     height="370"
+     height="373"
      layout="topleft"
      left_delta="0"
      multi_select="true"
      draw_heading="false"
+     draw_border="false"
      name="allowed_avatar_name_list"
      menu_num="0"
      sort_column="0"
      name_system="LandManagementNameSystem"
      bottom_delta="0"
-     width="498">
+     width="453">
         <column
          label="Name"
          name="name"
-         width="498" />
+         width="453" />
     </name_list>
     <!-- Allowed Residents buttons -->
     <button
@@ -253,7 +255,7 @@
      height="18"
      label="?"
      name="allow_group_help"
-     right="-10"
+     right="-8"
      width="18" />
        <panel
         follows="left|top|right"
@@ -285,21 +287,22 @@
      layout="topleft"
      left="10"
      bottom_delta="-381"
-     width="498" />
+     width="453" />
     <name_list
      follows="left|top"
-     height="370"
+     height="373"
      layout="topleft"
      left_delta="0"
      multi_select="true"
      draw_heading="false"
+     draw_border="false"
      name="allowed_group_name_list"
      bottom_delta="0"
-     width="498">
+     width="453">
         <column
          label="Name"
          name="name"
-         width="498" />
+         width="453" />
     </name_list>
     <!-- Groups always allowed buttons -->
     <button
@@ -363,7 +366,7 @@
      height="18"
      label="?"
      name="ban_resident_help"
-     right="-10"
+     right="-8"
      width="18" />
        <panel
         follows="left|top|right"
@@ -395,36 +398,37 @@
      layout="topleft"
      left="10"
      bottom_delta="-381"
-     width="498" />
+     width="453" />
     <name_list
      follows="left|top"
-     height="370"
+     height="373"
      layout="topleft"
      left_delta="0"
      multi_select="true"
      draw_heading="true"
+     draw_border="false"
      name="banned_avatar_name_list"
      menu_num="0"
      sort_column="0"
      name_system="LandManagementNameSystem"
      bottom_delta="0"
-     width="498">
+     width="453">
           <column
             label="Name"
             name="name"
-            width="140" />
+            width="127" />
           <column
-            label="Last login date"
+            label="Last Login"
             name="last_login_date"
-            width="100" />
+            width="91" />
           <column
-            label="Date banned"
+            label="Ban Date"
             name="ban_date"
-            width="100" />
+            width="91" />
           <column
             label="Banned by"
             name="bannedby"
-            width="140" />
+            width="127" />
       </name_list>
     <!-- Always banned buttons -->
     <button
