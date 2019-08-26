@@ -168,6 +168,7 @@ public:
 		// Incoming media event dispatcher
 	void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
 
+	void onCopyURL() const;
 		// right click debugging item
 		void onOpenWebInspector();
 		void onShowSource();

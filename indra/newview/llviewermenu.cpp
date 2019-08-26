@@ -9433,6 +9433,15 @@ LLMediaCtrl* get_focused_media_ctrl()
 	return media_ctrl;
 }
 
+class MediaCtrlCopyURL : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		get_focused_media_ctrl()->onCopyURL();
+		return true;
+	}
+};
+
 class MediaCtrlWebInspector : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9812,6 +9821,7 @@ void initialize_menus()
 	LLTextEditor::addMenuListeners();
 
 	// Media Ctrl menus
+	addMenu(new MediaCtrlCopyURL(), "Copy.PageURL");
 	addMenu(new MediaCtrlWebInspector(), "Open.WebInspector");
 	addMenu(new MediaCtrlViewSource(), "Open.ViewSource");
 
