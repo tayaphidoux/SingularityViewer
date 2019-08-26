@@ -186,7 +186,12 @@ void LLPanelAvatarSecondLife::processProperties(void* data, EAvatarProcessorType
 			args["[PAYMENTINFO]"] = LLAvatarPropertiesProcessor::paymentInfo(pAvatarData);
 			args["[AGEVERIFICATION]"] = LLStringUtil::null;
 			
-			getChild<LLUICtrl>("acct")->setValue(getString("CaptionTextAcctInfo", args));
+			{
+				const auto account_info = getString("CaptionTextAcctInfo", args);
+				auto acct = getChild<LLUICtrl>("acct");
+				acct->setValue(account_info);
+				acct->setToolTip(account_info);
+			}
 
 			getChild<LLTextureCtrl>("img")->setImageAssetID(pAvatarData->image_id);
 
