@@ -822,7 +822,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/fmodstudio-2.00.02.191841858-darwin64-191841858.tar.bz2</string>
+              <string>file:///~/fmodstudio-2.00.02.191841858-darwin64-191841858.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -850,7 +850,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/fmodstudio-2.00.02.191991250-linux64-191991250.tar.bz2</string>
+              <string>/opt/devel/secondlife/pkg/fmodstudio-2.00.02.191991250-linux64-191991250.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -860,11 +860,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2e18d5c43fad15d869dd96860f1e1871</string>
+              <string>e0e87e0423fa42e4d2997b47b92eac6e</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/fmodstudio-2.00.02-windows-191832253.tar.bz2</string>
+              <string>file:///C:\devel\secondlife\pkg\fmodstudio-2.00.03.192211030-windows-192211030.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -874,11 +874,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6146c96719680c2f1a8aaab1dabdef8e</string>
+              <string>c2e55e1bfef7e066a0e40867a64b4cce</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/fmodstudio-2.00.02-windows64-191832321.tar.bz2</string>
+	      <string>file:///C:/devel/secondlife/pkg/fmodstudio-2.00.03.192211029-windows64-192211029.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
