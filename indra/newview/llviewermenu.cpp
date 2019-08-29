@@ -9347,6 +9347,26 @@ void parcel_mod_notice_callback(const uuid_vec_t& ids, S32 choice, boost::functi
 		cb(*it, choice);
 }
 
+bool is_nearby(const LLUUID& id);
+class ListIsNearby : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(is_nearby(get_focused_list_id_selected()));
+		return true;
+	}
+};
+
+void track_av(const LLUUID& id);
+class ListTrack : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		track_av(get_focused_list_id_selected());
+		return true;
+	}
+};
+
 void send_eject(const LLUUID& avatar_id, bool ban);
 class ListEject : public view_listener_t
 {
@@ -9807,6 +9827,8 @@ void initialize_menus()
 	addMenu(new ListStartConference(), "List.StartConference");
 	addMenu(new ListStartIM(), "List.StartIM");
 	addMenu(new ListAbuseReport(), "List.AbuseReport");
+	addMenu(new ListIsNearby, "List.IsNearby");
+	addMenu(new ListTrack, "List.Track");
 	addMenu(new ListEject(), "List.ParcelEject");
 	addMenu(new ListFreeze(), "List.Freeze");
 	addMenu(new ListEstateBan(), "List.EstateBan");
