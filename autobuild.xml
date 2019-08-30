@@ -802,7 +802,7 @@
       <key>fmodstudio</key>
       <map>
         <key>copyright</key>
-        <string>FMOD Studio, copyright (c) Firelight Technologies Pty, Ltd., 2012-2017.</string>
+        <string>FMOD Studio, copyright (c) Firelight Technologies Pty, Ltd., 2012-2019.</string>
         <key>description</key>
         <string>FMOD Studio audio system library</string>
         <key>license</key>
@@ -818,14 +818,28 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d1ede6c7be5db022897b44830cb5b095</string>
+              <string>4a4e1bfd0e1e982643e75533ead10c55</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///~/fmodstudio-2.00.02.191841858-darwin64-191841858.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/darwin/fmodstudio-2.00.03.192211300-darwin-192211300.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>fe1a606582fb72d5d1c9ec4a2d906830</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/darwin64/fmodstudio-2.00.03.192211302-darwin64-192211302.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
           </map>
           <key>linux</key>
           <map>
@@ -836,7 +850,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux/lib/fmodstudio-1.06.07-linux-201507231333.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/linux/lib/fmodstudio-1.06.07-linux-201507231333.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -846,7 +860,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>602e798cc969f2d46315775f1dd43c41</string>
+              <string>54dbd41322a08a1fc333ca6d96af5502</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
@@ -864,7 +878,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///C:\devel\secondlife\pkg\fmodstudio-2.00.03.192211030-windows-192211030.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/windows/fmodstudio-2.00.03.192211030-windows-192211030.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -878,7 +892,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-	      <string>file:///C:/devel/secondlife/pkg/fmodstudio-2.00.03.192211029-windows64-192211029.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/windows64/fmodstudio-2.00.03.192211029-windows64-192211029.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
