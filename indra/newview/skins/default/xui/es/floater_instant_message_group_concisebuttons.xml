@@ -27,10 +27,10 @@
 	<string name="muted_text_label">
 		Tu chat de texto ha sido deshabilitado por un Moderado del Grupo.
 	</string>
-	<flyout_button label="Info Grupo" name="instant_message_flyout">
-		<flyout_button_item label="Historial" name="history_btn"/>
+	<flyout_button label="Info Grupo" name="instant_message_flyout" width="74" >
+		<flyout_button_item label="Historial" name="history_btn" width="58" right="-200"/>
 	</flyout_button>
-	<button name="ding_btn" label="Timbre" width="55"/>
+	<button name="ding_btn" label="Timbre" width="53"/>
 	<check_box name="Support Check" label="#" tool_tip="Desmárcarlo para no enviar el número de versión (Build)" left_delta="60"/>
 	<button label="Unirse Voz" name="start_call_btn" width="75"/>
 	<button label="Terminar Llamada" name="end_call_btn" width="80"/>
