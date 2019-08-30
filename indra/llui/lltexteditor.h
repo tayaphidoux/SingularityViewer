@@ -80,7 +80,11 @@ public:
 
 	static boost::signals2::connection setIsFriendCallback(const is_friend_signal_t::slot_type& cb);
 	static boost::signals2::connection setIsObjectBlockedCallback(const is_blocked_signal_t::slot_type& cb);
-	static void addMenuListeners();
+
+	typedef std::function<void(const std::string&, const LLUUID&)> ext_slurl_cb;
+	typedef std::function<bool(const std::string&, const LLUUID&)> ext_slurl_visible_cb;
+	static void addMenuListeners(ext_slurl_cb cb, ext_slurl_visible_cb vcb);
+
 	void	setKeystrokeCallback(const keystroke_signal_t::slot_type& callback);
 
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
