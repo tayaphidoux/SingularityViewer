@@ -312,6 +312,42 @@ BOOL LLFloaterAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return LLFloater::handleRightMouseDown(x, y, mask);
 }
 
+bool is_nearby(const LLUUID& id)
+{
+	if (id.isNull()) return false;
+	if (const auto inst = LLFloaterAvatarList::getIfExists())
+		return inst->getAvatarEntry(id);
+	uuid_vec_t avatars;
+	LLWorld::instance().getAvatars(&avatars);
+	return std::find(avatars.begin(), avatars.end(), id) != avatars.end();
+}
+
+void track_av(const LLUUID& id)
+{
+	if (auto inst = LLFloaterAvatarList::getIfExists())
+		if (inst->getAvatarEntry(id))
+		{
+			inst->trackAvatar(id);
+			return;
+		}
+
+	LLWorld::pos_map_t avatars;
+	LLWorld::instance().getAvatars(&avatars);
+	LLTracker::trackLocation(avatars[id], LLStringUtil::null, LLStringUtil::null);
+}
+
+void teleport_to(const LLUUID& id)
+{
+	if (auto entry = LLFloaterAvatarList::instanceExists() ? LLFloaterAvatarList::instance().getAvatarEntry(id) : nullptr)
+		gAgent.teleportViaLocation(entry->getPosition());
+	else
+	{
+		LLWorld::pos_map_t avatars;
+		LLWorld::instance().getAvatars(&avatars);
+		gAgent.teleportViaLocation(avatars[id]);
+	}
+}
+
 static void cmd_profile(const LLAvatarListEntry* entry);
 static void cmd_toggle_mark(LLAvatarListEntry* entry);
 static void cmd_ar(const LLAvatarListEntry* entry);
@@ -369,7 +405,7 @@ namespace
 	{
 		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 		{
-			LLFloaterAvatarList::instance().doCommand(cmd_teleport, true);
+			teleport_to(get_focused_list_id_selected());
 			return true;
 		}
 	};
@@ -388,13 +424,13 @@ void addMenu(view_listener_t* menu, const std::string& name);
 
 void add_radar_listeners()
 {
-	addMenu(new RadarTrack(), "Radar.Track");
-	addMenu(new RadarMark(), "Radar.Mark");
-	addMenu(new RadarFocus(), "Radar.Focus");
-	addMenu(new RadarFocusPrev(), "Radar.FocusPrev");
-	addMenu(new RadarFocusNext(), "Radar.FocusNext");
-	addMenu(new RadarTeleportTo(), "Radar.TeleportTo");
-	addMenu(new RadarAnnounceKeys(), "Radar.AnnounceKeys");
+	addMenu(new RadarTrack, "Radar.Track");
+	addMenu(new RadarMark, "Radar.Mark");
+	addMenu(new RadarFocus, "Radar.Focus");
+	addMenu(new RadarFocusPrev, "Radar.FocusPrev");
+	addMenu(new RadarFocusNext, "Radar.FocusNext");
+	addMenu(new RadarTeleportTo, "Radar.TeleportTo");
+	addMenu(new RadarAnnounceKeys, "Radar.AnnounceKeys");
 }
 
 BOOL LLFloaterAvatarList::postBuild()
@@ -1099,8 +1135,11 @@ void LLFloaterAvatarList::onClickTrack()
 	LLScrollListItem* item = mAvatarList->getFirstSelected();
 	if (!item) return;
 
-	LLUUID agent_id = item->getUUID();
+	trackAvatar(item->getUUID());
+}
 
+void LLFloaterAvatarList::trackAvatar(const LLUUID& agent_id)
+{
 	if (mTracking && mTrackedAvatar == agent_id)
 	{
 		LLTracker::stopTracking(false);

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Local Avs Menu" create_jump_keys="true">
+  <menu_item_call label="Profile" name="Profile">
+    <on_click function="List.ShowProfile"/>
+    <on_enable function="List.EnableAnySelected"/>
+  </menu_item_call>
   <menu label="Avatar" name="Avatar" create_jump_keys="true">
-    <menu_item_call label="Profile" name="Profile">
-      <on_click function="List.ShowProfile"/>
-      <on_enable function="List.EnableAnySelected"/>
-    </menu_item_call>
     <menu_item_call label="Web Profile" name="Web Profile">
       <on_click function="List.ShowWebProfile"/>
       <on_visible function="List.VisibleWebProfile"/>
@@ -49,7 +49,7 @@
       <on_click function="List.OfferTeleport"/>
       <on_enable function="List.EnableAnySelected"/>
     </menu_item_call>
-    <menu_item_call label="Teleport To" name="Teleport To" shortcut="control|Enter">
+    <menu_item_call label="Teleport To" name="Teleport To">
       <on_click function="Radar.TeleportTo"/>
       <on_enable function="List.EnableSingleSelected"/>
     </menu_item_call>
@@ -66,9 +66,10 @@
       <on_enable function="List.EnableAnySelected"/>
     </menu_item_call>
     <menu_item_call label="Track/Untrack" name="Track/Untrack">
-      <on_click function="Radar.Track"/>
+      <on_click function="List.Track"/>
       <on_enable function="List.EnableSingleSelected"/>
     </menu_item_call>
+    <menu_item_separator/>
     <menu_item_call label="Copy Key" name="Copy Key">
       <on_click function="List.CopyUUIDs"/>
       <on_enable function="List.EnableAnySelected"/>
