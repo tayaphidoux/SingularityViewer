@@ -140,14 +140,18 @@ void setTimeDateFormats(const S8& tempTimeFormat, const S8& tempDateFormat)
 		{
 			short_time = "%R";
 			long_time  = "%T";
-			timestamp += " %T";
+			if (!timestamp.empty()) timestamp += " %T";
 		}
 		else
 		{
 			short_time = "%I:%M %p";
 			long_time  = "%I:%M:%S %p";
-			timestamp += " %I:%M %p";
+			if (!timestamp.empty()) timestamp += " %I:%M %p";
 		}
+	}
+	else if (!timestamp.empty())
+	{
+		timestamp += ' ' + gSavedSettings.getString("ShortTimeFormat");
 	}
 
 	if (!short_date.empty())
