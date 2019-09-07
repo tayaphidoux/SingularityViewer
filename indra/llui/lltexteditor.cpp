@@ -386,9 +386,15 @@ const std::string& LLTextEditor::getMenuSegmentUrl() const
 
 static LLTextEditor* get_focused_text_editor()
 {
-	auto* list = dynamic_cast<LLTextEditor*>(gFocusMgr.getKeyboardFocus());
-	llassert(list); // This listener only applies to lists
-	return list;
+	auto* te =
+#ifdef SHOW_ASSERT
+		dynamic_cast<LLTextEditor*>
+#else
+		static_cast<LLTextEditor*>
+#endif
+		(gFocusMgr.getKeyboardFocus());
+	llassert(te); // This listener only applies to text editors
+	return te;
 }
 
 class ContextText : public LLMemberListener<LLView>

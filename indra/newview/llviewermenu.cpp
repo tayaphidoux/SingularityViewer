@@ -9038,30 +9038,36 @@ class VisibleNotSecondLife : public view_listener_t
 	}
 };
 
-LLScrollListCtrl* get_focused_list()
+template<typename T> T* get_focused()
 {
-	LLScrollListCtrl* list = dynamic_cast<LLScrollListCtrl*>(gFocusMgr.getKeyboardFocus());
-	llassert(list); // This listener only applies to lists
-	return list;
+	T* t =
+#ifdef SHOW_ASSERT
+		dynamic_cast<T*>
+#else
+		static_cast<T*>
+#endif
+		(gFocusMgr.getKeyboardFocus());
+	llassert(t); // This listener only applies to T
+	return t;
 }
 
 S32 get_focused_list_num_selected()
 {
-	if (LLScrollListCtrl* list = get_focused_list())
+	if (auto list = get_focused<LLScrollListCtrl>())
 		return list->getNumSelected();
 	return 0;
 }
 
 const LLUUID get_focused_list_id_selected()
 {
-	if (LLScrollListCtrl* list = get_focused_list())
+	if (auto list = get_focused<LLScrollListCtrl>())
 		return list->getStringUUIDSelectedItem();
 	return LLUUID::null;
 }
 
 const uuid_vec_t get_focused_list_ids_selected()
 {
-	if (LLScrollListCtrl* list = get_focused_list())
+	if (auto list = get_focused<LLScrollListCtrl>())
 		return list->getSelectedIDs();
 	return uuid_vec_t();
 }
@@ -9109,7 +9115,7 @@ class ListEnableCall : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLScrollListCtrl* list = get_focused_list();
+		auto list = get_focused<LLScrollListCtrl>();
 		if (!list) return false;
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(LLAvatarActions::canCall());
 		return true;
@@ -9517,18 +9523,11 @@ struct MenuSLURLDict : public LLSingleton<MenuSLURLDict>
 	}
 };
 
-LLMediaCtrl* get_focused_media_ctrl()
-{
-	auto media_ctrl = dynamic_cast<LLMediaCtrl*>(gFocusMgr.getKeyboardFocus());
-	llassert(media_ctrl); // This listener only applies to media_ctrls
-	return media_ctrl;
-}
-
 class MediaCtrlCopyURL : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		get_focused_media_ctrl()->onCopyURL();
+		get_focused<LLMediaCtrl>()->onCopyURL();
 		return true;
 	}
 };
@@ -9537,7 +9536,7 @@ class MediaCtrlWebInspector : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		get_focused_media_ctrl()->onOpenWebInspector();
+		get_focused<LLMediaCtrl>()->onOpenWebInspector();
 		return true;
 	}
 };
@@ -9546,7 +9545,7 @@ class MediaCtrlViewSource : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		get_focused_media_ctrl()->onShowSource();
+		get_focused<LLMediaCtrl>()->onShowSource();
 		return true;
 	}
 };
