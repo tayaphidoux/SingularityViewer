@@ -536,6 +536,7 @@
 			<text name="edit_object">
 				Editar Características del Objeto
 			</text>
+            <check_box label="Mesh Animado" name="Animated Mesh Checkbox Ctrl" tool_tip="Pemitir que los objetos mesh rígidos sean animados de forma independiente"/>
 			<check_box label="Flexibilidad" name="Flexible1D Checkbox Ctrl" tool_tip="Permite que el objeto sea flexible en el eje Z . (Sólo del lado del Cliente"/>
 			<spinner label="Blandura" name="FlexNumSections"/>
 			<spinner label="Gravedad" name="FlexGravity"/>

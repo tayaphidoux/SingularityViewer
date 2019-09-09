@@ -51,6 +51,9 @@
 				<combo_item name="year_first">
 					YYYY-MM-DD
 				</combo_item>
+				<combo_item name="year_first_slashes">
+					YYYY/MM/DD
+				</combo_item>
 				<combo_item name="day_first">
 					DD/MM/YYYY
 				</combo_item>

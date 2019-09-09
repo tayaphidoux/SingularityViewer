@@ -63,7 +63,7 @@
 				Reclamada:
 			</text>
 			<text name="DateClaimText">
-				Mar 15 Ago 13:47:25 2006
+				Mar Ago 15 13:47:25 2006
 			</text>
 			<text name="PriceLabel">
 				Superficie:
@@ -146,7 +146,7 @@ Ve al Menú Mundo &gt; Acerca del terreno o selecciona otra parcela para ver sus
 				No se ha aportado un contrato para este estado.
 			</text_editor>
 			<text name="covenant_timestamp_text">
-				Última modificación Mie 31 Dic 16:00:00 1969
+				Última modificación Mie Dic 31 16:00:00 1969
 			</text>
 			<text name="region_section_lbl">
 				Región:
@@ -552,7 +552,8 @@ Selecciona la miniatura para elegir una textura diferente.
 			<string name="1_minute">1 minuto</string>
 			<string name="1_second">1 segundo</string>
 			<string name="seconds">segundos</string>
-			<string name="remaining">restantes</string>			
+			<string name="remaining">restantes</string>
+			<string name="Always">Siempre</string>
 			<check_box label="Permitir Acceso al Grupo: [GROUP]" name="GroupCheck" tool_tip="Definir el Grupo en la pestaña General."/>
 			<check_box label="Vender pases para:" name="PassCheck" tool_tip="Permitir acceso temporario a esta parcela"/>
 			<combo_box name="pass_combo">
@@ -566,15 +567,21 @@ Selecciona la miniatura para elegir una textura diferente.
 			<spinner label="Precio en [CURRENCY]:" name="PriceSpin"/>
 			<spinner label="Horas de acceso:" name="HoursSpin"/>
 			<text label="Permitir siempre" name="AllowedText">
-				Residentes permitidos
+				Permitidos ([COUNT], máx [MAX])
 			</text>
-			<name_list name="AccessList" tool_tip="([LISTED] listados, [MAX] max)"/>
+			<name_list name="AccessList" tool_tip="([LISTED] listados, [MAX] máx)">
+				<column label="Nombre" name="name"/>
+				<column label="Duración" name="duration"/>
+            </name_list>     
 			<button label="Agregar..." label_selected="Agregar..." name="add_allowed"/>
 			<button label="Quitar" label_selected="Quitar" name="remove_allowed"/>
 			<text label="Ban" name="BanCheck">
-				Residentes prohibidos
+				Prohibidos ([COUNT], máx [MAX])
 			</text>
-			<name_list name="BannedList" tool_tip="([LISTED] listados, [MAX] max)"/>
+			<name_list name="BannedList" tool_tip="([LISTED] listados, [MAX] máx)">
+				<column label="Nombre" name="name"/>
+				<column label="Duración" name="duration"/>
+            </name_list>  
 			<button label="Agregar..." label_selected="Agregar..." name="add_banned"/>
 			<button label="Quitar" label_selected="Quitar" name="remove_banned"/>
 		</panel>

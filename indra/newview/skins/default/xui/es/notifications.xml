@@ -826,6 +826,11 @@ El objeto debe de haber sido borrado o estar fuera de rango.
 	<notification name="CannotDownloadFile">
 		No se ha podido descargar el archivo.
 	</notification>
+
+	<notification name="MediaFileDownloadUnsupported" label="">
+		Has solicitado descargar un archivo, lo cual no está soportado dentro de [SECOND_LIFE].
+		<usetemplate ignoretext="Advertir sobre descarga de archivos no soportados" name="okignore" yestext="OK"/>
+	</notification>
 	
 	<notification name="CannotWriteFile">
 		No se ha podido escribir el archivo [[FILE]]
@@ -1802,6 +1807,42 @@ Se superan en [NUM_EXCESS] los [MAX_AGENTS] permitidos en [LIST_TYPE].
 	<notification name="OwnerCanNotBeDenied">
 		No se puede añadir a la lista de residentes no admitidos al propietario del estado.
 	</notification>
+
+	<notification name="ProblemAddingEstateManagerBanned">
+		Incapaz de añadir a un residente prohibido a la lista de administradores.
+	</notification>
+    
+	<notification name="ProblemBanningEstateManager">
+		Incapaz de añadir al administrador del estado [AGENT] a la lista de prohibición.
+	</notification>
+  
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; ya se encuentra en la lista de grupos permitidos.
+	</notification>
+    
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] ya se encuentra en tu lista [LIST_TYPE].
+	</notification>
+    
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] ya se encuentran en tu lista [LIST_TYPE].
+	</notification>
+    
+	<notification name="AgentWasAddedToList">
+		[AGENT] fue agregado a [LIST_TYPE] lista de [ESTATE].
+	</notification>
+    
+	<notification name="AgentsWereAddedToList">
+		[AGENT] fueron agregados a [LIST_TYPE] lista de [ESTATE].
+	</notification>
+	
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] fue quitado de [LIST_TYPE] lista de [ESTATE].
+	</notification>
+    
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] fueron quitados de [LIST_TYPE] lista de [ESTATE].
+	</notification>
 	
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		No se puede cambiar la apariencia hasta que no se carguen la ropa y la forma.
@@ -2397,7 +2438,7 @@ Puedes pulsar ahora &apos;Cambiar preferencias&apos; para elevar tus preferencia
 		<form name="form">
 			<button name="OK" text="Cambiar preferencias"/>
 			<button name="Cancel" text="Cancelar"/>
-			<ignore name="ignore" text="El terrano que estás reclamando contiene contenido excluido por tus preferencias."/>
+			<ignore name="ignore" text="El terreno que estás reclamando contiene contenido excluido por tus preferencias."/>
 		</form>
 	</notification>
 	
@@ -3629,6 +3670,11 @@ Inténtalo seleccionando un trozo más pequeño de terreno.
 [NAMES]
 	</notification>
 	
+	<notification name="NoQuickTime">
+		No se ve como instalado en tu sistema el software QuickTime de Apple.
+Si quieres ver por streaming elementos multimedia en las parcelas que los tengan, debes ir al sitio web de QuickTime (http://www.apple.com/quicktime) e instalar el QuickTime Player.
+	</notification>
+	
 	<notification name="NoPlugin">
 		No se encontrado un plugin de Media que pueda manejar el tipo mime  "[MIME_TYPE]".  El contenido Media de este tipo no estará disponible.
 	</notification>
@@ -3696,7 +3742,8 @@ Aquí no puedes crear objetos.
 
 	<notification name="PathfindingDirty">
 		<unique/>
-			La región tiene pendientes cambios en pathfinding. Si tienes derechos de contrucción, puedes hacer un rebake de la región haciendo click en el botón &apos;Rebake de Región&apos;.		
+			La región tiene pendientes cambios en pathfinding. Si tienes derechos de contrucción, puedes hacer un rebake de la región haciendo click en el botón &apos;Recargar la Región&apos;.
+		<usetemplate name="okcancelbuttons" yestext="Recargar" notext="Cerrar" />
 	</notification>
 
 	<notification name="DynamicPathfindingDisabled">
@@ -4053,11 +4100,12 @@ Si no confías en este objeto y su creador, debes denegar la solicitud. Para má
 	</notification>
 	
 	<notification name="ScriptTextBoxDialog">
-		&apos;[TITLE]&apos; de [NAME]
-[MESSAGE]
+		[NAME]&apos;s &apos;[TITLE]&apos; (ch[CHANNEL])
+		[MESSAGE]
 		<form name="form">
 			<input name="message">
 			</input>
+			<button name="Mute" text="Silenciar"/>
 			<button name="Ignore" text="Ignorar"/>
 			<button name="Send" text="Enviar"/>
 		</form>
@@ -5251,11 +5299,13 @@ la región está llena.
 	<notification name="TeleportedByAttachment">
 		<tag>fail</tag>
 			Has sido teleportado por un objeto anexado en [ITEM_ID]
+			<usetemplate ignoretext="Teleporte: Has sido teleportado por un objeto anexado" name="notifyignore"/>
 	</notification>
 
 	<notification name="TeleportedByObjectOnParcel">
 		<tag>fail</tag>
 			Has sido teleportado por el objeto '[OBJECT_NAME]' de la parcela '[PARCEL_NAME]'
+			<usetemplate ignoretext="Teleporte: Has sido teleportado por un objeto de la parcela" name="notifyignore"/>
 	</notification>
 
 	<notification name="TeleportedByObjectOwnedBy">
@@ -6043,6 +6093,11 @@ Tu cuerpo, piel, pelo u ojos podrían ser los predeterminados
 
 	<notification name="WavefrontExportSuccess">
 		Los objetos han sido exportados satisfactoriamente a: [FILENAME]
+	</notification>
+
+	<notification name="SupportChatShowInfo">
+		Acabas de ingresar al chat grupal de soporte de [SHORT_APP_NAME]. Para ayudar a proveer soporte, [SHORT_APP_NAME] puede añadir información útil a tus mensajes. Esto se puede desactivar fácilmente luego a través de la casilla de verificación en el chat del grupo de soporte.
+		<usetemplate name="okcancelbuttons" notext="No jodas" yestext="I ¡Acepto!"/>
 	</notification>
 
 	<notification label="Actualización Disponible" name="RecommendedUpdate">
