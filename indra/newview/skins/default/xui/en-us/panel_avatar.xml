@@ -59,7 +59,7 @@
 			<text bg_visible="false" border_drop_shadow_visible="false"
 			     border_visible="true" bottom_delta="0" drop_shadow_visible="true"
 			     follows="left|top" font="SansSerifSmall" height="48" left_delta="0"
-			     mouse_opaque="false" name="acct" width="136" />
+			     mouse_opaque="true" name="acct" width="136" />
 			<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom_delta="-20" drop_shadow_visible="true" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="0"
