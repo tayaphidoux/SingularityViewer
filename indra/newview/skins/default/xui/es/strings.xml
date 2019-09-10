@@ -671,18 +671,20 @@ Grita el texto del mensaje en el canal
 	</string>
 	<string name="LSLTipText_llListen">
 integer llListen(integer channel, string name, key id, string msg)
-Sets a callback for msg on channel from name and id (name, id, and/or msg can be empty) and returns an identifier that can be used to deactivate or remove the listen
+Establece una devolución de llamada para el mensaje en el canal -channel- desde el nombre -name- y la identificación -id- (el nombre, la identificación y/o el mensaje pueden estar vacíos) y devuelve un identificador que se puede usar para desactivar o eliminar la escucha
 	</string>
 	<string name="LSLTipText_llListenControl">
 llListenControl(integer number, integer active)
-Makes a listen event callback active or inactive
+Crea un evento de escucha activo o inactivo de devolución de llamada
 	</string>
 	<string name="LSLTipText_llListenRemove">
 llListenRemove(integer number)
-Removes listen event callback number
+Remueve el evento "number" de escucha de devolución de llamada
 	</string>
 	<string name="LSLTipText_llSensor">
 llSensor(string name, key id, integer type, float range, float arc)
+Realiza una exploración única para el nombre -name- y la identificación -id- con el tipo -type- (AGENT, ACTIVE, PASSIVE y/o SCRIPT) dentro de los medidores de alcance y radiantes de arco del vector directo (el nombre, la identificación y / o el tipo de clave pueden estar vacíos o 0)
+
 Performs a single scan for name and id with type (AGENT, ACTIVE, PASSIVE, and/or SCRIPTED) within range meters and arc radians of forward vector (name, id, and/or keytype can be empty or 0)
 	</string>
 	<string name="LSLTipText_llSensorRepeat">
