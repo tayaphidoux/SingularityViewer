@@ -120,6 +120,7 @@ void LLViewerTextureList::doPreloadImages()
 	llassert_always(mInitialized) ;
 	llassert_always(mImageList.empty()) ;
 	llassert_always(mUUIDMap.empty()) ;
+	llassert_always(mUUIDDict.empty());
 
 	// Set the "missing asset" image
 	LLViewerFetchedTexture::sMissingAssetImagep = LLViewerTextureManager::getFetchedTextureFromFile("missing_asset.tga", FTT_LOCAL_FILE, MIPMAP_NO, LLViewerFetchedTexture::BOOST_UI);
@@ -692,8 +693,12 @@ void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image)
 	sNumImages++;
 	
 	addImageToList(new_image);
-	mUUIDMap.emplace(image_id, new_image);
-	mUUIDDict.emplace(image_id, new_image);
+	auto ret_pair = mUUIDMap.emplace(image_id, new_image);
+	if (!ret_pair.second)
+	{
+		ret_pair.first->second = new_image;
+	}
+	mUUIDDict.insert_or_assign(image_id, new_image);
 }
 
 

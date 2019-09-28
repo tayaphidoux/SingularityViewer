@@ -3,6 +3,10 @@
 project(viewer)
 
 include(00-Common)
+# DON'T move Linking.cmake to its place in the alphabetized list below: it
+# sets variables on which the 3p .cmake files depend.
+include(Linking)
+
 include(Boost)
 include(BuildPackagesInfo)
 include(BuildVersion)
@@ -31,7 +35,6 @@ include(LLUI)
 include(LLVFS)
 include(LLWindow)
 include(LLXML)
-include(Linking)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
@@ -1680,6 +1683,8 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${HUNSPELL_LIBRARY}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
+    absl::flat_hash_map
+    absl::node_hash_map
     )
 
 if (LINUX)

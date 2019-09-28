@@ -148,4 +148,4 @@ endif (llwindow_HEADER_FILES)
     ${viewer_SOURCE_FILES}
     )
 
-target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
+target_link_libraries (llwindow PUBLIC llcommon ${llwindow_LINK_LIBRARIES})

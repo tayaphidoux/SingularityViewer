@@ -68,18 +68,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b95e484e5b6cc0d10da48d3cf0ad37cd</string>
+              <string>b82d5aa8380926240f3415279480c831</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/packages/common/abseil_cpp-20190327.190862343-common-190862343.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/abseil-cpp/common/abseil_cpp-ac78ffc.1-common-1.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>20190327.190862343</string>
+        <string>ac78ffc.1</string>
       </map>
       <key>apr_suite</key>
       <map>

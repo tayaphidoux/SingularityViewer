@@ -1,6 +1,7 @@
 project(SLPlugin)
 
 include(00-Common)
+include(Linking)
 include(LLCommon)
 include(LLPlugin)
 include(Linking)

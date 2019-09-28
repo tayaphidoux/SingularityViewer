@@ -40,5 +40,7 @@ add_library (llxml ${llxml_SOURCE_FILES})
 
 target_link_libraries(
     llxml
+    PUBLIC
+    llcommon
     ${EXPAT_LIBRARIES}
     )

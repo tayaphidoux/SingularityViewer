@@ -34,6 +34,7 @@
 #include <boost/unordered_set.hpp>
 #include "stdtypes.h"
 #include "llpreprocessor.h"
+#include <absl/hash/hash.h>
 
 class LLMutex;
 
@@ -93,6 +94,11 @@ public:
 	bool	operator!=(const LLUUID &rhs) const;
 	bool	operator<(const LLUUID &rhs) const;
 	bool	operator>(const LLUUID &rhs) const;
+
+	template <typename H>
+	friend H AbslHashValue(H h, const LLUUID& id) {
+		return H::combine_contiguous(std::move(h), id.mData, UUID_BYTES);
+	}
 
 	// xor functions. Useful since any two random uuids xored together
 	// will yield a determinate third random unique id that can be
@@ -294,24 +300,22 @@ typedef std::set<LLUUID, lluuid_less> uuid_list_t;
 
 namespace std {
 	template <> struct hash<LLUUID>
-{
-	public:
+	{
 		size_t operator()(const LLUUID & id) const
 		{
-			return id.hash();
+			return absl::Hash<LLUUID>{}(id);
 		}
 	};
 }
 
 namespace boost {
-	template<> class hash<LLUUID>
-{
-	public:
-		size_t operator()(const LLUUID& id) const
+	template<> struct hash<LLUUID>
 	{
-			return id.hash();
-	}
-};
+		size_t operator()(const LLUUID& id) const
+		{
+			return absl::Hash<LLUUID>{}(id);
+		}
+	};
 }
 
 /*

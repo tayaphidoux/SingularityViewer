@@ -41,3 +41,8 @@ list(APPEND basic_plugin_base_SOURCE_FILES ${basic_plugin_base_HEADER_FILES})
 add_library(basic_plugin_base
     ${basic_plugin_base_SOURCE_FILES}
 )
+
+target_link_libraries(basic_plugin_base
+    PUBLIC
+    llcommon
+)
