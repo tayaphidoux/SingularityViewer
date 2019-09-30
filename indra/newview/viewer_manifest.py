@@ -443,13 +443,6 @@ class WindowsManifest(ViewerManifest):
             # Find singularity-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s\\%s-bin.exe' % (self.args['configuration'],self.viewer_branding_id()), dst=self.final_exe())
 
-            with self.prefix(src=os.path.join(pkgdir, "redist")):
-                # include the compiled launcher scripts so that it gets included in the file_list
-                if(self.address_size == 64):
-                    self.path('vc_redist.x64.exe')
-                else:
-                    self.path('vc_redist.x86.exe')
-
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),
@@ -479,16 +472,10 @@ class WindowsManifest(ViewerManifest):
 
             # Get fmodstudio dll, continue if missing
             try:
-                if(self.address_size == 64):
-                    if self.args['configuration'].lower() == 'debug':
-                        self.path("fmodL64.dll")
-                    else:
-                        self.path("fmod64.dll")
+                if self.args['configuration'].lower() == 'debug':
+                    self.path("fmodL.dll")
                 else:
-                    if self.args['configuration'].lower() == 'debug':
-                        self.path("fmodL.dll")
-                    else:
-                        self.path("fmod.dll")
+                    self.path("fmod.dll")
             except:
                 print "Skipping fmodstudio audio library(assuming other audio engine)"
 
@@ -529,6 +516,17 @@ class WindowsManifest(ViewerManifest):
                         self.path('libtcmalloc_minimal.dll')
                 except:
                     print "Skipping libtcmalloc_minimal.dll"
+
+            # For msvc redist
+            try:
+                    self.path('api-ms*.dll')
+                    self.path('ucrt*.dll')
+                    self.path('concrt*.dll')
+                    self.path('msvc*.dll')
+                    self.path('vcruntime*.dll')
+                    self.path('vccor*.dll')
+            except:
+                print "Skipping msvc redist files"
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
@@ -1177,11 +1175,9 @@ class LinuxManifest(ViewerManifest):
 
         with self.prefix(dst="bin"):
             self.path("%s-bin"%self.viewer_branding_id(),"do-not-directly-run-%s-bin"%self.viewer_branding_id())
-            self.path2basename("../llplugin/slplugin", "SLPlugin")
 
-        with self.prefix("res-sdl"):
-            self.path("*")
-            # recurse
+        # recurses, packaged again
+        self.path("res-sdl")
 
         # Get the icons based on the channel type
         icon_path = self.icon_path()
@@ -1192,6 +1188,9 @@ class LinuxManifest(ViewerManifest):
                 self.path("viewer_256.BMP","viewer_icon.BMP")
 
         # plugins
+        with self.prefix(src="../llplugin/slplugin", dst="bin/llplugin"):
+            self.path("SLPlugin")
+
         with self.prefix(src="../plugins", dst="bin/llplugin"):
             self.path2basename("filepicker", "libbasic_plugin_filepicker.so")
             self.path("gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
@@ -1204,6 +1203,29 @@ class LinuxManifest(ViewerManifest):
 
         with self.prefix(src=os.path.join(pkgdir, 'lib' ), dst="lib"):
             self.path( "libvlc*.so*" )
+
+        # CEF common files
+        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst=os.path.join('bin', 'llplugin') ):
+            self.path("cef.pak")
+            self.path("cef_extensions.pak")
+            self.path("cef_100_percent.pak")
+            self.path("cef_200_percent.pak")
+            self.path("devtools_resources.pak")
+            self.path("icudtl.dat")
+
+        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('bin', 'llplugin', 'locales') ):
+            self.path("*.pak")
+         
+        with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst=os.path.join('bin', 'llplugin') ):
+            self.path("dullahan_host")
+            self.path("chrome-sandbox")
+            self.path("natives_blob.bin")
+            self.path("snapshot_blob.bin")
+            self.path("v8_context_snapshot.bin")
+
+        # plugin runtime
+        with self.prefix(src=relpkgdir, dst=os.path.join('bin', 'llplugin') ):
+            self.path("libcef.so")
 
         # llcommon
         if not self.path("../llcommon/libllcommon.so", "lib/libllcommon.so"):
@@ -1250,11 +1272,14 @@ class LinuxManifest(ViewerManifest):
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
             print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
             # makes some small assumptions about our packaged dir structure
-            self.run_command(
-                ["find"] +
-                [os.path.join(self.get_dst_prefix(), dir) for dir in ('bin', 'lib')] +
-                ['-type', 'f', '!', '-name', '*.py',
-                 '!', '-name', 'update_install', '-exec', 'strip', '-S', '{}', ';'])
+            try:
+                self.run_command(
+                    ["find"] +
+                    [os.path.join(self.get_dst_prefix(), dir) for dir in ('bin', 'bin/llplugin', 'lib', 'lib32', 'lib64')] +
+                    ['-executable', '-type', 'f', '!', '-name', 'update_install', '-exec', 'strip', '-S', '{}', ';'])
+            except ManifestError as err:
+                print err.message
+                pass
 
 class Linux_i686_Manifest(LinuxManifest):
     address_size = 32
@@ -1269,15 +1294,26 @@ class Linux_i686_Manifest(LinuxManifest):
         if (not self.standalone()) and self.prefix(src=relpkgdir, dst="lib"):
             self.path("libapr-1.so*")
             self.path("libaprutil-1.so*")
-            self.path("libcef.so")
             self.path("libexpat.so.*")
             self.path("libGLOD.so")
             self.path("libSDL-1.2.so.*")
             self.path("libalut.so")
             self.path("libopenal.so.1")
 
-            self.path("libtcmalloc_minimal.so.0")
-            self.path("libtcmalloc_minimal.so.0.2.2")
+            try:
+                self.path("libtcmalloc_minimal.so.0")
+                self.path("libtcmalloc_minimal.so.0.2.2")
+                pass
+            except:
+                print "tcmalloc files not found, skipping"
+                pass
+
+            try:
+                self.path("libfmod.so*")
+                pass
+            except:
+                print "Skipping libfmod.so - not found"
+                pass
             self.end_prefix()
 
         # Vivox runtimes
@@ -1289,6 +1325,13 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libvivoxoal.so.1")
             self.path("libvivoxsdk.so")
             self.path("libvivoxplatform.so")
+
+        # CEF renderers
+        with self.prefix(src=os.path.join(relpkgdir, 'swiftshader'), dst=os.path.join("lib", "swiftshader") ):
+            self.path( "*.so" )
+        with self.prefix(src=relpkgdir, dst="lib"):
+            self.path("libEGL.so")
+            self.path("libGLESv2.so")
 
 
 class Linux_x86_64_Manifest(LinuxManifest):
@@ -1307,7 +1350,7 @@ class Linux_x86_64_Manifest(LinuxManifest):
             self.path("libexpat.so*")
             self.path("libGLOD.so")
             self.path("libSDL-1.2.so*")
-            self.path("libhunspell-1.3.so*")
+            self.path("libhunspell*.so*")
             self.path("libalut.so*")
             self.path("libopenal.so*")
 
@@ -1325,6 +1368,8 @@ class Linux_x86_64_Manifest(LinuxManifest):
                 print "Skipping libfmod.so - not found"
                 pass
 
+            self.end_prefix()
+
         # Vivox runtimes
         with self.prefix(src=relpkgdir, dst="bin"):
             self.path("SLVoice")
@@ -1335,9 +1380,12 @@ class Linux_x86_64_Manifest(LinuxManifest):
             self.path("libvivoxsdk.so")
             self.path("libvivoxplatform.so")
 
-        # plugin runtime
+        # CEF renderers
+        with self.prefix(src=os.path.join(relpkgdir, 'swiftshader'), dst=os.path.join("lib64", "swiftshader") ):
+            self.path( "*.so" )
         with self.prefix(src=relpkgdir, dst="lib64"):
-            self.path("libcef.so")
+            self.path("libEGL.so")
+            self.path("libGLESv2.so")
 
 
 ################################################################

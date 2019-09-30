@@ -84,10 +84,10 @@
 		<menu_item_check label="Límites de Parcelas" name="Property Lines"/>
 		<menu_item_check label="Líneas de Prohibición" name="Banlines"/>
 		<menu_item_check label="Propietarios del Terreno" name="Land Owners"/>
-		<menu label="Información Adicional" name="Hover Tips">
-			<menu_item_check label="Mostrar Información Adicional" name="Show Tips"/>
-			<menu_item_check label="Información Adicional del Terreno" name="Land Tips"/>
-			<menu_item_check label="Información Adicional en Todos los Objetos" name="Tips On All Objects"/>
+		<menu label="Bulas" name="Hover Tips">
+			<menu_item_check label="Mostrar Bulas" name="Show Tips"/>
+			<menu_item_check label="del Terreno" name="Land Tips"/>
+			<menu_item_check label="de Todos los Objetos" name="Tips On All Objects"/>
 		</menu>
 		<menu_item_check label="Realzar Transparencias" name="Highlight Transparent"/>
 		<menu_item_check name="beacons" label="Balizas"/>
@@ -101,7 +101,7 @@
 	</menu>
 	<!-- ============================= -->
 	<menu label="Mundo" name="World" >
-		<menu_item_call label="Chat" name="Chat"/>
+		<menu_item_check label="Chat" name="Chat"/>
 		<menu_item_check label="Correr Siempre" name="Always Run"/>
 		<menu_item_call label="Sentarse en el piso" name="Sit on Ground"/>
 		<menu_item_check label="Volar" name="Fly"/>
@@ -110,11 +110,11 @@
 		<menu_item_call label="Teleportar a Base" name="Teleport Home"/>
 		<menu label="Estado" name="Status">
 			<menu_item_call label="Falso Estado Ausente" name="Fake Away Status"/>
-			<menu_item_call label="Pasar a Estado Ausente" name="Set Away"/>
-			<menu_item_call label="Pasar a Estado Ocupado" name="Set Busy"/>
+			<menu_item_call label="Estado Ausente" name="Set Away"/>
+			<menu_item_call label="Estado Ocupado" name="Set Busy"/>
 			<menu label="Respuesta Automática" name="Autoresponse">
 				<menu_item_check label="Repetir" name="Repeat"/>
-				<menu_item_check label="Sólo en estado Ausente" name="Only send when away"/>
+				<menu_item_check label="Enviar solo en estado Ausente" name="Only send when away"/>
 				<menu_item_check label="General" name="General"/>
 				<menu_item_check label="&#8226;Sólo Amigos" name="Friends Only"/>
 				<menu_item_check label="No Amigos" name="Non-Friends"/>
@@ -126,10 +126,12 @@
 		<menu_item_call label="Liberar Teclas" name="Release Keys"/>
 		<menu_item_call label="Historial de la Cuenta..." name="Account History..."/>
 		<menu_item_call label="Administrar mi Cuenta..." name="Manage My Account..."/>
+        <menu_item_call label="Mercado" name="Marketplace"/>
         <menu_item_check label="Artículos del Mercado..." name="MarketplaceListings"/>
 		<menu_item_call label="Comprar [CURRENCY]..." name="Buy and Sell L$..."/>
-        <menu_item_call label="Mis Vestuarios" name="My Outfits"/>
-        <menu_item_call label="Favoritos" name="Favorites"/>
+        <menu_item_check label="Mis Vestuarios" name="My Outfits"/>
+        <menu_item_check label="Favoritos" name="Favorites"/>
+		<menu_item_check label="Ítems Recibidos" name="Received Items"/>
         <menu_item_check label="Avatares Predefinidos" name="Avatar Picker"/>
         <menu_item_check label="Destinos" name="Destinations"/>
 		<menu_item_call label="Mi Terreno..." name="My Land..."/>
@@ -163,7 +165,6 @@
 		<menu_item_check label="Mostrar objetos seleccionados ocultos" name="Show Hidden Selection"/>
 		<menu_item_check label="Mostrar radio de luz de la selección" name="Show Light Radius for Selection"/>
 		<menu_item_check label="Mostrar rayo indicador" name="Show Selection Beam"/>
-		<menu_item_call name="insert_tools"/>
 		<menu_item_check label="Ajustar a la cuadrícula" name="Snap to Grid"/>
 		<menu_item_call label="Ajustar Objetos XY a la cuadrícula" name="Snap Object XY to Grid"/>
 		<menu_item_call label="Usar Seleccionado como cuadrícula" name="Use Selection for Grid"/>
@@ -193,14 +194,14 @@
 			<menu_item_call label="LSL" name="LSL"/>
 		</menu>
 		<menu_item_call label="Reiniciar Scripts en la Selección" name="Reset Scripts in Selection"/>
-		<menu_item_call label="Definir Ejecución de Scripts en la Selección" name="Set Scripts to Running in Selection"/>
-		<menu_item_call label="Definir la no ejecución de Scripts en la Selección" name="Set Scripts to Not Running in Selection"/>
+		<menu_item_call label="Iniciar la ejecución de Scripts en la Selección" name="Set Scripts to Running in Selection"/>
+		<menu_item_call label="Detener la ejecución de Scripts en la Selección" name="Set Scripts to Not Running in Selection"/>
 		<menu_item_call label="Borrar Scripts en la Selección" name="Remove Scripts in Selection"/>
 		<menu_item_call label="Contar Scripts en la Selección" name="Count Scripts in Selection"/>
 		<menu label="Pathfinding" name="Pathfinding">
 			<menu_item_check label="Conjuntos de Enlaces..." name="pathfinding_linksets_menu_item"/>
 			<menu_item_check label="Personajes..." name="pathfinding_characters_menu_item"/>
-			<menu_item_call label="Rebake de Región" name="pathfinding_rebake_navmesh_item"/>
+			<menu_item_call label="Recargar la Región" name="pathfinding_rebake_navmesh_item"/>
 		</menu>
 	</menu>
 	<!-- ============================= -->
@@ -237,6 +238,7 @@
 		<menu_item_call label="Animation Override..." name="Animation Override ..."/>
 		<menu_item_check label="Pose Stand" name="Pose Stand"/>
 		<menu_item_check label="Agilidad" name="Nimble"/>
+		<menu_item_call label="Resincronizar Animaciones" name="Resync Animations"/>
 		<menu_item_check label="Monitor de Región" name="Region Tracker"/>
 		<menu_item_check label="Búsqueda en Área" name="Object Area Search"/>
 		<menu_item_check label="Explorador de Sonidos" name="Sound Explorer"/>

@@ -8,6 +8,7 @@ set(cmake_SOURCE_FILES
     CMakeLists.txt
 
     00-Common.cmake
+    Abseil-CPP.cmake
     AIStateMachine.cmake
     APR.cmake
     Audio.cmake
@@ -38,7 +39,6 @@ set(cmake_SOURCE_FILES
     FindNDOF.cmake
     FindOpenJPEG.cmake
     FindTut.cmake
-    FindVCRedist.cmake
     FindURIPARSER.cmake
     FindXmlRpcEpi.cmake
     FMODSTUDIO.cmake

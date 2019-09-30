@@ -38,6 +38,7 @@
 LLScrollListItem::LLScrollListItem( const Params& p )
 :	mSelected(FALSE),
 	mEnabled(p.enabled),
+	mFiltered(false),
 	mUserdata(p.userdata),
 	mItemValue(p.value),
 	mColumns()

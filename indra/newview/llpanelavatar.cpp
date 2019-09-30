@@ -186,7 +186,12 @@ void LLPanelAvatarSecondLife::processProperties(void* data, EAvatarProcessorType
 			args["[PAYMENTINFO]"] = LLAvatarPropertiesProcessor::paymentInfo(pAvatarData);
 			args["[AGEVERIFICATION]"] = LLStringUtil::null;
 			
-			getChild<LLUICtrl>("acct")->setValue(getString("CaptionTextAcctInfo", args));
+			{
+				const auto account_info = getString("CaptionTextAcctInfo", args);
+				auto acct = getChild<LLUICtrl>("acct");
+				acct->setValue(account_info);
+				acct->setToolTip(account_info);
+			}
 
 			getChild<LLTextureCtrl>("img")->setImageAssetID(pAvatarData->image_id);
 
@@ -194,11 +199,16 @@ void LLPanelAvatarSecondLife::processProperties(void* data, EAvatarProcessorType
 			{
 				using namespace boost::gregorian;
 				int year, month, day;
-				sscanf(pAvatarData->born_on.c_str(),"%d/%d/%d", &month, &day, &year);
-				date birthday(year, month, day), today(day_clock::local_day());
-				std::ostringstream born_on;
-				born_on << pAvatarData->born_on << " (" << today - birthday << ')';
-				childSetValue("born", born_on.str());
+				const auto& born = pAvatarData->born_on;
+				if (!born.empty() && sscanf(born.c_str(),"%d/%d/%d", &month, &day, &year) == 3 // Make sure input is valid
+				&& month > 0 && month <= 12 && day > 0 && day <= 31 && year >= 1400) // Don't use numbers that gregorian will choke on
+				{
+					date birthday(year, month, day), today(day_clock::local_day());
+					std::ostringstream born_on;
+					born_on << pAvatarData->born_on << " (" << today - birthday << ')';
+					childSetValue("born", born_on.str());
+				}
+				else childSetValue("born", born);
 			}
 
 			bool allow_publish = (pAvatarData->flags & AVATAR_ALLOW_PUBLISH);

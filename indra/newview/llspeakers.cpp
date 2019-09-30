@@ -561,6 +561,9 @@ void LLSpeakerMgr::update(BOOL resort_ok)
 
 void LLSpeakerMgr::updateSpeakerList()
 {
+	// Always add the current agent (it has to be there...). Will do nothing if already there.
+	setSpeaker({ gAgentID, LLSpeaker::SPEAKER_AGENT, LLSpeaker::STATUS_VOICE_ACTIVE });
+
 	// Are we bound to the currently active voice channel?
 	if ((!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive()))
 	{
@@ -633,21 +636,19 @@ void LLSpeakerMgr::updateSpeakerList()
 					mSpeakerListUpdated = true;
 				}
 			}
-			/* Singu TODO: LLIMModel::LLIMSession
-			else if (mSpeakers.size() == 0)
+			else if (floater && mSpeakers.size() == 0)
 			{
 				// For all other session type (ad-hoc, P2P, avaline), we use the initial participants targets list
-				for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();it!=session->mInitialTargetIDs.end();++it)
+				for (const auto& id : floater->mInitialTargetIDs)
 				{
 					// Add buddies if they are on line, add any other avatar.
-					if (!LLAvatarTracker::instance().isBuddy(*it) || LLAvatarTracker::instance().isBuddyOnline(*it))
+					if (!LLAvatarTracker::instance().isBuddy(id) || LLAvatarTracker::instance().isBuddyOnline(id))
 					{
-						setSpeaker(*it, "", LLSpeaker::STATUS_VOICE_ACTIVE, LLSpeaker::SPEAKER_AGENT);
+						setSpeaker({ id, LLSpeaker::SPEAKER_AGENT, LLSpeaker::STATUS_VOICE_ACTIVE });
 					}
 				}
 				mSpeakerListUpdated = true;
 			}
-			*/
 			else
 			{
 				// The list has been updated the normal way (i.e. by a ChatterBoxSessionAgentListUpdates received from the server)
@@ -655,8 +656,6 @@ void LLSpeakerMgr::updateSpeakerList()
 			}
 		}
 	}
-	// Always add the current agent (it has to be there...). Will do nothing if already there.
-	setSpeaker({ gAgentID, LLSpeaker::SPEAKER_AGENT, LLSpeaker::STATUS_VOICE_ACTIVE });
 }
 
 void LLSpeakerMgr::setSpeakerNotInChannel(LLSpeaker* speakerp)

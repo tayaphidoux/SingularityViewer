@@ -262,7 +262,7 @@ bool LLDir_Linux::fileExists(const std::string &filename) const
 /*virtual*/ std::string LLDir_Linux::getLLPluginLauncher()
 {
 	return gDirUtilp->getExecutableDir() + gDirUtilp->getDirDelimiter() +
-		"SLPlugin";
+		"llplugin/SLPlugin";
 }
 
 /*virtual*/ std::string LLDir_Linux::getLLPluginFilename(std::string base_name)

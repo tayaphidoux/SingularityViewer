@@ -413,7 +413,7 @@ BOOL LLToolPie::handleLeftClickPick()
 	LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
 
 	// Spawn pie menu
-	LLTool::handleRightMouseDown(x, y, mask);
+	handleRightMouseDown(x, y, mask);
 	return TRUE;
 }
 

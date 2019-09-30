@@ -67,10 +67,10 @@ private:
 	bool mEnableMUPose;
 	bool mEnableOOCAutoClose;
 	U32 mLinksForChattingObjects;
-	U32 mTimeFormat;
-	U32 mDateFormat;
-	U32 tempTimeFormat;
-	U32 tempDateFormat;
+	S8 mTimeFormat;
+	S8 mDateFormat;
+	S8 tempTimeFormat;
+	S8 tempDateFormat;
 	bool mSecondsInChatAndIMs;
 	bool mSecondsInLog;
 

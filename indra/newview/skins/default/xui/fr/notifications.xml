@@ -3024,11 +3024,6 @@ Gestes désactivés ayant le même mot-clé :
 [NAMES]
 	</notification>
 
-	<notification name="NoQuickTime">
-Le logiciel Apple QuickTime ne semble pas installé sur votre système.
-Pour voir les vidéos sur les terrains qui le permettent, allez sur le site de QuickTime (http://www.apple.com/fr/quicktime/download) et installez le lecteur QuickTime.
-	</notification>
-
   <notification
    icon="alertmodal.tga"
    name="MediaPluginFailed"

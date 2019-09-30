@@ -605,6 +605,9 @@
 			<on_click function="PromptShowURL" name="ManageMyAccount_url"
 			     userdata="WebLaunchJoinNow,http://secondlife.com/account/" />
 		</menu_item_call>
+        <menu_item_call label="Marketplace" name="Marketplace">
+            <on_click function="ShowWebFloater" userdata="marketplace"/>
+        </menu_item_call>
         <menu_item_check
          label="Marketplace Listings..."
          name="MarketplaceListings">
@@ -617,14 +620,18 @@
 		</menu_item_call>
 		<menu_item_separator bottom="-213" enabled="true" height="8" label="-----------" left="0"
 		     mouse_opaque="true" name="separator5" width="185" />
-        <menu_item_call bottom="-29" height="19" label="My Outfits" left="0" name="My Outfits" width="166">
-            <on_click function="ShowInvFloater.Name" userdata="My Outfits"/>
-            <on_check function="InvFloaterVisible.Name" userdata="My Outfits"/>
-        </menu_item_call>
-        <menu_item_call bottom="-29" height="19" label="Favorites" left="0" name="Favorites" width="166">
-            <on_click function="ShowInvFloater.Name" userdata="Favorites"/>
-            <on_check function="InvFloaterVisible.Name" userdata="Favorites"/>
-        </menu_item_call>
+        <menu_item_check label="My Outfits" name="My Outfits">
+            <on_click function="ShowInvFloater.Type" userdata="my_otfts"/>
+            <on_check function="InvFloaterVisible.Type" userdata="my_otfts"/>
+        </menu_item_check>
+        <menu_item_check label="Favorites" name="Favorites">
+            <on_click function="ShowInvFloater.Type" userdata="favorite"/>
+            <on_check function="InvFloaterVisible.Type" userdata="favorite"/>
+        </menu_item_check>
+        <menu_item_check label="Received Items" name="Received Items">
+            <on_click function="ShowInvFloater.Type" userdata="inbox"/>
+            <on_check function="InvFloaterVisible.Type" userdata="inbox"/>
+        </menu_item_check>
         <menu_item_check label="Default Avatars" name="Avatar Picker">
             <on_click function="ShowFloater" userdata="avatar"/>
             <on_check function="FloaterVisible" userdata="avatar"/>

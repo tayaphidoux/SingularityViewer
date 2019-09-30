@@ -42,24 +42,47 @@ class LLAvatarName;
 class LLNameListItem : public LLScrollListItem, public LLHandleProvider<LLNameListItem>
 {
 public:
-	bool isGroup() const { return mIsGroup; }
-	void setIsGroup(bool is_group) { mIsGroup = is_group; }
+	enum ENameType
+	{
+		INDIVIDUAL,
+		GROUP,
+		SPECIAL
+	};
+
+	// provide names for enums
+	struct NameTypeNames : public LLInitParam::TypeValuesHelper<ENameType, NameTypeNames>
+	{
+		static void declareValues();
+	};
+
+	struct Params : public LLInitParam::Block<Params, LLScrollListItem::Params>
+	{
+		Optional<std::string>				name;
+		Optional<ENameType, NameTypeNames>	target;
+
+		Params()
+			: name("name"),
+			target("target", INDIVIDUAL)
+		{}
+	};
+	ENameType getNameType() const { return mNameType; }
+	void setNameType(ENameType name_type) { mNameType = name_type; }
 
 protected:
 	friend class LLNameListCtrl;
 
-	LLNameListItem( const LLScrollListItem::Params& p )
-	:	LLScrollListItem(p), mIsGroup(false)
+	LLNameListItem( const Params& p )
+	:	LLScrollListItem(p), mNameType(p.target)
 	{
 	}
 
-	LLNameListItem( const LLScrollListItem::Params& p, bool is_group )
-	:	LLScrollListItem(p), mIsGroup(is_group)
+	LLNameListItem( const LLScrollListItem::Params& p, ENameType name_type)
+	:	LLScrollListItem(p), mNameType(name_type)
 	{
 	}
 
 private:
-	bool mIsGroup;
+	ENameType mNameType;
 };
 
 
@@ -68,30 +91,7 @@ class LLNameListCtrl
 {
 public:
 	typedef boost::signals2::signal<void(bool)> namelist_complete_signal_t;
-
-	typedef enum e_name_type
-	{
-		INDIVIDUAL,
-		GROUP,
-		SPECIAL
-	} ENameType;
-
-	// provide names for enums
-	struct NameTypeNames : public LLInitParam::TypeValuesHelper<LLNameListCtrl::ENameType, NameTypeNames>
-	{
-		static void declareValues();
-	};
-
-	struct NameItem : public LLInitParam::Block<NameItem, LLScrollListItem::Params>
-	{
-		Optional<std::string>				name;
-		Optional<ENameType, NameTypeNames>	target;
-
-		NameItem()
-		:	name("name"),
-			target("target", INDIVIDUAL)
-		{}
-	};
+	typedef LLNameListItem::Params NameItem;
 
 	struct NameColumn : public LLInitParam::ChoiceBlock<NameColumn>
 	{
@@ -124,11 +124,12 @@ public:
 	// Add a user to the list by name.  It will be added, the name 
 	// requested from the cache, and updated as necessary.
 	LLScrollListItem* addNameItem(const LLUUID& agent_id, EAddPosition pos = ADD_BOTTOM,
-					 BOOL enabled = TRUE, const std::string& suffix = LLStringUtil::null);
+					 BOOL enabled = TRUE, const std::string& suffix = LLStringUtil::null, const std::string& prefix = LLStringUtil::null);
 	LLScrollListItem* addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
 	/*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
-	LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM, const std::string& suffix = LLStringUtil::null);
+	LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM, const std::string& suffix = LLStringUtil::null,
+																							const std::string& prefix = LLStringUtil::null);
 
 	// Add a user to the list by name.  It will be added, the name 
 	// requested from the cache, and updated as necessary.
@@ -139,17 +140,21 @@ public:
 
 	void removeNameItem(const LLUUID& agent_id);
 
+	LLScrollListItem* getNameItemByAgentId(const LLUUID& agent_id);
+
 	// LLView interface
 	/*virtual*/ BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 									  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 									  EAcceptance *accept,
 									  std::string& tooltip_msg);
+	BOOL handleDoubleClick(S32 x, S32 y, MASK mask) override;
 
 	void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
 
 	void sortByName(BOOL ascending);
 private:
-	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, std::string suffix, LLHandle<LLNameListItem> item);
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, std::string suffix, std::string prefix, LLHandle<LLNameListItem> item);
+	void onGroupNameCache(const LLUUID& group_id, const std::string name, LLHandle<LLNameListItem> item);
 
 private:
 	S32    	 mNameColumnIndex;

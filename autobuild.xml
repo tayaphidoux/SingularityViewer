@@ -68,18 +68,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b95e484e5b6cc0d10da48d3cf0ad37cd</string>
+              <string>b82d5aa8380926240f3415279480c831</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/packages/common/abseil_cpp-20190327.190862343-common-190862343.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/abseil-cpp/common/abseil_cpp-ac78ffc.1-common-1.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>20190327.190862343</string>
+        <string>ac78ffc.1</string>
       </map>
       <key>apr_suite</key>
       <map>
@@ -650,11 +650,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2f44b376e436f37cbad5c7567edddebd</string>
+              <string>06746b78827e9a0c6b666bd2528d36ad</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/router_gray/rg_3p-dullahan/downloads/dullahan-1.1.1085-3.3497.1833.g13f506f-linux64-201902042123.tar.bz2</string>
+              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1320_73.1.12%252Bgee4b49f%252Bchromium-73.0.3683.75-linux64-192030536.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -664,9 +664,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c3e093d40e93ff242e9b9c953ae7316c</string>
+              <string>e19b664ad8cf9e7f4a7bf649d28faa76</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc142/dullahan-1.1.930-3.3282.1733.g9091548-windows-201802202358.tar.bz2</string>
+              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1320_73.1.12+gee4b49f+chromium-73.0.3683.75-windows-191102212.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -802,7 +802,7 @@
       <key>fmodstudio</key>
       <map>
         <key>copyright</key>
-        <string>FMOD Studio, copyright (c) Firelight Technologies Pty, Ltd., 2012-2017.</string>
+        <string>FMOD Studio, copyright (c) Firelight Technologies Pty, Ltd., 2012-2019.</string>
         <key>description</key>
         <string>FMOD Studio audio system library</string>
         <key>license</key>
@@ -818,14 +818,28 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a3ccf7916d1e0b6f01370978b661c139</string>
+              <string>4a4e1bfd0e1e982643e75533ead10c55</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/darwin/lib/fmodstudio-1.10.02-darwin-201712262058.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/darwin/fmodstudio-2.00.03.192211300-darwin-192211300.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>fe1a606582fb72d5d1c9ec4a2d906830</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/darwin64/fmodstudio-2.00.03.192211302-darwin64-192211302.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
           </map>
           <key>linux</key>
           <map>
@@ -836,7 +850,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux/lib/fmodstudio-1.06.07-linux-201507231333.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/linux/lib/fmodstudio-1.06.07-linux-201507231333.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -850,7 +864,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/linux64/lib/fmodstudio-1.10.00-linux64-201709282320.tar.bz2</string>
+              <string>/opt/devel/secondlife/pkg/fmodstudio-2.00.02.191991250-linux64-191991250.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -860,11 +874,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b23a30967666da49346983658ed50e92</string>
+              <string>e0e87e0423fa42e4d2997b47b92eac6e</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/windows/lib/fmodstudio-1.10.00-windows-201709290225.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/windows/fmodstudio-2.00.03.192211030-windows-192211030.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -874,11 +888,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>779ae33c6b84656295bd6cf50a69c830</string>
+              <string>c2e55e1bfef7e066a0e40867a64b4cce</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/packages/windows64/msvc/fmodstudio-1.10.10.190360453-windows64-190360453.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/windows64/fmodstudio-2.00.03.192211029-windows64-192211029.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2106,7 +2120,7 @@
       <key>nvapi</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (c) 2007- 2014 NVIDIA Corporation. All rights reserved. </string>
+        <string>Copyright (c) 2007- 2019 NVIDIA Corporation. All rights reserved. </string>
         <key>license</key>
         <string>nvapi</string>
         <key>license_file</key>
@@ -2120,11 +2134,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f70cc94b1f43c4889b0dfff33f40fb11</string>
+              <string>408eff309f6f3031d74da5491c1852a9</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///c:/devel/secondlife/packages/windows/nvapi-R361v2-windows-201604020339.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/nvapi/windows/nvapi-R430.192211828-windows-192211828.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2134,18 +2148,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>619598988143e12ad0d1a271f881b3bd</string>
+              <string>76a547f558b8499dc85135b8718eb18a</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///c:/devel/secondlife/packages/windows64/nvapi-R384-windows64-201712260642.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/nvapi/windows64/nvapi-R430.192211828-windows64-192211828.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>R384</string>
+        <string>R430.192211828</string>
       </map>
       <key>ogg_vorbis</key>
       <map>
@@ -3121,7 +3135,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc$AUTOBUILD_WIN_VSVER-$AUTOBUILD_ADDRSIZE</string>
+          <string>build-vc${AUTOBUILD_WIN_VSVER|161}-$AUTOBUILD_ADDRSIZE</string>
           <key>configurations</key>
           <map>
             <key>RelWithDebInfo</key>

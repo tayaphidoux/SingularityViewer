@@ -58,8 +58,14 @@ list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})
 
 add_library (llplugin ${llplugin_SOURCE_FILES})
 if(LINUX AND STANDALONE)
-    target_link_libraries (llplugin rt dl)
-endif(LINUX AND STANDALONE)
+    target_link_libraries (llplugin llcommon rt dl)
+else()
+    target_link_libraries(
+        llplugin
+        PUBLIC
+        llcommon
+        )
+endif()
 
 add_subdirectory(slplugin)
 

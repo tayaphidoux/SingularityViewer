@@ -42,6 +42,7 @@
       <text bottom_delta="-18" left="10" follows="top" name="date_format_text_box">Date format:</text>
       <combo_box bottom_delta="-5" left="90" follows="top" height="18" name="date_format_combobox" width="130">
         <combo_item name="year_first" value="default">YYYY-MM-DD</combo_item>
+        <combo_item name="year_first_slashes" value="default">YYYY/MM/DD</combo_item>
         <combo_item name="day_first" value="default">DD/MM/YYYY</combo_item>
         <combo_item name="month_first" value="default">MM/DD/YYYY</combo_item>
       </combo_box>

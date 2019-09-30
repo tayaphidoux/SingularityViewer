@@ -152,7 +152,7 @@
     </layout_panel>
     <layout_panel name="panelweb" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleWeb">
       <button sound_flags="0" bottom="0" height="24" label="Web Browser" name="web_browser_btn" image_overlay="icn_toolbar_web.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" width="50" follows="left|right">
-        <button.commit_callback function="ShowFloater" parameter="web"/>
+        <button.commit_callback function="ShowWebFloater" parameter="dict web"/>
       </button>
     </layout_panel>
     <layout_panel name="panelao" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleAO">
@@ -399,17 +399,27 @@
     </layout_panel>
     <layout_panel name="paneloutfits" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleInventoryOutfits">
       <button sound_flags="0" bottom="0" height="24" label="Outfits" image_overlay="icn_toolbar_outfits.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="outfits_btn" width="50" follows="left|right">
-        <button.commit_callback function="ShowInvFloater.Name" parameter="My Outfits"/>
+        <button.commit_callback function="ShowInvFloater.Type" parameter="my_otfts"/>
       </button>
     </layout_panel>
     <layout_panel name="panelfavs" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleInventoryFavs">
       <button sound_flags="0" bottom="0" height="24" label="Favorites" image_overlay="icn_toolbar_favorites.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="favs_btn" width="50" follows="left|right">
-        <button.commit_callback function="ShowInvFloater.Name" parameter="Favorites"/>
+        <button.commit_callback function="ShowInvFloater.Type" parameter="favorite"/>
+      </button>
+    </layout_panel>
+    <layout_panel name="panelreceiveditems" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleInventoryReceivedItems">
+      <button sound_flags="0" bottom="0" height="24" label="Received Items" image_overlay="icn_toolbar_received_items.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="received_items_btn" width="50" follows="left|right">
+        <button.commit_callback function="ShowInvFloater.Type" parameter="inbox"/>
       </button>
     </layout_panel>
     <layout_panel name="panelmarketplacelistings" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleMarketplaceListings">
       <button sound_flags="0" bottom="0" height="24" label="Market Listings" image_overlay="icn_toolbar_marketplace_listings.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" name="marketplace_listings_btn" width="50" follows="left|right">
         <button.commit_callback function="ShowFloater" parameter="marketplace_listings"/>
+      </button>
+    </layout_panel>
+    <layout_panel name="panelmarketplace" height="24" width="50" user_resize="false" visibility_control="ToolbarVisibleMarketplace">
+      <button sound_flags="0" bottom="0" height="24" label="Marketplace" name="marketplace_btn" image_overlay="icn_toolbar_marketplace.tga" image_overlay_alignment="left" image_selected="toolbar_btn_selected.tga" image_unselected="toolbar_btn_enabled.tga" image_disabled="toolbar_btn_disabled.tga" scale_image="true" width="50" follows="left|right">
+        <button.commit_callback function="ShowWebFloater" parameter="marketplace"/>
       </button>
     </layout_panel>
     <layout_panel name="panelpreferences" height="24" width="50" user_resize="false" visibility_control="ToolbarVisiblePreferences">

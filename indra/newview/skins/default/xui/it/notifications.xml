@@ -2602,10 +2602,6 @@ Prova a selezionare una parte di terreno più piccola.
 		Usa lo stesso tasto per disattivare la gesture:
 [NAMES]
 	</notification>
-	<notification name="NoQuickTime">
-		Il software Apple QuickTime sembra non essere installato nel tuo sistema.
-Se desideri visualizzare il video streaming nei terreni supportati si consiglia di andare sul sito di QuickTime (http://www.apple.com/quicktime) e procedere con l&apos;installazione di QuickTime Player.
-	</notification>
 	<notification name="OwnedObjectsReturned">
 		Gli oggetti che possiedi sul terreno selezionato ti sono stati restituiti nell&apos;inventario.
 	</notification>

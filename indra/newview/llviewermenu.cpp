@@ -63,6 +63,7 @@
 #include "lldebugview.h"
 #include "llenvmanager.h"
 #include "llfirstuse.h"
+#include "llfloateravatarlist.h"
 #include "llfloateravatartextures.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
@@ -8988,6 +8989,37 @@ class VisibleInvFloaterType : public view_listener_t
 	}
 };
 
+void show_web_floater(const std::string& type)
+{
+	auto p = LLFloaterWebContent::Params();
+	if (!type.empty()) p.id = type;
+	if (type == "marketplace")
+	{
+		if (gHippoGridManager->getConnectedGrid()->isSecondLife())
+			p.url = "https://marketplace.secondlife.com";
+		else if (LLViewerRegion* region = gAgent.getRegion())
+		{
+			LLSD info;
+			region->getSimulatorFeatures(info);
+			p.url = info["MarketplaceURL"];
+		}
+	}
+	else if (!type.empty() && type != "dict web")
+	{
+		p.url = type; // Simple web floaters with direct urls
+	}
+	LLFloaterWebContent::showInstance(type, p);
+}
+
+class ShowWebFloater : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		show_web_floater(userdata.asStringRef());
+		return true;
+	}
+};
+
 class VisibleSecondLife : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9006,30 +9038,36 @@ class VisibleNotSecondLife : public view_listener_t
 	}
 };
 
-LLScrollListCtrl* get_focused_list()
+template<typename T> T* get_focused()
 {
-	LLScrollListCtrl* list = dynamic_cast<LLScrollListCtrl*>(gFocusMgr.getKeyboardFocus());
-	llassert(list); // This listener only applies to lists
-	return list;
+	T* t =
+#ifdef SHOW_ASSERT
+		dynamic_cast<T*>
+#else
+		static_cast<T*>
+#endif
+		(gFocusMgr.getKeyboardFocus());
+	llassert(t); // This listener only applies to T
+	return t;
 }
 
 S32 get_focused_list_num_selected()
 {
-	if (LLScrollListCtrl* list = get_focused_list())
+	if (auto list = get_focused<LLScrollListCtrl>())
 		return list->getNumSelected();
 	return 0;
 }
 
 const LLUUID get_focused_list_id_selected()
 {
-	if (LLScrollListCtrl* list = get_focused_list())
+	if (auto list = get_focused<LLScrollListCtrl>())
 		return list->getStringUUIDSelectedItem();
 	return LLUUID::null;
 }
 
 const uuid_vec_t get_focused_list_ids_selected()
 {
-	if (LLScrollListCtrl* list = get_focused_list())
+	if (auto list = get_focused<LLScrollListCtrl>())
 		return list->getSelectedIDs();
 	return uuid_vec_t();
 }
@@ -9077,7 +9115,7 @@ class ListEnableCall : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLScrollListCtrl* list = get_focused_list();
+		auto list = get_focused<LLScrollListCtrl>();
 		if (!list) return false;
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(LLAvatarActions::canCall());
 		return true;
@@ -9224,11 +9262,16 @@ class ListShare : public view_listener_t
 	}
 };
 
+bool can_show_web_profile()
+{
+	return !gSavedSettings.getString("WebProfileURL").empty();
+}
+
+void show_log_browser(const LLUUID& id);
 class ListShowLog : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		void show_log_browser(const LLUUID& id);
 		for (const LLUUID& id : get_focused_list_ids_selected())
 			show_log_browser(id);
 		return true;
@@ -9316,24 +9359,50 @@ void parcel_mod_notice_callback(const uuid_vec_t& ids, S32 choice, boost::functi
 		cb(*it, choice);
 }
 
+bool is_nearby(const LLUUID& id);
+class ListIsNearby : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(is_nearby(get_focused_list_id_selected()));
+		return true;
+	}
+};
+
+void track_av(const LLUUID& id);
+class ListTrack : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		track_av(get_focused_list_id_selected());
+		return true;
+	}
+};
+
 void send_eject(const LLUUID& avatar_id, bool ban);
+void confirm_eject(const uuid_vec_t& ids)
+{
+	LLNotificationsUtil::add("EjectAvatarFullname", create_args(ids, "AVATAR_NAME"), LLSD(), boost::bind(parcel_mod_notice_callback, ids, boost::bind(LLNotificationsUtil::getSelectedOption, _1, _2), send_eject));
+}
 class ListEject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const uuid_vec_t& ids = get_focused_list_ids_selected();
-		LLNotificationsUtil::add("EjectAvatarFullname", create_args(ids, "AVATAR_NAME"), LLSD(), boost::bind(parcel_mod_notice_callback, ids, boost::bind(LLNotificationsUtil::getSelectedOption, _1, _2), send_eject));
+		confirm_eject(get_focused_list_ids_selected());
 		return true;
 	}
 };
 
 void send_freeze(const LLUUID& avatar_id, bool freeze);
+void confirm_freeze(const uuid_vec_t& ids)
+{
+	LLNotificationsUtil::add("FreezeAvatarFullname", create_args(ids, "AVATAR_NAME"), LLSD(), boost::bind(parcel_mod_notice_callback, ids, boost::bind(LLNotificationsUtil::getSelectedOption, _1, _2), send_freeze));
+}
 class ListFreeze : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const uuid_vec_t& ids = get_focused_list_ids_selected();
-		LLNotificationsUtil::add("FreezeAvatarFullname", create_args(ids, "AVATAR_NAME"), LLSD(), boost::bind(parcel_mod_notice_callback, ids, boost::bind(LLNotificationsUtil::getSelectedOption, _1, _2), send_freeze));
+		confirm_freeze(get_focused_list_ids_selected());
 		return true;
 	}
 };
@@ -9359,27 +9428,33 @@ void estate_bulk_eject(const uuid_vec_t& ids, bool ban, S32 option)
 		else
 			strings.push_back(idstr);
 		if (ban)
-			LLPanelEstateInfo::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, id);
+			LLPanelEstateAccess::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, id);
 	}
 	if (!tphome) send_estate_message("kickestate", strings);
 }
 
+void confirm_estate_ban(const uuid_vec_t& ids)
+{
+	LLNotificationsUtil::add("EstateBanUser", create_args(ids, "EVIL_USER"), LLSD(), boost::bind(estate_bulk_eject, ids, true, boost::bind(LLNotificationsUtil::getSelectedOption, _1, _2)));
+}
 class ListEstateBan : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const uuid_vec_t& ids = get_focused_list_ids_selected();
-		LLNotificationsUtil::add("EstateBanUser", create_args(ids, "EVIL_USER"), LLSD(), boost::bind(estate_bulk_eject, ids, true, boost::bind(LLNotificationsUtil::getSelectedOption, _1, _2)));
+		confirm_estate_ban(get_focused_list_ids_selected());
 		return true;
 	}
 };
 
+void confirm_estate_kick(const uuid_vec_t& ids)
+{
+	LLNotificationsUtil::add("EstateKickUser", create_args(ids, "EVIL_USER"), LLSD(), boost::bind(estate_bulk_eject, ids, false, boost::bind(LLNotificationsUtil::getSelectedOption, _1, _2)));
+}
 class ListEstateEject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const uuid_vec_t& ids = get_focused_list_ids_selected();
-		LLNotificationsUtil::add("EstateKickUser", create_args(ids, "EVIL_USER"), LLSD(), boost::bind(estate_bulk_eject, ids, false, boost::bind(LLNotificationsUtil::getSelectedOption, _1, _2)));
+		confirm_estate_kick(get_focused_list_ids_selected());
 		return true;
 	}
 };
@@ -9395,18 +9470,73 @@ class ListToggleMute : public view_listener_t
 	}
 };
 
-LLMediaCtrl* get_focused_media_ctrl()
+struct MenuSLURLDict : public LLSingleton<MenuSLURLDict>
 {
-	auto media_ctrl = dynamic_cast<LLMediaCtrl*>(gFocusMgr.getKeyboardFocus());
-	llassert(media_ctrl); // This listener only applies to media_ctrls
-	return media_ctrl;
-}
+	typedef std::function<void (const LLUUID&)> cb;
+	typedef std::function<bool (const LLUUID&)> vcb;
+	typedef std::map<std::string, std::pair<cb, vcb>> slurl_menu_map;
+	slurl_menu_map mEntries;
+	MenuSLURLDict()
+	{
+		// Text Editor menus
+		LLTextEditor::setIsObjectBlockedCallback(boost::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
+		LLTextEditor::setIsFriendCallback(LLAvatarActions::isFriend);
+		LLTextEditor::addMenuListeners(boost::bind(&MenuSLURLDict::action, this, _1, _2), boost::bind(&MenuSLURLDict::visible, this, _1, _2));
+
+		// Add the entries
+		insert("ShowWebProfile", boost::bind(LLAvatarActions::showProfile, _1, true), boost::bind(can_show_web_profile));
+		insert("Pay", LLAvatarActions::pay);
+		insert("Call", LLAvatarActions::startCall);
+		insert("Share", LLAvatarActions::share);
+		insert("AbuseReport", LLFloaterReporter::showFromObject);
+		insert("InviteToGroup", [](const LLUUID& id) { LLAvatarActions::inviteToGroup(id); });
+		insert("BanFromGroup", [](const LLUUID& id) { ban_from_group(uuid_vec_t(1, id)); });
+		insert("ShowLog", [](const LLUUID& id) { show_log_browser(id); });
+		insert("OfferTeleport", [](const LLUUID& id) { LLAvatarActions::offerTeleport(id); }, [](const LLUUID& id) { return LLAvatarActions::canOfferTeleport(id); });
+		insert("RequestTeleport", LLAvatarActions::teleportRequest);
+		void teleport_to(const LLUUID& id);
+		insert("TeleportTo", teleport_to, is_nearby);
+		insert("Focus", LLFloaterAvatarList::setFocusAvatar, is_nearby);
+		insert("ParcelEject", [](const LLUUID& id) { confirm_eject(uuid_vec_t(1, id)); }, is_nearby);
+		insert("Freeze", [](const LLUUID& id) { confirm_freeze(uuid_vec_t(1, id)); }, is_nearby);
+		insert("EstateBan", [](const LLUUID& id) { confirm_estate_ban(uuid_vec_t(1, id)); }, is_nearby);
+		insert("EstateEject", [](const LLUUID & id) { confirm_estate_kick(uuid_vec_t(1, id)); }, is_nearby);
+		insert("Mute", LLAvatarActions::toggleBlock, [](const LLUUID& id) { return LLAvatarActions::canBlock(id) && !LLAvatarActions::isBlocked(id); });
+		insert("Unmute", LLAvatarActions::toggleBlock, LLAvatarActions::isBlocked);
+	}
+
+	void insert(const std::string& key, cb callback, vcb vcallback = nullptr)
+	{
+		mEntries[key] = std::make_pair(callback, vcallback);
+	}
+
+	void action(const std::string& cmd, LLUUID id) const
+	{
+		auto it = mEntries.find(cmd);
+		if (it != mEntries.end())
+			(*it).second.first(id);
+	}
+	bool visible(const std::string& cmd, LLUUID id) const
+	{
+		auto it = mEntries.find(cmd);
+		return it == mEntries.end() || !(*it).second.second || (*it).second.second(id);
+	}
+};
+
+class MediaCtrlCopyURL : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		get_focused<LLMediaCtrl>()->onCopyURL();
+		return true;
+	}
+};
 
 class MediaCtrlWebInspector : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		get_focused_media_ctrl()->onOpenWebInspector();
+		get_focused<LLMediaCtrl>()->onOpenWebInspector();
 		return true;
 	}
 };
@@ -9415,7 +9545,7 @@ class MediaCtrlViewSource : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		get_focused_media_ctrl()->onShowSource();
+		get_focused<LLMediaCtrl>()->onShowSource();
 		return true;
 	}
 };
@@ -9727,6 +9857,8 @@ void initialize_menus()
 	addMenu(new VisibleInvFloaterName, "InvFloaterVisible.Name");
 	addMenu(new VisibleInvFloaterType, "InvFloaterVisible.Type");
 
+	addMenu(new ShowWebFloater, "ShowWebFloater");
+
 // [RLVa:KB] - Checked: 2010-01-18 (RLVa-1.1.0m) | Added: RLVa-1.1.0m | OK
 	if (rlv_handler_t::isEnabled())
 	{
@@ -9765,6 +9897,8 @@ void initialize_menus()
 	addMenu(new ListStartConference(), "List.StartConference");
 	addMenu(new ListStartIM(), "List.StartIM");
 	addMenu(new ListAbuseReport(), "List.AbuseReport");
+	addMenu(new ListIsNearby, "List.IsNearby");
+	addMenu(new ListTrack, "List.Track");
 	addMenu(new ListEject(), "List.ParcelEject");
 	addMenu(new ListFreeze(), "List.Freeze");
 	addMenu(new ListEstateBan(), "List.EstateBan");
@@ -9773,12 +9907,10 @@ void initialize_menus()
 
 	add_radar_listeners();
 
-	// Text Editor menus
-	LLTextEditor::setIsObjectBlockedCallback(boost::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
-	LLTextEditor::setIsFriendCallback(LLAvatarActions::isFriend);
-	LLTextEditor::addMenuListeners();
+	MenuSLURLDict::getInstance();
 
 	// Media Ctrl menus
+	addMenu(new MediaCtrlCopyURL(), "Copy.PageURL");
 	addMenu(new MediaCtrlWebInspector(), "Open.WebInspector");
 	addMenu(new MediaCtrlViewSource(), "Open.ViewSource");
 

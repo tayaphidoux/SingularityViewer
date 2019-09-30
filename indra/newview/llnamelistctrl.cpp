@@ -33,6 +33,8 @@
 #include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "llagent.h"
+#include "llavataractions.h"
+#include "llgroupactions.h"
 #include "llinventory.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcolumn.h"
@@ -42,11 +44,11 @@
 static LLRegisterWidget<LLNameListCtrl> r("name_list");
 
 
-void LLNameListCtrl::NameTypeNames::declareValues()
+void LLNameListItem::NameTypeNames::declareValues()
 {
-	declare("INDIVIDUAL", LLNameListCtrl::INDIVIDUAL);
-	declare("GROUP", LLNameListCtrl::GROUP);
-	declare("SPECIAL", LLNameListCtrl::SPECIAL);
+	declare("INDIVIDUAL", INDIVIDUAL);
+	declare("GROUP", GROUP);
+	declare("SPECIAL", SPECIAL);
 }
 
 LLNameListCtrl::LLNameListCtrl(const std::string& name, const LLRect& rect, BOOL allow_multiple_selection, BOOL draw_border, bool draw_heading, S32 name_column_index, const std::string& name_system, const std::string& tooltip)
@@ -61,16 +63,16 @@ LLNameListCtrl::LLNameListCtrl(const std::string& name, const LLRect& rect, BOOL
 
 // public
 LLScrollListItem* LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
-								 BOOL enabled, const std::string& suffix)
+								 BOOL enabled, const std::string& suffix, const std::string& prefix)
 {
 	//LL_INFOS() << "LLNameListCtrl::addNameItem " << agent_id << LL_ENDL;
 
 	NameItem item;
 	item.value = agent_id;
 	item.enabled = enabled;
-	item.target = INDIVIDUAL;
+	item.target = LLNameListItem::INDIVIDUAL;
 	
-	return addNameItemRow(item, pos, suffix);
+	return addNameItemRow(item, pos, suffix, prefix);
 }
 
 // virtual, public
@@ -121,6 +123,24 @@ BOOL LLNameListCtrl::handleDragAndDrop(
 	return handled;
 }
 
+BOOL LLNameListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	bool handled = LLScrollListCtrl::handleDoubleClick(x, y, mask);
+	if (!handled)
+	{
+		if (auto item = static_cast<LLNameListItem*>(hitItem(x, y)))
+		{
+			switch (item->getNameType())
+			{
+				case LLNameListItem::INDIVIDUAL: LLAvatarActions::showProfile(item->getValue()); break;
+				case LLNameListItem::GROUP: LLGroupActions::show(item->getValue()); break;
+				default: return false;
+			}
+			handled = true;
+		}
+	}
+	return handled;
+}
 
 // public
 void LLNameListCtrl::addGroupNameItem(const LLUUID& group_id, EAddPosition pos,
@@ -129,7 +149,7 @@ void LLNameListCtrl::addGroupNameItem(const LLUUID& group_id, EAddPosition pos,
 	NameItem item;
 	item.value = group_id;
 	item.enabled = enabled;
-	item.target = GROUP;
+	item.target = LLNameListItem::GROUP;
 
 	addNameItemRow(item, pos);
 }
@@ -137,13 +157,13 @@ void LLNameListCtrl::addGroupNameItem(const LLUUID& group_id, EAddPosition pos,
 // public
 void LLNameListCtrl::addGroupNameItem(LLNameListCtrl::NameItem& item, EAddPosition pos)
 {
-	item.target = GROUP;
+	item.target = LLNameListItem::GROUP;
 	addNameItemRow(item, pos);
 }
 
 LLScrollListItem* LLNameListCtrl::addNameItem(LLNameListCtrl::NameItem& item, EAddPosition pos)
 {
-	item.target = INDIVIDUAL;
+	item.target = LLNameListItem::INDIVIDUAL;
 	return addNameItemRow(item, pos);
 }
 
@@ -160,10 +180,11 @@ LLScrollListItem* LLNameListCtrl::addElement(const LLSD& element, EAddPosition p
 LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	const LLNameListCtrl::NameItem& name_item,
 	EAddPosition pos,
-	const std::string& suffix)
+	const std::string& suffix,
+	const std::string& prefix)
 {
 	LLUUID id = name_item.value().asUUID();
-	LLNameListItem* item = new LLNameListItem(name_item,name_item.target() == GROUP);
+	LLNameListItem* item = new LLNameListItem(name_item);
 
 	if (!item) return NULL;
 
@@ -173,14 +194,25 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	std::string fullname = name_item.name;
 	switch(name_item.target)
 	{
-	case GROUP:
-		gCacheName->getGroupName(id, fullname);
-		// fullname will be "nobody" if group not found
+	case LLNameListItem::GROUP:
+		if (!gCacheName->getGroupName(id, fullname))
+		{
+			avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(id);
+			if (it != mAvatarNameCacheConnections.end())
+			{
+				if (it->second.connected())
+				{
+					it->second.disconnect();
+				}
+				mAvatarNameCacheConnections.erase(it);
+			}
+			mAvatarNameCacheConnections[id] = gCacheName->getGroup(id, boost::bind(&LLNameListCtrl::onGroupNameCache, this, _1, _2, item->getHandle()));
+		}
 		break;
-	case SPECIAL:
+	case LLNameListItem::SPECIAL:
 		// just use supplied name
 		break;
-	case INDIVIDUAL:
+	case LLNameListItem::INDIVIDUAL:
 	{
 		LLAvatarName av_name;
 		if (id.isNull())
@@ -203,12 +235,12 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 				}
 				mAvatarNameCacheConnections.erase(it);
 			}
-			mAvatarNameCacheConnections[id] = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, suffix, item->getHandle()));
+			mAvatarNameCacheConnections[id] = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, suffix, prefix, item->getHandle()));
 
 			if (mPendingLookupsRemaining <= 0)
 			{
 				// BAKER TODO:
-				// We might get into a state where mPendingLookupsRemainig might
+				// We might get into a state where mPendingLookupsRemaining might
 				//	go negative.  So just reset it right now and figure out if it's
 				//	possible later :)
 				mPendingLookupsRemaining = 0;
@@ -231,7 +263,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	LLScrollListCell* cell = item->getColumn(mNameColumnIndex);
 	if (cell)
 	{
-		cell->setValue(fullname);
+		cell->setValue(prefix + fullname);
 	}
 
 	dirtyColumns();
@@ -271,9 +303,24 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 	}
 }
 
+// public
+LLScrollListItem* LLNameListCtrl::getNameItemByAgentId(const LLUUID& agent_id)
+{
+	for (item_list::iterator it = getItemList().begin(); it != getItemList().end(); it++)
+	{
+		LLScrollListItem* item = *it;
+		if (item && item->getUUID() == agent_id)
+		{
+			return item;
+		}
+	}
+	return NULL;
+}
+
 void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
 									   std::string suffix,
+									   std::string prefix,
 									   LLHandle<LLNameListItem> item)
 {
 	avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(agent_id);
@@ -293,6 +340,11 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 	if (!suffix.empty())
 	{
 		name.append(suffix);
+	}
+
+	if (!prefix.empty())
+	{
+	    name.insert(0, prefix);
 	}
 
 	LLNameListItem* list_item = item.get();
@@ -325,6 +377,33 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 
 	dirtyColumns();
 }
+
+void LLNameListCtrl::onGroupNameCache(const LLUUID& group_id, const std::string name, LLHandle<LLNameListItem> item)
+{
+	avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(group_id);
+	if (it != mAvatarNameCacheConnections.end())
+	{
+		if (it->second.connected())
+		{
+			it->second.disconnect();
+		}
+		mAvatarNameCacheConnections.erase(it);
+	}
+
+	LLNameListItem* list_item = item.get();
+	if (list_item && list_item->getUUID() == group_id)
+	{
+		LLScrollListCell* cell = list_item->getColumn(mNameColumnIndex);
+		if (cell)
+		{
+			cell->setValue(name);
+			setNeedsSort();
+		}
+	}
+
+	dirtyColumns();
+}
+
 
 void LLNameListCtrl::sortByName(BOOL ascending)
 {

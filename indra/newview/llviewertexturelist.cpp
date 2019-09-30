@@ -120,6 +120,7 @@ void LLViewerTextureList::doPreloadImages()
 	llassert_always(mInitialized) ;
 	llassert_always(mImageList.empty()) ;
 	llassert_always(mUUIDMap.empty()) ;
+	llassert_always(mUUIDDict.empty());
 
 	// Set the "missing asset" image
 	LLViewerFetchedTexture::sMissingAssetImagep = LLViewerTextureManager::getFetchedTextureFromFile("missing_asset.tga", FTT_LOCAL_FILE, MIPMAP_NO, LLViewerFetchedTexture::BOOST_UI);
@@ -602,7 +603,7 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id)
 {
 	// Singu note: Reworked hotspot
-	auto& iter = mUUIDDict.find(image_id);
+	const auto& iter = mUUIDDict.find(image_id);
 	if(iter == mUUIDDict.end())
 		return NULL;
 	return iter->second;
@@ -650,7 +651,7 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 			<< " but doesn't have mInImageList set"
 			<< " ref count is " << image->getNumRefs()
 			<< LL_ENDL;
-		auto& iter = mUUIDDict.find(image->getID());
+		const auto& iter = mUUIDDict.find(image->getID());
 		if(iter == mUUIDDict.end())
 		{
 			LL_INFOS() << "Image  " << image->getID() << " is also not in mUUIDMap!" << LL_ENDL ;
@@ -692,8 +693,12 @@ void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image)
 	sNumImages++;
 	
 	addImageToList(new_image);
-	mUUIDMap.emplace(image_id, new_image);
-	mUUIDDict.emplace(image_id, new_image);
+	auto ret_pair = mUUIDMap.emplace(image_id, new_image);
+	if (!ret_pair.second)
+	{
+		ret_pair.first->second = new_image;
+	}
+	mUUIDDict.insert_or_assign(image_id, new_image);
 }
 
 

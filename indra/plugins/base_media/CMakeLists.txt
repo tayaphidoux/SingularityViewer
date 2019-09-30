@@ -57,5 +57,7 @@ add_library(media_plugin_base
 )
 
 target_link_libraries(media_plugin_base
+    PUBLIC
+    llcommon
 	${BASIC_PLUGIN_BASE_LIBRARIES}
 )

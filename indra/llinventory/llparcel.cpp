@@ -803,7 +803,7 @@ void LLParcel::expirePasses(S32 now)
         
         if (entry.mTime != 0 && entry.mTime < now)
         {
-            mAccessList.erase(itor++);
+            itor = mAccessList.erase(itor);
         }
         else
         {
@@ -894,7 +894,7 @@ BOOL LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
 		{
 			if (time == 0 || (entry.mTime != 0 && entry.mTime < time))
 			{
-				mAccessList.erase(itor++);
+				itor = mAccessList.erase(itor);
 			}
 			else
 			{
@@ -937,15 +937,18 @@ BOOL LLParcel::addToBanList(const LLUUID& agent_id, S32 time)
         const LLAccessEntry& entry = (*itor).second;
         if (entry.mID == agent_id)
         {
-            if (time == 0 || (entry.mTime != 0 && entry.mTime < time))
+			// Singu Note: Allow amending ban time to be less without needing to remove
+            //if (time == 0 || (entry.mTime != 0 && entry.mTime < time))
             {
-                mBanList.erase(itor++);
+                itor = mBanList.erase(itor);
             }
+#if 0
             else
             {
                 // existing one expires later
                 return FALSE;
             }
+#endif
         }
         else
         {
@@ -973,7 +976,7 @@ BOOL remove_from_access_array(std::map<LLUUID,LLAccessEntry>* list,
         const LLAccessEntry& entry = (*itor).second;
         if (entry.mID == agent_id)
         {
-            list->erase(itor++);
+            itor = list->erase(itor);
             removed = TRUE;
         }
         else

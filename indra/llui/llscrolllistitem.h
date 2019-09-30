@@ -71,6 +71,9 @@ public:
 	void	setEnabled( BOOL b )			{ mEnabled = b; }
 	BOOL	getEnabled() const 				{ return mEnabled; }
 
+	void	setFiltered(bool b)				{ if (mFiltered = b) mSelected = false; }
+	bool	getFiltered() const				{ return mFiltered; }
+
 	void	setUserdata( void* userdata )	{ mUserdata = userdata; }
 	void*	getUserdata() const 			{ return mUserdata; }
 
@@ -100,6 +103,7 @@ protected:
 private:
 	BOOL	mSelected;
 	BOOL	mEnabled;
+	bool	mFiltered;
 	void*	mUserdata;
 	LLSD	mItemValue;
 	std::vector<LLScrollListCell *> mColumns;

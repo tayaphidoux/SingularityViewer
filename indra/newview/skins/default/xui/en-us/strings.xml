@@ -72,6 +72,83 @@ Make sure you entered the correct Login URI. An example of a Login URI is: \"htt
 
 	<string name="LoginFailed">Login failed.</string>
 	<string name="Quit">Quit</string>
+	<string name="LoginFailedViewerNotPermitted">
+The viewer you are using can no longer access Second Life. Please visit the following page to download a new viewer:
+http://secondlife.com/download
+
+For more information, see our FAQ below:
+http://secondlife.com/viewer-access-faq</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">Optional viewer update available: [VERSION]</string>
+	<string name="LoginFailedRequiredUpdate">Required viewer update: [VERSION]</string>
+	<string name="LoginFailedAlreadyLoggedIn">This agent is already logged in.
+</string>
+	<string name="LoginFailedAuthenticationFailed">Sorry! We couldn't log you in.
+Please check to make sure you entered the right
+    * Username (like bobsmith12 or steller.sunshine)
+    * Password
+Also, please make sure your Caps Lock key is off.</string>
+	<string name="LoginFailedPasswordChanged">As a security precaution your password has been changed.
+Please go to your account page at http://secondlife.com/password
+and answer the security question to reset your password.
+We are very sorry for the inconvenience.</string>
+	<string name="LoginFailedPasswordReset">We made some changes to our system and you will need to reset your password.
+Please go to your account page at http://secondlife.com/password
+and answer the security question to reset your password.
+We are very sorry for the inconvenience.</string>
+	<string name="LoginFailedEmployeesOnly">Second Life is temporarily closed for maintenance.
+Logins are currently restricted to employees only.
+Check www.secondlife.com/status for updates.</string>
+	<string name="LoginFailedPremiumOnly">Second Life logins are temporarily restricted in order to make sure that those in-world have the best possible experience.
+
+People with free accounts will not be able to access Second Life during this time, to make room for those who have paid for Second Life.</string>
+	<string name="LoginFailedComputerProhibited">Second Life cannot be accessed from this computer.
+If you feel this is an error, please contact
+support@secondlife.com.</string>
+	<string name="LoginFailedAcountSuspended">Your account is not accessible until
+[TIME] Pacific Time.</string>
+	<string name="LoginFailedAccountDisabled">We are unable to complete your request at this time.
+Please contact Second Life support for assistance at http://secondlife.com/support.
+If you are unable to change your password, please call (866) 476-9763.</string>
+	<string name="LoginFailedTransformError">Data inconsistency found during login.
+Please contact support@secondlife.com.</string>
+	<string name="LoginFailedAccountMaintenance">Your account is undergoing minor maintenance.
+Your account is not accessible until
+[TIME] Pacific Time.
+If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LoginFailedPendingLogoutFault">Request for logout responded with a fault from simulator.</string>
+	<string name="LoginFailedPendingLogout">The system is logging you out right now.
+Your Account will not be available until
+[TIME] Pacific Time.</string>
+	<string name="LoginFailedUnableToCreateSession">Unable to create valid session.</string>
+	<string name="LoginFailedUnableToConnectToSimulator">Unable to connect to a simulator.</string>
+	<string name="LoginFailedRestrictedHours">Your account can only access Second Life
+between [START] and [END] Pacific Time.
+Please come back during those hours.
+If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LoginFailedIncorrectParameters">Incorrect parameters.
+If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">First name parameter must be alphanumeric.
+If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">Last name parameter must be alphanumeric.
+If you feel this is an error, please contact support@secondlife.com.</string>
+	<string name="LogoutFailedRegionGoingOffline">Region is going offline.
+Please try logging in again in a minute.</string>
+	<string name="LogoutFailedAgentNotInRegion">Agent not in region.
+Please try logging in again in a minute.</string>
+	<string name="LogoutFailedPendingLogin">The region was logging in another session.
+Please try logging in again in a minute.</string>
+	<string name="LogoutFailedLoggingOut">The region was logging out the previous session.
+Please try logging in again in a minute.</string>
+	<string name="LogoutFailedStillLoggingOut">The region is still logging out the previous session.
+Please try logging in again in a minute.</string>
+	<string name="LogoutSucceeded">Region has logged out last session.
+Please try logging in again in a minute.</string>
+	<string name="LogoutFailedLogoutBegun">Region has begun the logout process.
+Please try logging in again in a minute.</string>
+	<string name="LoginFailedLoggingOutSession">The system has begun logging out your last session.
+Please try logging in again in a minute.</string>
+
+	<string name="ViewerDownloadURL">https://www.singularityviewer.org/</string>
 
 	<!-- Disconnection -->
 	<string name="AgentLostConnection">This region may be experiencing trouble.  Please check your connection to the Internet.</string>
@@ -212,6 +289,15 @@ Make sure you entered the correct Login URI. An example of a Login URI is: \"htt
 	<string name="AssetErrorCircuitGone">Circuit gone</string>
 	<string name="AssetErrorPriceMismatch">Viewer and server do not agree on price</string>
 	<string name="AssetErrorUnknownStatus">Unknown status</string>
+
+	<!-- Asset upload errors. -->
+	<string name="AssetUploadServerUnreacheble">Service unreachable.</string>
+	<string name="AssetUploadServerDifficulties">The server is experiencing unexpected difficulties.</string>
+	<string name="AssetUploadServerUnavaliable">Service not available or upload timeout was reached.</string>
+	<string name="AssetUploadRequestInvalid">
+Error in upload request.  Please visit 
+http://secondlife.com/support for help fixing this problem.
+</string>
 
 	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
 	<!-- Will also replace [OBJECTTYPE] in notifications: UserGiveItem, ObjectGiveItem -->
@@ -356,6 +442,7 @@ Make sure you entered the correct Login URI. An example of a Login URI is: \"htt
 	<string name="hang_up">Disconnected from in-world Voice Chat</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].</string>
+	<string name="AdditionalPermissionsRequestHeader">If you allow access to your account, you will also be allowing the object to:</string>
 	<string name="ScriptTakeMoney">Take currency from you</string>
 	<string name="ActOnControlInputs">Act on your control inputs</string>
 	<string name="RemapControlInputs">Remap your control inputs</string>
@@ -371,6 +458,10 @@ Make sure you entered the correct Login URI. An example of a Login URI is: \"htt
   <string name="TeleportYourAgent">Teleport you</string>
 	<string name="ManageEstateSilently">Manage your estates silently</string>
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
+	<string name="ForceSitAvatar">Force your avatar to sit</string>
+	
+	<string name="NotConnected">Not Connected</string>
+	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
 	<string name="JoinAnExperience">Join an experience</string> <!-- not used -->
 	<string name="SilentlyManageEstateAccess">Suppress alerts when managing estate access lists</string>
 	<string name="OverrideYourAnimations">Replace your default animations</string>
@@ -1907,7 +1998,7 @@ Returns the number of sides of the specified linked prim.
 	</string>
 	<string name="LSLTipText_llGetUsername">
 string llGetUsername(key id)
-Returns the single-word username of an avatar, if the avatar is in the current region, otherwise the empty string.
+Returns the single-word username of an avatar, iff the avatar is in the current region, otherwise the empty string.
 	</string>
 	<string name="LSLTipText_llRequestUsername">
 key llRequestUsername(key id)
@@ -2160,6 +2251,73 @@ Returns the minimum multiplicative scale factor which can be used by llScaleByFa
   <string name="LSLTipText_llGetMaxScaleFactor" translate="false">
 float llGetMaxScaleFactor()
 Returns the maximum multiplicative scale factor which can be used by llScaleByFactor(); i.e. such that every prim in the linkset is &lt;=64m and the resulting linkset meets the linkability requirements
+  </string>
+  <string name="LSLTipText_llAgentInExperience" translate="false">
+integer llAgentInExperience(key agent)
+Returns a boolean (an integer) that is TRUE if the agent is in the experience and the experience can run in the current region.
+  </string>
+  <string name="LSLTipText_llGetExperienceDetails" translate="false">
+list llGetExperienceDetails(key experience_id)
+Returns a list of details about the experience. This list has 5 components: [string experience_name, key owner_id, key group_id, key experience_id, integer state, string state_message]
+
+If experience_id is NULL_KEY, then information about the script's experience is returned. In this situation, if the script isn't associated with an experience, an empty list is returned.
+  </string>
+  <string name="LSLTipText_llRequestExperiencePermissions" translate="false">
+llRequestExperiencePermissions(key agent, string name)
+agent is the agent to request permissions from; name is deprecated.
+This request is similar to llRequestPermissions with all the following permissions: PERMISSION_TAKE_CONTROLS, PERMISSION_TRIGGER_ANIMATION, PERMISSION_ATTACH, PERMISSION_TRACK_CAMERA, PERMISSION_CONTROL_CAMERA and PERMISSION_TELEPORT. However, unlike llRequestPermissions, the decision to allow or block the request is persistent and applies to all scripts using the experience grid-wide. 
+
+Subsequent calls to llRequestExperiencePermissions from scripts in the experience will receive the same response automatically with no user interaction. 
+
+Either experience_permissions or experience_permissions_denied will be generated in response to this call. If no response is given by the agent, the request will time out after at least 5 minutes. Multiple requests by the same script can be made during this time out though the script can only have permission for one agent at a time. 
+  </string>
+  <string name="LSLTipText_llReadKeyValue" translate="false">
+key llReadKeyValue(string k)
+Start an asynchronous transaction to read the value associated with the specified key and the specified experience.
+Returns a handle (a key) that can be used to identify the corresponding dataserver event to determine if this command succeeded or failed and the results.
+  </string>
+  <string name="LSLTipText_llCreateKeyValue" translate="false">
+key llCreateKeyValue(string k, string v)
+Start an asynchronous transaction to create a key-value pair associated with the given experience key using the given key and value.
+v is the value for the key-value pair. Maximum 2047 characters, or 4095 if using Mono.
+
+Returns a handle (a key) that can be used to identify the corresponding dataserver event to determine if this command succeeded or failed.
+  </string>
+  <string name="LSLTipText_llUpdateKeyValue" translate="false">
+key llUpdateKeyValue(string k, string v, integer checked, string original_value)
+Start an asynchronous transaction to update a key-value pair associated with the given experience key with the given key and value.
+If checked is TRUE, the update will only happen if original_value is the value in the key-value store.
+
+Returns a handle (a key) that can be used to identify the corresponding dataserver event to determine if this command succeeded or failed and the results.
+  </string>
+  <string name="LSLTipText_llDeleteKeyValue" translate="false">
+key llDeleteKeyValue(string k)
+Start an asynchronous transaction to delete a key-value pair associated with the given experience key with the given key.
+Returns a handle (a key) that can be used to identify the corresponding dataserver event to determine if this command succeeded or failed and the results.
+  </string>
+  <string name="LSLTipText_llDataSizeKeyValue" translate="false">
+key llDataSizeKeyValue()
+Start an asynchronous transaction to request the used and total amount of data allocated for the experience.
+
+Returns a handle (a key) that can be used to identify the corresponding dataserver event to determine if this command succeeded or failed and the results.
+  </string>
+  <string name="LSLTipText_llKeysKeyValue" translate="false">
+key llKeysKeyValue(integer first, integer count)
+Start an asynchronous transaction to request a number of keys.
+first is a zero-based index.
+
+Returns a handle (a key) that can be used to identify the corresponding dataserver event to determine if this command succeeded or failed.
+This function will attempt to retrieve the number of keys requested but may return less if there are not enough to fulfill the full amount requested or if the list is too large. The order keys are returned is not guaranteed but is stable between subsequent calls as long as no keys are added or removed.
+  </string>
+  <string name="LSLTipText_llKeyCountKeyValue" translate="false">
+key llKeyCountKeyValue()
+Start an asynchronous transaction to request the number of keys in the system.
+
+Returns a handle (a key) that can be used to identify the corresponding dataserver event to determine if this command succeeded or failed and the results.
+  </string>
+  <string name="LSLTipText_llGetExperienceErrorMessage" translate="false">
+string llGetExperienceErrorMessage(integer error)
+Returns a string describing the Experience LSL error constant passed or the string corresponding to error. Returns XP_ERROR_UNKNOWN_ERROR if the error is not a valid error code.
   </string>
 <!-- GOD FUNCTIONS -->
 	<string name="LSLTipText_llGodLikeRezObject">
@@ -3101,6 +3259,63 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<string name="AvatarSetNotBusy">Not Busy</string>
 	<string name="AvatarSetBusy">Busy</string>
 
+	<!-- Wearable Types -->
+	<string name="shape">Shape</string>
+	<string name="skin">Skin</string>
+	<string name="hair">Hair</string>
+	<string name="eyes">Eyes</string>
+	<string name="shirt">Shirt</string>
+	<string name="pants">Pants</string>
+	<string name="shoes">Shoes</string>
+	<string name="socks">Socks</string>
+	<string name="jacket">Jacket</string>
+	<string name="gloves">Gloves</string>
+	<string name="undershirt">Undershirt</string>
+	<string name="underpants">Underpants</string>
+	<string name="skirt">Skirt</string>
+	<string name="alpha">Alpha</string>
+	<string name="tattoo">Tattoo</string>
+  <string name="physics">Physics</string>
+  <string name="invalid">invalid</string>
+  <string name="none">none</string>
+  <string name="unknown">Unknown</string>
+
+  <!-- Not Worn Wearable Types -->
+	<string name="shirt_not_worn">Shirt not worn</string>
+	<string name="pants_not_worn">Pants not worn</string>
+	<string name="shoes_not_worn">Shoes not worn</string>
+	<string name="socks_not_worn">Socks not worn</string>
+	<string name="jacket_not_worn">Jacket not worn</string>
+	<string name="gloves_not_worn">Gloves not worn</string>
+	<string name="undershirt_not_worn">Undershirt not worn</string>
+	<string name="underpants_not_worn">Underpants not worn</string>
+	<string name="skirt_not_worn">Skirt not worn</string>
+	<string name="alpha_not_worn">Alpha not worn</string>
+	<string name="tattoo_not_worn">Tattoo not worn</string>
+  <string name="physics_not_worn">Physics not worn</string>
+	<string name="invalid_not_worn">invalid</string>
+
+	<!-- Create new wearable of the specified type -->
+	<string name="create_new_shape">Create new shape</string>
+	<string name="create_new_skin">Create new skin</string>
+	<string name="create_new_hair">Create new hair</string>
+	<string name="create_new_eyes">Create new eyes</string>
+	<string name="create_new_shirt">Create new shirt</string>
+	<string name="create_new_pants">Create new pants</string>
+	<string name="create_new_shoes">Create new shoes</string>
+	<string name="create_new_socks">Create new socks</string>
+	<string name="create_new_jacket">Create new jacket</string>
+	<string name="create_new_gloves">Create new gloves</string>
+	<string name="create_new_undershirt">Create new undershirt</string>
+	<string name="create_new_underpants">Create new underpants</string>
+	<string name="create_new_skirt">Create new skirt</string>
+	<string name="create_new_alpha">Create new alpha</string>
+	<string name="create_new_tattoo">Create new tattoo</string>
+  <string name="create_new_physics">Create new physics</string>
+	<string name="create_new_invalid">invalid</string>
+
+  <!-- Wearable List-->
+  <string name="NewWearable">New [WEARABLE_ITEM]</string>
 
 	<!-- Wearable Types -->
 	<string name="shape">Shape</string>
@@ -3394,6 +3609,7 @@ If you continue to receive this message, please contact Second Life support for 
 
 	<!-- compile queue-->
 	<string name="CompileQueueDownloadedCompiling">Downloaded, now compiling</string>
+	<string name="CompileQueueServiceUnavailable">Script compilation service not available</string>
 	<string name="CompileQueueScriptNotFound">Script not found on server.</string>
 	<string name="CompileQueueProblemDownloading">Problem downloading</string>
   <string name="CompileQueueProblemUploading">Sim lacking UpdateScriptTask capabilities. Unable to request recompile</string>
@@ -3401,6 +3617,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="CompileQueueInsufficientPermDownload">Insufficient permissions to download a script.</string>
 	<string name="CompileQueueInsufficientPermFor">Insufficient permissions for</string>
 	<string name="CompileQueueUnknownFailure">Unknown failure to download</string>
+	<string name="CompileNoExperiencePerm">Skipping script [SCRIPT] with Experience [EXPERIENCE].</string>
 	<string name="CompileQueueTitle">Recompilation Progress</string>
 	<string name="CompileQueueStart">recompile</string>
 	<string name="ResetQueueTitle">Reset Progress</string>
@@ -3409,12 +3626,16 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="RunQueueStart">set running</string>
 	<string name="NotRunQueueTitle">Set Not Running Progress</string>
 	<string name="NotRunQueueStart">set not running</string>
+	<string name="DeleteQueueTitle">Delete Progress</string>
+	<string name="DeleteQueueStart">deletion</string>
 
 	<!-- compile comment text-->
 	<string name="CompileSuccessful">Compile successful!</string>
 	<string name="CompileSuccessfulSaving">Compile successful, saving...</string>
 	<string name="SaveComplete">Save complete.</string>
+	<string name="UploadFailed">File upload failed: </string>
 	<string name="ObjectOutOfRange">Script (object out of range)</string>
+	<string name="ScriptWasDeleted">Script (deleted from inventory)</string>
 
 	<!-- god tools -->
 	<string name="GodToolsObjectOwnedBy">Object [OBJECT] owned by [OWNER]</string>
@@ -3427,6 +3648,10 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="NextStipendDay"       value="The next stipend day is " />
 	<string name="GroupIndividualShare" value="                      Group       Individual Share" />
 	<string name="GroupColumn"          value="                      Group" />
+	<string name="Balance">Balance</string>
+	<string name="Credits">Credits</string>
+	<string name="Debits">Debits</string>
+	<string name="Total">Total</string>
 	<string name="NoGroupDataFound">No group data found for group </string>
 
 	<!-- floater IM bonus_info: When a Linden with Admin/god status receives a new IM this displays the estate (Mainland vs. teen grid) of the source avatar.
@@ -3454,6 +3679,10 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="RegionInfoBannedResidents">Banned Residents: ([BANNEDAGENTS], max [MAXBANNED])</string>
 	<string name="RegionInfoListTypeAllowedAgents">Allowed Residents</string>
 	<string name="RegionInfoListTypeBannedAgents">Banned Residents</string>
+	<string name="RegionInfoAllEstates">all estates</string>
+	<string name="RegionInfoManagedEstates">managed estates</string>
+	<string name="RegionInfoThisEstate">this estate</string>
+	<string name="AndNMore">and [EXTRA_COUNT] more</string>
 
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>
@@ -3525,6 +3754,9 @@ If you continue to receive this message, please contact Second Life support for 
     <string name="ATTACH_GROIN">Groin</string>
     <string name="ATTACH_HIND_LFOOT">Left Hind Foot</string>
     <string name="ATTACH_HIND_RFOOT">Right Hind Foot</string>
+
+	<!-- script editor -->
+	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
 
 	<!-- panel contents -->
 	<string name="PanelContentsNewScript">New Script</string>
@@ -4410,12 +4642,15 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you [CURRENCY][AMOUNT] [REASON].</string>
+  <string name="paid_you_ldollars_gift">[NAME] paid you [CURRENCY][AMOUNT]: [REASON]</string>
   <string name="paid_you_ldollars_no_reason">[NAME] paid you [CURRENCY][AMOUNT].</string>
   <string name="you_paid_ldollars">You paid [NAME] [CURRENCY][AMOUNT] [REASON].</string>
+  <string name="you_paid_ldollars_gift">You paid [NAME] [CURRENCY][AMOUNT]: [REASON]</string>
   <string name="you_paid_ldollars_no_info">You paid [CURRENCY][AMOUNT].</string>
   <string name="you_paid_ldollars_no_reason">You paid [NAME] [CURRENCY][AMOUNT].</string>
   <string name="you_paid_ldollars_no_name">You paid [CURRENCY][AMOUNT] [REASON].</string>
   <string name="you_paid_failure_ldollars">You failed to pay [NAME] [CURRENCY][AMOUNT] [REASON].</string>
+  <string name="you_paid_failure_ldollars_gift">You failed to pay [NAME] [CURRENCY][AMOUNT]: [REASON]</string>
   <string name="you_paid_failure_ldollars_no_info">You failed to pay [CURRENCY][AMOUNT].</string>
   <string name="you_paid_failure_ldollars_no_reason">You failed to pay [NAME] [CURRENCY][AMOUNT].</string>
   <string name="you_paid_failure_ldollars_no_name">You failed to pay [CURRENCY][AMOUNT] [REASON].</string>
@@ -4545,6 +4780,11 @@ Try enclosing path to the editor with double quotes.
  <string name="ExternalEditorCommandParseError">Error parsing the external editor command.</string>
  <string name="ExternalEditorFailedToRun">External editor failed to run.</string>
 
+ <!--  Machine translation of chat messahes -->
+ <string name="TranslationFailed">Translation failed: [REASON]</string>
+ <string name="TranslationResponseParseError">Error parsing translation response.</string>
+
+  <!-- Key names begin -->
   <string name="Left">Left</string>
   <string name="Right">Right</string>
 
@@ -4565,6 +4805,39 @@ Try enclosing path to the editor with double quotes.
   <string name="Pathfinding_Object_Attr_Permanent">Affects navmesh</string>
   <string name="Pathfinding_Object_Attr_Character">Character</string>
   <string name="Pathfinding_Object_Attr_MultiSelect">(Multiple)</string>
+
+  <!-- Experience Tools strings -->
+  <string name="experience_tools_experience">Experience</string>
+  <string name="ExperienceNameNull">(no experience)</string>
+  <string name="ExperienceNameUntitled">(untitled experience)</string>
+  <string name="Land-Scope">Land-Scope</string>
+  <string name="Grid-Scope">Grid-Scope</string>
+  <string name="Allowed_Experiences_Tab">ALLOWED</string>
+  <string name="Blocked_Experiences_Tab">BLOCKED</string>
+  <string name="Contrib_Experiences_Tab">CONTRIBUTOR</string>
+  <string name="Admin_Experiences_Tab">ADMIN</string>
+  <string name="Recent_Experiences_Tab">RECENT</string>
+  <string name="Owned_Experiences_Tab">OWNED</string>
+  <string name="ExperiencesCounter">([EXPERIENCES], max [MAXEXPERIENCES])</string>
+  <string name="ExperiencePermission1">take over your controls</string>
+  <string name="ExperiencePermission3">trigger animations on your avatar</string>
+  <string name="ExperiencePermission4">attach to your avatar</string>
+  <string name="ExperiencePermission9">track your camera</string>
+  <string name="ExperiencePermission10">control your camera</string>
+  <string name="ExperiencePermission11">teleport you</string>
+  <string name="ExperiencePermission12">automatically accept experience permissions</string>
+  <string name="ExperiencePermissionShortUnknown">perform an unknown operation: [Permission]</string>
+  <string name="ExperiencePermissionShort1">Take Controls</string>
+  <string name="ExperiencePermissionShort3">Trigger Animations</string>
+  <string name="ExperiencePermissionShort4">Attach</string>
+  <string name="ExperiencePermissionShort9">Track Camera</string>
+  <string name="ExperiencePermissionShort10">Control Camera</string>
+  <string name="ExperiencePermissionShort11">Teleport</string>
+  <string name="ExperiencePermissionShort12">Permission</string>
+  <string name="ExperiencePermissionShortUnknown">Unknown: [Permission]</string>
+
+  <!-- Statistics -->
+  <string name="na">n/a</string>
 
   <!-- teleport_strings.xml's strings we need -->
   <string name="completed_from">Teleport completed from</string>

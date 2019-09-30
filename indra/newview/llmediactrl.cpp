@@ -54,6 +54,7 @@
 #include "llviewermenu.h"
 
 // linden library includes
+#include "llclipboard.h"
 #include "llfocusmgr.h"
 #include "llsdutil.h"
 #include "lltextbox.h"
@@ -397,6 +398,7 @@ void LLMediaCtrl::onFocusLost()
 BOOL LLMediaCtrl::postBuild ()
 {
 	/*LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registar;
+	registar.add("Copy.PageURL", boost::bind(&LLMediaCtrl::onCopyURL, this));
 	registar.add("Open.WebInspector", boost::bind(&LLMediaCtrl::onOpenWebInspector, this));
 	registar.add("Open.ViewSource", boost::bind(&LLMediaCtrl::onShowSource, this));
 
@@ -412,6 +414,12 @@ BOOL LLMediaCtrl::postBuild ()
 
 	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChanged, this, _2));
 	return true;
+}
+
+void LLMediaCtrl::onCopyURL() const
+{
+	auto wurl = utf8str_to_wstring(mCurrentNavUrl);
+	gClipboard.copyFromSubstring(wurl, 0, wurl.size());
 }
 
 void LLMediaCtrl::onOpenWebInspector()

@@ -172,7 +172,8 @@ void LLAvatarListEntry::processProperties(void* data, EAvatarProcessorType type)
 				{
 					using namespace boost::gregorian;
 					int year, month, day;
-					if (sscanf(pAvatarData->born_on.c_str(),"%d/%d/%d",&month,&day,&year) == 3)
+					const auto born = pAvatarData->born_on;
+					if (!born.empty() && sscanf(born.c_str(),"%d/%d/%d",&month,&day,&year) == 3)
 					try
 					{
 						mAge = (day_clock::local_day() - date(year, month, day)).days();
@@ -187,7 +188,7 @@ void LLAvatarListEntry::processProperties(void* data, EAvatarProcessorType type)
 					}
 					else // Something failed, resend request
 					{
-						LL_WARNS() << "Failed to extract age from APT_PROPERTIES for " << mID << ", received \"" << pAvatarData->born_on << "\". Requesting properties again." << LL_ENDL;
+						LL_WARNS() << "Failed to extract age from APT_PROPERTIES for " << mID << ", received \"" << born << "\". Requesting properties again." << LL_ENDL;
 						inst.sendAvatarPropertiesRequest(mID);
 					}
 				}
@@ -258,7 +259,7 @@ LLFloaterAvatarList::~LLFloaterAvatarList()
 {
 	mCleanup = true;
 	LLSD sort;
-	for (const auto& col : mAvatarList->getSortColumns())
+	for (const auto& col : mAvatarList->getSortOrder())
 	{
 		sort.append(mAvatarList->getColumn(col.first)->mName);
 		sort.append(col.second);
@@ -309,6 +310,42 @@ BOOL LLFloaterAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMETAGS) || gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) return TRUE; // RLVa:LF - No menu, menus share listeners with others that we may want to work; plus the user has no idea who these people are!!
 	return LLFloater::handleRightMouseDown(x, y, mask);
+}
+
+bool is_nearby(const LLUUID& id)
+{
+	if (id.isNull()) return false;
+	if (const auto inst = LLFloaterAvatarList::getIfExists())
+		return inst->getAvatarEntry(id);
+	uuid_vec_t avatars;
+	LLWorld::instance().getAvatars(&avatars);
+	return std::find(avatars.begin(), avatars.end(), id) != avatars.end();
+}
+
+void track_av(const LLUUID& id)
+{
+	if (auto inst = LLFloaterAvatarList::getIfExists())
+		if (inst->getAvatarEntry(id))
+		{
+			inst->trackAvatar(id);
+			return;
+		}
+
+	LLWorld::pos_map_t avatars;
+	LLWorld::instance().getAvatars(&avatars);
+	LLTracker::trackLocation(avatars[id], LLStringUtil::null, LLStringUtil::null);
+}
+
+void teleport_to(const LLUUID& id)
+{
+	if (auto entry = LLFloaterAvatarList::instanceExists() ? LLFloaterAvatarList::instance().getAvatarEntry(id) : nullptr)
+		gAgent.teleportViaLocation(entry->getPosition());
+	else
+	{
+		LLWorld::pos_map_t avatars;
+		LLWorld::instance().getAvatars(&avatars);
+		gAgent.teleportViaLocation(avatars[id]);
+	}
 }
 
 static void cmd_profile(const LLAvatarListEntry* entry);
@@ -368,7 +405,7 @@ namespace
 	{
 		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 		{
-			LLFloaterAvatarList::instance().doCommand(cmd_teleport, true);
+			teleport_to(get_focused_list_id_selected());
 			return true;
 		}
 	};
@@ -387,13 +424,13 @@ void addMenu(view_listener_t* menu, const std::string& name);
 
 void add_radar_listeners()
 {
-	addMenu(new RadarTrack(), "Radar.Track");
-	addMenu(new RadarMark(), "Radar.Mark");
-	addMenu(new RadarFocus(), "Radar.Focus");
-	addMenu(new RadarFocusPrev(), "Radar.FocusPrev");
-	addMenu(new RadarFocusNext(), "Radar.FocusNext");
-	addMenu(new RadarTeleportTo(), "Radar.TeleportTo");
-	addMenu(new RadarAnnounceKeys(), "Radar.AnnounceKeys");
+	addMenu(new RadarTrack, "Radar.Track");
+	addMenu(new RadarMark, "Radar.Mark");
+	addMenu(new RadarFocus, "Radar.Focus");
+	addMenu(new RadarFocusPrev, "Radar.FocusPrev");
+	addMenu(new RadarFocusNext, "Radar.FocusNext");
+	addMenu(new RadarTeleportTo, "Radar.TeleportTo");
+	addMenu(new RadarAnnounceKeys, "Radar.AnnounceKeys");
 }
 
 BOOL LLFloaterAvatarList::postBuild()
@@ -1098,8 +1135,11 @@ void LLFloaterAvatarList::onClickTrack()
 	LLScrollListItem* item = mAvatarList->getFirstSelected();
 	if (!item) return;
 
-	LLUUID agent_id = item->getUUID();
+	trackAvatar(item->getUUID());
+}
 
+void LLFloaterAvatarList::trackAvatar(const LLUUID& agent_id)
+{
 	if (mTracking && mTrackedAvatar == agent_id)
 	{
 		LLTracker::stopTracking(false);
@@ -1430,7 +1470,7 @@ static void cmd_eject(const LLAvatarListEntry* entry)		{ send_eject(entry->getID
 static void cmd_ban(const LLAvatarListEntry* entry)			{ send_eject(entry->getID(), true); }
 static void cmd_estate_eject(const LLAvatarListEntry* entry){ send_estate_message("kickestate", {entry->getID().asString()}); }
 static void cmd_estate_tp_home(const LLAvatarListEntry* entry){ send_estate_message("teleporthomeuser", {gAgentID.asString(), entry->getID().asString()}); }
-static void cmd_estate_ban(const LLAvatarListEntry* entry)	{ LLPanelEstateInfo::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, entry->getID()); }
+static void cmd_estate_ban(const LLAvatarListEntry* entry)	{ LLPanelEstateAccess::sendEstateAccessDelta(ESTATE_ACCESS_BANNED_AGENT_ADD | ESTATE_ACCESS_ALLOWED_AGENT_REMOVE | ESTATE_ACCESS_NO_REPLY, entry->getID()); }
 
 void LLFloaterAvatarList::doCommand(avlist_command_t func, bool single/*=false*/) const
 {

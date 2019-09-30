@@ -1133,6 +1133,15 @@ std::string LLUrlEntryPlace::getLabel(const std::string &url, const LLUrlLabelCa
 		std::string y = path_array[1];
 		return location + " (" + x + "," + y + ")";
 	}
+	else if (path_parts > 3) // xgrid, show as grid: place(x, y, z)
+	{
+		auto place = unescapeUrl(path_array[1].asStringRef());
+		const auto& x = path_array[2].asStringRef();
+		const auto& y = path_array[3].asStringRef();
+		location += ": " + place + " (" + x + ',' + y;
+		if (path_parts == 5) location += ',' + path_array[4].asStringRef();
+		return location + ')';
+	}
 
 	return url;
 }
@@ -1140,6 +1149,12 @@ std::string LLUrlEntryPlace::getLabel(const std::string &url, const LLUrlLabelCa
 std::string LLUrlEntryPlace::getLocation(const std::string &url) const
 {
 	// return the part of the Url after secondlife:// part
+	const auto uri = LLURI(url);
+	bool xgrid = boost::algorithm::starts_with(uri.scheme(), "x-grid");
+	if (xgrid)
+	{
+		return ::getStringAfterToken(url, "region/");
+	}
 	return ::getStringAfterToken(url, "://");
 }
 
@@ -1149,7 +1164,7 @@ std::string LLUrlEntryPlace::getLocation(const std::string &url) const
 //
 LLUrlEntryRegion::LLUrlEntryRegion()
 {
-	mPattern = boost::regex("secondlife:///app/region/[^/\\s]+(/\\d+)?(/\\d+)?(/\\d+)?/?",
+	mPattern = boost::regex(X_GRID_OR_SECONDLIFE_HEADER_REGEX"//app/region/[^/\\s]+(/\\d+)?(/\\d+)?(/\\d+)?/?",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_slurl.xml";
 	mTooltip = LLTrans::getString("TooltipSLURL");
@@ -1165,30 +1180,37 @@ std::string LLUrlEntryRegion::getLabel(const std::string &url, const LLUrlLabelC
 	//   - secondlife:///app/region/Place
 	//
 
-	LLSD path_array = LLURI(url).pathArray();
+	const auto uri = LLURI(url);
+	LLSD path_array = uri.pathArray();
 	S32 path_parts = path_array.size();
 
-	if (path_parts < 3) // no region name
+	bool xgrid = boost::algorithm::starts_with(uri.scheme(), "x-grid");
+	auto i = xgrid ? 3 : 2;
+
+	if (path_parts < i+1) // no region name
 	{
 		LL_WARNS() << "Failed to parse url [" << url << "]" << LL_ENDL;
 		return url;
 	}
 
-	std::string label = unescapeUrl(path_array[2]); // region name
+	std::string label =
+		xgrid ? unescapeUrl(path_array[0].asStringRef()) + ": " + unescapeUrl(path_array[i].asStringRef()) : // grid and region name
+		unescapeUrl(path_array[i].asStringRef()); // region name
 
-	if (path_parts > 3) // secondlife:///app/region/Place/X
+	++i;
+	if (path_parts > i+1) // secondlife:///app/region/Place/X
 	{
-		std::string x = path_array[3];
+		std::string x = path_array[i++];
 		label += " (" + x;
 
-		if (path_parts > 4) // secondlife:///app/region/Place/X/Y
+		if (path_parts > i+1) // secondlife:///app/region/Place/X/Y
 		{
-			std::string y = path_array[4];
+			std::string y = path_array[i++];
 			label += "," + y;
 
-			if (path_parts > 5) // secondlife:///app/region/Place/X/Y/Z
+			if (path_parts > i+1) // secondlife:///app/region/Place/X/Y/Z
 			{
-				std::string z = path_array[5];
+				std::string z = path_array[i];
 				label = label + "," + z;
 			}
 		}
@@ -1201,8 +1223,10 @@ std::string LLUrlEntryRegion::getLabel(const std::string &url, const LLUrlLabelC
 
 std::string LLUrlEntryRegion::getLocation(const std::string &url) const
 {
-	LLSD path_array = LLURI(url).pathArray();
-	std::string region_name = unescapeUrl(path_array[2]);
+	const auto uri = LLURI(url);
+	LLSD path_array = uri.pathArray();
+	bool xgrid = boost::algorithm::starts_with(uri.scheme(), "x-grid");
+	std::string region_name = unescapeUrl(path_array[xgrid ? 3 : 2]);
 	return region_name;
 }
 

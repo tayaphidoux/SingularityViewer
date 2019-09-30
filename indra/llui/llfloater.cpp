@@ -674,6 +674,31 @@ void LLFloater::close(bool app_quitting)
 			}
 		}
 
+		//If floater is a dependent, remove it from parent (dependee)
+		LLFloater* dependee = mDependeeHandle.get();
+		if (dependee)
+		{
+			dependee->removeDependentFloater(this);
+		}
+
+		// now close dependent floater
+		for (handle_set_iter_t dependent_it = mDependents.begin();
+			dependent_it != mDependents.end(); )
+		{
+			LLFloater* floaterp = dependent_it->get();
+			if (floaterp)
+			{
+				++dependent_it;
+				floaterp->close(app_quitting);
+			}
+			else
+			{
+				mDependents.erase(dependent_it++);
+			}
+		}
+
+		cleanupHandles();
+
 		if (!app_quitting && !getControlName().empty())
 			setControlValue(false);
 

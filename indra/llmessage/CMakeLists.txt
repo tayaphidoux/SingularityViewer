@@ -219,6 +219,8 @@ add_library (llmessage ${llmessage_SOURCE_FILES})
 
 target_link_libraries(
   llmessage
+  PUBLIC
+  llcommon
   ${CURL_LIBRARIES}
   ${CARES_LIBRARIES}
   ${CRYPTO_LIBRARIES}

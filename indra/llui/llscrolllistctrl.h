@@ -207,6 +207,7 @@ public:
 	LLScrollListItem*	getFirstData() const;
 	LLScrollListItem*	getLastData() const;
 	std::vector<LLScrollListItem*>	getAllData() const;
+	uuid_vec_t getAllIDs() const; //Helper. Much like getAllData, but just provides a LLUUID vec
 
 	LLScrollListItem*	getItem(const LLSD& sd) const;
 	
@@ -248,6 +249,9 @@ public:
 
 	void			clearSearchString() { mSearchString.clear(); }
 
+	bool			filterItem(LLScrollListItem* item);
+	void			setFilter(const std::string& filter);
+
 	// support right-click context menus for avatar/group lists
 	void setContextMenu(LLMenuGL* menu) { mPopupMenu = menu; }
 	void setContextMenu(S32 index) { mPopupMenu = sMenus[index]; }
@@ -275,6 +279,7 @@ public:
 	virtual void	resetDirty();		// Clear dirty state
 
 	virtual void	updateLayout();
+	void			adjustScrollbar(S32 doc_size);
 	virtual void	fitContents(S32 max_width, S32 max_height);
 
 	virtual LLRect	getRequiredRect();
@@ -321,10 +326,12 @@ public:
 	S32 getTotalStaticColumnWidth() { return mTotalStaticColumnWidth; }
 
 	typedef std::pair<S32, bool> sort_column_t;
-	const std::vector<sort_column_t>& getSortColumns() const { return mSortColumns; }
+	typedef std::vector<sort_column_t> sort_order_t;
+	const sort_order_t& getSortOrder() const { return mSortColumns; }
 	std::string     getSortColumnName();
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
 	BOOL			hasSortOrder() const;
+	void			setSortOrder(const sort_order_t& order);
 	void			clearSortOrder();
 	void			setSortEnabled(bool sort);
 
@@ -467,6 +474,8 @@ private:
 
 	LLWString		mSearchString;
 	LLFrameTimer	mSearchTimer;
+
+	std::string		mFilter;
 	
 	S32				mSearchColumn;
 	S32				mNumDynamicWidthColumns;
@@ -484,7 +493,7 @@ private:
 	typedef std::vector<LLScrollListColumn*> ordered_columns_t;
 	ordered_columns_t	mColumnsIndexed;
 
-	std::vector<sort_column_t>	mSortColumns;
+	sort_order_t	mSortColumns;
 
 	sort_signal_t*	mSortCallback;
 }; // end class LLScrollListCtrl

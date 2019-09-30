@@ -246,8 +246,14 @@
 		<layout_panel name="panelfavs">
 			<button label="Favoritos" name="favs_btn"/>
 		</layout_panel>
+		<layout_panel name="panelreceiveditems">
+			<button label="Ítems Recibidos" name="received_items_btn"/>
+		</layout_panel>
 		<layout_panel name="panelmarketplacelistings">
-			<button label="Mercado" name="marketplace_listings_btn"/>
+			<button label="Art. del Mercado" name="marketplace_listings_btn"/>
+		</layout_panel>
+		<layout_panel name="panelmarketplace">
+			<button label="Mercado" name="marketplace_btn"/>
 		</layout_panel>
 		<layout_panel name="panelpreferences">
 			<button label="Preferencias" name="preferences_btn" tool_tip="Ctrl-P"/>

@@ -2,6 +2,7 @@
 <menu name="media ctrl context menu">
 	<menu_item_call label="Deshacer" name="undo"/>
 	<menu_item_call label="Rehacer" layout="topleft"/>
+	<menu_item_call label="Copiar URL" name="copy_page_url"/>
 	<menu_item_call label="Cortar" name="Cut"/>
 	<menu_item_call label="Copiar" name="Copy"/>
 	<menu_item_call label="Pegar" name="Paste"/>

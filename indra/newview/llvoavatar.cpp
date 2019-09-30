@@ -8628,11 +8628,15 @@ BOOL LLVOAvatar::isFullyLoaded() const
 
 bool LLVOAvatar::isTooComplex() const
 {
-	static const LLCachedControl<bool> always_render_friends("AlwaysRenderFriends", true);
+	static const LLCachedControl<S32> always_render_friends("AlwaysRenderFriends", 0);
 	bool too_complex;
 	if (isSelf() || (always_render_friends && LLAvatarTracker::instance().isBuddy(getID())))
 	{
 		too_complex = false;
+	}
+	else if (always_render_friends == 2)
+	{
+		too_complex = true;
 	}
 	else
 	{

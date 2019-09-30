@@ -386,9 +386,15 @@ const std::string& LLTextEditor::getMenuSegmentUrl() const
 
 static LLTextEditor* get_focused_text_editor()
 {
-	auto* list = dynamic_cast<LLTextEditor*>(gFocusMgr.getKeyboardFocus());
-	llassert(list); // This listener only applies to lists
-	return list;
+	auto* te =
+#ifdef SHOW_ASSERT
+		dynamic_cast<LLTextEditor*>
+#else
+		static_cast<LLTextEditor*>
+#endif
+		(gFocusMgr.getKeyboardFocus());
+	llassert(te); // This listener only applies to text editors
+	return te;
 }
 
 class ContextText : public LLMemberListener<LLView>
@@ -436,18 +442,65 @@ class ContextUrl : public LLMemberListener<LLView>
 	}
 };
 
-class ContextUrlCopy : public LLMemberListener<LLView>
+class ContextIDUrl : public LLMemberListener<LLView>
 {
-
-	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
+protected:
+	std::string getID(const std::string& type) const
 	{
 		const auto& url = get_focused_url();
-		const auto& type = userdata.asStringRef();
 		// Empty works like avatar and group, "object" is an object (you needed to be told this)
-		const auto& id = type.empty() ? LLUrlAction::getUserID(url) : LLUrlAction::getObjectId(url);
-		LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(id));
+		return type.empty() ? LLUrlAction::getUserID(url) : LLUrlAction::getObjectId(url);
+	}
+};
+
+class ContextUrlCopy : public ContextIDUrl
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
+	{
+		LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(getID(userdata.asStringRef())));
 		return true;
 	}
+};
+
+class ContextUrlExt : public ContextIDUrl
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
+	{
+		std::string cmd = userdata.asStringRef();
+		std::string type;
+		const auto sep = cmd.find(',');
+		if (sep != std::string::npos)
+		{
+			type = cmd.substr(sep);
+			cmd = cmd.substr(0, sep);
+		}
+		mExtCallback(cmd, LLUUID(getID(type)));
+		return true;
+	}
+	LLTextEditor::ext_slurl_cb mExtCallback;
+public:
+	ContextUrlExt(LLTextEditor::ext_slurl_cb cb) : mExtCallback(cb) {}
+};
+
+class ContextUrlExtVisible : public ContextIDUrl
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
+	{
+		std::string cmd = userdata["data"];
+		std::string type;
+		const auto sep = cmd.find(',');
+		if (sep != std::string::npos)
+		{
+			type = cmd.substr(sep);
+			cmd = cmd.substr(0, sep);
+		}
+
+		LLMenuGL::sMenuContainer->findControl(userdata["control"].asString())->setValue(mExtVCB(cmd, LLUUID(getID(type))));
+		return true;
+	}
+	LLTextEditor::ext_slurl_visible_cb mExtVCB;
+public:
+	ContextUrlExtVisible(LLTextEditor::ext_slurl_visible_cb vcb) : mExtVCB(vcb) {}
 };
 
 
@@ -528,11 +581,13 @@ void LLTextEditor::spell_add(void* data)
 }
 
 //static
-void LLTextEditor::addMenuListeners()
+void LLTextEditor::addMenuListeners(ext_slurl_cb cb, ext_slurl_visible_cb vcb)
 {
 	(new ContextText)->registerListener(LLMenuGL::sMenuContainer, "Text");
 	(new ContextUrl)->registerListener(LLMenuGL::sMenuContainer, "Text.Url");
 	(new ContextUrlCopy)->registerListener(LLMenuGL::sMenuContainer, "Text.Url.CopyUUID");
+	(new ContextUrlExt(cb))->registerListener(LLMenuGL::sMenuContainer, "Text.Url.Ext");
+	(new ContextUrlExtVisible(vcb))->registerListener(LLMenuGL::sMenuContainer, "Text.Url.ExtVisible");
 }
 
 void LLTextEditor::setTrackColor( const LLColor4& color )
@@ -721,8 +776,8 @@ LLMenuGL* LLTextEditor::createUrlContextMenu(S32 x, S32 y, const std::string &in
 
 			if (addFriendButton && removeFriendButton)
 			{
-				addFriendButton->setEnabled(!isFriend);
-				removeFriendButton->setEnabled(isFriend);
+				addFriendButton->setVisible(!isFriend);
+				removeFriendButton->setVisible(isFriend);
 			}
 		}
 

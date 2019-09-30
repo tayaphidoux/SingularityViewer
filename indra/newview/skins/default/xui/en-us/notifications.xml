@@ -3390,6 +3390,69 @@ You can only have [MAX_MANAGER] Estate Managers.
    type="alertmodal">
 Can&apos;t add estate owner to estate &apos;Banned Resident&apos; list.
   </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="ProblemAddingEstateManagerBanned"
+   type="alertmodal">
+Unable to add banned resident to estate manager list.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="ProblemBanningEstateManager"
+   type="alertmodal">
+Unable to add estate manager [AGENT] to banned list.
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="GroupIsAlreadyInList"
+   type="alertmodal">
+&lt;nolink&gt;[GROUP]&lt;/nolink&gt; is already in the Allowed Groups list.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="AgentIsAlreadyInList"
+   type="alertmodal">
+[AGENT] is already in your [LIST_TYPE] list.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="AgentsAreAlreadyInList"
+   type="alertmodal">
+[AGENT] are already in your [LIST_TYPE] list.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="AgentWasAddedToList"
+   type="alertmodal">
+[AGENT] was added to [LIST_TYPE] list of [ESTATE].
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="AgentsWereAddedToList"
+   type="alertmodal">
+[AGENT] were added to [LIST_TYPE] list of [ESTATE].
+
+  </notification>
+      <notification
+   icon="alertmodal.tga"
+   name="AgentWasRemovedFromList"
+   type="alertmodal">
+[AGENT] was removed from [LIST_TYPE] list of [ESTATE].
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="AgentsWereRemovedFromList"
+   type="alertmodal">
+[AGENT] were removed from [LIST_TYPE] list of [ESTATE].
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -6906,16 +6969,6 @@ Deactivated gestures with same trigger:
 
   <notification
    icon="notify.tga"
-   name="NoQuickTime"
-   persist="true"
-   type="notify">
-Apple&apos;s QuickTime software does not appear to be installed on your system.
-If you want to view streaming media on parcels that support it you should go to the QuickTime site (http://www.apple.com/quicktime) and install the QuickTime Player.
-  <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="notify.tga"
    name="NoPlugin"
    persist="true"
    type="notify">
@@ -7047,7 +7100,7 @@ This area has building disabled. You can&apos;t build or rez objects here.
      name="PathfindingDirty"
      type="alert">
     <unique/>
-The region has pending pathfinding changes.  If you have build rights, you may rebake the region by clicking “Rebake E
+The region has pending pathfinding changes.  If you have build rights, you may rebake the region by clicking on the “Rebake region” button.
     <usetemplate
      name="okcancelbuttons"
      yestext="Rebake"
@@ -11395,6 +11448,17 @@ Do you wish to export anyway?
    name="WavefrontExportSuccess"
    type="notifytip">
 Object successfully exported to: [FILENAME]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SupportChatShowInfo"
+   type="alertmodal">
+You have just entered a [SHORT_APP_NAME] support group chat. To help provide support, [SHORT_APP_NAME] can prepend useful information to your messages. This can easily be toggled later via the checkbox in the support group chat.
+  <usetemplate
+   name="okcancelbuttons"
+   notext="Don't Bother"
+   yestext="I Consent!"/>
   </notification>
 
   <notification

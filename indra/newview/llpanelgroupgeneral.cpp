@@ -43,7 +43,6 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldbstrings.h"
-#include "llavataractions.h"
 #include "llgroupactions.h"
 #include "llimview.h"
 #include "lllineeditor.h"
@@ -159,10 +158,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 	mFounderName = getChild<LLNameBox>("founder_name");
 
 	mListVisibleMembers = getChild<LLNameListCtrl>("visible_members", recurse);
-	if (mListVisibleMembers)
-	{
-		mListVisibleMembers->setDoubleClickCallback(boost::bind(LLAvatarActions::showProfile, boost::bind(&LLScrollListCtrl::getCurrentID, mListVisibleMembers), false));
-	}
 
 	// Options
 	mCtrlShowInGroupList = getChild<LLCheckBoxCtrl>("show_in_group_list", recurse);

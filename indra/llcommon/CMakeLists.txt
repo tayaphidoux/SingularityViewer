@@ -4,7 +4,9 @@ project(llcommon)
 
 include(Cwdebug)
 include(00-Common)
+include(Linking)
 include(LLCommon)
+include(EXPAT)
 include(APR)
 include(Linking)
 include(Boost)
@@ -287,6 +289,8 @@ endif(LLCOMMON_LINK_SHARED)
 
 target_link_libraries(
     llcommon
+    PUBLIC
+    absl::hash
     ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}

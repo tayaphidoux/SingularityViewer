@@ -45,6 +45,7 @@
 #include "llfloateravatarpicker.h"
 #include "llfloaterchat.h"
 #include "llfloaterinventory.h"
+#include "llfloaterreporter.h"
 #include "llfloaterwebcontent.h" // For web browser display of logs
 #include "llgroupactions.h"
 #include "llhttpclient.h"
@@ -294,6 +295,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	mLogLabel(log_label),
 	mQueuedMsgsForInit(),
 	mOtherParticipantUUID(other_participant_id),
+	mInitialTargetIDs(ids),
 	mDialog(dialog),
 	mTyping(false),
 	mTypingLineStartIndex(0),
@@ -574,8 +576,19 @@ BOOL LLFloaterIMPanel::postBuild()
 		}
 		break;
 		case SUPPORT_SESSION:
-			getChildView("Support Check")->setVisible(true);
+		{
+			auto support = getChildView("Support Check");
+			support->setVisible(true);
+			auto control = gSavedSettings.getControl(support->getControlName());
+			if (control->get().asInteger() == -1)
+			{
+				LLNotificationsUtil::add("SupportChatShowInfo", LLSD(), LLSD(), [control](const LLSD& p, const LLSD& f)
+				{
+					control->set(!LLNotificationsUtil::getSelectedOption(p, f));
+				});
+			}
 			// Singu Note: We could make a button feature for dumping Help->About contents for support, too.
+		}
 		break;
 		default:
 		break;
@@ -1121,7 +1134,7 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 		switch (mSessionType)
 		{
 			case SUPPORT_SESSION:
-			case GROUP_SESSION: LLGroupActions::show(mOtherParticipantUUID); return;
+			case GROUP_SESSION: LLGroupActions::show(mSessionUUID); return;
 			case P2P_SESSION: LLAvatarActions::showProfile(mOtherParticipantUUID); return;
 			default: onClickHistory(); return; // If there's no profile for this type, we should be the history button.
 		}
@@ -1138,6 +1151,7 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 	case -2: LLAvatarActions::showOnMap(mOtherParticipantUUID); break;
 	case -3: gAgentCamera.lookAtObject(mOtherParticipantUUID); break;
 	case -4: onAddButtonClicked(); break;
+	case -5: LLFloaterReporter::showFromAvatar(mOtherParticipantUUID, mLogLabel); break;
 	default: // Options >= 6 use dynamic items
 	{
 		// First remove them all

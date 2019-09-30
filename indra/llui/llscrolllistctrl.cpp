@@ -54,6 +54,8 @@
 #include "llsdparam.h"
 #include "llmenugl.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 
 static LLRegisterWidget<LLScrollListCtrl> r("scroll_list");
 
@@ -157,6 +159,7 @@ LLScrollListCtrl::LLScrollListCtrl(const std::string& name, const LLRect& rect, 
 	mFgUnselectedColor(LLUI::sColorsGroup->getColor("ScrollUnselectedColor")),
 	mFgDisabledColor(LLUI::sColorsGroup->getColor("ScrollDisabledColor")),
 	mHighlightedColor(LLUI::sColorsGroup->getColor("ScrollHighlightedColor")),
+	mFilter(),
 	mSearchColumn(0),
 	mColumnPadding(5)
 {
@@ -195,7 +198,8 @@ LLScrollListCtrl::LLScrollListCtrl(const std::string& name, const LLRect& rect, 
 		addChild(mBorder);
 	}
 
-	LLTextBox* textBox = new LLTextBox("comment_text",mItemListRect,std::string());
+	LLTextBox* textBox = new LLTextBox("comment_text",mItemListRect, LLStringUtil::null);
+	mCommentTextView = textBox;
 	textBox->setBorderVisible(false);
 	textBox->setFollows(FOLLOWS_ALL);
 	textBox->setFontShadow(LLFontGL::NO_SHADOW);
@@ -312,12 +316,12 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
 
 uuid_vec_t LLScrollListCtrl::getSelectedIDs()
 {
-	LLUUID selected_id;
 	uuid_vec_t ids;
-	std::vector<LLScrollListItem*> selected = this->getAllSelected();
-	for(std::vector<LLScrollListItem*>::iterator itr = selected.begin(); itr != selected.end(); ++itr)
+	if (!getCanSelect()) return ids;
+
+	for(const auto& item : mItemList)
 	{
-		ids.push_back((*itr)->getUUID());
+		if (item->getSelected()) ids.push_back(item->getUUID());
 	}
 	return ids;
 }
@@ -400,6 +404,17 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
 	return ret;
 }
 
+uuid_vec_t LLScrollListCtrl::getAllIDs() const
+{
+	uuid_vec_t ret;
+	ret.reserve(mItemList.size()); //Optimization
+	for(const auto& item : mItemList)
+	{
+		ret.push_back(item->getUUID());
+	}
+	return ret;
+}
+
 // returns first matching item
 LLScrollListItem* LLScrollListCtrl::getItem(const LLSD& sd) const
 {
@@ -443,23 +458,27 @@ void LLScrollListCtrl::updateLayout()
 
 	mCommentTextView->setShape(mItemListRect);
 
-	// how many lines of content in a single "page"
-	S32 page_lines =  getLinesPerPage();
+	adjustScrollbar(mFilter.empty() ? getItemCount() : mScrollbar->getDocSize()); // Doc size is the item count without a filter, otherwise it's calculated whenever filter is updated
+	dirtyColumns();
+}
 
-	BOOL scrollbar_visible = mLineHeight * getItemCount() > mItemListRect.getHeight();
+void LLScrollListCtrl::adjustScrollbar(S32 doc_size)
+{
+	// how many lines of content in a single "page"
+	S32 page_lines = getLinesPerPage();
+
+	bool scrollbar_visible = mLineHeight * doc_size > mItemListRect.getHeight();
 	if (scrollbar_visible)
 	{
 		// provide space on the right for scrollbar
 		mItemListRect.mRight = getRect().getWidth() - mBorderThickness - SCROLLBAR_SIZE;
+		mScrollbar->setOrigin(mItemListRect.mRight, mItemListRect.mBottom);
+		mScrollbar->reshape(SCROLLBAR_SIZE, mItemListRect.getHeight() + (mDisplayColumnHeaders ? mHeadingHeight : 0));
 	}
 
-	mScrollbar->setOrigin(getRect().getWidth() - mBorderThickness - SCROLLBAR_SIZE, mItemListRect.mBottom);
-	mScrollbar->reshape(SCROLLBAR_SIZE, mItemListRect.getHeight() + (mDisplayColumnHeaders ? mHeadingHeight : 0));
 	mScrollbar->setPageSize(page_lines);
-	mScrollbar->setDocSize( getItemCount() );
+	mScrollbar->setDocSize(doc_size);
 	mScrollbar->setVisible(scrollbar_visible);
-
-	dirtyColumns();
 }
 
 // Attempt to size the control to show all items.
@@ -493,6 +512,9 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 	BOOL not_too_big = getItemCount() < mMaxItemCount;
 	if (not_too_big)
 	{
+		if (!mFilter.empty() && !filterItem(item)) // If we're filtering, filter this item if needed, if not, bump the document size.
+			mScrollbar->setDocSize(mScrollbar->getDocSize()+1);
+
 		switch( pos )
 		{
 		case ADD_TOP:
@@ -575,10 +597,11 @@ S32 LLScrollListCtrl::calcMaxContentWidth()
 		{
 			// update max content width for this column, by looking at all items
 			column->mMaxContentWidth = column->mHeader ? LLFontGL::getFontSansSerifSmall()->getWidth(column->mLabel.getWString()) + mColumnPadding + HEADING_TEXT_PADDING : 0;
-			item_list::iterator iter;
-			for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
+			for (auto& item : mItemList)
 			{
-				LLScrollListCell* cellp = (*iter)->getColumn(column->mIndex);
+				if (item->getFiltered()) continue;
+
+				LLScrollListCell* cellp = item->getColumn(column->mIndex);
 				if (!cellp) continue;
 
 				column->mMaxContentWidth = llmax(LLFontGL::getFontSansSerifSmall()->getWidth(cellp->getValue().asString()) + mColumnPadding + COLUMN_TEXT_PADDING, column->mMaxContentWidth);
@@ -588,6 +611,7 @@ S32 LLScrollListCtrl::calcMaxContentWidth()
 	}
 	mColumnWidthsDirty = false;
 
+	mMaxContentWidth = max_item_width;
 	return max_item_width;
 }
 
@@ -631,10 +655,8 @@ const S32 SCROLL_LIST_ROW_PAD = 2;
 void LLScrollListCtrl::updateLineHeight()
 {
 	mLineHeight = 0;
-	item_list::iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
+	for (auto& itemp : mItemList)
 	{
-		LLScrollListItem *itemp = *iter;
 		S32 num_cols = itemp->getNumColumns();
 		S32 i = 0;
 		for (const LLScrollListCell* cell = itemp->getColumn(i); i < num_cols; cell = itemp->getColumn(++i))
@@ -755,6 +777,7 @@ BOOL LLScrollListCtrl::selectFirstItem()
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem *itemp = *iter;
+		if (itemp->getFiltered()) continue;
 		if( first_item && itemp->getEnabled() )
 		{
 			if (!itemp->getSelected())
@@ -813,13 +836,13 @@ BOOL LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
 			iter = mItemList.erase(iter);
 			continue ;
 		}
-		
-		if( index >= first_index && index <= last_index )
+
+		if (index >= first_index && index <= last_index)
 		{
-			if( itemp->getEnabled() )
+			if (itemp->getEnabled())
 			{
 				selectItem(itemp, FALSE);
-				success = TRUE;				
+				success = TRUE;
 			}
 		}
 		else
@@ -962,6 +985,8 @@ S32	LLScrollListCtrl::selectMultiple( uuid_vec_t ids )
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
+		if (item->getFiltered()) continue;
+
 		uuid_vec_t::iterator iditr;
 		for(iditr = ids.begin(); iditr != ids.end(); ++iditr)
 		{
@@ -987,15 +1012,14 @@ S32 LLScrollListCtrl::getItemIndex( LLScrollListItem* target_item ) const
 	updateSort();
 
 	S32 index = 0;
-	item_list::const_iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
+	for (LLScrollListItem* itemp : mItemList)
 	{
-		LLScrollListItem *itemp = *iter;
+		if (itemp->getFiltered()) continue;
 		if (target_item == itemp)
 		{
 			return index;
 		}
-		index++;
+		++index;
 	}
 	return -1;
 }
@@ -1005,15 +1029,14 @@ S32 LLScrollListCtrl::getItemIndex( const LLUUID& target_id ) const
 	updateSort();
 
 	S32 index = 0;
-	item_list::const_iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
+	for (LLScrollListItem* itemp : mItemList)
 	{
-		LLScrollListItem *itemp = *iter;
+		if (itemp->getFiltered()) continue;
 		if (target_id == itemp->getUUID())
 		{
 			return index;
 		}
-		index++;
+		++index;
 	}
 	return -1;
 }
@@ -1035,6 +1058,7 @@ void LLScrollListCtrl::selectPrevItem( BOOL extend_selection)
 		for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 		{
 			LLScrollListItem* cur_item = *iter;
+			if (cur_item->getFiltered()) continue;
 
 			if (cur_item->getSelected())
 			{
@@ -1079,6 +1103,7 @@ void LLScrollListCtrl::selectNextItem( BOOL extend_selection)
 		for (iter = mItemList.rbegin(); iter != mItemList.rend(); iter++)
 		{
 			LLScrollListItem* cur_item = *iter;
+			if (cur_item->getFiltered()) continue;
 
 			if (cur_item->getSelected())
 			{
@@ -1128,7 +1153,7 @@ void LLScrollListCtrl::deselectAllItems(BOOL no_commit_on_change)
 
 void LLScrollListCtrl::setCommentText(const std::string& comment_text)
 {
-	getChild<LLTextBox>("comment_text")->setWrappedText(comment_text);
+	static_cast<LLTextBox*>(mCommentTextView)->setWrappedText(comment_text);
 }
 
 LLScrollListItem* LLScrollListCtrl::addSeparator(EAddPosition pos)
@@ -1183,6 +1208,7 @@ LLScrollListItem* LLScrollListCtrl::getItemByLabel(const std::string& label, BOO
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
+
 		std::string item_text = item->getColumn(column)->getValue().asString();	// Only select enabled items with matching names
 		if (!case_sensitive)
 		{
@@ -1218,6 +1244,8 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sen
 		for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 		{
 			LLScrollListItem* item = *iter;
+			if (item->getFiltered()) continue;
+
 			// Only select enabled items with matching names
 			LLScrollListCell* cellp = item->getColumn(getSearchColumn());
 			BOOL select = cellp ? item->getEnabled() && ('\0' == cellp->getValue().asString()[0]) : FALSE;
@@ -1240,6 +1268,9 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sen
 		for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
 		{
 			LLScrollListItem* item = *iter;
+
+			// Don't select filtered items
+			if (item->getFiltered()) continue;
 
 			// Only select enabled items with matching names
 			LLScrollListCell* cellp = item->getColumn(getSearchColumn());
@@ -1325,6 +1356,8 @@ BOOL LLScrollListCtrl::setSelectedByValue(const LLSD& value, BOOL selected)
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
+		if (item->getFiltered()) continue;
+
 		if (item->getEnabled() && (item->getValue().asString() == value.asString()))
 		{
 			if (selected)
@@ -1354,7 +1387,7 @@ BOOL LLScrollListCtrl::isSelected(const LLSD& value) const
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
-		if (item->getValue().asString() == value.asString())
+		if (!item->getFiltered() && item->getValue().asString() == value.asString())
 		{
 			return item->getSelected();
 		}
@@ -1393,9 +1426,6 @@ void LLScrollListCtrl::drawItems()
 	S32 x = mItemListRect.mLeft;
 	S32 y = mItemListRect.mTop - mLineHeight;
 
-	// allow for partial line at bottom
-	S32 num_page_lines = getLinesPerPage();
-
 	LLRect item_rect;
 
 	LLGLSUIDefault gls_ui;
@@ -1414,27 +1444,32 @@ void LLScrollListCtrl::drawItems()
 			clip_rect.intersectWith(scissor);
 		}
 
-		S32 max_columns = 0;
-
-		LLColor4 highlight_color = LLColor4::white;
-		F32 type_ahead_timeout = LLUI::sConfigGroup->getF32("TypeAheadTimeout");
-		highlight_color.mV[VALPHA] = clamp_rescale(mSearchTimer.getElapsedTimeF32(), type_ahead_timeout * 0.7f, type_ahead_timeout, 0.4f, 0.f);
-
 		S32 first_line = mScrollLines;
-		S32 last_line = llmin((S32)mItemList.size() - 1, mScrollLines + getLinesPerPage());
-
 		if ((item_list::size_type)first_line >= mItemList.size())
 		{
 			return;
 		}
+		S32 list_size = mItemList.size() - 1;
+
+		// allow for partial line at bottom
+		S32 num_page_lines = mFilter.empty() ? getLinesPerPage() : mScrollbar->getDocSize() + 1;
+		S32 last_line = llmin(list_size, mScrollLines + num_page_lines);
+
+		S32 max_columns = 0;
+
+		LLColor4 highlight_color = LLColor4::white;
+		static const LLUICachedControl<F32> type_ahead_timeout("TypeAheadTimeout");
+		highlight_color.mV[VALPHA] = clamp_rescale(mSearchTimer.getElapsedTimeF32(), type_ahead_timeout * 0.7f, type_ahead_timeout, 0.4f, 0.f);
+
 		bool done = false;
 		for (S32 pass = 0; !done; ++pass)
 		{
 			bool should_continue = false; // False until all passes are done for all row cells.
 			S32 cur_y = y;
-			for (S32 line = first_line; line <= last_line; line++)
+			for (S32 index = first_line, line = first_line; index <= list_size; ++index)
 			{
-				LLScrollListItem* item = mItemList[line];
+				LLScrollListItem* item = mItemList[index];
+				if (item->getFiltered()) continue; // Skip filtered
 
 				item_rect.setOriginAndSize(
 					x,
@@ -1450,7 +1485,6 @@ void LLScrollListCtrl::drawItems()
 				LLColor4 fg_color;
 				LLColor4 bg_color(LLColor4::transparent);
 
-				if (mScrollLines <= line && line < mScrollLines + num_page_lines)
 				{
 					cur_y -= mLineHeight;
 
@@ -1486,6 +1520,10 @@ void LLScrollListCtrl::drawItems()
 					}
 
 					should_continue |= item->draw(pass, item_rect, fg_color, bg_color, highlight_color, mColumnPadding);
+					if (++line > last_line)
+					{
+						break; // Don't draw any more than needed.
+					}
 				}
 			}
 			done = !should_continue;
@@ -1518,7 +1556,7 @@ void LLScrollListCtrl::draw()
 
 	updateColumns();
 
-	getChildView("comment_text")->setVisible(mItemList.empty());
+	mCommentTextView->setVisible(mItemList.empty());
 
 	drawItems();
 
@@ -1636,9 +1674,10 @@ BOOL LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 					// meaning that we never stop selecting until hitting max or
 					// the end of the list.
 					LLScrollListItem* lastSelected = mLastSelected;
+					auto selected_count = getAllSelected().size();
 					for (itor = mItemList.begin(); itor != mItemList.end(); ++itor)
 					{
-						if(mMaxSelectable > 0 && getAllSelected().size() >= mMaxSelectable)
+						if(mMaxSelectable > 0 && selected_count >= mMaxSelectable)
 						{
 							if(mOnMaximumSelectCallback)
 							{
@@ -1647,6 +1686,7 @@ BOOL LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 							break;
 						}
 						LLScrollListItem *item = *itor;
+						if (item->getFiltered()) continue;
                         if (item == hit_item || item == lastSelected)
 						{
 							selectItem(item, FALSE);
@@ -1661,6 +1701,7 @@ BOOL LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 						{
 							selectItem(item, FALSE);
 						}
+						++selected_count;
 					}
 				}
 			}
@@ -1788,17 +1829,19 @@ BOOL LLScrollListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		// Offer the click to the children, even if we aren't enabled
 		// so the scroll bars will work.
-		if (NULL == LLView::childrenHandleDoubleClick(x, y, mask))
+		handled = LLView::childrenHandleDoubleClick(x, y, mask) != nullptr;
+		if (!handled)
 		{
 			// Run the callback only if an item is being double-clicked.
-			if( mCanSelect && hitItem(x, y) && mOnDoubleClickCallback )
+			if (mCanSelect && mOnDoubleClickCallback && hitItem(x, y))
 			{
 				mOnDoubleClickCallback();
+				handled = true;
 			}
 		}
 	}
 
-	return TRUE;
+	return handled;
 }
 
 BOOL LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
@@ -1871,15 +1914,16 @@ LLScrollListItem* LLScrollListCtrl::hitItem( S32 x, S32 y )
 
 	// allow for partial line at bottom
 	S32 num_page_lines = getLinesPerPage();
+	S32 list_size = mItemList.size() - 1;
+	S32 last_line = llmin(list_size, mScrollLines + num_page_lines);
 
-	S32 line = 0;
-	item_list::iterator iter;
-	for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
+	for (S32 index = mScrollLines, line = mScrollLines; index <= list_size; ++index)
 	{
-		LLScrollListItem* item  = *iter;
-		if( mScrollLines <= line && line < mScrollLines + num_page_lines )
+		LLScrollListItem* item = mItemList[index];
+		if (item->getFiltered()) continue;
+
 		{
-			if( item->getEnabled() && item_rect.pointInRect( x, y ) )
+			if (item->getEnabled() && item_rect.pointInRect( x, y ))
 			{
 				hit_item = item;
 				break;
@@ -1887,7 +1931,7 @@ LLScrollListItem* LLScrollListCtrl::hitItem( S32 x, S32 y )
 
 			item_rect.translate(0, -mLineHeight);
 		}
-		line++;
+		if (++line > last_line) break; // Don't try to hit any undrawn items
 	}
 
 	return hit_item;
@@ -1943,6 +1987,58 @@ S32 LLScrollListCtrl::getRowOffsetFromIndex(S32 index)
 {
 	S32 row_bottom = (mItemListRect.mTop - ((index - mScrollLines + 1) * mLineHeight) );
 	return row_bottom;
+}
+
+bool LLScrollListCtrl::filterItem(LLScrollListItem* item)
+{
+	for (const auto& column : item->mColumns)
+	{
+		// Only filter text, search tooltip because it'll usually be the text anyway.
+		if (column->isText() && boost::icontains(column->getToolTip(), mFilter))
+		{
+			item->setFiltered(false);
+			return false;
+		}
+	}
+	item->setFiltered(true);
+	return true;
+}
+
+void LLScrollListCtrl::setFilter(const std::string& filter)
+{
+	if (filter == mFilter) return;
+
+	bool no_filter = filter.empty();
+	// If our filter string has been expanded, we can skip already filtered items
+	bool expanded = !no_filter && !mFilter.empty() && boost::icontains(filter, mFilter);
+	// If our filter string has been contracted, we can skip already unfiltered items
+	bool contracted = !no_filter && !mFilter.empty() && !expanded && boost::icontains(mFilter, filter);
+	bool unique = !expanded && !contracted;
+
+	mFilter = filter;
+	S32 unfiltered_count = no_filter ? mItemList.size() // No filter, doc size is all items
+		: !unique ? mScrollbar->getDocSize() // Expanded/contracted filter, start with the current doc size and remove/add respectively
+		: 0; // Different filter, count up from 0;
+	for (auto& item : mItemList)
+	{
+		if (no_filter) item->setFiltered(false);
+		else if (expanded && !item->getFiltered()) // Filter has been expanded and we are not yet filtered
+		{
+			if (filterItem(item)) --unfiltered_count; // We are now filtered, lower the count
+		}
+		else if (unique	||							 // Filter isn't expanded, find out if we should be filtered or
+				(contracted && item->getFiltered())) // Filter has contracted and we were filtered before, should we still be?
+		{
+			if (!filterItem(item)) ++unfiltered_count; // Wasn't filltered, bump count
+		}
+	}
+
+	if (mLastSelected && mLastSelected->getFiltered()) // Remove selection if filtered.
+		mLastSelected = nullptr;
+
+	// Scrollbar needs adjusted
+	setScrollPos(0); // Changing the filter resets scroll position
+	adjustScrollbar(unfiltered_count);
 }
 
 
@@ -2174,26 +2270,28 @@ BOOL LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char)
 		while(iter != start_iter)
 		{
 			LLScrollListItem* item = *iter;
-
-			LLScrollListCell* cellp = item->getColumn(getSearchColumn());
-			if (cellp)
+			if (!item->getFiltered())
 			{
-				// Only select enabled items with matching first characters
-				LLWString item_label = utf8str_to_wstring(cellp->getValue().asString());
-				if (item->getEnabled() && LLStringOps::toLower(item_label[0]) == uni_char)
+				LLScrollListCell* cellp = item->getColumn(getSearchColumn());
+				if (cellp)
 				{
-					selectItem(item);
-					mNeedsScroll = true;
-					cellp->highlightText(0, 1);
-					mSearchTimer.reset();
-
-					if (mCommitOnKeyboardMovement
-						&& !mCommitOnSelectionChange) 
+					// Only select enabled items with matching first characters
+					LLWString item_label = utf8str_to_wstring(cellp->getValue().asString());
+					if (item->getEnabled() && LLStringOps::toLower(item_label[0]) == uni_char)
 					{
-						onCommit();
-					}
+						selectItem(item);
+						mNeedsScroll = true;
+						cellp->highlightText(0, 1);
+						mSearchTimer.reset();
 
-					break;
+						if (mCommitOnKeyboardMovement
+							&& !mCommitOnSelectionChange)
+						{
+							onCommit();
+						}
+
+						break;
+					}
 				}
 			}
 
@@ -2358,6 +2456,12 @@ void LLScrollListCtrl::onScrollChange( S32 new_pos, LLScrollbar* scrollbar )
 	mScrollLines = new_pos;
 }
 
+
+void LLScrollListCtrl::setSortOrder(const sort_order_t& order)
+{
+	mSortColumns = order;
+	updateSort();
+}
 
 void LLScrollListCtrl::sortByColumn(const std::string& name, BOOL ascending)
 {
@@ -2805,7 +2909,7 @@ void	LLScrollListCtrl::selectAll()
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem *itemp = *iter;
-		if( itemp->getEnabled() )
+		if (itemp->getEnabled() && !itemp->getFiltered())
 		{
 			selectItem(itemp, FALSE);
 		}

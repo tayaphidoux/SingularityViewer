@@ -148,6 +148,7 @@ protected:
 	void removeDynamicFocus();
 
 private:
+	friend class LLSpeakerMgr;
 	// Called by UI methods.
 	void onSendMsg();
 
@@ -214,6 +215,7 @@ private:
 	//   inventory folder ==> first target id in list
 	//   911 ==> sender
 	LLUUID mOtherParticipantUUID;
+	uuid_vec_t mInitialTargetIDs;
 
 	EInstantMessage mDialog;
 

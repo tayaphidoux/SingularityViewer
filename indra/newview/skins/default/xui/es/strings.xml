@@ -63,7 +63,140 @@ Asegurate que has ingresado el URI de inicio de sesión correcto. Un ejemplo de 
 	
 	<string name="LoginFailed">Inicio de sesión fallido.</string>
 	<string name="Quit">Salir</string>
-	
+	<string name="LoginFailedViewerNotPermitted">
+		Ya no puedes acceder a Second Life con el visor que estás utilizando. Visita la siguiente página para descargar un nuevo visor:
+http://secondlife.com/download.
+
+Si deseas obtener más información, consulta las preguntas frecuentes que aparecen a continuación:
+http://secondlife.com/viewer-access-faq
+	</string>
+	<string name="LoginIntermediateOptionalUpdateAvailable">
+		Actualización opcional del visor disponible: [VERSION]
+	</string>
+	<string name="LoginFailedRequiredUpdate">
+		Actualización necesaria del visor: [VERSION]
+	</string>
+	<string name="LoginFailedAlreadyLoggedIn">
+		El agente ya ha iniciado sesión.
+	</string>
+	<string name="LoginFailedAuthenticationFailed">
+		Lo sentimos. No ha sido posible iniciar sesión.
+Comprueba si has introducido correctamente
+    * El nombre de usuario (como juangarcia12 o estrella.polar)
+    * Contraseña
+Asimismo, asegúrate de que la tecla Mayús esté desactivada.
+	</string>
+	<string name="LoginFailedPasswordChanged">
+		Como precaución de seguridad, se ha modificado tu contraseña.
+Dirígete a la página de tu cuenta en http://secondlife.com/password
+y responde a la pregunta de seguridad para restablecer la contraseña.
+Lamentamos las molestias.
+	</string>
+	<string name="LoginFailedPasswordReset">
+		Hemos realizado unos cambios en nuestro sistema, por lo que deberás restablecer la contraseña.
+Dirígete a la página de tu cuenta en http://secondlife.com/password
+y responde a la pregunta de seguridad para restablecer la contraseña.
+Lamentamos las molestias.
+	</string>
+	<string name="LoginFailedEmployeesOnly">
+		Second Life no está disponible temporalmente debido a tareas de mantenimiento.
+Actualmente, solo se permite iniciar sesión a los empleados.
+Consulta www.secondlife.com/status si deseas obtener actualizaciones.
+	</string>
+	<string name="LoginFailedPremiumOnly">
+		Las conexiones a Second Life se han restringido provisionalmente para garantizar que los usuarios que ya están conectados tengan la mejor experiencia posible.
+
+Durante este tiempo, las personas con cuentas gratuitas no podrán acceder a Second Life, ya que tienen prioridad los usuarios con una cuenta de pago.
+	</string>
+	<string name="LoginFailedComputerProhibited">
+		No se puede acceder a Second Life desde este ordenador.
+Si crees que se trata de un error, ponte en contacto con
+support@secondlife.com.
+	</string>
+	<string name="LoginFailedAcountSuspended">
+		No se podrá acceder a tu cuenta hasta las
+[HORA] (horario de la costa del Pacífico).
+	</string>
+	<string name="LoginFailedAccountDisabled">
+		En este momento no podemos completar la solicitud.
+Por favor solicita ayuda al personal de asistencia de Second Life en http://support.secondlife.com.
+	</string>
+	<string name="LoginFailedTransformError">
+		Se han detectado datos incorrectos en el inicio de sesión.
+Ponte en contacto con support@secondlife.com.
+	</string>
+	<string name="LoginFailedAccountMaintenance">
+		Se están realizando tareas rutinarias de mantenimiento en tu cuenta.
+No se podrá acceder a tu cuenta hasta las
+[HORA] (horario de la costa del Pacífico).
+Si crees que se trata de un error, ponte en contacto con support@secondlife.com.
+	</string>
+	<string name="LoginFailedPendingLogoutFault">
+		La solicitud de cierre de sesión ha obtenido como resultado un error del simulador.
+	</string>
+	<string name="LoginFailedPendingLogout">
+		El sistema te desconectará.
+Por favor, aguarda un momento antes de intentar conectarte nuevamente.
+	</string>
+	<string name="LoginFailedUnableToCreateSession">
+		No se ha podido crear una sesión válida.
+	</string>
+	<string name="LoginFailedUnableToConnectToSimulator">
+		No se ha podido establecer la conexión con un simulador.
+	</string>
+	<string name="LoginFailedRestrictedHours">
+		Tu cuenta solo puede acceder a Second Life
+entre las [INICIO] y las [FIN] (horario de la costa del Pacífico).
+Inténtalo de nuevo durante ese horario.
+Si crees que se trata de un error, ponte en contacto con support@secondlife.com.
+	</string>
+	<string name="LoginFailedIncorrectParameters">
+		Parámetros incorrectos.
+Si crees que se trata de un error, ponte en contacto con support@secondlife.com.
+	</string>
+	<string name="LoginFailedFirstNameNotAlphanumeric">
+		El parámetro correspondiente al nombre debe contener caracteres alfanuméricos.
+Si crees que se trata de un error, ponte en contacto con support@secondlife.com.
+	</string>
+	<string name="LoginFailedLastNameNotAlphanumeric">
+		El parámetro correspondiente al apellido debe contener caracteres alfanuméricos.
+Si crees que se trata de un error, ponte en contacto con support@secondlife.com.
+	</string>
+	<string name="LogoutFailedRegionGoingOffline">
+		La región se está desconectando.
+Intenta iniciar sesión de nuevo en unos instantes.
+	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		El agente no se encuentra en la región.
+Intenta iniciar sesión de nuevo en unos instantes.
+	</string>
+	<string name="LogoutFailedPendingLogin">
+		A esta región ya se ha accedido en otra sesión.
+Intenta iniciar sesión de nuevo en unos instantes.
+	</string>
+	<string name="LogoutFailedLoggingOut">
+		Se ha salido de la región en la sesión anterior.
+Intenta iniciar sesión de nuevo en unos instantes.
+	</string>
+	<string name="LogoutFailedStillLoggingOut">
+		La región aún está cerrando la sesión anterior.
+Intenta iniciar sesión de nuevo en unos instantes.
+	</string>
+	<string name="LogoutSucceeded">
+		Se ha salido de la región en la última sesión.
+Intenta iniciar sesión de nuevo en unos instantes.
+	</string>
+	<string name="LogoutFailedLogoutBegun">
+		La región ha comenzado el proceso de cierre de sesión.
+Intenta iniciar sesión de nuevo en unos instantes.
+	</string>
+	<string name="LoginFailedLoggingOutSession">
+		El sistema ha comenzado a cerrar la última sesión.
+Intenta iniciar sesión de nuevo en unos instantes.
+	</string>
+
+	<string name="ViewerDownloadURL">https://www.singularityviewer.org/</string>	
+
 	<!-- Disconnection -->
 	<string name="AgentLostConnection">Esta región está experimentando problemas.  Revisa por favor tu conexión a Internet.</string>
 	<string name="SavingSettings">Guardando tus configuraciones...</string>
@@ -203,12 +336,21 @@ Para vender más de [AMOUNT] artículos en la misma lista, debes agrupar algunos
 	<string name="AssetErrorPriceMismatch">El Visor y el Servidor no coinciden con el precio</string>
 	<string name="AssetErrorUnknownStatus">Estado desconocido</string>
 
+	<!-- Asset upload errors. -->
+	<string name="AssetUploadServerUnreacheble">El servicio no está disponible.</string>
+	<string name="AssetUploadServerDifficulties">Se detectaron errores inesperados en el servidor.</string>
+	<string name="AssetUploadServerUnavaliable">El servicio no está disponible o se alcanzó el tiempo de carga máxima.</string>
+	<string name="AssetUploadRequestInvalid">
+		Error en la solicitud de carga. Por favor, ingresa a
+http://secondlife.com/support para obtener ayuda sobre cómo solucionar este problema.
+	</string>
+
 	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
 	<!-- Will also replace [OBJECTTYPE] in notifications: UserGiveItem, ObjectGiveItem -->
 	<!-- Also used by AntiSpamBlock notification for [TYPE], since this looks like a good place. -->
 	<string name="texture">textura</string>
 	<string name="sound">sonido</string>
-	<string name="calling card">Tarjeta de Visita</string>
+	<string name="calling card">tarjeta de Visita</string>
 	<string name="Inventory">inventario</string>
 	<string name="Instant Message">mensaje instantáneo</string>
 	<string name="Script Dialog">diálogo de script</string>
@@ -347,6 +489,7 @@ Para vender más de [AMOUNT] artículos en la misma lista, debes agrupar algunos
 	<string name="hang_up">Desconectado del Chat de Voz</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', al objeto propiedad de '[OWNERNAME]', ubicado en [REGIONNAME]: [REGIONPOS], se le ha concedido permisos para: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', al objeto propiedad de '[OWNERNAME]', ubicado en [REGIONNAME]: [REGIONPOS], se le ha denegado permisos para: [PERMISSIONS].</string>
+	<string name="AdditionalPermissionsRequestHeader">Si autorizas el acceso a tu cuenta, también permitirás al objeto:</string>
 	<string name="ScriptTakeMoney">Transferir moneda de tu cuenta</string>
 	<string name="ActOnControlInputs">Actuar en tus controles de entrada</string>
 	<string name="RemapControlInputs">Reconfigurar tus controles de entrada</string>
@@ -362,6 +505,11 @@ Para vender más de [AMOUNT] artículos en la misma lista, debes agrupar algunos
 	<string name="TeleportYourAgent">Teleportarte</string>	
 	<string name="ManageEstateSilently">Gestiona tus propiedades en silencio</string>
 	<string name="ChangeYourDefaultAnimations">Cambiar tus animaciones por defecto</string>
+	<string name="ForceSitAvatar">Forzar que el avatar se siente</string>
+	
+	<string name="NotConnected">No Conectado</string>
+	<string name="AgentNameSubst">(Tu)</string> <!-- Substitution for agent name -->
+	
 	<string name="JoinAnExperience">Unirse a una experiencia</string> <!-- not used -->
 	<string name="SilentlyManageEstateAccess">Suprimir alertas cuando administras listas de acceso del Estado</string>
 	<string name="OverrideYourAnimations">Reemplazar tus animaciones predeterminadas</string>
@@ -523,18 +671,20 @@ Grita el texto del mensaje en el canal
 	</string>
 	<string name="LSLTipText_llListen">
 integer llListen(integer channel, string name, key id, string msg)
-Sets a callback for msg on channel from name and id (name, id, and/or msg can be empty) and returns an identifier that can be used to deactivate or remove the listen
+Establece una devolución de llamada para el mensaje en el canal -channel- desde el nombre -name- y la identificación -id- (el nombre, la identificación y/o el mensaje pueden estar vacíos) y devuelve un identificador que se puede usar para desactivar o eliminar la escucha
 	</string>
 	<string name="LSLTipText_llListenControl">
 llListenControl(integer number, integer active)
-Makes a listen event callback active or inactive
+Crea un evento de escucha activo o inactivo de devolución de llamada
 	</string>
 	<string name="LSLTipText_llListenRemove">
 llListenRemove(integer number)
-Removes listen event callback number
+Remueve el evento "number" de escucha de devolución de llamada
 	</string>
 	<string name="LSLTipText_llSensor">
 llSensor(string name, key id, integer type, float range, float arc)
+Realiza una exploración única para el nombre -name- y la identificación -id- con el tipo -type- (AGENT, ACTIVE, PASSIVE y/o SCRIPT) dentro de los medidores de alcance y radiantes de arco del vector directo (el nombre, la identificación y / o el tipo de clave pueden estar vacíos o 0)
+
 Performs a single scan for name and id with type (AGENT, ACTIVE, PASSIVE, and/or SCRIPTED) within range meters and arc radians of forward vector (name, id, and/or keytype can be empty or 0)
 	</string>
 	<string name="LSLTipText_llSensorRepeat">
@@ -3365,6 +3515,7 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 
 	<!-- compile queue-->
 	<string name="CompileQueueDownloadedCompiling">Descargado, compilando</string>
+	<string name="CompileQueueServiceUnavailable">El servicio de compilación de scripts no está disponible</string>
 	<string name="CompileQueueScriptNotFound">El Script no ha sido hallado en el servidor.</string>
 	<string name="CompileQueueProblemDownloading">Problema al descargar</string>
 	<string name="CompileQueueProblemUploading">El Sim carece de capacidades UpdateScriptTask. No se puede pedir la recompilación</string>	
@@ -3372,6 +3523,7 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	<string name="CompileQueueInsufficientPermDownload">Permisos insuficientes para descargar un script.</string>
 	<string name="CompileQueueInsufficientPermFor">Permisos insuficientes para</string>
 	<string name="CompileQueueUnknownFailure">Fallo desconocido en la descarga</string>
+	<string name="CompileNoExperiencePerm">Omitiendo el script [SCRIPT] con la experiencia [EXPERIENCE].</string>
 	<string name="CompileQueueTitle">Progreso de Recompilación</string>
 	<string name="CompileQueueStart">recompilar</string>
 	<string name="ResetQueueTitle">Progeso de Reinicio</string>
@@ -3380,12 +3532,17 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	<string name="RunQueueStart">Definir ejecutando</string>
 	<string name="NotRunQueueTitle">Definir no ejecutando en progreso</string>
 	<string name="NotRunQueueStart">Definir no ejecutando</string>
+	<string name="DeleteQueueTitle">Configurar sin ejecutar</string>
+	<string name="DeleteQueueStart">Configurando sin ejecutarlo
+</string>
 
 	<!-- compile comment text-->
-	<string name="CompileSuccessful">¡Compilación satisfactoria!</string>
+	<string name="CompileSuccessful">¡Compilación correcta!</string>
 	<string name="CompileSuccessfulSaving">Compilación satisfactoria, guardando...</string>
 	<string name="SaveComplete">Guardado completado.</string>
+	<string name="UploadFailed">Error al subir el archivo: </string>
 	<string name="ObjectOutOfRange">Script (objeto fuera de rango)</string>
+	<string name="ScriptWasDeleted">Script (eliminado del inventario)</string>
 
 	<!-- god tools -->
 	<string name="GodToolsObjectOwnedBy">Objeto [OBJECT] propiedad de [OWNER]</string>
@@ -3398,6 +3555,10 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	<string name="NextStipendDay"       value="Siguiente día de estipendio es "/>
 	<string name="GroupIndividualShare" value="                      Grupo       Participación Individual"/>
 	<string name="GroupColumn"          value="                      Grupo"/>
+	<string name="Balance">Saldo</string>
+	<string name="Credits">Créditos</string>
+	<string name="Debits">Débitos</string>
+	<string name="Total">Total</string>
 	<string name="NoGroupDataFound">Información no hallada para el grupo </string>
 
 	<!-- floater IM bonus_info: When a Linden with Admin/god status receives a new IM this displays the estate (Mainland vs. teen grid) of the source avatar.
@@ -3421,7 +3582,10 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	<string name="RegionInfoBannedResidents">Residentes Prohibidos: ([BANNEDAGENTS], máx [MAXBANNED])</string>
 	<string name="RegionInfoListTypeAllowedAgents">Residentes Permitidos</string>
 	<string name="RegionInfoListTypeBannedAgents">Residentes Prohibidos</string>
-
+	<string name="RegionInfoAllEstates">todos los estados</string>
+	<string name="RegionInfoManagedEstates">estados administrados</string>
+	<string name="RegionInfoThisEstate">este estado</string>
+	<string name="AndNMore">y [EXTRA_COUNT] más</string>
 
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Memoria de Scripts en la Parcela</string>
@@ -3494,6 +3658,9 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
     <string name="ATTACH_HIND_LFOOT">Pata Trasera Izquierda</string>
     <string name="ATTACH_HIND_RFOOT">Pata Trasera Derecha</string>
 
+	<!-- script editor -->
+	<string name="CursorPos">Línea [LINE], Columna [COLUMN]</string>
+	
 	<!-- panel contents -->
 	<string name="PanelContentsNewScript">Nuevo Script</string>
 
@@ -4312,12 +4479,15 @@ Si continuas recibiendo este mensaje, contacta con [SUPPORT_SITE].
 
 <!-- Financial operations strings -->
 	<string name="paid_you_ldollars">[NAME] te ha pagado [CURRENCY][AMOUNT] [REASON].</string>
+	<string name="paid_you_ldollars_gift">[NAME] te ha pagado [CURRENCY][AMOUNT]: [REASON]</string>
 	<string name="paid_you_ldollars_no_reason">[NAME] te ha pagado [CURRENCY][AMOUNT].</string>
 	<string name="you_paid_ldollars">Has pagado a [NAME] [CURRENCY][AMOUNT] [REASON].</string>
+	<string name="you_paid_ldollars_gift">Has pagado a [NAME] [CURRENCY][AMOUNT]: [REASON]</string>
 	<string name="you_paid_ldollars_no_info">Has pagado [CURRENCY][AMOUNT].</string>
 	<string name="you_paid_ldollars_no_reason">Has pagado a [NAME] [CURRENCY][AMOUNT].</string>
 	<string name="you_paid_ldollars_no_name">Has pagado [CURRENCY][AMOUNT] [REASON].</string>
-	<string name="you_paid_failure_ldollars">Ha fallado tu pago [NAME] [CURRENCY][AMOUNT] [REASON].</string>
+	<string name="you_paid_failure_ldollars">Ha fallado tu pago a [NAME] [CURRENCY][AMOUNT] [REASON].</string>
+	<string name="you_paid_failure_ldollars_gift">Ha fallado tu pago a [NAME] [CURRENCY][AMOUNT]: [REASON]</string>
 	<string name="you_paid_failure_ldollars_no_info">Ha fallado tu pago de [CURRENCY][AMOUNT].</string>
 	<string name="you_paid_failure_ldollars_no_reason">Ha fallado tu pago a [NAME] [CURRENCY][AMOUNT].</string>
 	<string name="you_paid_failure_ldollars_no_name">Ha fallado tu pago de [CURRENCY][AMOUNT] [REASON].</string>
@@ -4447,6 +4617,10 @@ Intenta entrecomillando el camino al editor.
 (P.ej. "/Camino al/editor" "%s")</string>
 	<string name="ExternalEditorCommandParseError">Error analizando el comando del editor externo.</string>
 	<string name="ExternalEditorFailedToRun">El Editor extreno ha fallado al ejecutarse.</string>
+
+	<!--  Machine translation of chat messahes -->
+	<string name="TranslationFailed">Error al traducir: [REASON]</string>
+	<string name="TranslationResponseParseError">Error al analizar la respuesta de la traducción.</string>
  
    <string name="Left">Izquierda</string>
 	<string name="Right">Derecha</string>
@@ -4469,6 +4643,38 @@ Intenta entrecomillando el camino al editor.
 	<string name="Pathfinding_Object_Attr_Character">Personaje</string>
 	<string name="Pathfinding_Object_Attr_MultiSelect">(Múltiple)</string>
 
+  <!-- Experience Tools strings -->
+  <string name="experience_tools_experience">Experiencia</string>
+  <string name="ExperienceNameNull">(sin experiencia)</string>
+  <string name="ExperienceNameUntitled">(experiencia sin título)</string>
+  <string name="Land-Scope">Activa en el terreno</string>
+  <string name="Grid-Scope">Activa en el Grid</string>
+  <string name="Allowed_Experiences_Tab">PERMITIDO</string>
+  <string name="Blocked_Experiences_Tab">BLOQUEADO</string>
+  <string name="Contrib_Experiences_Tab">COLABORADOR</string>
+  <string name="Admin_Experiences_Tab">ADMIN.</string>
+  <string name="Recent_Experiences_Tab">RECIENTE</string>
+  <string name="Owned_Experiences_Tab">PROPIEDAD</string>
+  <string name="ExperiencesCounter">([EXPERIENCES], máx. [MAXEXPERIENCES])</string>
+  <string name="ExperiencePermission1">hacerte con tus controles</string>
+  <string name="ExperiencePermission3">activar animaciones en tu avatar</string>
+  <string name="ExperiencePermission4">anexar a tu avatar</string>
+  <string name="ExperiencePermission9">seguimiento de la cámara</string>
+  <string name="ExperiencePermission10">controlar tu cámara</string>
+  <string name="ExperiencePermission11">teleportarte</string>
+  <string name="ExperiencePermission12">aceptar automáticamente permisos de experiencias</string>
+  <string name="ExperiencePermissionShortUnknown">realizar una operación desconocida: [Permission]</string>
+  <string name="ExperiencePermissionShort1">Tomar controles</string>
+  <string name="ExperiencePermissionShort3">Activar Animaciones</string>
+  <string name="ExperiencePermissionShort4">Anexar</string>
+  <string name="ExperiencePermissionShort9">Seguir la Cámara</string>
+  <string name="ExperiencePermissionShort10">Controlar la Cámara</string>
+  <string name="ExperiencePermissionShort11">Teleporte</string>
+  <string name="ExperiencePermissionShort12">Otorgar permisos</string>
+  <string name="ExperiencePermissionShortUnknown">Desconocido: [Permission]</string>
+
+  <!-- Statistics -->
+  <string name="na">n/a</string>
 	<!-- teleport_strings.xml's strings we need -->
 	<string name="completed_from">Teleporte completado desde</string>
 

@@ -3279,10 +3279,6 @@ Dê um duplo-clique num cartão de visita e em Mensagem Instantânea, digite sua
 [NAMES]
 	</notification>
 
-	<notification name="NoQuickTime">
-		O software QuickTime da Apple parece não estar instalado em seu sistema.
-Se você deseja ver fluxo de mídia em terrenos que aceitem isso, você deverá ir ao site do QickTime (http://www.apple.com/quicktime) e instalar o player do QuickTime.
-	</notification>
 	<notification name="NoPlugin">
 		Nenhum plugin de mídia detectado para lidar com o tipo de mime &quot;[MIME_TYPE]&quot;.  Este tipo de mídia não poderão ser acessados.
 	</notification>

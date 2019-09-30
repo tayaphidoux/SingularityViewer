@@ -84,3 +84,9 @@ endif (DARWIN)
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
 add_library (llrender ${llrender_SOURCE_FILES})
+
+target_link_libraries(
+    llrender
+    PUBLIC
+    llcommon
+    )

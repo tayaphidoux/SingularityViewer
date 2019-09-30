@@ -57,6 +57,8 @@ add_library (llimage ${llimage_SOURCE_FILES})
 
 target_link_libraries(
     llimage
+    PUBLIC
+    llcommon
     ${JPEG_LIBRARIES}
     ${PNG_LIBRARIES}
     ${ZLIB_LIBRARIES}

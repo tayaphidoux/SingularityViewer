@@ -39,7 +39,7 @@ elseif (DARWIN)
 elseif (LINUX)
     set(CEF_PLUGIN_LIBRARIES
        dullahan
-       cef_dll_wrapper
+       cef_dll_wrapper.a
        cef
     )
 endif (WINDOWS)

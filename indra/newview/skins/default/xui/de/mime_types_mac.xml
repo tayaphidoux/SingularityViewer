@@ -42,12 +42,12 @@
 	<scheme name="rtsp">
 		<label name="rtsp_label">Echtzeit-Streaming</label>
 		<widgettype>Film</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">- Keine -</label>
 		<widgettype>keine</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="none/none">
 		<label name="none/none_label">- Keine -</label>
@@ -57,12 +57,12 @@
 	<mimetype name="audio/*">
 		<label name="audio2_label">Audio</label>
 		<widgettype>Musik</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="video/*">
 		<label name="video2_label">Video</label>
 		<widgettype>Film</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="image/*">
 		<label name="image2_label">Bild</label>
@@ -72,7 +72,7 @@
 	<mimetype name="video/vnd.secondlife.qt.legacy">
 		<label name="vnd.secondlife.qt.legacy_label">Video (QuickTime)</label>
 		<widgettype>Film</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="application/javascript">
 		<label name="application/javascript_label">Javascript</label>
@@ -82,7 +82,7 @@
 	<mimetype name="application/ogg">
 		<label name="application/ogg_label">Ogg Audio/Video</label>
 		<widgettype>Musik</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="application/pdf">
 		<label name="application/pdf_label">PDF-Dokument</label>
@@ -117,22 +117,22 @@
 	<mimetype name="audio/mid">
 		<label name="audio/mid_label">Audio (MIDI)</label>
 		<widgettype>Musik</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="audio/mpeg">
 		<label name="audio/mpeg_label">Audio (MP3)</label>
 		<widgettype>Musik</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="audio/x-aiff">
 		<label name="audio/x-aiff_label">Audio (AIFF)</label>
 		<widgettype>Musik</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="audio/x-wav">
 		<label name="audio/x-wav_label">Audio (WAV)</label>
 		<widgettype>Musik</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="image/bmp">
 		<label name="image/bmp_label">Bild (BMP)</label>
@@ -182,31 +182,31 @@
 	<mimetype name="video/mpeg">
 		<label name="video/mpeg_label">Video (MPEG)</label>
 		<widgettype>Film</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">Video (MP4)</label>
 		<widgettype>Film</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
-	<mimetype name="video/quicktime">
-		<label name="video/quicktime_label">Video (QuickTime)</label>
+	<mimetype name="video/libvlc">
+		<label name="video/libvlc_label">Video (QuickTime)</label>
 		<widgettype>Film</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
 		<label name="video/x-ms-asf_label">Video (Windows Media ASF)</label>
 		<widgettype>Film</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
 		<label name="video/x-ms-wmv_label">Video (Windows Media WMV)</label>
 		<widgettype>Film</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 	<mimetype name="video/x-msvideo">
 		<label name="video/x-msvideo_label">Video (AVI)</label>
 		<widgettype>Film</widgettype>
-		<impl>media_plugin_quicktime</impl>
+		<impl>media_plugin_libvlc</impl>
 	</mimetype>
 </mimetypes>

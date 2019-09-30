@@ -7133,7 +7133,7 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>FloaterAboutRect</key>
     <map>
@@ -7596,22 +7596,6 @@ This should be as low as possible, but too low may break functionality</string>
     <map>
       <key>Comment</key>
       <string>Rectangle for inventory window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterInvPanelRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for new inventory windows a folder is opened in</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12701,11 +12685,11 @@ This should be as low as possible, but too low may break functionality</string>
   <key>AlwaysRenderFriends</key>
     <map>
       <key>Comment</key>
-      <string>Always render friends regardless of max complexity</string>
+      <string>Always render friends regardless of max complexity, a value of 2 will only render friends</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -17876,17 +17860,6 @@ This should be as low as possible, but too low may break functionality</string>
     <map>
       <key>Comment</key>
       <string>Enables NewClassified warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnQuickTimeInstalled</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables QuickTimeInstalled warning dialog</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

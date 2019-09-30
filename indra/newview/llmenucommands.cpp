@@ -205,7 +205,6 @@ struct MenuFloaterDict : public LLSingleton<MenuFloaterDict>
 		registerFloater("test", boost::bind(LLFloaterTest::show, (void*)NULL));
 		// Phoenix: Wolfspirit: Enabled Show Floater out of viewer menu
 		registerFloater("WaterSettings", boost::bind(LLFloaterWater::show), boost::bind(LLFloaterWater::isOpen));
-		registerFloater("web", boost::bind(LLFloaterWebContent::showInstance, "dict web", LLFloaterWebContent::Params()));
 		registerFloater("Windlight", boost::bind(LLFloaterWindLight::show), boost::bind(LLFloaterWindLight::isOpen));
 		registerFloater("world map", boost::bind(LLFloaterWorldMap::toggle));
 		registerFloater<LLFloaterLand>					("about land");

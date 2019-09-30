@@ -76,30 +76,41 @@ std::string LLLogChat::cleanFileName(std::string filename)
 	return filename;
 }
 
+static void time_format(std::string& out, const char* fmt, const std::tm* time)
+{
+	typedef typename std::vector<char, boost::alignment::aligned_allocator<char, 1>> vec_t;
+	static thread_local vec_t charvector(1024); // Evolves into charveleon
+	#define format_the_time() std::strftime(charvector.data(), charvector.capacity(), fmt, time)
+	const auto smallsize(charvector.capacity());
+	const auto size = format_the_time();
+	if (size < 0)
+	{
+		LL_ERRS() << "Formatting time failed, code " << size << ". String hint: " << out << '/' << fmt << LL_ENDL;
+	}
+	else if (static_cast<vec_t::size_type>(size) >= smallsize) // Resize if we need more space
+	{
+		charvector.resize(1+size); // Use the String Stone
+		format_the_time();
+	}
+	out.assign(charvector.data());
+}
+
+
 std::string LLLogChat::timestamp(bool withdate)
 {
-	time_t utc_time;
-	utc_time = time_corrected();
-
-	// There's only one internal tm buffer.
-	struct tm* timep;
-
 	// Convert to Pacific, based on server's opinion of whether
 	// it's daylight savings time there.
-	timep = utc_to_pacific_time(utc_time, gPacificDaylightTime);
+	auto time = utc_to_pacific_time(time_corrected(), gPacificDaylightTime);
 
-	static LLCachedControl<bool> withseconds("SecondsInLog");
-	std::string text;
-	if (withdate)
-		if (withseconds)
-			text = llformat("[%d/%02d/%02d %02d:%02d:%02d]  ", (timep->tm_year-100)+2000, timep->tm_mon+1, timep->tm_mday, timep->tm_hour, timep->tm_min, timep->tm_sec);
-		else
-			text = llformat("[%d/%02d/%02d %02d:%02d]  ", (timep->tm_year-100)+2000, timep->tm_mon+1, timep->tm_mday, timep->tm_hour, timep->tm_min);
-	else
-		if (withseconds)
-			text = llformat("[%02d:%02d:%02d]  ", timep->tm_hour, timep->tm_min, timep->tm_sec);
-		else
-			text = llformat("[%02d:%02d]  ", timep->tm_hour, timep->tm_min);
+	static const LLCachedControl<bool> withseconds("SecondsInLog");
+	static const LLCachedControl<std::string> date("ShortDateFormat");
+	static const LLCachedControl<std::string> shorttime("ShortTimeFormat");
+	static const LLCachedControl<std::string> longtime("LongTimeFormat");
+	std::string text = "[";
+	if (withdate) text += date() + ' ';
+	text += (withseconds ? longtime : shorttime)() + "]  ";
+
+	time_format(text, text.data(), time);
 
 	return text;
 }
