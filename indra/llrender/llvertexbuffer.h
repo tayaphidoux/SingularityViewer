@@ -129,7 +129,7 @@ public:
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
 
-	static std::list<U32> sAvailableVAOName;
+	static std::vector<U32> sAvailableVAOName;
 	static U32 sCurVAOName;
 
 	static bool	sUseStreamDraw;
