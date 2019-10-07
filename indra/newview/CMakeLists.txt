@@ -1342,6 +1342,7 @@ if (WINDOWS)
         shell32
         user32
         Vfw32
+        wer
         Wbemuuid
         winspool
         Normaliz
