@@ -93,9 +93,13 @@ public:
 	////////////////////////////////////
 	
 	LLVector4a()
+#if !defined(LL_DEBUG)
+		= default;
+#else
 	{ //DO NOT INITIALIZE -- The overhead is completely unnecessary
 		ll_assert_aligned(this,16);
 	}
+#endif
 
 	LLVector4a(F32 x, F32 y, F32 z, F32 w = 0.f)
 	{
@@ -346,5 +350,6 @@ inline std::ostream& operator<<(std::ostream& s, const LLVector4a& v)
 	return s;
 }
 
-static_assert(std::is_trivially_copyable<LLVector4a>::value, "LLVector4a must be a trivially copyable type");
+static_assert(std::is_trivial<LLVector4a>::value, "LLVector4a must be a be a trivial type");
+static_assert(std::is_standard_layout<LLVector4a>::value, "LLVector4a must be a standard layout type");
 #endif
