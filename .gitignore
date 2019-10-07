@@ -25,5 +25,4 @@ qtcreator-build/
 /.pc
 /build-*
 /viewer-*
-
-
+/Pipfile.lock
