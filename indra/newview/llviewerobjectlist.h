@@ -36,6 +36,8 @@
 #include <map>
 #include <set>
 
+#include "absl/container/flat_hash_map.h"
+
 // common includes
 #include "llstat.h"
 #include "llstring.h"
@@ -219,8 +221,8 @@ public:
 
 	uuid_set_t mDeadObjects;	
 
-	boost::unordered_map<LLUUID, LLPointer<LLViewerObject> > mUUIDObjectMap;
-	boost::unordered_map<LLUUID, LLPointer<LLVOAvatar> > mUUIDAvatarMap;
+	absl::flat_hash_map<LLUUID, LLPointer<LLViewerObject> > mUUIDObjectMap;
+	absl::flat_hash_map<LLUUID, LLPointer<LLVOAvatar> > mUUIDAvatarMap;
 
 	//set of objects that need to update their cost
 	uuid_set_t mStaleObjectCost;
@@ -272,8 +274,8 @@ extern LLViewerObjectList gObjectList;
 // Inlines
 inline LLViewerObject *LLViewerObjectList::findObject(const LLUUID &id) const
 {
-	boost::unordered_map<LLUUID, LLPointer<LLViewerObject> >::const_iterator iter = mUUIDObjectMap.find(id);
-	if(iter != mUUIDObjectMap.end())
+	auto iter = mUUIDObjectMap.find(id);
+	if(iter != mUUIDObjectMap.cend())
 	{
 		return iter->second;
 	}
@@ -285,8 +287,8 @@ inline LLViewerObject *LLViewerObjectList::findObject(const LLUUID &id) const
 
 inline LLVOAvatar *LLViewerObjectList::findAvatar(const LLUUID &id) const
 {
-	boost::unordered_map<LLUUID, LLPointer<LLVOAvatar> >::const_iterator iter = mUUIDAvatarMap.find(id);
-	return (iter != mUUIDAvatarMap.end()) ? iter->second.get() : NULL;
+	auto iter = mUUIDAvatarMap.find(id);
+	return (iter != mUUIDAvatarMap.cend()) ? iter->second.get() : NULL;
 }
 
 inline LLViewerObject *LLViewerObjectList::getObject(const S32 index)
