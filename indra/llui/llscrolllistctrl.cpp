@@ -59,8 +59,6 @@
 
 static LLRegisterWidget<LLScrollListCtrl> r("scroll_list");
 
-std::vector<LLMenuGL*> LLScrollListCtrl::sMenus = {}; // List menus that recur, such as general avatars or groups menus
-
 // local structures & classes.
 struct SortScrollListItem
 {
@@ -314,7 +312,7 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
 	return ret;
 }
 
-uuid_vec_t LLScrollListCtrl::getSelectedIDs()
+uuid_vec_t LLScrollListCtrl::getSelectedIDs() const
 {
 	uuid_vec_t ids;
 	if (!getCanSelect()) return ids;
@@ -1813,10 +1811,7 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		if (col->mHeader && col->mHeader->getRect().pointInRect(x,y)) // Right clicking a column header shouldn't bring up a menu
 			return FALSE;
 	}
-	gFocusMgr.setKeyboardFocus(this); // Menu listeners rely on this
-	mPopupMenu->buildDrawLabels();
-	mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
-	LLMenuGL::showPopup(this, mPopupMenu, x, y);
+	showMenu(this, mPopupMenu, x, y);
 	return TRUE;
 }
 

@@ -378,7 +378,7 @@ namespace
 	{
 		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 		{
-			LLFloaterAvatarList::setFocusAvatar(get_focused_list_id_selected());
+			LLFloaterAvatarList::setFocusAvatar(LFIDBearer::getActiveSelectedID());
 			return true;
 		}
 	};
@@ -405,7 +405,7 @@ namespace
 	{
 		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 		{
-			teleport_to(get_focused_list_id_selected());
+			teleport_to(LFIDBearer::getActiveSelectedID());
 			return true;
 		}
 	};

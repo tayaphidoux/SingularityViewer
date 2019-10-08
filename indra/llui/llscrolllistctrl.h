@@ -32,6 +32,7 @@
 #include <vector>
 #include <deque>
 
+#include "lfidbearer.h"
 #include "lluictrl.h"
 #include "llctrlselectioninterface.h"
 #include "llfontgl.h"
@@ -48,6 +49,7 @@ class LLMenuGL;
 
 class LLScrollListCtrl : public LLUICtrl, public LLEditMenuHandler, 
 	public LLCtrlListInterface, public LLCtrlScrollInterface
+,	public LFIDBearer
 {
 public:
 	typedef boost::function<void (void)> callback_t;
@@ -194,13 +196,13 @@ public:
 	// "StringUUID" interface: use this when you're creating a list that contains non-unique strings each of which
 	// has an associated, unique UUID, and only one of which can be selected at a time.
 	LLScrollListItem*	addStringUUIDItem(const std::string& item_text, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
-	LLUUID				getStringUUIDSelectedItem() const;
+	LLUUID				getStringUUIDSelectedItem() const override final;
 
 	LLScrollListItem*	getFirstSelected() const;
 	virtual S32			getFirstSelectedIndex() const;
 	std::vector<LLScrollListItem*> getAllSelected() const;
-	uuid_vec_t 	getSelectedIDs(); //Helper. Much like getAllSelected, but just provides a LLUUID vec
-	S32                 getNumSelected() const;
+	uuid_vec_t 	getSelectedIDs() const override final; //Helper. Much like getAllSelected, but just provides a LLUUID vec
+	S32                 getNumSelected() const override final;
 	LLScrollListItem*	getLastSelectedItem() const { return mLastSelected; }
 
 	// iterate over all items
@@ -255,7 +257,6 @@ public:
 	// support right-click context menus for avatar/group lists
 	void setContextMenu(LLMenuGL* menu) { mPopupMenu = menu; }
 	void setContextMenu(S32 index) { mPopupMenu = sMenus[index]; }
-	static void addCommonMenu(LLMenuGL* menu) { sMenus.push_back(menu); }
 
 	// Overridden from LLView
 	/*virtual*/ void    draw();
@@ -468,8 +469,6 @@ private:
 	class LLViewBorder*	mBorder;
 	LLMenuGL	*mPopupMenu;
 
-	static std::vector<LLMenuGL*> sMenus; // List menus that recur, such as general avatars or groups menus
-	
 	LLView			*mCommentTextView;
 
 	LLWString		mSearchString;

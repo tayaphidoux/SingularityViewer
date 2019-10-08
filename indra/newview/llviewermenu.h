@@ -142,8 +142,6 @@ bool handle_go_to();
 // Export to XML or Collada
 void handle_export_selected( void * );
 
-const LLUUID get_focused_list_id_selected();
-
 class LLViewerMenuHolderGL : public LLMenuHolderGL
 {
 public:
