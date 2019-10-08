@@ -139,6 +139,7 @@ private:
 	LLFontGL::VAlign mVAlign;
 
 	std::vector<S32> mLineLengthList;
+protected:
 	callback_t			mClickedCallback;
 };
 

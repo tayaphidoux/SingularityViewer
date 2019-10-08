@@ -34,35 +34,28 @@
 
 #include "llnamebox.h"
 
-#include "llerror.h"
-#include "llfontgl.h"
-#include "llui.h"
-#include "llviewercontrol.h"
-#include "lluuid.h"
-
 #include "llcachename.h"
-#include "llagent.h"
+#include "lltrans.h"
+
+#include "llavataractions.h"
+#include "llgroupactions.h"
 
 // statics
 std::set<LLNameBox*> LLNameBox::sInstances;
 
 static LLRegisterWidget<LLNameBox> r("name_box");
 
-
 LLNameBox::LLNameBox(const std::string& name)
-:	LLTextBox(name, LLRect(), "" , NULL, TRUE)
+:	LLTextBox(name, LLRect(), LLStringUtil::null, nullptr, TRUE)
+,	mInitialValue(LLTrans::getString("LoadingData"))
 {
-	mNameID = LLUUID::null;
-	mLink = false;
-	//mParseHTML = mLink; // STORM-215
-	mInitialValue = "(retrieving)";
-	LLNameBox::sInstances.insert(this);
+	sInstances.insert(this);
 	setText(LLStringUtil::null);
 }
 
 LLNameBox::~LLNameBox()
 {
-	LLNameBox::sInstances.erase(this);
+	sInstances.erase(this);
 }
 
 void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
@@ -81,58 +74,45 @@ void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
 		got_name = gCacheName->getGroupName(name_id, name);
 	}
 
+	// At this point, if no callback has been set, set one
+	if (!mClickedCallback)
+		setClickedCallback(boost::bind(&LLNameBox::showProfile, this));
+
+	mIsGroup = is_group;
+
 	// Got the name already? Set it.
 	// Otherwise it will be set later in refresh().
-	if (got_name)
-		setName(name, is_group);
-	else
-		setText(mInitialValue);
+	setText(got_name ? name : mInitialValue);
 }
 
 void LLNameBox::refresh(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	if (id == mNameID)
 	{
-		setName(full_name, is_group);
+		setText(full_name);
 	}
 }
 
 void LLNameBox::refreshAll(const LLUUID& id, const std::string& full_name, bool is_group)
 {
-	std::set<LLNameBox*>::iterator it;
-	for (it = LLNameBox::sInstances.begin();
-		 it != LLNameBox::sInstances.end();
-		 ++it)
+	for (auto& box : sInstances)
 	{
-		LLNameBox* box = *it;
 		box->refresh(id, full_name, is_group);
 	}
 }
 
-void LLNameBox::setName(const std::string& name, BOOL is_group)
+void LLNameBox::showProfile()
 {
-	if (mLink)
-	{
-		std::string url;
-
-		if (is_group)
-			url = "[secondlife:///app/group/" + mNameID.asString() + "/about " + name + "]";
-		else
-			url = "[secondlife:///app/agent/" + mNameID.asString() + "/about " + name + "]";
-
-		setText(url);
-	}
+	if (mIsGroup)
+		LLGroupActions::show(mNameID);
 	else
-	{
-		setText(name);
-	}
+		LLAvatarActions::showProfile(mNameID);
 }
 
 // virtual
 void LLNameBox::initFromXML(LLXMLNodePtr node, LLView* parent)
 {
 	LLTextBox::initFromXML(node, parent);
-	node->getAttributeBOOL("link", mLink);
 	node->getAttributeString("initial_value", mInitialValue);
 }
 

@@ -55,20 +55,18 @@ public:
 
 	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
 
+	void showProfile();
+
 protected:
-	LLNameBox (const std::string& name);
+	LLNameBox(const std::string& name);
 	
 	friend class LLUICtrlFactory;
 private:
-	void setName(const std::string& name, BOOL is_group);
-
 	static std::set<LLNameBox*> sInstances;
 
-private:
 	LLUUID mNameID;
-	BOOL mLink;
+	bool mIsGroup;
 	std::string mInitialValue;
-
 };
 
 #endif
