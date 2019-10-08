@@ -50,13 +50,22 @@ public:
 		return ll_aligned_malloc_16(size);
 	}
 
+	void* operator new[](size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
 	void operator delete(void* ptr)
 	{
 		ll_aligned_free_16(ptr);
 	}
 
-	LLMatrix4a()
-	{}
+	void operator delete[](void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
+	LLMatrix4a() = default;
 	LLMatrix4a(const LLQuad& q1,const LLQuad& q2,const LLQuad& q3,const LLQuad& q4)
 	{
 		mMatrix[0] = q1;
@@ -709,5 +718,6 @@ inline std::ostream& operator<<(std::ostream& s, const LLMatrix4a& m)
 
 void matMulBoundBox(const LLMatrix4a &a, const LLVector4a *in_extents, LLVector4a *out_extents);
 
-static_assert(std::is_trivially_copyable<LLMatrix4a>::value, "LLMatrix4a must be a trivially copyable type");
+static_assert(std::is_trivial<LLMatrix4a>::value, "LLMatrix4a must be a trivial type");
+static_assert(std::is_standard_layout<LLMatrix4a>::value, "LLMatrix4a must be a standard layout type");
 #endif

@@ -39,6 +39,8 @@
 #include "lluploadfloaterobservers.h"
 #include "aistatemachinethread.h"
 
+#include <absl/container/node_hash_map.h>
+
 #ifndef BOOST_FUNCTION_HPP_INCLUDED
 #include <boost/function.hpp>
 #define BOOST_FUNCTION_HPP_INCLUDED
@@ -561,7 +563,7 @@ public:
 	typedef std::map<LLVolumeParams, std::vector<LLVOVolume*> > mesh_load_map;
 	mesh_load_map mLoadingMeshes[4];
 
-	typedef boost::unordered_map<LLUUID, LLMeshSkinInfo> skin_map;
+	typedef absl::node_hash_map<LLUUID, LLMeshSkinInfo> skin_map;
 	skin_map mSkinMap;
 
 	typedef std::map<LLUUID, LLModel::Decomposition*> decomposition_map;
