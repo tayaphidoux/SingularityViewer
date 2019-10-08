@@ -204,7 +204,7 @@
 #include "llweb.h"
 #include "llvoiceclient.h"
 #include "llnamelistctrl.h"
-#include "llnamebox.h"
+#include "llnameui.h"
 #include "llnameeditor.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
@@ -320,7 +320,7 @@ void transition_back_to_login_panel(const std::string& emsg);
 
 void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is_group)
 {
-	LLNameBox::refreshAll(id, full_name, is_group);
+	LLNameUI::refreshAll(id, full_name, is_group);
 	LLNameEditor::refreshAll(id, full_name, is_group);
 
 	// TODO: Actually be intelligent about the refresh.

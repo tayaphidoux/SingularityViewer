@@ -35,70 +35,17 @@
 #include "llnamebox.h"
 
 #include "llcachename.h"
-#include "lltrans.h"
 
 #include "llavataractions.h"
 #include "llgroupactions.h"
 
-// statics
-std::set<LLNameBox*> LLNameBox::sInstances;
-
 static LLRegisterWidget<LLNameBox> r("name_box");
 
 LLNameBox::LLNameBox(const std::string& name)
-:	LLTextBox(name, LLRect(), LLStringUtil::null, nullptr, TRUE)
-,	mInitialValue(LLTrans::getString("LoadingData"))
+: LLNameUI()
+, LLTextBox(name, LLRect(), LLStringUtil::null, nullptr, TRUE)
 {
-	sInstances.insert(this);
-	setText(LLStringUtil::null);
-}
-
-LLNameBox::~LLNameBox()
-{
-	sInstances.erase(this);
-}
-
-void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
-{
-	mNameID = name_id;
-
-	std::string name;
-	BOOL got_name = FALSE;
-
-	if (!is_group)
-	{
-		got_name = gCacheName->getFullName(name_id, name);
-	}
-	else
-	{
-		got_name = gCacheName->getGroupName(name_id, name);
-	}
-
-	// At this point, if no callback has been set, set one
-	if (!mClickedCallback)
-		setClickedCallback(boost::bind(&LLNameBox::showProfile, this));
-
-	mIsGroup = is_group;
-
-	// Got the name already? Set it.
-	// Otherwise it will be set later in refresh().
-	setText(got_name ? name : mInitialValue);
-}
-
-void LLNameBox::refresh(const LLUUID& id, const std::string& full_name, bool is_group)
-{
-	if (id == mNameID)
-	{
-		setText(full_name);
-	}
-}
-
-void LLNameBox::refreshAll(const LLUUID& id, const std::string& full_name, bool is_group)
-{
-	for (auto& box : sInstances)
-	{
-		box->refresh(id, full_name, is_group);
-	}
+	setClickedCallback(boost::bind(&LLNameBox::showProfile, this));
 }
 
 void LLNameBox::showProfile()
@@ -127,6 +74,7 @@ void LLNameBox::initFromXML(LLXMLNodePtr node, LLView* parent)
 {
 	LLTextBox::initFromXML(node, parent);
 	node->getAttributeString("initial_value", mInitialValue);
+	setText(mInitialValue);
 }
 
 // static
@@ -136,4 +84,3 @@ LLView* LLNameBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 	name_box->initFromXML(node,parent);
 	return name_box;
 }
-

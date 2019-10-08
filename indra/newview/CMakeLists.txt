@@ -349,6 +349,7 @@ set(viewer_SOURCE_FILES
     llnamebox.cpp
     llnameeditor.cpp
     llnamelistctrl.cpp
+    llnameui.cpp
     llnetmap.cpp
     llnotify.cpp
     lloutfitobserver.cpp
@@ -886,6 +887,7 @@ set(viewer_HEADER_FILES
     llnamebox.h
     llnameeditor.h
     llnamelistctrl.h
+    llnameui.h
     llnetmap.h
     llnotify.h
     lloutfitobserver.h
