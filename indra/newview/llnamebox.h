@@ -35,6 +35,7 @@
 
 #include <set>
 
+#include "lfidbearer.h"
 #include "llview.h"
 #include "llstring.h"
 #include "llfontgl.h"
@@ -42,12 +43,16 @@
 
 class LLNameBox
 :	public LLTextBox
+,	public LFIDBearer
 {
 public:
 	virtual void initFromXML(LLXMLNodePtr node, LLView* parent);
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	virtual ~LLNameBox();
+	LLUUID getStringUUIDSelectedItem() const override final { return mNameID; }
+	uuid_vec_t getSelectedIDs() const override final { return {mNameID}; }
+	S32 getNumSelected() const override final { return 1; }
 
 	void setNameID(const LLUUID& name_id, BOOL is_group);
 
@@ -56,6 +61,7 @@ public:
 	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
 
 	void showProfile();
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override final;
 
 protected:
 	LLNameBox(const std::string& name);

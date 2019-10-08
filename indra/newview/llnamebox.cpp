@@ -110,6 +110,19 @@ void LLNameBox::showProfile()
 }
 
 // virtual
+BOOL LLNameBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	if (!LLTextBox::handleRightMouseDown(x, y, mask))
+	{
+		// Singu TODO: Generic menus for groups
+		if (mIsGroup || mNameID.isNull()) return FALSE;
+
+		showMenu(this, sMenus[0], x, y);
+	}
+	return TRUE;
+}
+
+// virtual
 void LLNameBox::initFromXML(LLXMLNodePtr node, LLView* parent)
 {
 	LLTextBox::initFromXML(node, parent);
