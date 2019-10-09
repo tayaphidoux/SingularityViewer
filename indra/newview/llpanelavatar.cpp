@@ -1297,9 +1297,8 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id)
 	mCacheConnection.disconnect();
 	mCacheConnection = LLAvatarNameCache::get(avatar_id, boost::bind(&LLPanelAvatar::onAvatarNameResponse, this, _1, _2));
 
-	LLNameEditor* key_edit = getChild<LLNameEditor>("avatar_key");
-	if (key_edit)
-		key_edit->setText(mAvatarID.asString());
+	if (auto key_edit = getChildView("avatar_key"))
+		key_edit->setValue(mAvatarID.asString());
 
 	// While we're waiting for data off the network, clear out the  old data.
 	if (mPanelSecondLife)
