@@ -216,7 +216,7 @@ void LLPanelAvatarSecondLife::processProperties(void* data, EAvatarProcessorType
 			bool allow_publish = (pAvatarData->flags & AVATAR_ALLOW_PUBLISH);
 			childSetValue("allow_publish", allow_publish);
 
-			setPartnerID(pAvatarData->partner_id);
+			mPartnerID = pAvatarData->partner_id;
 			if (mPartnerID.notNull())
 			{
 				mCacheConnection.disconnect();

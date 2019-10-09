@@ -121,8 +121,6 @@ public:
 	void updateOnlineText(BOOL online, BOOL have_calling_card);
 	void updatePartnerName(const LLAvatarName& name);
 
-	void setPartnerID(LLUUID id) { mPartnerID = id; }
-	
 private:
 	LLUUID				mPartnerID;
 	boost::signals2::connection mCacheConnection;
