@@ -36,7 +36,7 @@ Hover your mouse over the options for more help.
 	<text font="SansSerifSmall" name="group_key_text" follows="left|top" left="7" bottom="-50">
 		Group Key:
 	</text>
-      <name_editor bevel_style="in" border_style="line"
+      <line_editor bevel_style="in" border_style="line"
 			     border_thickness="1" bottom="-55" enabled="false" follows="left|top"
 			     font="SansSerifSmall" height="16" is_unicode="false" left_delta="65"
 			     max_length="254" mouse_opaque="false" name="group_key"
