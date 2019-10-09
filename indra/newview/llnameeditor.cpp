@@ -76,6 +76,7 @@ BOOL LLNameEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 void LLNameEditor::setText(const std::string& text)
 {
+	setToolTip(text);
 	LLLineEditor::setText(text);
 }
 
