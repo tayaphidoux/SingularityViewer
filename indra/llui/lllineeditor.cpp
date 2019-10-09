@@ -178,18 +178,9 @@ LLLineEditor::LLLineEditor(const std::string& name, const LLRect& rect,
 		sImage = LLUI::getUIImage("sm_rounded_corners_simple.tga");
 	}
 	mImage = sImage;
+
 	// make the popup menu available
-	//LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_texteditor.xml", parent_view);
-	LLMenuGL* menu = new LLMenuGL("wot");
-	/*if (!menu)
-	{
-	menu = new LLMenuGL(LLStringUtil::null);
-	}*/
-	menu->addChild(new LLMenuItemCallGL("Cut", context_cut, NULL, this));
-	menu->addChild(new LLMenuItemCallGL("Copy", context_copy, NULL, this));
-	menu->addChild(new LLMenuItemCallGL("Paste", context_paste, NULL, this));
-	menu->addChild(new LLMenuItemCallGL("Delete", context_delete, NULL, this));
-	menu->addChild(new LLMenuItemCallGL("Select All", context_selectall, NULL, this));
+	LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_texteditor.xml", LLMenuGL::sMenuContainer);
 	menu->addSeparator();
 	//menu->setBackgroundColor(gColors.getColor("MenuPopupBgColor"));
 	menu->setCanTearOff(FALSE);
@@ -452,18 +443,6 @@ void LLLineEditor::deselect()
 }
 
 
-void LLLineEditor::context_cut(void* data)
-{
-	LLLineEditor* line = (LLLineEditor*)data;
-	if(line)line->cut();
-}
-void LLLineEditor::context_copy(void* data)
-{
-	LLLineEditor* line = (LLLineEditor*)data;
-	if(line)line->copy();
-}
-
-
 void LLLineEditor::spell_correct(void* data)
 {
 	SpellMenuBind* tempBind = (SpellMenuBind*)data;
@@ -543,25 +522,6 @@ void LLLineEditor::spell_add(void* data)
 		glggHunSpell->addWordToCustomDictionary(tempBind->word);
 		tempBind->origin->mPrevSpelledText="";//make it update
 	}
-}
-
-
-void LLLineEditor::context_paste(void* data)
-{
-	LLLineEditor* line = (LLLineEditor*)data;
-	if(line)line->paste();
-}
-
-void LLLineEditor::context_delete(void* data)
-{
-	LLLineEditor* line = (LLLineEditor*)data;
-	if(line)line->doDelete();
-}
-
-void LLLineEditor::context_selectall(void* data)
-{
-	LLLineEditor* line = (LLLineEditor*)data;
-	if(line)line->selectAll();
 }
 
 void LLLineEditor::startSelection()
@@ -3113,7 +3073,6 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
 							tempStruct->wordPositionStart=wordStart;
 							LLMenuItemCallGL * suggMenuItem = new LLMenuItemCallGL(
 								tempStruct->word, spell_correct, NULL, tempStruct);
-							//new LLMenuItemCallGL("Select All", context_selectall, NULL, this));
 							tempStruct->menuItem = suggMenuItem;
 							suggestionMenuItems.push_back(tempStruct);
 							menu->addChild(suggMenuItem);

@@ -137,11 +137,6 @@ public:
 	virtual void	deselect();
 	virtual BOOL	canDeselect() const;
 
-	static void context_cut(void* data);
-	static void context_copy(void* data);
-	static void context_paste(void* data);
-	static void context_delete(void* data);
-	static void context_selectall(void* data);
 	static void spell_correct(void* data);
 	static void spell_show(void* data);
 	static void spell_add(void* data);
