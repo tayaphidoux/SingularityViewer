@@ -169,6 +169,8 @@ void LLPanelAvatarSecondLife::clearControls()
 
 	childSetTextArg("partner_edit", "[NAME]", LLStringUtil::null);
 	mPartnerID = LLUUID::null;
+	if (LLUICtrl* ctrl = getChild<LLUICtrl>("partner_info"))
+		ctrl->setEnabled(mPartnerID.notNull());
 
 	getChild<LLScrollListCtrl>("groups")->deleteAllItems();
 }
