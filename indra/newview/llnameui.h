@@ -58,5 +58,6 @@ private:
 protected:
 	LLUUID mNameID;
 	bool mIsGroup;
+	bool mAllowInteract;
 	std::string mInitialValue;
 };

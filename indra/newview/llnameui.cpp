@@ -39,7 +39,7 @@
 std::set<LLNameUI*> LLNameUI::sInstances;
 
 LLNameUI::LLNameUI(const std::string& loading, const LLUUID& id, bool is_group)
-: mNameID(id), mIsGroup(is_group)
+: mNameID(id), mIsGroup(is_group), mAllowInteract(false)
 , mInitialValue(!loading.empty() ? loading : LLTrans::getString("LoadingData"))
 {
 	sInstances.insert(this);
@@ -49,7 +49,11 @@ void LLNameUI::setNameID(const LLUUID& name_id, bool is_group)
 {
 	mNameID = name_id;
 	mIsGroup = is_group;
-	setNameText();
+	if (mAllowInteract = mNameID.notNull())
+		setNameText();
+	else
+		setText(LLTrans::getString(mIsGroup ? "GroupNameNone" : "AvatarNameNobody"));
+}
 
 void LLNameUI::setNameText()
 {

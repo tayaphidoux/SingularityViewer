@@ -50,6 +50,8 @@ LLNameBox::LLNameBox(const std::string& name)
 
 void LLNameBox::showProfile()
 {
+	if (!mAllowInteract) return;
+
 	if (mIsGroup)
 		LLGroupActions::show(mNameID);
 	else
@@ -59,6 +61,8 @@ void LLNameBox::showProfile()
 // virtual
 BOOL LLNameBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+	if (!mAllowInteract) return;
+
 	if (!LLTextBox::handleRightMouseDown(x, y, mask))
 	{
 		// Singu TODO: Generic menus for groups

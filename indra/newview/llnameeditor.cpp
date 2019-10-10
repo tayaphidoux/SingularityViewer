@@ -58,6 +58,8 @@ LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 // virtual
 BOOL LLNameEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+	if (!mAllowInteract) return;
+
 	bool simple_menu = mContextMenuHandle.get()->getName() != "rclickmenu";
 	std::string new_menu;
 	// Singu TODO: Generic menus for groups
