@@ -81,8 +81,10 @@ void LLNameUI::setNameText()
 	}
 	else
 	{
-		got_name = LLAvatarNameCache::getNSName(mNameID, name);
-		if (!got_name)
+		LLAvatarName av_name;
+		if (got_name = LLAvatarNameCache::get(mNameID, &av_name))
+			name = mShowCompleteName ? av_name.getCompleteName() : av_name.getNSName();
+		else
 			mConnection = LLAvatarNameCache::get(mNameID, boost::bind(&LLNameUI::setNameText, this));
 	}
 

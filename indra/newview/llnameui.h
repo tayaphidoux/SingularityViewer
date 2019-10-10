@@ -56,6 +56,8 @@ struct LLNameUI : public LFIDBearer
 	void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
 	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
 
+	void setShowCompleteName(bool show) { mShowCompleteName = show; }
+
 	virtual void setText(const std::string& text) = 0;
 
 	// Take either UUID or a map of "id" to UUID and "group" to boolean
@@ -72,6 +74,7 @@ struct LLNameUI : public LFIDBearer
 private:
 	static std::set<LLNameUI*> sInstances;
 	boost::signals2::connection mConnection;
+	bool mShowCompleteName = false;
 
 protected:
 	LLUUID mNameID;

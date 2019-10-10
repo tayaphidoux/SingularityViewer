@@ -1280,6 +1280,7 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id)
 	if (LLDropTarget* drop_target = findChild<LLDropTarget>("drop_target_rect"))
 		drop_target->setEntityID(mAvatarID);
 
+	dnname->setShowCompleteName(gSavedSettings.getBOOL("SinguCompleteNameProfiles"));
 
 	if (auto key_edit = getChildView("avatar_key"))
 		key_edit->setValue(mAvatarID.asString());
