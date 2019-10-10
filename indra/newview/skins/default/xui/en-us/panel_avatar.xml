@@ -26,7 +26,7 @@
 			     mouse_opaque="true" name="Name:" v_pad="0" width="70">
         Name:
       </text>
-			<line_editor bevel_style="in" border_style="line"
+			<name_editor bevel_style="in" border_style="line"
 				 border_thickness="1" bottom="-48" enabled="false" follows="left|top"
 				 font="SansSerifSmall" height="16" is_unicode="false" left_delta="75"
 				 max_length="254" mouse_opaque="false" name="dnname"
@@ -75,14 +75,11 @@
 			<button bottom_delta="0" follows="left|top" font="SansSerif" halign="center"
 			     height="18" label="?" label_selected="?" left_delta="24"
 			     mouse_opaque="true" name="partner_help" width="18" />
-			<line_editor bevel_style="in" border_style="line"
+			<name_editor bevel_style="in" border_style="line"
 			     border_thickness="1" bottom_delta="-16" enabled="true" follows="left|top"
-			     font="SansSerifSmall" height="16" is_unicode="false" left_delta="-119"
-			     max_length="254" mouse_opaque="false" name="partner_edit"
-			     tool_tip="Second Life partner. For more info on how to set, see www.secondlife.com/partner"
-			     width="137">
-				[NAME]
-			</line_editor>
+			     font="SansSerifSmall" height="16" left_delta="-119"
+			     max_length="1024" mouse_opaque="true" name="partner_edit"
+			     width="137"/>
 			<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-68" drop_shadow_visible="true" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="right" height="16" left="4"

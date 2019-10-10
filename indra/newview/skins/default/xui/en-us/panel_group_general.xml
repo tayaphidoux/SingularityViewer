@@ -19,12 +19,12 @@ Hover your mouse over the options for more help.
 	     h_pad="0" halign="left" height="16" label="Type your new group name here"
 	     left="7" max_length="35" mouse_opaque="true" name="group_name_editor"
 	     prevalidate="ascii" v_pad="0" width="300" spell_check="true" />
-	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	<name_box bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom="-20" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerifBig" h_pad="0" halign="left" height="16" left="7"
-	     mouse_opaque="true" name="group_name" v_pad="0" width="300">
+	     mouse_opaque="true" name="group_name" v_pad="0" width="300" is_group="true">
 		Type your new group name here
-	</text>
+	</name_box>
 	<text font="SansSerifSmall" name="prepend_founded_by">
 		Founded by
 	</text>

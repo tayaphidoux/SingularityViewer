@@ -52,6 +52,17 @@ struct LLNameUI : public LFIDBearer
 
 	virtual void setText(const std::string& text) = 0;
 
+	// Take either UUID or a map of "id" to UUID and "group" to boolean
+	virtual void setValue(const LLSD& value)
+	{
+		if (value.has("id"))
+			setNameID(value["id"].asUUID(), value["group"].asBoolean());
+		else
+			setNameID(value.asUUID(), mIsGroup);
+	}
+	// Return agent UUIDs
+	virtual LLSD getValue() const { return LLSD(mNameID); }
+
 private:
 	static std::set<LLNameUI*> sInstances;
 

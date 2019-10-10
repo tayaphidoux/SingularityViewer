@@ -292,7 +292,7 @@ public:
 	void updateControls(LLViewerRegion* region);
 	
 	static void updateEstateName(const std::string& name);
-	static void updateEstateOwnerName(const std::string& name);
+	static void updateEstateOwnerID(const LLUUID& id);
 
 	virtual bool refreshFromRegion(LLViewerRegion* region);
 	virtual bool estateUpdate(LLMessageSystem* msg);
@@ -307,7 +307,6 @@ public:
 	static bool isLindenEstate();
 	
 	const std::string getOwnerName() const;
-	void setOwnerName(const std::string& name);
 
 protected:
 	virtual BOOL sendUpdate();
@@ -355,14 +354,13 @@ public:
 	static void updateCovenantText(const std::string& string, const LLUUID& asset_id);
 	static void updateEstateName(const std::string& name);
 	static void updateLastModified(const std::string& text);
-	static void updateEstateOwnerName(const std::string& name);
+	static void updateEstateOwnerID(const LLUUID& id);
 
 	const LLUUID& getCovenantID() const { return mCovenantID; }
 	void setCovenantID(const LLUUID& id) { mCovenantID = id; }
 	std::string getEstateName() const;
 	void setEstateName(const std::string& name);
 	std::string getOwnerName() const;
-	void setOwnerName(const std::string& name);
 	void setCovenantTextEditor(const std::string& text);
 
 	typedef enum e_asset_status

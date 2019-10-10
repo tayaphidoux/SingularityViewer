@@ -54,9 +54,8 @@ public:
 	LLXMLNodePtr getXML(bool save_children = true) const override final;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	// Take/return agent UUIDs
-	void setValue(const LLSD& value) override final;
-	LLSD getValue() const override final;
+	void setValue(const LLSD& value) override final { LLNameUI::setValue(value); }
+	LLSD getValue() const override final { return LLNameUI::getValue(); }
 
 	void setText(const std::string& text) override final;
 };

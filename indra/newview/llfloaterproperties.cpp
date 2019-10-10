@@ -168,12 +168,6 @@ BOOL LLFloaterProperties::postBuild()
 	getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitName,this));
 	getChild<LLLineEditor>("LabelItemDesc")->setPrevalidate(&LLLineEditor::prevalidatePrintableNotPipe);
 	getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitDescription,this));
-	// Creator information
-	getChild<LLUICtrl>("BtnCreator")->setCommitCallback(boost::bind(&LLFloaterProperties::onClickCreator,this));
-	// owner information
-	getChild<LLUICtrl>("BtnOwner")->setCommitCallback(boost::bind(&LLFloaterProperties::onClickOwner,this));
-	// last owner information
-	getChild<LLUICtrl>("BtnLastOwner")->setCommitCallback(boost::bind(&LLFloaterProperties::onClickLastOwner,this));
 	// acquired date
 	// owner permissions
 	// Permissions debug text
@@ -226,11 +220,8 @@ void LLFloaterProperties::refresh()
 			"LabelItemName",
 			"LabelItemDesc",
 			"LabelCreatorName",
-			"BtnCreator",
 			"LabelOwnerName",
-			"BtnOwner",
 			"LabelLastOwnerName",
-			"BtnLastOwner",
 			"CheckOwnerModify",
 			"CheckOwnerCopy",
 			"CheckOwnerTransfer",
@@ -328,72 +319,46 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	if(!gCacheName) return;
 	if(!gAgent.getRegion()) return;
 
+	getChild<LLUICtrl>("LabelCreatorName")->setValue(item->getCreatorUUID());
 	if (item->getCreatorUUID().notNull())
 	{
-		std::string name;
-		gCacheName->getFullName(item->getCreatorUUID(), name);
-		getChildView("BtnCreator")->setEnabled(TRUE);
 		getChildView("LabelCreatorTitle")->setEnabled(TRUE);
 		getChildView("LabelCreatorName")->setEnabled(TRUE);
-		getChild<LLUICtrl>("LabelCreatorName")->setValue(name);
 	}
 	else
 	{
-		getChildView("BtnCreator")->setEnabled(FALSE);
 		getChildView("LabelCreatorTitle")->setEnabled(FALSE);
 		getChildView("LabelCreatorName")->setEnabled(FALSE);
-		getChild<LLUICtrl>("LabelCreatorName")->setValue(getString("unknown"));
+		getChild<LLTextBox>("LabelCreatorName")->setText(getString("unknown"));
 	}
 
+	getChild<LLUICtrl>("LabelLastOwnerName")->setValue(perm.getLastOwner());
 	if (perm.getLastOwner().notNull())
 	{
-		std::string name;
-		gCacheName->getFullName(perm.getLastOwner(), name);
 		getChildView("LabelLastOwnerTitle")->setEnabled(true);
 		getChildView("LabelLastOwnerName")->setEnabled(true);
-		getChild<LLUICtrl>("LabelLastOwnerName")->setValue(name);
 	}
 	else
 	{
 		getChildView("LabelLastOwnerTitle")->setEnabled(false);
 		getChildView("LabelLastOwnerName")->setEnabled(false);
-		getChild<LLUICtrl>("LabelLastOwnerName")->setValue(getString("unknown"));
+		getChild<LLTextBox>("LabelLastOwnerName")->setText(getString("unknown"));
 	}
 
 	////////////////
 	// OWNER NAME //
 	////////////////
+	getChild<LLUICtrl>("LabelOwnerName")->setValue(perm.getOwner());
 	if(perm.isOwned())
 	{
-		std::string name;
-		if (perm.isGroupOwned())
-		{
-			gCacheName->getGroupName(perm.getGroup(), name);
-		}
-		else
-		{
-			gCacheName->getFullName(perm.getOwner(), name);
-// [RLVa:KB] - Checked: 2009-07-08 (RLVa-1.0.0e)
-			if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))
-			{
-				name = RlvStrings::getAnonym(name);
-			}
-// [/RLVa:KB]
-		}
-		getChildView("BtnOwner")->setEnabled(TRUE);
-// [RLVa:KB] - Checked: 2009-07-08 (RLVa-1.0.0e) | Added: RLVa-1.0.0e
-		getChildView("BtnOwner")->setEnabled(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
-// [/RLVa:KB]
 		getChildView("LabelOwnerTitle")->setEnabled(TRUE);
 		getChildView("LabelOwnerName")->setEnabled(TRUE);
-		getChild<LLUICtrl>("LabelOwnerName")->setValue(name);
 	}
 	else
 	{
-		getChildView("BtnOwner")->setEnabled(FALSE);
 		getChildView("LabelOwnerTitle")->setEnabled(FALSE);
 		getChildView("LabelOwnerName")->setEnabled(FALSE);
-		getChild<LLUICtrl>("LabelOwnerName")->setValue(getString("public"));
+		getChild<LLTextBox>("LabelOwnerName")->setText(getString("public"));
 	}
 	
 	//////////////////
@@ -607,38 +572,6 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		radioSaleType->setSelectedIndex(-1);
 		getChild<LLUICtrl>("Edit Cost")->setValue(llformat("%d",0));
 	}
-}
-
-void LLFloaterProperties::onClickCreator()
-{
-	LLInventoryItem* item = findItem();
-	if(!item) return;
-	LLAvatarActions::showProfile(item->getCreatorUUID());
-}
-
-// static
-void LLFloaterProperties::onClickOwner()
-{
-	LLInventoryItem* item = findItem();
-	if(!item) return;
-	if(item->getPermissions().isGroupOwned())
-	{
-		LLGroupActions::show(item->getPermissions().getGroup());
-	}
-	else
-	{
-// [RLVa:KB] - Checked: 2009-07-08 (RLVa-1.0.0e)
-		if (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))
-// [/RLVa:KB]
-		{
-			LLAvatarActions::showProfile(item->getPermissions().getOwner());
-		}
-	}
-}
-
-void LLFloaterProperties::onClickLastOwner()
-{
-	if (const LLInventoryItem* item = findItem()) LLAvatarActions::showProfile(item->getPermissions().getLastOwner());
 }
 
 // static

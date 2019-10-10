@@ -1676,12 +1676,12 @@ struct LLEstateAccessChangeInfo
 };
 
 // static
-void LLPanelEstateInfo::updateEstateOwnerName(const std::string& name)
+void LLPanelEstateInfo::updateEstateOwnerID(const LLUUID& id)
 {
 	LLPanelEstateInfo* panelp = LLFloaterRegionInfo::getPanelEstate();
 	if (panelp)
 	{
-		panelp->setOwnerName(name);
+		panelp->getChild<LLUICtrl>("estate_owner")->setValue(id);
 	}
 }
 
@@ -1800,7 +1800,7 @@ void LLPanelEstateInfo::refreshFromEstate()
 	const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
 
 	getChild<LLUICtrl>("estate_name")->setValue(estate_info.getName());
-	LLAvatarNameCache::get(estate_info.getOwnerID(), boost::bind(&LLPanelEstateInfo::setOwnerName, this, boost::bind(&LLAvatarName::getNSName, _2, main_name_system())));
+	getChild<LLUICtrl>("estate_owner")->setValue(estate_info.getOwnerID());
 
 	getChild<LLUICtrl>("externally_visible_check")->setValue(estate_info.getIsExternallyVisible());
 	getChild<LLUICtrl>("voice_chat_check")->setValue(estate_info.getAllowVoiceChat());
@@ -1924,12 +1924,7 @@ void LLPanelEstateInfo::getEstateOwner()
 
 const std::string LLPanelEstateInfo::getOwnerName() const
 {
-	return getChild<LLUICtrl>("estate_owner")->getValue().asString();
-}
-
-void LLPanelEstateInfo::setOwnerName(const std::string& name)
-{
-	getChild<LLUICtrl>("estate_owner")->setValue(LLSD(name));
+	return getChild<LLTextBox>("estate_owner")->getText();
 }
 
 // static
@@ -2294,23 +2289,18 @@ void LLPanelEstateCovenant::updateLastModified(const std::string& text)
 }
 
 // static
-void LLPanelEstateCovenant::updateEstateOwnerName(const std::string& name)
+void LLPanelEstateCovenant::updateEstateOwnerID(const LLUUID& id)
 {
 	LLPanelEstateCovenant* panelp = LLFloaterRegionInfo::getPanelCovenant();
 	if( panelp )
 	{
-		panelp->mEstateOwnerText->setText(name);
+		panelp->mEstateOwnerText->setValue(id);
 	}
 }
 
 std::string LLPanelEstateCovenant::getOwnerName() const
 {
 	return mEstateOwnerText->getText();
-}
-
-void LLPanelEstateCovenant::setOwnerName(const std::string& name)
-{
-	mEstateOwnerText->setText(name);
 }
 
 void LLPanelEstateCovenant::setCovenantTextEditor(const std::string& text)

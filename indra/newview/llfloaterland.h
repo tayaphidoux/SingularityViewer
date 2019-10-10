@@ -148,9 +148,7 @@ public:
 	virtual void draw();
 
 	void setGroup(const LLUUID& group_id);
-	void onClickProfile();
 	void onClickSetGroup();
-	static void onClickInfoGroup(void*);
 	static void onClickDeed(void*);
 	static void onClickBuyLand(void* data);
 	static void onClickScriptLimits(void* data);
@@ -191,8 +189,7 @@ protected:
  	LLButton*		mBtnSetGroup;
 
 	LLTextBox*		mTextOwner;
-	LLButton*		mBtnProfile;
-	
+
 	LLTextBox*		mContentRating;
 	LLTextBox*		mLandType;
 
@@ -406,7 +403,7 @@ public:
 	static void updateCovenantText(const std::string& string);
 	static void updateEstateName(const std::string& name);
 	static void updateLastModified(const std::string& text);
-	static void updateEstateOwnerName(const std::string& name);
+	static void updateEstateOwnerID(const LLUUID& id);
 
 protected:
 	LLSafeHandle<LLParcelSelection>&	mParcel;

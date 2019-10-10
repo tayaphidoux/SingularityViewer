@@ -176,7 +176,7 @@ public:
 	void updateFloaterCovenantText(const std::string& string, const LLUUID &asset_id);
 	void updateFloaterEstateName(const std::string& name);
 	void updateFloaterLastModified(const std::string& text);
-	void updateFloaterEstateOwnerName(const std::string& name);
+	void updateFloaterEstateOwnerID(const LLUUID& id);
 	void updateWebSiteInfo();
 	void finishWebSiteInfo();
 	
@@ -263,12 +263,12 @@ void LLFloaterBuyLand::updateLastModified(const std::string& text)
 }
 
 // static
-void LLFloaterBuyLand::updateEstateOwnerName(const std::string& name)
+void LLFloaterBuyLand::updateEstateOwnerID(const LLUUID& id)
 {
-	LLFloaterBuyLandUI* floater = LLFloaterBuyLandUI::instanceExists() ? LLFloaterBuyLandUI::getInstance() : NULL;
+	LLFloaterBuyLandUI* floater = LLFloaterBuyLandUI::instanceExists() ? LLFloaterBuyLandUI::getInstance() : nullptr;
 	if (floater)
 	{
-		floater->updateFloaterEstateOwnerName(name);
+		floater->updateFloaterEstateOwnerID(id);
 	}
 }
 
@@ -629,10 +629,10 @@ void LLFloaterBuyLandUI::updateFloaterLastModified(const std::string& text)
 	if (editor) editor->setText(text);
 }
 
-void LLFloaterBuyLandUI::updateFloaterEstateOwnerName(const std::string& name)
+void LLFloaterBuyLandUI::updateFloaterEstateOwnerID(const LLUUID& id)
 {
 	LLTextBox* box = getChild<LLTextBox>("estate_owner_text");
-	if (box) box->setText(name);
+	if (box) box->setValue(id);
 }
 
 void LLFloaterBuyLandUI::updateWebSiteInfo()

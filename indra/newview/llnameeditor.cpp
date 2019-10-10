@@ -83,16 +83,6 @@ void LLNameEditor::setText(const std::string& text)
 	LLLineEditor::setText(text);
 }
 
-void LLNameEditor::setValue( const LLSD& value )
-{
-	setNameID(value.asUUID(), FALSE);
-}
-
-LLSD LLNameEditor::getValue() const
-{
-	return LLSD(mNameID);
-}
-
 // virtual
 LLXMLNodePtr LLNameEditor::getXML(bool save_children) const
 {
