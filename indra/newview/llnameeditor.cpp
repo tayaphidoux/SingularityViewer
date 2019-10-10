@@ -76,6 +76,16 @@ BOOL LLNameEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return LLLineEditor::handleRightMouseDown(x, y, mask);
 }
 
+void LLNameEditor::displayAsLink(bool link)
+{
+	static const LLUICachedControl<LLColor4> color("HTMLAgentColor");
+	setReadOnlyFgColor(link ? color : LLUI::sColorsGroup->getColor("TextFgReadOnlyColor"));
+	if (link)
+		mFontStyle |= LLFontGL::UNDERLINE;
+	else
+		mFontStyle &= ~LLFontGL::UNDERLINE;
+}
+
 void LLNameEditor::setText(const std::string& text)
 {
 	setToolTip(text);

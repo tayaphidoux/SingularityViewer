@@ -65,9 +65,14 @@ void LLNameUI::setNameID(const LLUUID& name_id, bool is_group)
 	mIsGroup = is_group;
 
 	if (mAllowInteract = mNameID.notNull())
+	{
 		setNameText();
+	}
 	else
+	{
 		setText(LLTrans::getString(mIsGroup ? "GroupNameNone" : "AvatarNameNobody"));
+		displayAsLink(false);
+	}
 }
 
 void LLNameUI::setNameText()
@@ -98,6 +103,8 @@ void LLNameUI::setNameText()
 		}
 		else mAllowInteract = true;
 	}
+
+	displayAsLink(mAllowInteract);
 
 	// Got the name already? Set it.
 	// Otherwise it will be set later in refresh().

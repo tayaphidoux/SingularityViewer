@@ -57,6 +57,7 @@ public:
 	void setValue(const LLSD& value) override final { LLNameUI::setValue(value); }
 	LLSD getValue() const override final { return LLNameUI::getValue(); }
 
+	void displayAsLink(bool link) override final;
 	void setText(const std::string& text) override final;
 };
 

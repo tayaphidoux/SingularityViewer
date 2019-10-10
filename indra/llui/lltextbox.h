@@ -113,6 +113,7 @@ private:
 	void			setLineLengths();
 	void			drawText(S32 x, S32 y, const LLColor4& color );
 
+protected:
 	LLUIString		mText;
 	const LLFontGL*	mFontGL;
 	LLColor4		mTextColor;
@@ -139,7 +140,6 @@ private:
 	LLFontGL::VAlign mVAlign;
 
 	std::vector<S32> mLineLengthList;
-protected:
 	callback_t			mClickedCallback;
 };
 

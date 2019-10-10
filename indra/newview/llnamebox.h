@@ -44,6 +44,7 @@ public:
 	virtual void initFromXML(LLXMLNodePtr node, LLView* parent);
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
+	void displayAsLink(bool link) override final;
 	void setText(const std::string& text) override final { LLTextBox::setText(text); }
 	void setValue(const LLSD& value) override final { LLNameUI::setValue(value); }
 	LLSD getValue() const override final { return LLNameUI::getValue(); }

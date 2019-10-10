@@ -48,6 +48,17 @@ LLNameBox::LLNameBox(const std::string& name)
 	setClickedCallback(boost::bind(&LLNameBox::showProfile, this));
 }
 
+void LLNameBox::displayAsLink(bool link)
+{
+	static const LLUICachedControl<LLColor4> color("HTMLAgentColor");
+	setColor(link ? color : LLUI::sColorsGroup->getColor("LabelTextColor"));
+	setDisabledColor(link ? color : LLUI::sColorsGroup->getColor("LabelDisabledColor"));
+	if (link)
+		mFontStyle |= LLFontGL::UNDERLINE;
+	else
+		mFontStyle &= ~LLFontGL::UNDERLINE;
+}
+
 void LLNameBox::showProfile()
 {
 	if (!mAllowInteract) return;

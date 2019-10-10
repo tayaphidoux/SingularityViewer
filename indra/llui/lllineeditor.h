@@ -315,6 +315,7 @@ protected:
 
 	LLViewBorder* mBorder;
 	const LLFontGL*	mGLFont;
+	U8			mFontStyle = LLFontGL::NORMAL;
 	S32			mMaxLengthBytes;			// Max length of the UTF8 string in bytes
 	S32			mCursorPos;					// I-beam is just after the mCursorPos-th character.
 	S32			mScrollHPos;				// Horizontal offset from the start of mText.  Used for scrolling.
