@@ -160,7 +160,7 @@ void LLPanelAvatarSecondLife::clearControls()
 	childSetValue("born", LLStringUtil::null);
 	childSetValue("acct", LLStringUtil::null);
 
-	childSetTextArg("partner_edit", "[NAME]", LLStringUtil::null);
+	childSetValue("partner_edit", LLUUID::null);
 	mPartnerID = LLUUID::null;
 
 	getChild<LLScrollListCtrl>("groups")->deleteAllItems();
