@@ -39,8 +39,8 @@
 std::set<LLNameUI*> LLNameUI::sInstances;
 
 LLNameUI::LLNameUI(const std::string& loading, const LLUUID& id, bool is_group)
-	: mInitialValue(!loading.empty() ? loading : LLTrans::getString("LoadingData"))
-	, mNameID(id), mIsGroup(is_group)
+: mNameID(id), mIsGroup(is_group)
+, mInitialValue(!loading.empty() ? loading : LLTrans::getString("LoadingData"))
 {
 	sInstances.insert(this);
 }
@@ -48,20 +48,23 @@ LLNameUI::LLNameUI(const std::string& loading, const LLUUID& id, bool is_group)
 void LLNameUI::setNameID(const LLUUID& name_id, bool is_group)
 {
 	mNameID = name_id;
+	mIsGroup = is_group;
+	setNameText();
 
+void LLNameUI::setNameText()
+{
 	std::string name;
 	bool got_name = false;
 
-	if (!is_group)
+	if (mIsGroup)
 	{
-		got_name = gCacheName->getFullName(name_id, name);
+		got_name = gCacheName->getGroupName(mNameID, name);
 	}
 	else
 	{
-		got_name = gCacheName->getGroupName(name_id, name);
+		got_name = gCacheName->getFullName(mNameID, name);
 	}
 
-	mIsGroup = is_group;
 
 	// Got the name already? Set it.
 	// Otherwise it will be set later in refresh().
@@ -72,7 +75,7 @@ void LLNameUI::refresh(const LLUUID& id, const std::string& full_name, bool is_g
 {
 	if (id == mNameID)
 	{
-		setText(full_name);
+		setNameText();
 	}
 }
 

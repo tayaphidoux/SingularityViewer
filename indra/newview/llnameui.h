@@ -46,6 +46,7 @@ struct LLNameUI : public LFIDBearer
 	S32 getNumSelected() const override final { return 1; }
 
 	void setNameID(const LLUUID& name_id, bool is_group);
+	void setNameText(); // Sets the name to whatever the name cache has at the moment
 	void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
 	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
 
