@@ -59,20 +59,19 @@ LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 // virtual
 BOOL LLNameEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!mAllowInteract) return;
-
-	bool simple_menu = mContextMenuHandle.get()->getName() != "rclickmenu";
+	bool simple_menu = mContextMenuHandle.get()->getName() == "rclickmenu";
 	std::string new_menu;
 	// Singu TODO: Generic menus for groups
-	if ((mIsGroup || mNameID.isNull()) && simple_menu)
+	if (!simple_menu && (mIsGroup || !mAllowInteract || mNameID.isNull())) // If no ID or blocking interaction switch to simple menu
 	{
 		new_menu = "menu_texteditor.xml";
 	}
-	else if (!simple_menu && !mIsGroup)
+	else if (simple_menu && !mIsGroup)
 	{
 		new_menu = "menu_nameeditor_avatar.xml";
 	}
 	if (!new_menu.empty()) setContextMenu(LLUICtrlFactory::instance().buildMenu(new_menu, LLMenuGL::sMenuContainer));
+	sActive = this;
 
 	return LLLineEditor::handleRightMouseDown(x, y, mask);
 }

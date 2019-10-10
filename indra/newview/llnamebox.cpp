@@ -61,16 +61,17 @@ void LLNameBox::showProfile()
 // virtual
 BOOL LLNameBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!mAllowInteract) return;
-
-	if (!LLTextBox::handleRightMouseDown(x, y, mask))
+	auto handled = LLTextBox::handleRightMouseDown(x, y, mask);
+	if (mAllowInteract && !handled)
 	{
 		// Singu TODO: Generic menus for groups
-		if (mIsGroup || mNameID.isNull()) return FALSE;
-
-		showMenu(this, sMenus[0], x, y);
+		if (!mIsGroup && mNameID.notNull())
+		{
+			showMenu(this, sMenus[0], x, y);
+			handled = true;
+		}
 	}
-	return TRUE;
+	return handled;
 }
 
 // virtual
