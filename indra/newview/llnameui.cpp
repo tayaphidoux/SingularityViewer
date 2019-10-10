@@ -96,7 +96,7 @@ void LLNameUI::setNameText()
 	if (!mIsGroup && got_name && mRLVSensitive) // Filter if needed
 	{
 		if ((gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) || gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMETAGS))
-			&& mNameID.notNull() && mNameID != gAgentID && RlvUtil::isNearbyAgent(mNameID))
+			&& mNameID != gAgentID && RlvUtil::isNearbyAgent(mNameID))
 		{
 			mAllowInteract = false;
 			name = RlvStrings::getAnonym(name);
@@ -121,6 +121,7 @@ void LLNameUI::refresh(const LLUUID& id, const std::string& full_name, bool is_g
 
 void LLNameUI::refreshAll(const LLUUID& id, const std::string& full_name, bool is_group)
 {
+	if (!is_group) return;
 	for (auto box : sInstances)
 	{
 		box->refresh(id, full_name, is_group);
