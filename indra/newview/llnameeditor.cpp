@@ -80,10 +80,6 @@ void LLNameEditor::displayAsLink(bool link)
 {
 	static const LLUICachedControl<LLColor4> color("HTMLAgentColor");
 	setReadOnlyFgColor(link ? color : LLUI::sColorsGroup->getColor("TextFgReadOnlyColor"));
-	if (link)
-		mFontStyle |= LLFontGL::UNDERLINE;
-	else
-		mFontStyle &= ~LLFontGL::UNDERLINE;
 }
 
 void LLNameEditor::setText(const std::string& text)
