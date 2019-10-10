@@ -12,9 +12,9 @@
 	<text name="owner_text">
 		Propietario del estado:
 	</text>
-	<text name="estate_owner">
+	<name_box name="estate_owner">
 		(desconocido)
-	</text>
+	</name_box>
 	<check_box label="Permitir el acceso público" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>	
 	<check_box label="Permitir el chat de voz" name="voice_chat_check"/>
