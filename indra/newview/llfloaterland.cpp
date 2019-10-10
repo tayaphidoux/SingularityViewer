@@ -857,13 +857,6 @@ void LLPanelLandGeneral::refreshNames()
 	}
 }
 
-
-// virtual
-void LLPanelLandGeneral::draw()
-{
-	LLPanel::draw();
-}
-
 void LLPanelLandGeneral::onClickSetGroup()
 {
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
@@ -1144,7 +1137,6 @@ BOOL LLPanelLandObjects::postBuild()
 	mOwnerList = getChild<LLNameListCtrl>("owner list");
 	mOwnerList->sortByColumnIndex(3, FALSE);
 	mOwnerList->setCommitCallback(boost::bind(&LLPanelLandObjects::onCommitList,this));
-	mOwnerList->setDoubleClickCallback(boost::bind(&LLPanelLandObjects::onDoubleClickOwner, this));
 
 	return TRUE;
 }
@@ -1155,35 +1147,6 @@ BOOL LLPanelLandObjects::postBuild()
 // virtual
 LLPanelLandObjects::~LLPanelLandObjects()
 { }
-
-// static
-void LLPanelLandObjects::onDoubleClickOwner(void *userdata)
-{
-	LLPanelLandObjects *self = (LLPanelLandObjects *)userdata;
-
-	LLScrollListItem* item = self->mOwnerList->getFirstSelected();
-	if (item)
-	{
-		LLUUID owner_id = item->getUUID();
-		// Look up the selected name, for future dialog box use.
-		const LLScrollListCell* cell;
-		cell = item->getColumn(1);
-		if (!cell)
-		{
-			return;
-		}
-		// Is this a group?
-		BOOL is_group = cell->getValue().asString() == OWNER_GROUP;
-		if (is_group)
-		{
-			LLGroupActions::show(owner_id);
-		}
-		else
-		{
-			LLAvatarActions::showProfile(owner_id);
-		}
-	}
-}
 
 // public
 void LLPanelLandObjects::refresh()
@@ -1296,12 +1259,6 @@ void LLPanelLandObjects::refresh()
 			mBtnRefresh->setEnabled(TRUE);
 		}
 	}
-}
-
-// virtual
-void LLPanelLandObjects::draw()
-{
-	LLPanel::draw();
 }
 
 void send_other_clean_time_message(S32 parcel_local_id, S32 other_clean_time)

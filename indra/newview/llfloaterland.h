@@ -145,7 +145,6 @@ public:
 	virtual ~LLPanelLandGeneral();
 	/*virtual*/ void refresh();
 	void refreshNames();
-	virtual void draw();
 
 	void setGroup(const LLUUID& group_id);
 	void onClickSetGroup();
@@ -243,7 +242,6 @@ public:
 	LLPanelLandObjects(LLSafeHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandObjects();
 	/*virtual*/ void refresh();
-	virtual void draw();
 
 	bool callbackReturnOwnerObjects(const LLSD& notification, const LLSD& response);
 	bool callbackReturnGroupObjects(const LLSD& notification, const LLSD& response);
@@ -260,8 +258,6 @@ public:
 	static void onClickReturnOtherObjects(void*);
 	static void onClickReturnOwnerList(void*);
 	static void onClickRefresh(void*);
-
-	static void onDoubleClickOwner(void*);	
 
 	void onCommitList();
 	static void onLostFocus(LLFocusableElement* caller, void* user_data);

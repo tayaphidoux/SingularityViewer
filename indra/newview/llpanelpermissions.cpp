@@ -327,7 +327,7 @@ void LLPanelPermissions::refresh()
 	const LLFocusableElement* keyboard_focus_view = gFocusMgr.getKeyboardFocus();
 
 	S32 string_index = 0;
-	std::string MODIFY_INFO_STRINGS[] =
+	static std::string MODIFY_INFO_STRINGS[] =
 	{
 		getString("text modify info 1"),
 		getString("text modify info 2"),

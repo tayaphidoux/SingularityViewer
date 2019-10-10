@@ -8607,7 +8607,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	}
 	else
 	{
-		last_modified = LLTrans::getString("covenant_modified") + " " + formatted_time((time_t)covenant_timestamp);
+		last_modified = LLTrans::getString("covenant_modified") + ' ' + formatted_time((time_t)covenant_timestamp);
 	}
 
 	LLPanelEstateCovenant::updateLastModified(last_modified);
