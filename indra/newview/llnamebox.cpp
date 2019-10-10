@@ -79,6 +79,7 @@ void LLNameBox::initFromXML(LLXMLNodePtr node, LLView* parent)
 	LLTextBox::initFromXML(node, parent);
 	node->getAttributeString("initial_value", mInitialValue);
 	setText(mInitialValue);
+	node->getAttribute_bool("rlv_sensitive", mRLVSensitive);
 }
 
 // static

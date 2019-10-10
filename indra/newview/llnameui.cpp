@@ -33,13 +33,16 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llnameui.h"
+#include "llagentdata.h"
 #include "lltrans.h"
+
+#include "rlvhandler.h"
 
 // statics
 std::set<LLNameUI*> LLNameUI::sInstances;
 
-LLNameUI::LLNameUI(const std::string& loading, const LLUUID& id, bool is_group)
-: mNameID(id), mIsGroup(is_group), mAllowInteract(false)
+LLNameUI::LLNameUI(const std::string& loading, bool rlv_sensitive, const LLUUID& id, bool is_group)
+: mNameID(id), mRLVSensitive(rlv_sensitive), mIsGroup(is_group), mAllowInteract(false)
 , mInitialValue(!loading.empty() ? loading : LLTrans::getString("LoadingData"))
 {
 	sInstances.insert(this);
@@ -69,6 +72,16 @@ void LLNameUI::setNameText()
 		got_name = gCacheName->getFullName(mNameID, name);
 	}
 
+	if (!mIsGroup && got_name && mRLVSensitive) // Filter if needed
+	{
+		if ((gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) || gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMETAGS))
+			&& mNameID.notNull() && mNameID != gAgentID && RlvUtil::isNearbyAgent(mNameID))
+		{
+			mAllowInteract = false;
+			name = RlvStrings::getAnonym(name);
+		}
+		else mAllowInteract = true;
+	}
 
 	// Got the name already? Set it.
 	// Otherwise it will be set later in refresh().

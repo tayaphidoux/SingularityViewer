@@ -43,9 +43,10 @@ LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 		const LLUUID& name_id,
 		bool is_group,
 		const std::string& loading,
+		bool rlv_sensitive,
 		const LLFontGL* glfont,
 		S32 max_text_length)
-: LLNameUI(loading, name_id, is_group)
+: LLNameUI(loading, rlv_sensitive, name_id, is_group)
 , LLLineEditor(name, rect, LLStringUtil::null, glfont, max_text_length)
 {
 	if (!name_id.isNull())
@@ -115,10 +116,12 @@ LLView* LLNameEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	node->getAttributeUUID("id", id);
 	std::string loading;
 	node->getAttributeString("label", loading);
+	bool rlv_sensitive = false;
+	node->getAttribute_bool("rlv_sensitive", rlv_sensitive);
 
 	LLNameEditor* line_editor = new LLNameEditor("name_editor",
 								rect,
-								id, is_group, loading,
+								id, is_group, loading, rlv_sensitive,
 								LLView::selectFont(node),
 								max_text_length);
 

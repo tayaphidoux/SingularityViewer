@@ -38,7 +38,7 @@
 
 struct LLNameUI : public LFIDBearer
 {
-	LLNameUI(const std::string& loading = LLStringUtil::null, const LLUUID& id = LLUUID::null, bool is_group = false);
+	LLNameUI(const std::string& loading = LLStringUtil::null, bool rlv_sensitive = false, const LLUUID& id = LLUUID::null, bool is_group = false);
 	virtual ~LLNameUI() { sInstances.erase(this); }
 
 	LLUUID getStringUUIDSelectedItem() const override final { return mNameID; }
@@ -57,6 +57,7 @@ private:
 
 protected:
 	LLUUID mNameID;
+	bool mRLVSensitive; // Whether or not we're doing RLV filtering
 	bool mIsGroup;
 	bool mAllowInteract;
 	std::string mInitialValue;
