@@ -33,7 +33,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llnameui.h"
+
 #include "llagentdata.h"
+#include "llavatarnamecache.h"
 #include "lltrans.h"
 
 #include "rlvhandler.h"
@@ -45,13 +47,23 @@ LLNameUI::LLNameUI(const std::string& loading, bool rlv_sensitive, const LLUUID&
 : mNameID(id), mRLVSensitive(rlv_sensitive), mIsGroup(is_group), mAllowInteract(false)
 , mInitialValue(!loading.empty() ? loading : LLTrans::getString("LoadingData"))
 {
-	sInstances.insert(this);
+	if (mIsGroup) sInstances.insert(this);
 }
 
 void LLNameUI::setNameID(const LLUUID& name_id, bool is_group)
 {
 	mNameID = name_id;
+	mConnection.disconnect();
+
+	if (mIsGroup != is_group)
+	{
+		if (is_group)
+			sInstances.insert(this);
+		else
+			sInstances.erase(this);
+	}
 	mIsGroup = is_group;
+
 	if (mAllowInteract = mNameID.notNull())
 		setNameText();
 	else
@@ -69,7 +81,9 @@ void LLNameUI::setNameText()
 	}
 	else
 	{
-		got_name = gCacheName->getFullName(mNameID, name);
+		got_name = LLAvatarNameCache::getNSName(mNameID, name);
+		if (!got_name)
+			mConnection = LLAvatarNameCache::get(mNameID, boost::bind(&LLNameUI::setNameText, this));
 	}
 
 	if (!mIsGroup && got_name && mRLVSensitive) // Filter if needed

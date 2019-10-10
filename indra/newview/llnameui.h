@@ -39,7 +39,13 @@
 struct LLNameUI : public LFIDBearer
 {
 	LLNameUI(const std::string& loading = LLStringUtil::null, bool rlv_sensitive = false, const LLUUID& id = LLUUID::null, bool is_group = false);
-	virtual ~LLNameUI() { sInstances.erase(this); }
+	virtual ~LLNameUI()
+	{
+		if (mIsGroup)
+			sInstances.erase(this);
+		else
+			mConnection.disconnect();
+	}
 
 	LLUUID getStringUUIDSelectedItem() const override final { return mNameID; }
 	uuid_vec_t getSelectedIDs() const override final { return { mNameID }; }
@@ -65,6 +71,7 @@ struct LLNameUI : public LFIDBearer
 
 private:
 	static std::set<LLNameUI*> sInstances;
+	boost::signals2::connection mConnection;
 
 protected:
 	LLUUID mNameID;
