@@ -33,7 +33,7 @@
 #include "llviewerprecompiledheaders.h"
  
 #include "llnameeditor.h"
-#include "llcachename.h"
+
 #include "llmenugl.h"
 #include "lluictrlfactory.h"
 
@@ -54,6 +54,17 @@ LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 		setNameID(name_id, is_group);
 	}
 	else setText(mInitialValue);
+}
+
+// virtual
+BOOL LLNameEditor::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	if (mAllowInteract)
+	{
+		showProfile();
+		return true;
+	}
+	else return LLLineEditor::handleMouseDown(x, y, mask);
 }
 
 // virtual

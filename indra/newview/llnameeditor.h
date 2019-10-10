@@ -49,6 +49,7 @@ public:
 		const LLFontGL* glfont = nullptr,
 		S32 max_text_length = 254);
 
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override final;
 	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override final;
 
 	LLXMLNodePtr getXML(bool save_children = true) const override final;

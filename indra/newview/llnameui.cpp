@@ -35,7 +35,9 @@
 #include "llnameui.h"
 
 #include "llagentdata.h"
+#include "llavataractions.h"
 #include "llavatarnamecache.h"
+#include "llgroupactions.h"
 #include "lltrans.h"
 
 #include "rlvhandler.h"
@@ -126,4 +128,14 @@ void LLNameUI::refreshAll(const LLUUID& id, const std::string& full_name, bool i
 	{
 		box->refresh(id, full_name, is_group);
 	}
+}
+
+void LLNameUI::showProfile()
+{
+	if (!mAllowInteract) return;
+
+	if (mIsGroup)
+		LLGroupActions::show(mNameID);
+	else
+		LLAvatarActions::showProfile(mNameID);
 }

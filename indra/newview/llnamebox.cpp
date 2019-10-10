@@ -34,18 +34,13 @@
 
 #include "llnamebox.h"
 
-#include "llcachename.h"
-
-#include "llavataractions.h"
-#include "llgroupactions.h"
-
 static LLRegisterWidget<LLNameBox> r("name_box");
 
 LLNameBox::LLNameBox(const std::string& name)
 : LLNameUI()
 , LLTextBox(name, LLRect(), LLStringUtil::null, nullptr, TRUE)
 {
-	setClickedCallback(boost::bind(&LLNameBox::showProfile, this));
+	setClickedCallback(boost::bind(&LLNameUI::showProfile, this));
 }
 
 void LLNameBox::displayAsLink(bool link)
@@ -53,16 +48,6 @@ void LLNameBox::displayAsLink(bool link)
 	static const LLUICachedControl<LLColor4> color("HTMLAgentColor");
 	setColor(link ? color : LLUI::sColorsGroup->getColor("LabelTextColor"));
 	setDisabledColor(link ? color : LLUI::sColorsGroup->getColor("LabelDisabledColor"));
-}
-
-void LLNameBox::showProfile()
-{
-	if (!mAllowInteract) return;
-
-	if (mIsGroup)
-		LLGroupActions::show(mNameID);
-	else
-		LLAvatarActions::showProfile(mNameID);
 }
 
 // virtual

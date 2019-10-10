@@ -57,6 +57,7 @@ struct LLNameUI : public LFIDBearer
 	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
 
 	void setShowCompleteName(bool show) { mShowCompleteName = show; }
+	void showProfile();
 
 	virtual void displayAsLink(bool link) = 0; // Override to make the name display as a link
 	virtual void setText(const std::string& text) = 0;

@@ -49,7 +49,6 @@ public:
 	void setValue(const LLSD& value) override final { LLNameUI::setValue(value); }
 	LLSD getValue() const override final { return LLNameUI::getValue(); }
 
-	void showProfile();
 	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override final;
 
 protected:
