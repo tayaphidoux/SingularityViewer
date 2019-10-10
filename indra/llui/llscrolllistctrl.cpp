@@ -2744,10 +2744,11 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 	LLSD columns;
 	S32 index = 0;
 	const std::string nodename(std::string(node->getName()->mString) + '.');
-	const std::string kidcolumn(nodename + "columns");
+	const std::string kidcolumns(nodename + "columns");
+	const std::string kidcolumn(nodename + "column");
 	for (LLXMLNodePtr child = node->getFirstChild(); child.notNull(); child = child->getNextSibling())
 	{
-		if (child->hasName("column") || child->hasName(kidcolumn))
+		if (child->hasName("column")  || child->hasName("columns") || child->hasName(kidcolumn) || child->hasName(kidcolumns))
 		{
 			std::string labelname("");
 			if (child->getAttributeString("label", labelname))
@@ -2827,9 +2828,10 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 			bool explicit_column = false;
 			for (LLXMLNodePtr row_child = child->getFirstChild(); row_child.notNull(); row_child = row_child->getNextSibling())
 			{
-				if (row_child->hasName("column"))
+				if (row_child->hasName("column") || row_child->hasName("columns"))
 				{
 					std::string value = row_child->getTextContents();
+					row_child->getAttributeString("value", value);
 					row["columns"][column_idx]["value"] = value;
 
 					std::string columnname;
