@@ -702,28 +702,10 @@ LLMemoryInfo::LLMemoryInfo()
 	refresh();
 }
 
-#if LL_WINDOWS
-static U32Kilobytes LLMemoryAdjustKBResult(U32Kilobytes inKB)
-{
-	// Moved this here from llfloaterabout.cpp
-
-	//! \bug
-	// For some reason, the reported amount of memory is always wrong.
-	// The original adjustment assumes it's always off by one meg, however
-	// errors of as much as 2520 KB have been observed in the value
-	// returned from the GetMemoryStatusEx function.  Here we keep the
-	// original adjustment from llfoaterabout.cpp until this can be
-	// fixed somehow.
-	inKB += U32Megabytes(1);
-
-	return inKB;
-}
-#endif
-
 U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 {
 #if LL_WINDOWS
-	return LLMemoryAdjustKBResult(U32Kilobytes(mStatsMap["Total Physical KB"].asInteger()));
+	return U32Kilobytes(mStatsMap["Total Physical KB"].asInteger());
 
 #elif LL_DARWIN
 	// This might work on Linux as well.  Someone check...
@@ -740,43 +722,22 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 	phys = (U64)(getpagesize()) * (U64)(get_phys_pages());
 	return U64Bytes(phys);
 
-#elif LL_SOLARIS
-	U64 phys = 0;
-	phys = (U64)(getpagesize()) * (U64)(sysconf(_SC_PHYS_PAGES));
-	return U64Bytes(phys);
-
 #else
 	return 0;
 
 #endif
 }
 
-U32Bytes LLMemoryInfo::getPhysicalMemoryClamped() const
-{
-	// Return the total physical memory in bytes, but clamp it
-	// to no more than U32_MAX
-	
-	U32Kilobytes phys_kb = getPhysicalMemoryKB();
-	if (phys_kb >= U32Gigabytes(4))
-	{
-		return U32Bytes(U32_MAX);
-	}
-	else
-	{
-		return phys_kb;
-	}
-}
-
 //static
 void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb)
 {
 #if LL_WINDOWS
-	// Sigh, this shouldn't be a static method, then we wouldn't have to
-	// reload this data separately from refresh()
-	LLSD statsMap(loadStatsMap());
+	MEMORYSTATUSEX state;
+	state.dwLength = sizeof(state);
+	GlobalMemoryStatusEx(&state);
 
-	avail_physical_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
-	avail_virtual_mem_kb  = (U32Kilobytes)statsMap["Avail Virtual KB"].asInteger();
+	avail_physical_mem_kb = U64Bytes(state.ullAvailPhys);
+	avail_virtual_mem_kb  = U64Bytes(state.ullAvailVirtual);
 
 #elif LL_DARWIN
 	// mStatsMap is derived from vm_stat, look for (e.g.) "kb free":
@@ -924,7 +885,7 @@ LLSD LLMemoryInfo::loadStatsMap()
 
 	DWORDLONG div = 1024;
 
-	stats.add("Percent Memory use", state.dwMemoryLoad/div);
+	stats.add("Percent Memory use", state.dwMemoryLoad);
 	stats.add("Total Physical KB",  state.ullTotalPhys/div);
 	stats.add("Avail Physical KB",  state.ullAvailPhys/div);
 	stats.add("Total page KB",      state.ullTotalPageFile/div);
@@ -973,27 +934,33 @@ LLSD LLMemoryInfo::loadStatsMap()
 	stats.add("PrivateUsage KB",               pmem.PrivateUsage/div);
 
 #elif LL_DARWIN
-
-	const vm_size_t pagekb(vm_page_size / 1024);
+	vm_size_t page_size_kb;
+	if (host_page_size(mach_host_self(), &page_size_kb) != KERN_SUCCESS)
+	{
+		LL_WARNS() << "Unable to get host page size. Using default value." << LL_ENDL;
+		page_size_kb = 4096;
+	}
 	
+	page_size_kb = page_size_kb / 1024;
+
 	//
 	// Collect the vm_stat's
 	//
 	
 	{
-		vm_statistics_data_t vmstat;
-		mach_msg_type_number_t vmstatCount = HOST_VM_INFO_COUNT;
+		vm_statistics64_data_t vmstat;
+		mach_msg_type_number_t vmstatCount = HOST_VM_INFO64_COUNT;
 
-		if (host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t) &vmstat, &vmstatCount) != KERN_SUCCESS)
+		if (host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info64_t) &vmstat, &vmstatCount) != KERN_SUCCESS)
 	{
 			LL_WARNS("LLMemoryInfo") << "Unable to collect memory information" << LL_ENDL;
 		}
 		else
 		{
-			stats.add("Pages free KB",		pagekb * vmstat.free_count);
-			stats.add("Pages active KB",	pagekb * vmstat.active_count);
-			stats.add("Pages inactive KB",	pagekb * vmstat.inactive_count);
-			stats.add("Pages wired KB",		pagekb * vmstat.wire_count);
+			stats.add("Pages free KB",		page_size_kb * vmstat.free_count);
+			stats.add("Pages active KB",	page_size_kb * vmstat.active_count);
+			stats.add("Pages inactive KB",	page_size_kb * vmstat.inactive_count);
+			stats.add("Pages wired KB",		page_size_kb * vmstat.wire_count);
 
 			stats.add("Pages zero fill",		vmstat.zero_fill_count);
 			stats.add("Page reactivations",		vmstat.reactivations);
@@ -1042,20 +1009,20 @@ LLSD LLMemoryInfo::loadStatsMap()
 	//
 
 		{
-		task_basic_info_64_data_t taskinfo;
-		unsigned taskinfoSize = sizeof(taskinfo);
-		
-		if (task_info(mach_task_self(), TASK_BASIC_INFO_64, (task_info_t) &taskinfo, &taskinfoSize) != KERN_SUCCESS)
+			mach_task_basic_info_data_t taskinfo;
+			mach_msg_type_number_t task_count = MACH_TASK_BASIC_INFO_COUNT;
+			if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t) &taskinfo, &task_count) != KERN_SUCCESS)
 			{
-			LL_WARNS("LLMemoryInfo") << "Unable to collect task information" << LL_ENDL;
-				}
-				else
-				{
-			stats.add("Basic suspend count",					taskinfo.suspend_count);
-			stats.add("Basic virtual memory KB",				taskinfo.virtual_size / 1024);
-			stats.add("Basic resident memory KB",				taskinfo.resident_size / 1024);
-			stats.add("Basic new thread policy",				taskinfo.policy);
-		}
+				LL_WARNS("LLMemoryInfo") << "Unable to collect task information" << LL_ENDL;
+			}
+			else
+			{
+				stats.add("Basic virtual memory KB", taskinfo.virtual_size / 1024);
+				stats.add("Basic resident memory KB", taskinfo.resident_size / 1024);
+				stats.add("Basic max resident memory KB", taskinfo.resident_size_max / 1024);
+				stats.add("Basic new thread policy", taskinfo.policy);
+				stats.add("Basic suspend count", taskinfo.suspend_count);
+			}
 	}
 
 #elif LL_SOLARIS

@@ -1295,7 +1295,7 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 {
 	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB();
-	LL_INFOS() << system_ram << LL_ENDL;
+	//LL_INFOS() << system_ram << LL_ENDL;
 	//min texture mem sets to 64M if total physical mem is more than 1.5GB
 	return (system_ram > S32Megabytes(1500)) ? S32Megabytes(64) : gMinVideoRam ;
 }
@@ -1325,15 +1325,15 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 	{
 		if (!get_recommended)
 		{
-			max_texmem = (S32Megabytes)512;
+			max_texmem = S32Megabytes(512);
 		}
 		else if (gSavedSettings.getBOOL("NoHardwareProbe")) //did not do hardware detection at startup
 		{
-			max_texmem = (S32Megabytes)512;
+			max_texmem = S32Megabytes(512);
 		}
 		else
 		{
-			max_texmem = (S32Megabytes)128;
+			max_texmem = S32Megabytes(128);
 		}
 
 		LL_WARNS() << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << LL_ENDL;
