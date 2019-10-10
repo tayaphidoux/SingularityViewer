@@ -162,8 +162,6 @@ void LLPanelAvatarSecondLife::clearControls()
 
 	childSetTextArg("partner_edit", "[NAME]", LLStringUtil::null);
 	mPartnerID = LLUUID::null;
-	if (LLUICtrl* ctrl = getChild<LLUICtrl>("partner_info"))
-		ctrl->setEnabled(mPartnerID.notNull());
 
 	getChild<LLScrollListCtrl>("groups")->deleteAllItems();
 }
@@ -210,11 +208,7 @@ void LLPanelAvatarSecondLife::processProperties(void* data, EAvatarProcessorType
 			childSetValue("allow_publish", allow_publish);
 
 			mPartnerID = pAvatarData->partner_id;
-			if (mPartnerID.notNull())
-			{
-				getChildView("partner_edit")->setValue(mPartnerID);
-				childSetEnabled("partner_info", TRUE);
-			}
+			getChildView("partner_edit")->setValue(mPartnerID);
 		}
 	}
 	else if (type == APT_GROUPS)
@@ -353,11 +347,6 @@ BOOL LLPanelAvatarSecondLife::postBuild()
 	childSetEnabled("born", FALSE);
 	childSetEnabled("partner_edit", FALSE);
 	getChild<LLUICtrl>("partner_help")->setCommitCallback(boost::bind(show_partner_help));
-	if (LLUICtrl* ctrl = getChild<LLUICtrl>("partner_info"))
-	{
-		ctrl->setCommitCallback(boost::bind(LLAvatarActions::showProfile, boost::ref(mPartnerID), false));
-		ctrl->setEnabled(mPartnerID.notNull());
-	}
 
 	childSetAction("?", boost::bind(LLNotificationsUtil::add, "ClickPublishHelpAvatar"));
 	LLPanelAvatar* pa = getPanelAvatar();
