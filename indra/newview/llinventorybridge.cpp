@@ -5994,9 +5994,6 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 		return;
 	}
 
-	LL_DEBUGS("Avatar") << "ATT add rez request for " << item->getName() << " id " << item_id << LL_ENDL;
-	gAgentAvatarp->addAttachmentRequest(item_id);
-
 	S32 attach_pt = 0;
 	if (isAgentAvatarValid() && attachment)
 	{
