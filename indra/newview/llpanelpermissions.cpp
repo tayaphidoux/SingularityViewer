@@ -391,23 +391,46 @@ void LLPanelPermissions::refresh()
 	getChildView("Last Owner:")->setEnabled(TRUE);
 
 	std::string owner_app_link;
+	if (auto view = getChild<LLTextBox>("Creator Name"))
+	{
+		if (LLSelectMgr::getInstance()->selectGetCreator(mCreatorID, owner_app_link))
+		{
+			view->setValue(mCreatorID);
+		}
+		else
+		{
+			view->setValue(LLUUID::null);
+			view->setText(owner_app_link);
+		}
+		view->setEnabled(true);
+	}
+
 	const BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(mOwnerID, owner_app_link);
-
-	if (auto view = getChildView("Creator Name"))
+	if (auto view = getChild<LLTextBox>("Owner Name"))
 	{
-		view->setValue(mCreatorID);
+		if (owners_identical)
+		{
+			view->setValue(mOwnerID);
+		}
+		else
+		{
+			view->setValue(LLUUID::null);
+			view->setText(owner_app_link);
+		}
 		view->setEnabled(true);
 	}
 
-	if (auto view = getChild<LLUICtrl>("Owner Name"))
+	if (auto view = getChild<LLTextBox>("Last Owner Name"))
 	{
-		view->setValue(mOwnerID);
-		view->setEnabled(true);
-	}
-
-	if (auto view = getChild<LLUICtrl>("Last Owner Name"))
-	{
-		view->setValue(mLastOwnerID);
+		if (LLSelectMgr::getInstance()->selectGetLastOwner(mLastOwnerID, owner_app_link))
+		{
+			view->setValue(mLastOwnerID);
+		}
+		else
+		{
+			view->setValue(LLUUID::null);
+			view->setText(owner_app_link);
+		}
 		view->setEnabled(true);
 	}
 
