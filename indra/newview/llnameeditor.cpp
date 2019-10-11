@@ -59,7 +59,7 @@ LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 // virtual
 BOOL LLNameEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (mAllowInteract)
+	if (mClickForProfile && mAllowInteract)
 	{
 		showProfile();
 		return true;
@@ -125,10 +125,13 @@ LLView* LLNameEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	node->getAttributeString("label", loading);
 	bool rlv_sensitive = false;
 	node->getAttribute_bool("rlv_sensitive", rlv_sensitive);
+	bool click_for_profile = true;
+	node->getAttribute_bool("click_for_profile", click_for_profile);
 
 	LLNameEditor* line_editor = new LLNameEditor("name_editor",
 								rect,
 								id, is_group, loading, rlv_sensitive,
+								click_for_profile,
 								LLView::selectFont(node),
 								max_text_length);
 

@@ -40,12 +40,14 @@ class LLNameEditor
 :	public LLLineEditor
 ,	public LLNameUI
 {
+	bool mClickForProfile;
 public:
 	LLNameEditor(const std::string& name, const LLRect& rect,
 		const LLUUID& name_id = LLUUID::null,
 		bool is_group = false,
 		const std::string& loading = LLStringUtil::null,
 		bool rlv_sensitive = false,
+		bool click_for_profile = true,
 		const LLFontGL* glfont = nullptr,
 		S32 max_text_length = 254);
 
