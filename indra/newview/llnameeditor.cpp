@@ -44,6 +44,7 @@ LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 		bool is_group,
 		const std::string& loading,
 		bool rlv_sensitive,
+		bool click_for_profile,
 		const LLFontGL* glfont,
 		S32 max_text_length)
 : LLNameUI(loading, rlv_sensitive, name_id, is_group)
