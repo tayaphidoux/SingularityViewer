@@ -34,7 +34,7 @@
 	<name_box bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom_delta="0" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="78"
-	     mouse_opaque="true" name="LabelCreatorName" v_pad="0" width="200" rlv_sensitive="true">
+	     mouse_opaque="true" name="LabelCreatorName" v_pad="0" rlv_sensitive="true">
 		Nicole Linden
 	</name_box>
 	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
@@ -46,7 +46,7 @@
 	<name_box bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom_delta="0" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="78"
-	     mouse_opaque="true" name="LabelOwnerName" v_pad="0" width="200" rlv_sensitive="true">
+	     mouse_opaque="true" name="LabelOwnerName" v_pad="0" rlv_sensitive="true">
 		Thrax Linden
 	</name_box>
 	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
@@ -58,7 +58,7 @@
 	<name_box bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom_delta="0" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="78"
-	     mouse_opaque="true" name="LabelLastOwnerName" v_pad="0" width="200" rlv_sensitive="true">
+	     mouse_opaque="true" name="LabelLastOwnerName" v_pad="0" rlv_sensitive="true">
 		OnceUponA Linden
 	</name_box>
 	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
