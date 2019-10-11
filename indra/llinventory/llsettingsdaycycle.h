@@ -118,8 +118,8 @@ public:
     virtual LLSettingsWaterPtr_t buildWater(LLSD) const = 0;
 
     void                        setInitialized(bool value = true) { mInitialized = value; }
-    CycleTrack_t &              getCycleTrack(S32 track);
-    const CycleTrack_t &        getCycleTrackConst(S32 track) const;
+    CycleTrack_t &              getCycleTrack(size_t track);
+    const CycleTrack_t &        getCycleTrackConst(size_t track) const;
     bool                        clearCycleTrack(S32 track);
     bool                        replaceCycleTrack(S32 track, const CycleTrack_t &source);
     bool                        isTrackEmpty(S32 track) const;

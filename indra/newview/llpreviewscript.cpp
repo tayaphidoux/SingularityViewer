@@ -439,7 +439,7 @@ bool LLScriptEdCore::loadScriptText(const std::string& filename)
 
 	// read in the whole file
 	fseek(file, 0L, SEEK_END);
-	long file_length = ftell(file);
+	size_t file_length = ftell(file);
 	fseek(file, 0L, SEEK_SET);
 	if (file_length > 0)
 	{

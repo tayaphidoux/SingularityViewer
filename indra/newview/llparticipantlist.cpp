@@ -263,14 +263,14 @@ void LLParticipantList::refreshSpeakers()
 	mSpeakerMgr->update(resort_ok);
 
 	bool re_sort = false;
-	int start_pos = llmax(0, scroll_pos - 20);
-	int end_pos = scroll_pos + mAvatarList->getLinesPerPage() + 20;
+	size_t start_pos = llmax(0, scroll_pos - 20);
+	size_t end_pos = scroll_pos + mAvatarList->getLinesPerPage() + 20;
 	std::vector<LLScrollListItem*> items = mAvatarList->getAllData();
 	if (start_pos >= items.size())
 	{
 		return;
 	}
-	int count = 0;
+	size_t count = 0;
 	for (std::vector<LLScrollListItem*>::iterator item_it = items.begin(); item_it != items.end(); ++item_it)
 	{
 		

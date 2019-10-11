@@ -736,7 +736,7 @@ void LLFavoritesBarCtrl::updateButtons()
 	}
 	const child_list_t* childs = getChildList();
 	child_list_const_iter_t child_it = childs->begin();
-	int first_changed_item_index = 0;
+	size_t first_changed_item_index = 0;
 	int rightest_point = getRect().mRight - mMoreTextBox->getRect().getWidth();
 	//lets find first changed button
 	while (child_it != childs->end() && first_changed_item_index < mItems.size())
@@ -798,7 +798,7 @@ void LLFavoritesBarCtrl::updateButtons()
 		}
 		//last_right_edge is saving coordinates
 		LLButton* last_new_button = NULL;
-		int j = first_changed_item_index;
+		size_t j = first_changed_item_index;
 		for (; j < mItems.size(); j++)
 		{
 			last_new_button = createButton(mItems[j], button_params, last_right_edge);
@@ -982,7 +982,7 @@ void LLFavoritesBarCtrl::updateMenuItems(LLMenuGL* menu)
 
 	U32 widest_item = 0;
 
-	for (S32 i = mFirstDropDownItem; i < mItems.size(); i++)
+	for (size_t i = mFirstDropDownItem; i < mItems.size(); i++)
 	{
 		LLViewerInventoryItem* item = mItems.at(i);
 		const std::string& item_name = item->getName();

@@ -577,7 +577,7 @@ std::string utf8str_truncate(const std::string& utf8str, const S32 max_len)
 }
 
 // [RLVa:KB] - Checked: RLVa-2.1.0
-std::string utf8str_substr(const std::string& utf8str, const S32 index, const S32 max_len)
+std::string utf8str_substr(const std::string& utf8str, const size_t index, const size_t max_len)
 {
 	if (0 == max_len)
 	{
@@ -589,7 +589,7 @@ std::string utf8str_substr(const std::string& utf8str, const S32 index, const S3
 	}
 	else
 	{
-		S32 cur_char = max_len;
+		size_t cur_char = max_len;
 
 		// If we're ASCII, we don't need to do anything
 		if ((U8)utf8str[index + cur_char] > 0x7f)
@@ -648,7 +648,7 @@ void utf8str_split(std::list<std::string>& split_list, const std::string& utf8st
 }
 // [/RLVa:KB]
 
-std::string utf8str_symbol_truncate(const std::string& utf8str, const S32 symbol_len)
+std::string utf8str_symbol_truncate(const std::string& utf8str, const size_t symbol_len)
 {
     if (0 == symbol_len)
     {
@@ -660,7 +660,7 @@ std::string utf8str_symbol_truncate(const std::string& utf8str, const S32 symbol
     }
     else
     {
-        int len = 0, byteIndex = 0;
+        size_t len = 0, byteIndex = 0;
         const char* aStr = utf8str.c_str();
         size_t origSize = utf8str.size();
 

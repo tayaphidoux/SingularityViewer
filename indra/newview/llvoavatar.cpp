@@ -1808,11 +1808,11 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 		for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
 		{
 			LLPolyMesh* mesh = i->second;
-			for (S32 joint_num = 0; joint_num < mesh->mJointRenderData.size(); joint_num++)
+			for (const auto& joint : mesh->mJointRenderData)
 			{
 				static const LLVector4Logical mask = _mm_load_ps((F32*)&S_V4LOGICAL_MASK_TABLE[3 * 4]);
 				LLVector4a trans;
-				trans.setSelectWithMask(mask, _mm_setzero_ps(), mesh->mJointRenderData[joint_num]->mWorldMatrix->getRow<3>());
+				trans.setSelectWithMask(mask, _mm_setzero_ps(), joint->mWorldMatrix->getRow<3>());
 				update_min_max(newMin, newMax, trans);
 			}
 		}
@@ -8778,7 +8778,7 @@ void LLVOAvatar::updateMeshVisibility()
 
 	//LL_INFOS() << "head " << bake_flag[BAKED_HEAD] << "eyes " << bake_flag[BAKED_EYES] << "hair " << bake_flag[BAKED_HAIR] << "lower " << bake_flag[BAKED_LOWER] << "upper " << bake_flag[BAKED_UPPER] << "skirt " << bake_flag[BAKED_SKIRT] << LL_ENDL;
 
-	for (S32 i = 0; i < mMeshLOD.size(); i++)
+	for (size_t i = 0; i < mMeshLOD.size(); i++)
 	{
 		LLAvatarJoint* joint = mMeshLOD[i];
 		if (i == MESH_ID_HAIR)
@@ -9471,7 +9471,7 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 
 	apr_file_printf(file, "\n<params>\n");
 	LLVisualParam* param = getFirstVisualParam();
-	for (S32 i = 0; i < params_for_dump.size(); i++)
+	for (const auto& param_for_dump : params_for_dump)
 	{
 		while( param && ((param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) && 
 						 (param->getGroup() != VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE)) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
@@ -9479,7 +9479,7 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 			param = getNextVisualParam();
 		}
 		LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
-		F32 value = params_for_dump[i];
+		F32 value = param_for_dump;
 		dump_visual_param(file, viewer_param, value);
 		param = getNextVisualParam();
 	}
@@ -10187,9 +10187,8 @@ void LLVOAvatar::getSortedJointNames(S32 joint_type, std::vector<std::string>& r
     }
     else if (joint_type==1)
     {
-        for (S32 i = 0; i < mCollisionVolumes.size(); i++)
+        for (const auto& pJoint : mCollisionVolumes)
         {
-            LLAvatarJointCollisionVolume* pJoint = mCollisionVolumes[i];
             result.push_back(pJoint->getName());
         }
     }

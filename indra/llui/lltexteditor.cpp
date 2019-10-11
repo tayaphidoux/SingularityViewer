@@ -4355,7 +4355,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 	if (mReadOnly && mParseHTML && !is_link) // Singu Note: Do not replace html if the user is going to edit it. (Like in profiles)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_PARSE_HTML);
-		S32 start=0,end=0;
+		size_t start=0, end=0;
 		LLUrlMatch match;
 		auto append_substr = [&](const size_t& pos, const size_t& count)
 		{
