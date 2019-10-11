@@ -622,7 +622,7 @@ void LLPanelLandGeneral::refresh()
 		bool group_owned = parcel->getIsGroupOwned();
 
 		// Is it owned?
-		mTextOwner->setValue(is_public ? LLUUID::null : LLSD().with("id", owner_id).with("group", group_owned));
+		mTextOwner->setValue(is_public ? LLSD(LLUUID::null) : LLSD().with("id", owner_id).with("group", group_owned));
 		mTextGroup->setValue(is_public ? LLUUID::null : group_id);
 		if (is_public)
 		{
