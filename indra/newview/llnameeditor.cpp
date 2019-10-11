@@ -73,11 +73,12 @@ BOOL LLNameEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	bool simple_menu = mContextMenuHandle.get()->getName() == "rclickmenu";
 	std::string new_menu;
 	// Singu TODO: Generic menus for groups
-	if (!simple_menu && (mIsGroup || !mAllowInteract || mNameID.isNull())) // If no ID or blocking interaction switch to simple menu
+	bool needs_simple = mIsGroup || !mAllowInteract || mNameID.isNull(); // Need simple if no ID or blocking interaction
+	if (!simple_menu && needs_simple) // Switch to simple menu
 	{
 		new_menu = "menu_texteditor.xml";
 	}
-	else if (simple_menu && !mIsGroup)
+	else if (!needs_simple && simple_menu)
 	{
 		new_menu = "menu_nameeditor_avatar.xml";
 	}
