@@ -49,6 +49,7 @@ LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 		S32 max_text_length)
 : LLNameUI(loading, rlv_sensitive, name_id, is_group)
 , LLLineEditor(name, rect, LLStringUtil::null, glfont, max_text_length)
+, mClickForProfile(click_for_profile)
 {
 	if (!name_id.isNull())
 	{
