@@ -28,6 +28,7 @@
 #ifndef LL_LLVOAVATARSELF_H
 #define LL_LLVOAVATARSELF_H
 
+#include "llavatarappearancedefines.h"
 #include "llviewertexture.h"
 #include "llvoavatar.h"
 #include <map>
@@ -119,7 +120,7 @@ private:
  *******************************************************************************/
 
 private:
-	LLUUID mInitialBakeIDs[6];
+	LLUUID mInitialBakeIDs[LLAvatarAppearanceDefines::BAKED_NUM_INDICES];
 	//bool mInitialBakesLoaded;
 
 
