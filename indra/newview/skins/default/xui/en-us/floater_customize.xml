@@ -1624,7 +1624,7 @@ can create a new one from scratch and wear it.
 	<scroll_container bottom="-476" follows="left|top|right|bottom" height="382" left="197"
 	     mouse_opaque="false" name="panel_container" opaque="false" width="292" />
 	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="-410" drop_shadow_visible="true" follows="left|top"
+	     bottom="-438" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerif" h_pad="0" halign="left" height="16"
 	     left="8" mouse_opaque="false" name="AvatarHeightText" v_pad="0" width="140">
         Avatar Height:
