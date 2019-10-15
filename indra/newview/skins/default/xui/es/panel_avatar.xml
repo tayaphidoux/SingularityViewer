@@ -21,17 +21,15 @@
 			<text name="label">
 				Nacido:
 			</text>
-			<line_editor name="born"/>
 			<text name="label2">
 				Cuenta:
 			</text>
-			<view_border name="acct_border"/>
 			<text name="acct"/>
 			<text name="partner_label" tool_tip="Compañera/o en Second Life. Para más información ver www.secondlife.com/partner">
 				Compañera/o:
 			</text>
 			<button label="?" label_selected="?" name="partner_help"/>
-			<name_editor name="partner_edit" left_delta="-99"/>
+			<name_editor name="partner_edit"/>
 			<text name="Photo:">
 				Foto:
 			</text>

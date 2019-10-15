@@ -626,6 +626,56 @@ una nueva y vistiéndotela.
 				<button name="Revert" label="Restablecer" label_selected="Restablecer"/>
 		</panel>
 		<!-- =========================== -->
+		<panel label="Universal" name="Universal" height="481" left="102" bottom="-462" width="389">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: no modificable
+			</text>
+			<text name="title_loading">
+				[DESC]: cargando...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: no llevas
+			</text>
+			<text name="path">
+				Situado en [PATH]
+			</text>
+			<tab_container name="layer_tabs"/>
+			<text name="not worn instructions">
+				Ponte una nueva Capa Universal arrastrándola desde tu 
+inventario hasta tu avatar. O comienza de cero creando 
+una nueva y vistiéndotela.
+			</text>
+			<text name="no modify instructions">
+				No tienes permiso para modificar este item.
+			</text>
+            <text name="Item Action Label"  right="107">
+                Universal:
+            </text>
+			<texture_picker label="Tatuaje Cabeza" name="Head Universal Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<texture_picker label="Tatuaje Superior" name="Upper Universal Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<texture_picker label="Tatuaje Inferior" name="Lower Universal Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<texture_picker label="Tatuaje Falda" name="Skirt Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<texture_picker label="Tatuaje Pelo" name="Hair Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<texture_picker label="Tatuaje Ojos" name="Eyes Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<texture_picker label="Tatuaje Brazo Izq" name="Left Arm Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<texture_picker label="Tatuaje Pierna Izq" name="Left Leg Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<texture_picker label="Tatuaje Aux1" name="Aux1 Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<texture_picker label="Tatuaje Aux2" name="Aux2 Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<texture_picker label="Tatuaje Aux3" name="Aux3 Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
+			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para Seleccionar un color"/>
+			<button name="Create New" label="Crear Nueva Capa Universal" label_selected="Crear Nueva Capa Universal" width="174"/>
+			<button name="Take Off" label="Quitarse"/>
+			<button name="New Layer" label="Nueva Capa"/>
+			<button name="Arrow Left" label="◀️◀️" tool_tip="Mover a capa interior."/>
+			<button name="Arrow Right" label="▶️▶️" tool_tip="Mover a capa exterior."/>
+			<button name="Save" label="Guardar" left="113"/>
+			<button name="Save As" label="Guardar Como..." left="202" width="96"/>
+			<button name="Revert" label="Restablecer"/>
+		</panel>
+		<!-- =========================== -->
 		<panel label="Física" name="Physics">
 			<button label="Reb. Vientre" label_selected="Reb. Vientre" name="Belly Bounce" tool_tip="Rebote del vientre."/>
 			<button label="Reb. Senos" label_selected="Reb. Senos" name="Breast Bounce" tool_tip="Rebote de los senos."/>

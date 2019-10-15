@@ -37,7 +37,8 @@
 		<menu_item_call name="New Undershirt" label="Camiseta nueva"/>
 		<menu_item_call name="New Underpants" label="Ropa Interior nueva"/>
 		<menu_item_call name="New Tattoo" label="Tatuaje nuevo"/>
-		<menu_item_call name="New Alpha" label="Alfa nueva"/>
+		<menu_item_call name="New Alpha" label="Capa Alfa nueva"/>
+		<menu_item_call name="New Universal" label="Capa Universal Nueva"/>
 		<menu_item_call name="New Physics" label="Física nueva"/>
 	</menu>
 	<menu name="New Body Parts" label="Partes de Cuerpo Nuevas">
