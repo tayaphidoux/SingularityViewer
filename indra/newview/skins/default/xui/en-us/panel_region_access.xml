@@ -27,8 +27,6 @@
     
 <!-- ============================= ESTATE MANAGERS tab ====================== -->
   <panel
-    background_opaque="true"
-    background_visible="true"
     bottom="-1"
     follows="all"
     label="Estate Managers"
@@ -111,8 +109,6 @@
 
 <!-- ================================ ALLOWED tab =========================== -->
   <panel
-    background_opaque="true"
-    background_visible="true"
     bottom="-1"
     follows="all"
     label="Allowed"
@@ -225,8 +221,6 @@
 
   <!-- ============================= ALLOWED GROUPS tab ======================= -->
   <panel
-    background_opaque="true"
-    background_visible="true"
     bottom="-1"
     follows="all"
     label="Allowed Groups"
@@ -336,8 +330,6 @@
 
   <!-- ================================ BANNED tab ============================ -->
   <panel
-    background_opaque="true"
-    background_visible="true"
     bottom="-1"
     follows="all"
     label="Banned"
