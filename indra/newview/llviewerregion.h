@@ -327,13 +327,15 @@ public:
 	bool meshRezEnabled() const;
 	bool meshUploadEnabled() const;
 
+	bool bakesOnMeshEnabled() const;
+
 	// has region received its simulator features list? Requires an additional query after caps received.
 	void requestSimulatorFeatures();
 	void setSimulatorFeaturesReceived(bool);
 	bool simulatorFeaturesReceived() const;
 	boost::signals2::connection setSimulatorFeaturesReceivedCallback(const caps_received_signal_t::slot_type& cb);
 
-	void getSimulatorFeatures(LLSD& info);	
+	void getSimulatorFeatures(LLSD& info) const;	
 	void setSimulatorFeatures(const LLSD& info);
 
 	
@@ -372,7 +374,8 @@ public:
 
 	friend std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region);
     /// implements LLCapabilityProvider
-    virtual std::string getDescription() const;
+    virtual std::string getDescription() const override;
+
     std::string getViewerAssetUrl() const { return mViewerAssetUrl; }
 
 	LLSpatialPartition* getSpatialPartition(U32 type);

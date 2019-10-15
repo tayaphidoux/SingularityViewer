@@ -80,6 +80,24 @@ using namespace LLAvatarAppearanceDefines;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void set_default_permissions(LLViewerInventoryItem* item)
+{
+	llassert(item);
+	LLPermissions perm = item->getPermissions();
+	if (perm.getMaskNextOwner() != LLFloaterPerms::getNextOwnerPerms("Wearables")
+		|| perm.getMaskEveryone() != LLFloaterPerms::getEveryonePerms("Wearables")
+		|| perm.getMaskGroup() != LLFloaterPerms::getGroupPerms("Wearables"))
+	{
+		perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
+		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
+		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
+
+		item->setPermissions(perm);
+
+		item->updateServer(FALSE);
+	}
+}
+
 // Callback to wear and start editing an item that has just been created.
 void wear_and_edit_cb(const LLUUID& inv_item)
 {
@@ -88,13 +106,9 @@ void wear_and_edit_cb(const LLUUID& inv_item)
 	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 	if (!item) return;
 
-	LLPermissions perm = item->getPermissions();
-	perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
-	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
-	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
-	item->setPermissions(perm);
+	set_default_permissions(item);
 
-	item->updateServer(FALSE);
+	// item was just created, update even if permissions did not changed
 	gInventory.updateItem(item);
 	gInventory.notifyObservers();
 
@@ -112,13 +126,8 @@ void wear_cb(const LLUUID& inv_item)
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 		if (item)
 		{
-			LLPermissions perm = item->getPermissions();
-			perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
-			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
-			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
-			item->setPermissions(perm);
+			set_default_permissions(item);
 
-			item->updateServer(FALSE);
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 		}
@@ -184,7 +193,7 @@ void LLAgentWearables::dump()
 struct LLAgentDumper
 {
 	LLAgentDumper(std::string name):
-		mName(name)
+		mName(std::move(name))
 	{
 		LL_INFOS() << LL_ENDL;
 		LL_INFOS() << "LLAgentDumper " << mName << LL_ENDL;
@@ -259,7 +268,7 @@ LLAgentWearables::AddWearableToAgentInventoryCallback::AddWearableToAgentInvento
 	mIndex(index),	
 	mWearable(wearable),
 	mTodo(todo),
-	mCB(cb),
+	mCB(std::move(cb)),
 	mDescription(description)
 {
 	LL_INFOS() << "constructor" << LL_ENDL;
@@ -1646,6 +1655,12 @@ bool LLAgentWearables::moveWearable(const LLViewerInventoryItem* item, bool clos
 void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, const LLUUID& parent_id)
 {
 	if (type == LLWearableType::WT_INVALID || type == LLWearableType::WT_NONE) return;
+
+	if (type == LLWearableType::WT_UNIVERSAL && !gAgent.getRegion()->bakesOnMeshEnabled())
+	{
+		LL_WARNS("Inventory") << "Can't create WT_UNIVERSAL type " << LL_ENDL;
+		return;
+	}
 
 	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 	LLAssetType::EType asset_type = wearable->getAssetType();
