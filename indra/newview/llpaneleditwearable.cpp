@@ -790,7 +790,7 @@ BOOL LLPanelEditWearable::postBuild()
 			
 			if (!subpart_entry->mButtonName.empty())
 			{
-				LL_INFOS() << "Finding button " << subpart_entry->mButtonName << LL_ENDL;
+				//LL_INFOS() << "Finding button " << subpart_entry->mButtonName << LL_ENDL;
 				LLButton* btn(findChild<LLButton>(subpart_entry->mButtonName));
 				llassert_always(btn);
 				mSubpartBtns.push_back(btn);
@@ -1535,8 +1535,8 @@ void LLPanelEditWearable::updateScrollingPanelUI()
 
 	 // do nothing else if we don't have a valid wearable we're editing
 	if (!wearable) return;
-	LL_INFOS() << llformat("%#.8lX", wearable) << LL_ENDL;
-	LL_INFOS() << "cur_wearable->isDirty()=" << wearable->isDirty() << LL_ENDL;
+	//LL_INFOS() << llformat("%#.8lX", wearable) << LL_ENDL;
+	//LL_INFOS() << "cur_wearable->isDirty()=" << wearable->isDirty() << LL_ENDL;
 	refreshWearables(false);
 }
 
