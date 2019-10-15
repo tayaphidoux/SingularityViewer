@@ -639,6 +639,7 @@ void LocalAssetBrowser::UpdateTextureCtrlList(LLScrollListCtrl* ctrl)
 		for (const auto& bitmap : loaded_bitmaps)
 		{
 			auto row = LLScrollListItem::Params();
+			row.value(bitmap.id);
 			row.columns.add(LLScrollListCell::Params()
 				.column("unit_name")
 				.type("text")
