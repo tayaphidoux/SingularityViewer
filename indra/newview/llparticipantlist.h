@@ -30,7 +30,7 @@
 #include "lllayoutstack.h"
 
 class LLSpeakerMgr;
-class LLScrollListCtrl;
+class LLNameListCtrl;
 class LLUICtrl;
 
 class LLParticipantList : public LLLayoutPanel
@@ -219,7 +219,7 @@ private:
 	void onVolumeChange(const LLSD& param);
 
 	LLSpeakerMgr*		mSpeakerMgr;
-	LLScrollListCtrl*	mAvatarList;
+	LLNameListCtrl*		mAvatarList;
 	bool				mShowTextChatters;
 	LLFrameTimer		mUpdateTimer;
 

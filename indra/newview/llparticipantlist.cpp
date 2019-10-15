@@ -30,8 +30,7 @@
 #include "llagent.h"
 #include "llmutelist.h"
 #include "llparticipantlist.h"
-#include "llscrolllistctrl.h"
-#include "llscrolllistitem.h"
+#include "llnamelistctrl.h"
 #include "llspeakers.h"
 #include "lluictrlfactory.h" // Edit: For menu duality
 #include "llviewermenu.h" // Edit: For menu duality
@@ -45,7 +44,7 @@
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 									 bool show_text_chatters) :
 	mSpeakerMgr(data_source),
-	mAvatarList(NULL),
+	mAvatarList(nullptr),
 	mShowTextChatters(show_text_chatters),
 	mValidateSpeakerCallback(NULL)
 {
@@ -84,7 +83,7 @@ void LLParticipantList::setupContextMenu()
 
 BOOL LLParticipantList::postBuild()
 {
-	mAvatarList = getChild<LLScrollListCtrl>("speakers_list");
+	mAvatarList = getChild<LLNameListCtrl>("speakers_list");
 
 	mAvatarList->sortByColumn(gSavedSettings.getString("FloaterActiveSpeakersSortColumn"), gSavedSettings.getBOOL("FloaterActiveSpeakersSortAscending"));
 	mAvatarList->setDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this));
@@ -322,13 +321,15 @@ void LLParticipantList::refreshSpeakers()
 				{
 					// <edit>
 					bool found = mShowTextChatters || speakerp->mID == gAgentID;
-					const LLWorld::region_list_t& regions = LLWorld::getInstance()->getRegionList();
-					for (LLWorld::region_list_t::const_iterator iter = regions.begin(); !found && iter != regions.end(); ++iter)
+					if (!found)
+					for (const LLViewerRegion* regionp : LLWorld::getInstance()->getRegionList())
 					{
 						// Are they in this sim?
-						if (const LLViewerRegion* regionp = *iter)
-							if (std::find(regionp->mMapAvatarIDs.begin(), regionp->mMapAvatarIDs.end(), speakerp->mID) != regionp->mMapAvatarIDs.end())
-								found = true;
+						if (std::find(regionp->mMapAvatarIDs.begin(), regionp->mMapAvatarIDs.end(), speakerp->mID) != regionp->mMapAvatarIDs.end())
+						{
+							found = true;
+							break;
+						}
 					}
 					if (!found)
 					{
@@ -349,7 +350,7 @@ void LLParticipantList::refreshSpeakers()
 		{
 			std::string speaker_name = speakerp->mDisplayName.empty() ? LLCacheName::getDefaultName() : speakerp->mDisplayName;
 			if (speakerp->mIsModerator)
-				speaker_name += " " + getString("moderator_label");
+				speaker_name += ' ' + getString("moderator_label");
 			if (name_cell->getValue().asString() != speaker_name)
 			{
 				re_sort = true;
@@ -486,22 +487,16 @@ void LLParticipantList::adjustParticipant(const LLUUID& speaker_id)
 	LLPointer<LLSpeaker> speakerp = mSpeakerMgr->findSpeaker(speaker_id);
 	if (speakerp.isNull()) return;
 
-	LLSD row;
-	row["id"] = speaker_id;
-	LLSD& columns = row["columns"];
-	columns[0]["column"] = "icon_speaking_status";
-	columns[0]["type"] = "icon";
-	columns[0]["value"] = "icn_active-speakers-dot-lvl0.tga";
-
+	LLNameListItem::Params name_item;
+	name_item.value = speaker_id;
+	name_item.columns.add(LLScrollListCell::Params().column("icon_speaking_status").type("icon").value("icn_active-speakers-dot-lvl0.tga"));
 	const std::string& display_name = LLVoiceClient::getInstance()->getDisplayName(speaker_id);
-	columns[1]["column"] = "speaker_name";
-	columns[1]["type"] = "text";
-	columns[1]["value"] = display_name.empty() ? LLCacheName::getDefaultName() : display_name;
+	name_item.name = display_name;
+	name_item.columns.add(LLScrollListCell::Params().column("speaker_name").type("text").value(display_name));
+	name_item.columns.add(LLScrollListCell::Params().column("speaking_status").type("text")
+			.value(llformat("%010d", speakerp->mSortIndex))); // print speaking ordinal in a text-sorting friendly manner
 
-	columns[2]["column"] = "speaking_status";
-	columns[2]["type"] = "text";
-	columns[2]["value"] = llformat("%010d", speakerp->mSortIndex); // print speaking ordinal in a text-sorting friendly manner
-	mAvatarList->addElement(row);
+	mAvatarList->addNameItemRow(name_item);
 
 	// add listener to process moderation changes
 	speakerp->addListener(mSpeakerMuteListener);
