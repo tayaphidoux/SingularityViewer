@@ -712,19 +712,28 @@ BOOL LLPanelEditWearable::postBuild()
 	mCreateNew = getChild<LLUICtrl>("Create New");
 	mCreateNew->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnCreateNew, this));
 
-	mCreateNewLayer = getChild<LLUICtrl>("New Layer");
-	mCreateNewLayer->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnCreateNew, this));
+	if (mCreateNewLayer = findChild<LLUICtrl>("New Layer"))
+	{
+		mCreateNewLayer->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnCreateNew, this));
+	}
 
-	mTakeOff = getChild<LLUICtrl>("Take Off");
-	// If PG, can't take off underclothing or shirt
-	mCanTakeOff = !(gAgent.isTeen() && (mType == LLWearableType::WT_UNDERSHIRT || mType == LLWearableType::WT_UNDERPANTS) );
-	mTakeOff->setVisible(mCanTakeOff);
-	mTakeOff->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnTakeOff, this));
+	if (mTakeOff = findChild<LLUICtrl>("Take Off"))
+	{
+		// If PG, can't take off underclothing or shirt
+		mCanTakeOff = !(gAgent.isTeen() && (mType == LLWearableType::WT_UNDERSHIRT || mType == LLWearableType::WT_UNDERPANTS) );
+		mTakeOff->setVisible(mCanTakeOff);
+		mTakeOff->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnTakeOff, this));
+	}
 
-	mArrowLeft = getChild<LLUICtrl>("Arrow Left");
-	mArrowLeft->setCommitCallback(boost::bind(&LLPanelEditWearable::onMoveToLayer, this, true));
-	mArrowRight = getChild<LLUICtrl>("Arrow Right");
-	mArrowRight->setCommitCallback(boost::bind(&LLPanelEditWearable::onMoveToLayer, this, false));
+	if (mArrowLeft = findChild<LLUICtrl>("Arrow Left"))
+	{
+		mArrowLeft->setCommitCallback(boost::bind(&LLPanelEditWearable::onMoveToLayer, this, true));
+	}
+
+	if (mArrowRight = findChild<LLUICtrl>("Arrow Right"))
+	{
+		mArrowRight->setCommitCallback(boost::bind(&LLPanelEditWearable::onMoveToLayer, this, false));
+	}
 
 
 	if (mSexRadio = findChild<LLUICtrl>("sex radio"))
@@ -764,9 +773,9 @@ BOOL LLPanelEditWearable::postBuild()
 		{
 			LL_WARNS() << "could not get wearable dictionary entry for wearable of type: " << mType << LL_ENDL;
 		}
-		U8 num_subparts = (U8) wearable_entry->mSubparts.size();
+		const U8 num_subparts = (U8) wearable_entry->mSubparts.size();
 
-		for (U8 index = 0; index < num_subparts; ++index)
+		for (U8 index = 0; num_subparts > 1 && index < num_subparts; ++index)
 		{
 			// dive into data structures to get the panel we need
 			ESubpart subpart_e = wearable_entry->mSubparts[index];
@@ -870,9 +879,9 @@ void LLPanelEditWearable::draw()
 	const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(mType);
 	if (wearable_entry)
 	{
-		U8 num_subparts = (U8) wearable_entry->mSubparts.size();
+		const U8 num_subparts = (U8) wearable_entry->mSubparts.size();
 
-		for (U8 index = 0; index < num_subparts; ++index)
+		for (U8 index = 0; num_subparts > 1 && index < num_subparts; ++index)
 		{
 			// dive into data structures to get the panel we need
 			ESubpart subpart_e = wearable_entry->mSubparts[index];
@@ -1497,13 +1506,25 @@ void LLPanelEditWearable::updateScrollingPanelUI()
 	bool max_layers = gAgentWearables.getClothingLayerCount() == LLAgentWearables::MAX_CLOTHING_LAYERS;
 	bool show_create_new = !has_wearable && !max_layers;
 
-	mTakeOff->setEnabled(has_wearable);
-	if (mCanTakeOff) mTakeOff->setVisible(has_wearable);
-	mCreateNewLayer->setVisible(has_wearable && !max_layers);
-	mArrowLeft->setEnabled(has_wearable && gAgentWearables.getBottomWearable(mType) != wearable);
-	mArrowLeft->setVisible(has_wearable);
-	mArrowRight->setEnabled(has_wearable && gAgentWearables.getTopWearable(mType) != wearable);
-	mArrowRight->setVisible(has_wearable);
+	if (mTakeOff)
+	{
+		mTakeOff->setEnabled(has_wearable);
+		if (mCanTakeOff) mTakeOff->setVisible(has_wearable);
+	}
+	if (mCreateNewLayer)
+	{
+		mCreateNewLayer->setVisible(has_wearable && !max_layers);
+	}
+	if (mArrowLeft)
+	{
+		mArrowLeft->setEnabled(has_wearable && gAgentWearables.getBottomWearable(mType) != wearable);
+		mArrowLeft->setVisible(has_wearable);
+	}
+	if (mArrowRight)
+	{
+		mArrowRight->setEnabled(has_wearable && gAgentWearables.getTopWearable(mType) != wearable);
+		mArrowRight->setVisible(has_wearable);
+	}
 	mCreateNew->setVisible(show_create_new);
 	mNotWornI->setVisible(show_create_new);
 	mNotWornT->setVisible(show_create_new);
