@@ -19,12 +19,17 @@ endif(NOT DEFINED COMMON_CMAKE_DIR)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+get_property(_isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+option(GEN_IS_MULTI_CONFIG "" ${_isMultiConfig})
+mark_as_advanced(GEN_IS_MULTI_CONFIG)
+
 set(LIBS_CLOSED_PREFIX)
 set(LIBS_OPEN_PREFIX)
 set(SCRIPTS_PREFIX ../scripts)
 set(VIEWER_PREFIX)
 set(INTEGRATION_TESTS_PREFIX)
 option(LL_TESTS "Build and run unit and integration tests (disable for build timing runs to reduce variation" OFF)
+option(BUILD_TESTING "Build test suite" OFF)
 
 option(INCREMENTAL_LINK "Use incremental linking on win32 builds (enable for faster links on some machines)" OFF)
 option(USE_PRECOMPILED_HEADERS "Enable use of precompiled header directives where supported." ON)
@@ -94,34 +99,32 @@ elseif (ADDRESS_SIZE EQUAL 64)
   #message(STATUS "ADDRESS_SIZE is 64")
   set(ARCH x86_64)
 else (ADDRESS_SIZE EQUAL 32)
-  #message(STATUS "ADDRESS_SIZE is UNRECOGNIZED: '${ADDRESS_SIZE}'")
-  # Use Python's platform.machine() since uname -m isn't available everywhere.
-  # Even if you can assume cygwin uname -m, the answer depends on whether
-  # you're running 32-bit cygwin or 64-bit cygwin! But even 32-bit Python will
-  # report a 64-bit processor.
-  execute_process(COMMAND
-                  "${Python2_EXECUTABLE}" "-c"
-                  "import platform; print platform.machine()"
-                  OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-  # We expect values of the form i386, i686, x86_64, AMD64.
-  # In CMake, expressing ARCH.endswith('64') is awkward:
-  string(LENGTH "${ARCH}" ARCH_LENGTH)
-  math(EXPR ARCH_LEN_2 "${ARCH_LENGTH} - 2")
-  string(SUBSTRING "${ARCH}" ${ARCH_LEN_2} 2 ARCH_LAST_2)
-  if (ARCH_LAST_2 STREQUAL 64)
-    #message(STATUS "ARCH is detected as 64; ARCH is ${ARCH}")
-    set(ADDRESS_SIZE 64)
-  else()
-    #message(STATUS "ARCH is detected as 32; ARCH is ${ARCH}")
-    set(ADDRESS_SIZE 32)
-  endif ()
+    #message(STATUS "ADDRESS_SIZE is UNDEFINED")
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+      message(STATUS "Size of void pointer is detected as 8; ARCH is 64-bit")
+      set(ARCH x86_64)
+      set(ADDRESS_SIZE 64)
+    elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
+      message(STATUS "Size of void pointer is detected as 4; ARCH is 32-bit")
+      set(ADDRESS_SIZE 32)
+      set(ARCH i686)
+    else()
+      message(FATAL_ERROR "Unkown Architecture!")
+    endif()
 endif (ADDRESS_SIZE EQUAL 32)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
   set(WINDOWS ON BOOL FORCE)
+  if (ADDRESS_SIZE EQUAL 64)
+    set(LL_ARCH ${ARCH}_win64)
+    set(LL_ARCH_DIR ${ARCH}-win64)
+  elseif (ADDRESS_SIZE EQUAL 32)
     set(LL_ARCH ${ARCH}_win32)
     set(LL_ARCH_DIR ${ARCH}-win32)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  else()
+    message(FATAL_ERROR "Unkown Architecture!")
+  endif ()
+endif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LINUX ON BOOL FORCE)
