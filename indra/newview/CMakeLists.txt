@@ -1486,7 +1486,6 @@ if (WINDOWS)
       set(GOOGLE_PERF_TOOLS_SOURCE
         ${SHARED_LIB_STAGING_DIR}/Release/libtcmalloc_minimal.dll
         ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
-        ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
         )
     endif(NOT DISABLE_TCMALLOC)
 
@@ -1495,27 +1494,16 @@ if (WINDOWS)
       #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll => None ... Skipping libtcmalloc_minimal.dll
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
-      ${SHARED_LIB_STAGING_DIR}/Release/llcommon.dll
       ${SHARED_LIB_STAGING_DIR}/Release/glod.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/glod.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/Release/SLVoice.exe
       ${SHARED_LIB_STAGING_DIR}/Release/vivoxplatform.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/ca-bundle.crt
       ${GOOGLE_PERF_TOOLS_SOURCE}
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
-      ${CMAKE_CURRENT_SOURCE_DIR}/featuretable_xp.txt
-      ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
-      ${ARCH_PREBUILT_DIRS_RELEASE}/ssleay32.dll
-      ${ARCH_PREBUILT_DIRS_DEBUG}/libeay32.dll
-      ${ARCH_PREBUILT_DIRS_DEBUG}/ssleay32.dll
       SLPlugin
       media_plugin_libvlc
       media_plugin_cef
-      windows-crash-logger
       )
 
     if (ADDRESS_SIZE EQUAL 64)
@@ -1541,7 +1529,6 @@ if (WINDOWS)
         list(APPEND COPY_INPUT_DEPENDENCIES
              ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
              ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
-             ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
             )
       endif (WORD_SIZE EQUAL 64)
     endif (FMODSTUDIO)
