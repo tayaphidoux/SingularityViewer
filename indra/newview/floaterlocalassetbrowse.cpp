@@ -149,7 +149,7 @@ LocalBitmap::LocalBitmap(const Params& p)
 			viewer_image->ref();
 
 			/* finalizing by adding LLViewerTexture instance into gTextureList */
-			gTextureList.addImage(viewer_image);
+			gTextureList.addImage(viewer_image, TEX_LIST_STANDARD);
 
 			/* filename is valid, bitmap is decoded and valid, i can haz liftoff! */
 			valid = true;
@@ -194,7 +194,7 @@ void LocalBitmap::updateSelf()
 			linkstatus = LINK_ON;
 		}
 
-		LLViewerFetchedTexture* image = gTextureList.findImage(id);
+		LLViewerFetchedTexture* image = gTextureList.findImage(id, TEX_LIST_STANDARD);
 		if (!image->forSculpt())
 			image->createGLTexture(LOCAL_DISCARD_LEVEL, new_imgraw);
 		else
@@ -306,11 +306,11 @@ void LocalBitmap::setType( S32 type )
 
 void LocalBitmap::setID(const LLUUID& uuid)
 {
-	LLViewerFetchedTexture* image = gTextureList.findImage(id);
+	LLViewerFetchedTexture* image = gTextureList.findImage(id, TEX_LIST_STANDARD);
 	gTextureList.deleteImage(image);
 	id = uuid;
 	image->setID(id);
-	gTextureList.addImage(image);
+	gTextureList.addImage(image, TEX_LIST_STANDARD);
 }
 
 /* [information query functions] */
@@ -536,7 +536,7 @@ void LocalAssetBrowser::DelBitmap( std::vector<LLScrollListItem*> delete_vector,
 			{
 				if ((*iter).getID() == id)
 				{	
-					LLViewerFetchedTexture* image = gTextureList.findImage(id);
+					LLViewerFetchedTexture* image = gTextureList.findImage(id, TEX_LIST_STANDARD);
 					gTextureList.deleteImage( image );
 					image->unref();
 					iter = loaded_bitmaps.erase(iter);
@@ -695,7 +695,7 @@ void LocalAssetBrowser::PerformSculptUpdates(LocalBitmap& unit)
 			// update code [begin]
 			if (unit.volume_dirty)
 			{
-				LLImageRaw* rawimage = gTextureList.findImage(unit.getID())->getCachedRawImage();
+				LLImageRaw* rawimage = gTextureList.findImage(unit.getID(), TEX_LIST_STANDARD)->getCachedRawImage();
 
 				aobj.object->getVolume()->sculpt(rawimage->getWidth(), rawimage->getHeight(), rawimage->getComponents(), rawimage->getData(), 0, true);
 				unit.volume_dirty = false;

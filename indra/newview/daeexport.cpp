@@ -41,6 +41,7 @@
 #include "llviewerinventory.h"
 #include "llinventorymodel.h"
 #include "llinventoryfunctions.h"
+#include "llviewertexturelist.h"
 
 // menu includes
 #include "llevent.h"
@@ -493,7 +494,7 @@ public:
 		}
 
 		LLUUID id = me->mTexturesToSave.begin()->first;
-		LLViewerTexture* imagep = LLViewerTextureManager::findTexture(id);
+		LLViewerTexture* imagep = LLViewerTextureManager::findFetchedTexture(id, TEX_LIST_STANDARD);
 		if (!imagep)
 		{
 			me->mTexturesToSave.erase(id);

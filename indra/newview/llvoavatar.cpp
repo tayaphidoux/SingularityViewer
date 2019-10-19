@@ -2852,7 +2852,7 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 		uuid == IMG_INVISIBLE)
 	{
 		// Should already exist, don't need to find it on sim or baked-texture host.
-		result = gTextureList.findImage(uuid);
+		result = gTextureList.findImage(uuid, TEX_LIST_STANDARD);
 	}
 
 	if (!result)
@@ -5748,7 +5748,7 @@ bool LLVOAvatar::allTexturesCompletelyDownloaded(uuid_set_t& ids) const
 {
 	for (auto it = ids.begin(); it != ids.end(); ++it)
 	{
-		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
+		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_STANDARD);
 		if (imagep && imagep->getDiscardLevel()!=0)
 		{
 			return false;
@@ -5782,7 +5782,7 @@ void LLVOAvatar::bakedTextureOriginCounts(S32 &sb_count, // server-bake, has ori
 	collectBakedTextureUUIDs(baked_ids);
 	for (auto it = baked_ids.begin(); it != baked_ids.end(); ++it)
 	{
-		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
+		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_STANDARD);
 		bool has_url = false, has_host = false;
 		if (!imagep->getUrl().empty())
 		{
@@ -5807,7 +5807,7 @@ std::string LLVOAvatar::bakedTextureOriginInfo()
 	collectBakedTextureUUIDs(baked_ids);
 	for (auto it = baked_ids.begin(); it != baked_ids.end(); ++it)
 	{
-		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
+		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_STANDARD);
 		bool has_url = false, has_host = false;
 		if (!imagep->getUrl().empty())
 		{
@@ -5836,7 +5836,7 @@ S32Bytes LLVOAvatar::totalTextureMemForUUIDS(uuid_set_t& ids)
 	S32Bytes result(0);
 	for (auto it = ids.begin(); it != ids.end(); ++it)
 	{
-		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
+		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_STANDARD);
 		if (imagep)
 		{
 			result += imagep->getTextureMemory();
@@ -5924,7 +5924,7 @@ void LLVOAvatar::releaseOldTextures()
 	{
 		if (new_texture_ids.find(*it) == new_texture_ids.end())
 		{
-			LLViewerFetchedTexture *imagep = gTextureList.findImage(*it);
+			LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_STANDARD);
 			if (imagep)
 			{
 				current_texture_mem += imagep->getTextureMemory();

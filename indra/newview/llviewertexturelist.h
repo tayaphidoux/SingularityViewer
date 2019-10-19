@@ -62,12 +62,48 @@ typedef	void (*LLImageCallback)(BOOL success,
 								BOOL final,
 								void* userdata);
 
+enum ETexListType
+{
+    TEX_LIST_STANDARD = 0,
+    TEX_LIST_SCALE
+};
+
+struct LLTextureKey
+{
+    LLTextureKey();
+    LLTextureKey(LLUUID id, ETexListType tex_type);
+    LLUUID textureId;
+    ETexListType textureType;
+
+	friend bool operator == (const LLTextureKey& lhs, const LLTextureKey& rhs) {
+		return lhs.textureId == rhs.textureId && lhs.textureType == rhs.textureType;
+	}
+
+    friend bool operator<(const LLTextureKey& key1, const LLTextureKey& key2)
+    {
+        if (key1.textureId != key2.textureId)
+        {
+            return key1.textureId < key2.textureId;
+        }
+        else
+        {
+            return key1.textureType < key2.textureType;
+        }
+	}
+	template <typename H>
+	friend H AbslHashValue(H h, const LLTextureKey& key) {
+		return H::combine(std::move(h), key.textureId, key.textureType);
+	}
+};
+
 class LLViewerTextureList
 {
     LOG_CLASS(LLViewerTextureList);
 
 	friend class LLTextureView;
 	friend class LLViewerTextureManager;
+	friend class LocalBitmap;
+	friend class LocalAssetBrowser;
 	
 public:
 	static BOOL createUploadFile(const std::string& filename, const std::string& out_filename, const U8 codec);
@@ -88,7 +124,9 @@ public:
 	void restoreGL();
 	BOOL isInitialized() const {return mInitialized;}
 
-	LLViewerFetchedTexture *findImage(const LLUUID &image_id);
+	void findTexturesByID(const LLUUID &image_id, std::vector<LLViewerFetchedTexture*> &output);
+	LLViewerFetchedTexture *findImage(const LLUUID &image_id, ETexListType tex_type);
+	LLViewerFetchedTexture *findImage(const LLTextureKey &search_key);
 
 	void dirtyImage(LLViewerFetchedTexture *image);
 	
@@ -123,10 +161,8 @@ private:
 	F32  updateImagesFetchTextures(F32 max_time);
 	void updateImagesUpdateStats();
 
-public:
-	void addImage(LLViewerFetchedTexture *image);
+	void addImage(LLViewerFetchedTexture *image, ETexListType tex_type);
 	void deleteImage(LLViewerFetchedTexture *image);
-private:
 
 	void addImageToList(LLViewerFetchedTexture *image);
 	void removeImageFromList(LLViewerFetchedTexture *image);
@@ -188,12 +224,12 @@ public:
 	BOOL mForceResetTextureStats;
     
 private:
-	typedef std::map< LLUUID, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
+	typedef std::map< LLTextureKey, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
 	uuid_map_t mUUIDMap;
-	typedef absl::flat_hash_map< LLUUID, LLViewerFetchedTexture* > uuid_dict_t;
+	typedef absl::flat_hash_map< LLTextureKey, LLViewerFetchedTexture* > uuid_dict_t;
 	uuid_dict_t mUUIDDict;
-	LLUUID mLastUpdateUUID;
-	LLUUID mLastFetchUUID;
+    LLTextureKey mLastUpdateKey;
+    LLTextureKey mLastFetchKey;
 	
 	typedef std::set<LLPointer<LLViewerFetchedTexture>, LLViewerFetchedTexture::Compare> image_priority_list_t;	
 	image_priority_list_t mImageList;

@@ -2186,9 +2186,9 @@ public:
 			{
 				LLAppViewer::getTextureCache()->removeFromCache(id);
 				img->forceRefetch();
-				for (S32 i = 0; i < img->getNumVolumes(); ++i)
+				for (S32 i = 0; i < img->getNumVolumes(LLRender::SCULPT_TEX); ++i)
 				{
-					LLVOVolume* volume = (*(img->getVolumeList()))[i];
+					LLVOVolume* volume = (*(img->getVolumeList(LLRender::SCULPT_TEX)))[i];
 					if (volume && volume->isSculpted())
 					{
 						const LLSculptParams *sculpt_params = volume->getSculptParams();

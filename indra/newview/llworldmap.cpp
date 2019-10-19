@@ -96,7 +96,7 @@ LLSimInfo::LLSimInfo(U64 handle)
 void LLSimInfo::setLandForSaleImage (LLUUID image_id) 
 {
 	const bool is_whitecore = gHippoGridManager->getConnectedGrid()->isWhiteCore();
-	if (is_whitecore && mMapImageID[SIM_LAYER_OVERLAY].isNull() && image_id.notNull() && gTextureList.findImage(image_id))
+	if (is_whitecore && mMapImageID[SIM_LAYER_OVERLAY].isNull() && image_id.notNull() && gTextureList.findImage(image_id, TEX_LIST_STANDARD))
 		LLAppViewer::getTextureCache()->removeFromCache(image_id);
 
 	mMapImageID[SIM_LAYER_OVERLAY] = image_id;

@@ -457,10 +457,17 @@ public:
 			
 			if(log_texture_traffic && data_size > 0)
 			{
-				LLViewerTexture* tex = LLViewerTextureManager::findTexture(mID) ;
-				if(tex)
+				// one worker per multiple textures
+				std::vector<LLViewerTexture*> textures;
+				LLViewerTextureManager::findTextures(mID, textures);
+				std::vector<LLViewerTexture*>::iterator iter = textures.begin();
+				while (iter != textures.end())
 				{
-					gTotalTextureBytesPerBoostLevel[tex->getBoostLevel()] += data_size ;
+					LLViewerTexture* tex = *iter++;
+					if (tex)
+					{
+						gTotalTextureBytesPerBoostLevel[tex->getBoostLevel()] += data_size;
+					}
 				}
 			}
 

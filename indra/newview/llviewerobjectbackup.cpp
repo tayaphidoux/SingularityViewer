@@ -1020,7 +1020,7 @@ void LLObjectBackup::exportNextTexture()
 			continue;
 		}
 
-		LLViewerTexture* imagep = LLViewerTextureManager::findTexture(id);
+		LLViewerTexture* imagep = LLViewerTextureManager::findFetchedTexture(id, TEX_LIST_STANDARD);
 		if (imagep)
 		{
 			if (imagep->getDiscardLevel() > 0)
