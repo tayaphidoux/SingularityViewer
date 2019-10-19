@@ -2321,7 +2321,13 @@ S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialPa
 					case LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE:
 					case LLMaterial::DIFFUSE_ALPHA_MODE_MASK:
 						{ //all of them modes available only for 32 bit textures
-							if(GL_RGBA != img_diffuse->getPrimaryFormat())
+							LLTextureEntry* tex_entry = getTE(te);
+							bool bIsBakedImageId = false;
+							if (tex_entry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(tex_entry->getID()))
+							{
+								bIsBakedImageId = true;
+							}
+							if (GL_RGBA != img_diffuse->getPrimaryFormat() && !bIsBakedImageId)
 							{
 								bSetDiffuseNone = true;
 							}
