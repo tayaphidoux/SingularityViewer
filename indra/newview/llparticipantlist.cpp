@@ -120,25 +120,6 @@ LLParticipantList::~LLParticipantList()
 	mAvatarListRefreshConnection.disconnect();
 	mAvatarListReturnConnection.disconnect();
 	mAvatarListToggleIconsConnection.disconnect();
-
-	// It is possible Participant List will be re-created from LLCallFloater::onCurrentChannelChanged()
-	// See ticket EXT-3427
-	// hide menu before deleting it to stop enable and check handlers from triggering.
-	if(mParticipantListMenu && !LLApp::isExiting())
-	{
-		mParticipantListMenu->hide();
-	}
-
-	if (mParticipantListMenu)
-	{
-		delete mParticipantListMenu;
-		mParticipantListMenu = NULL;
-	}
-
-	mAvatarList->setContextMenu(NULL);
-	mAvatarList->setComparator(NULL);
-
-	delete mAvalineUpdater;
 	*/
 }
 

@@ -108,6 +108,9 @@ LLXMLNodePtr LLNameEditor::getXML(bool save_children) const
 	LLXMLNodePtr node = LLLineEditor::getXML();
 
 	node->setName(LL_NAME_EDITOR_TAG);
+	node->createChild("label", TRUE)->setStringValue(mInitialValue);
+	node->createChild("rlv_sensitive", TRUE)->setBoolValue(mRLVSensitive);
+	node->createChild("click_for_profile", TRUE)->setBoolValue(mClickForProfile);
 
 	return node;
 }

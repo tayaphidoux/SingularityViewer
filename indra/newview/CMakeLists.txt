@@ -1303,16 +1303,16 @@ if (WINDOWS)
     set_source_files_properties(${viewer_RESOURCE_FILES}
                                 PROPERTIES HEADER_FILE_ONLY TRUE)
 
-    set(viewer_RESOURCE_FILES
+
+    list(APPEND viewer_RESOURCE_FILES
         ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
-        ${viewer_RESOURCE_FILES}
         )
 
     set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
       PROPERTIES COMPILE_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/res"
       )
 
-    SOURCE_GROUP("Resource Files" FILES ${viewer_RESOURCE_FILES})
+    source_group("Resource Files" FILES ${viewer_RESOURCE_FILES})
 
     list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
 
