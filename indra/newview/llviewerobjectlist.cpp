@@ -1997,13 +1997,13 @@ LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLVi
 		return NULL;
 	}
 
-	mUUIDObjectMap[fullid] = objectp;
+	mUUIDObjectMap.insert_or_assign(fullid, objectp);
 	if(objectp->isAvatar())
 	{
 		LLVOAvatar *pAvatar = dynamic_cast<LLVOAvatar*>(objectp);
 		if(pAvatar)
 		{
-			mUUIDAvatarMap[fullid] = pAvatar;
+			mUUIDAvatarMap.insert_or_assign(fullid, pAvatar);
 			// <singu>
 			if (LLFloaterIMPanel* im = find_im_floater(fullid))
 				im->addDynamicFocus();
@@ -2047,13 +2047,13 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
 		regionp->addToCreatedList(local_id); 
 	}
 
-	mUUIDObjectMap[fullid] = objectp;
+	mUUIDObjectMap.insert_or_assign(fullid, objectp);
 	if(objectp->isAvatar())
 	{
 		LLVOAvatar *pAvatar = dynamic_cast<LLVOAvatar*>(objectp);
 		if(pAvatar)
 		{
-			mUUIDAvatarMap[fullid] = pAvatar;
+			mUUIDAvatarMap.insert_or_assign(fullid, pAvatar);
 			// <singu>
 			if (LLFloaterIMPanel* im = find_im_floater(fullid))
 				im->addDynamicFocus();

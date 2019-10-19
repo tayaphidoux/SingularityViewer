@@ -2686,7 +2686,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 
 void LLMeshRepository::notifySkinInfoReceived(LLMeshSkinInfo& info)
 {
-	mSkinMap[info.mMeshID] = info;
+	mSkinMap.insert_or_assign(info.mMeshID, info);
 
 	skin_load_map::iterator iter = mLoadingSkins.find(info.mMeshID);
 	if (iter != mLoadingSkins.end())
@@ -2793,8 +2793,8 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const
 {
 	if (mesh_id.notNull())
 	{
-		skin_map::iterator iter = mSkinMap.find(mesh_id);
-		if (iter != mSkinMap.end())
+		const auto iter = mSkinMap.find(mesh_id);
+		if (iter != mSkinMap.cend())
 		{
 			return &(iter->second);
 		}
