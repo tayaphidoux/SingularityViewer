@@ -442,6 +442,12 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 
 	if (!imagep.isNull())
 	{
+		if (boost_priority != LLViewerTexture::BOOST_ALM && imagep->getBoostLevel() == LLViewerTexture::BOOST_ALM)
+		{
+			// Workaround: we need BOOST_ALM texture for something, 'rise' to NONE
+			imagep->setBoostLevel(LLViewerTexture::BOOST_NONE);
+		}
+
 		LLViewerFetchedTexture *texture = imagep.get();
 		if (texture->getUrl().empty())
 		{

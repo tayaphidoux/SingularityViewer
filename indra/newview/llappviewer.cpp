@@ -4548,35 +4548,34 @@ void LLAppViewer::disconnectViewer()
 		if (gFloaterView)
 		{
 			gFloaterView->restoreAll();
-		}
 
-
-		std::list<LLFloater*> floaters_to_close;
-		for(LLView::child_list_const_iter_t it = gFloaterView->getChildList()->begin();
-			it != gFloaterView->getChildList()->end();
-			++it)
-		{
-			// The following names are defined in the 
-			// floater_image_preview.xml
-			// floater_sound_preview.xml
-			// floater_animation_preview.xml
-			// files.
-			LLFloater* fl = static_cast<LLFloater*>(*it);
-			if(fl 
-				&& (fl->getName() == "Image Preview"
-				|| fl->getName() == "Sound Preview"
-				|| fl->getName() == "Animation Preview"
-				))
+			std::list<LLFloater*> floaters_to_close;
+			for (LLView::child_list_const_iter_t it = gFloaterView->getChildList()->begin();
+				it != gFloaterView->getChildList()->end();
+				++it)
 			{
-				floaters_to_close.push_back(fl);
+				// The following names are defined in the 
+				// floater_image_preview.xml
+				// floater_sound_preview.xml
+				// floater_animation_preview.xml
+				// files.
+				LLFloater* fl = static_cast<LLFloater*>(*it);
+				if (fl
+					&& (fl->getName() == "Image Preview"
+						|| fl->getName() == "Sound Preview"
+						|| fl->getName() == "Animation Preview"
+						))
+				{
+					floaters_to_close.push_back(fl);
+				}
 			}
-		}
-		
-		while(!floaters_to_close.empty())
-		{
-			LLFloater* fl = floaters_to_close.front();
-			floaters_to_close.pop_front();
-			fl->close();
+
+			while (!floaters_to_close.empty())
+			{
+				LLFloater* fl = floaters_to_close.front();
+				floaters_to_close.pop_front();
+				fl->close();
+			}
 		}
 	}
 
