@@ -126,16 +126,6 @@ public:
 	virtual BOOL	isDirty() const { return( mLastCmd != NULL || (mPristineCmd && (mPristineCmd != mLastCmd)) ); }
 	BOOL	isSpellDirty() const { return mWText != mPrevSpelledText; }	// Returns TRUE if user changed value at all
 	void	resetSpellDirty() { mPrevSpelledText = mWText; }		// Clear dirty state
-
-	struct SpellMenuBind
-	{
-		LLTextEditor* origin;
-		LLMenuItemCallGL * menuItem;
-		std::string word;
-		S32 wordPositionStart;
-		S32 wordPositionEnd;
-		S32 wordY;
-	};
 	
 	// LLEditMenuHandler interface
 	virtual void	undo();
@@ -150,8 +140,6 @@ public:
 	virtual BOOL	canCopy() const;
 	virtual void	paste();
 	virtual BOOL	canPaste() const;
- 
-	virtual void	spellReplace(SpellMenuBind* spellData);
  
 	virtual void	updatePrimary();
 	virtual void	copyPrimary();
@@ -580,7 +568,6 @@ private:
 	typedef std::vector<line_info> line_list_t;
 
 	//to keep track of what we have to remove before showing menu
-	std::vector<SpellMenuBind* > suggestionMenuItems;
 	S32 mLastContextMenuX;
 	S32 mLastContextMenuY;
 

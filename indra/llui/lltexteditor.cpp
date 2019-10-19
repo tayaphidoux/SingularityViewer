@@ -508,26 +508,23 @@ public:
 
 void LLTextEditor::spell_correct(void* data)
 {
-	SpellMenuBind* tempBind = (SpellMenuBind*)data;
-	LLTextEditor* line = tempBind->origin;
-	if(tempBind && line)
+	auto self = static_cast<LLTextEditor*>(data);
+	S32 wordStart = 0, wordLen = 0;
+	if (self->getWordBoundriesAt(self->getCursorPosFromLocalCoord(self->mLastContextMenuX, self->mLastContextMenuY, TRUE), &wordStart, &wordLen))
 	{
-		LL_INFOS() << tempBind->menuItem->getName() << " : " << tempBind->origin->getName() << " : " << tempBind->word << LL_ENDL;
-		if(line)line->spellReplace(tempBind);
+		const auto& word = utf8str_to_wstring(LLMenuGL::sMenuContainer->getActivatedItem()->getLabel());
+
+		self->remove(wordStart, wordLen, TRUE);
+		self->insert(wordStart, word, FALSE);
+		self->mCursorPos += word.length() - wordLen;
+		self->needsReflow();
 	}
 }
 
 
-void LLTextEditor::spell_show(void * data)
+void LLTextEditor::spell_show(void* show)
 {
-	SpellMenuBind* tempBind = (SpellMenuBind*)data;
-	LLTextEditor* line = tempBind->origin;
-
-	if(tempBind && line)
-	{
-		BOOL show = (tempBind->word == "Show Misspellings");
-		glggHunSpell->setSpellCheckHighlight(show);
-	}
+	glggHunSpell->setSpellCheckHighlight(!!show);
 }
 
 
@@ -574,11 +571,12 @@ std::vector<S32> LLTextEditor::getMisspelledWordsPositions()
 
 void LLTextEditor::spell_add(void* data)
 {
-	SpellMenuBind* tempBind = (SpellMenuBind*)data;
-	if(tempBind)
+	auto self = static_cast<LLTextEditor*>(data);
+	S32 wordStart = 0, wordLen = 0;
+	if (self->getWordBoundriesAt(self->getCursorPosFromLocalCoord(self->mLastContextMenuX, self->mLastContextMenuY, TRUE), &wordStart, &wordLen))
 	{
-		glggHunSpell->addWordToCustomDictionary(tempBind->word);
-			tempBind->origin->mPrevSpelledText.erase();//make it update
+		glggHunSpell->addWordToCustomDictionary(wstring_to_utf8str(self->getWText().substr(wordStart, wordLen)));
+		self->mPrevSpelledText.erase(); //make it update
 	}
 }
 
@@ -1531,35 +1529,13 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 BOOL LLTextEditor::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
-
 	setFocus(TRUE);
-
-	//setCursorAtLocalPos( x, y, TRUE );
-	S32 wordStart = 0;
-	S32 wordLen = 0;
-	S32 pos = getCursorPosFromLocalCoord(x,y,TRUE);
-
-	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-	if (menu)
-	{
-		for (auto tempBind : suggestionMenuItems)
-		{
-			if (tempBind)
-			{
-				menu->removeChild(tempBind->menuItem);
-				tempBind->menuItem->die();
-				delete tempBind;
-			}
-		}
-		suggestionMenuItems.clear();
-		menu->die();
-	}
 
 	auto segment = getSegmentAtLocalPos(x, y);
 	const LLStyleSP style = segment ? segment->getStyle() : nullptr;
 	auto submenu = (style && style->isLink()) ? createUrlContextMenu(x, y, style->getLinkHREF()) : nullptr;
 	// Add url menu to base menu if we have a selection, otherwise make it the menu.
-	menu = (submenu && !hasSelection()) ? submenu : LLUICtrlFactory::getInstance()->buildMenu("menu_texteditor.xml", LLMenuGL::sMenuContainer);
+	auto menu = (submenu && !hasSelection()) ? submenu : LLUICtrlFactory::getInstance()->buildMenu("menu_texteditor.xml", LLMenuGL::sMenuContainer);
 	mPopupMenuHandle = menu->getHandle();
 	if (menu)
 	{
@@ -1572,62 +1548,29 @@ BOOL LLTextEditor::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		// spell_check="true" in xui
 		if (!mReadOnly && mSpellCheckable)
 		{
-			bool is_word_part = getWordBoundriesAt(pos, &wordStart, &wordLen);
-			if (is_word_part)
+			S32 wordStart = 0;
+			S32 wordLen = 0;
+			S32 pos = getCursorPosFromLocalCoord(x, y, TRUE);
+			if (getWordBoundriesAt(pos, &wordStart, &wordLen))
 			{
-				const LLWString &text = mWText;
-				std::string selectedWord(std::string(text.begin(), text.end()).substr(wordStart, wordLen));
+				const auto selectedWord = wstring_to_utf8str(getWText().substr(wordStart, wordLen));
 
 				if (!glggHunSpell->isSpelledRight(selectedWord))
 				{
 					//misspelled word here, and you have just right clicked on it!
-					std::vector<std::string> suggs = glggHunSpell->getSuggestionList(selectedWord);
 
 					menu->addSeparator();
-					for (auto word : suggs)
+					for (const auto& word : glggHunSpell->getSuggestionList(selectedWord))
 					{
-						SpellMenuBind * tempStruct = new SpellMenuBind;
-						tempStruct->origin = this;
-						tempStruct->word = word;
-						tempStruct->wordPositionEnd = wordStart + wordLen;
-						tempStruct->wordPositionStart = wordStart;
-						tempStruct->wordY = y;
-						LLMenuItemCallGL * suggMenuItem = new LLMenuItemCallGL(
-							tempStruct->word, spell_correct, NULL, tempStruct);
-						tempStruct->menuItem = suggMenuItem;
-						suggestionMenuItems.push_back(tempStruct);
-						menu->addChild(suggMenuItem);
+						menu->addChild(new LLMenuItemCallGL(word, spell_correct, nullptr, this));
 					}
-					SpellMenuBind * tempStruct = new SpellMenuBind;
-					tempStruct->origin = this;
-					tempStruct->word = selectedWord;
-					tempStruct->wordPositionEnd = wordStart + wordLen;
-					tempStruct->wordPositionStart = wordStart;
-					tempStruct->wordY = y;
-					LLMenuItemCallGL * suggMenuItem = new LLMenuItemCallGL(
-						"Add Word", spell_add, NULL, tempStruct);
-					tempStruct->menuItem = suggMenuItem;
-					suggestionMenuItems.push_back(tempStruct);
-					menu->addChild(suggMenuItem);
+					menu->addChild(new LLMenuItemCallGL("Add Word", spell_add, nullptr, this));
 				}
 			}
 
-			SpellMenuBind *	tempStruct = new SpellMenuBind;
-			tempStruct->origin = this;
-			if (glggHunSpell->getSpellCheckHighlight())
-			{
-				tempStruct->word = "Hide Misspellings";
-			}
-			else
-			{
-				tempStruct->word = "Show Misspellings";
-			}
-
-			LLMenuItemCallGL * suggMenuItem = new LLMenuItemCallGL(
-				tempStruct->word, spell_show, NULL, tempStruct);
-			tempStruct->menuItem = suggMenuItem;
-			suggestionMenuItems.push_back(tempStruct);
-			menu->addChild(suggMenuItem);
+			bool show = !glggHunSpell->getSpellCheckHighlight();
+			auto word = show ? "Show Misspellings" : "Hide Misspellings";
+			menu->addChild(new LLMenuItemCallGL(word, spell_show, nullptr, show ? &show : nullptr));
 		}
 
 		mLastContextMenuX = x;
@@ -2420,17 +2363,6 @@ void LLTextEditor::copy(bool raw)
 BOOL LLTextEditor::canPaste() const
 {
 	return !mReadOnly && gClipboard.canPasteString();
-}
-
-
-void LLTextEditor::spellReplace(SpellMenuBind* spellData)
-{
-	remove( spellData->wordPositionStart, 
-		spellData->wordPositionEnd - spellData->wordPositionStart, TRUE );
-	LLWString clean_string = utf8str_to_wstring(spellData->word);
-	insert(spellData->wordPositionStart, clean_string, FALSE);
-	mCursorPos+=clean_string.length() - (spellData->wordPositionEnd-spellData->wordPositionStart);
-	needsReflow();
 }
 
 
