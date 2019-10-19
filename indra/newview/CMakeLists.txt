@@ -1504,6 +1504,7 @@ if (WINDOWS)
       SLPlugin
       media_plugin_libvlc
       media_plugin_cef
+	  basic_plugin_filepicker
       )
 
     if (ADDRESS_SIZE EQUAL 64)
