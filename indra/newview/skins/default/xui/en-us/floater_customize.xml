@@ -89,8 +89,8 @@
 			     font="SansSerifSmall" h_pad="0" halign="center" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
 Put on a new shape by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+to your avatar. Alternately, you can create a
+new one from scratch and wear it.
 			</text>
 			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -131,7 +131,6 @@ scratch and wear it.
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Save As..." label_selected="Save As..." left="209"
 			     mouse_opaque="true" name="Save As" scale_image="true" width="92" />
-      <button name="Take Off"/>
     </panel>
     <panel border="true" bottom="-482" follows="left|top|right|bottom" height="481"
 		     label="Skin" left="102" mouse_opaque="true" name="Skin" width="389">
@@ -187,8 +186,8 @@ scratch and wear it.
 			     font="SansSerifSmall" h_pad="0" halign="center" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
 Put on a new skin by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+to your avatar. Alternately, you can create a
+new one from scratch and wear it.
       </text>
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -226,7 +225,6 @@ scratch and wear it.
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Revert" label_selected="Revert" left="305"
 			     mouse_opaque="true" name="Revert" scale_image="true" width="82" />
-      <button name="Take Off"/>
     </panel>
     <panel border="true" bottom="-482" follows="left|top|right|bottom" height="481"
 		     label="Hair" left="102" mouse_opaque="true" name="Hair" width="389">
@@ -282,8 +280,8 @@ scratch and wear it.
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
 Put on a new hair by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+to your avatar. Alternately, you can create a
+new one from scratch and wear it.
       </text>
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -313,7 +311,6 @@ scratch and wear it.
 			<button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Revert" label_selected="Revert" left="305"
 			     mouse_opaque="true" name="Revert" scale_image="true" width="82" />
-      <button name="Take Off"/>
 		</panel>
 		<panel border="true" bottom="-482" follows="left|top|right|bottom" height="481"
 		     label="Eyes" left="102" mouse_opaque="true" name="Eyes" width="389">
@@ -388,7 +385,6 @@ scratch and wear it.
       <button bottom="-478" follows="right|bottom" font="SansSerif" halign="center"
 			     height="20" label="Revert" label_selected="Revert" left="305"
 			     mouse_opaque="true" name="Revert" scale_image="true" width="82" />
-      <button name="Take Off"/>
     </panel>
     <panel label="Clothes" placeholder="true" name="clothes_placeholder" />
     <panel border="true" bottom="-482" follows="left|top|right|bottom" height="481"
@@ -459,9 +455,9 @@ scratch and wear it.
 			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
-Put on a new shirt by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+Put on a new shirt by dragging one from your
+inventory to your avatar. Alternately, you can create
+a new one from scratch and wear it.
       </text>
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -544,9 +540,9 @@ scratch and wear it.
 			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
-Put on new pants by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+Put on new pants by dragging one from your
+inventory to your avatar. Alternately, you can create
+a new one from scratch and wear it.
       </text>
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -603,9 +599,9 @@ scratch and wear it.
 			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
-Put on new shoes by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+Put on new shoes by dragging one from your
+inventory to your avatar. Alternately, you can create
+a new one from scratch and wear it.
 			</text>
 			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -688,9 +684,9 @@ scratch and wear it.
 			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
-Put on new socks by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+Put on new socks by dragging one from your
+inventory to your avatar. Alternately, you can create
+a new one from scratch and wear it.
 			</text>
 			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -773,9 +769,9 @@ scratch and wear it.
 			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
-Put on a new jacket by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+Put on a new jacket by dragging one from your
+inventory to your avatar. Alternately, you can create
+a new one from scratch and wear it.
       </text>
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -862,9 +858,9 @@ scratch and wear it.
 			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
-Put on new gloves by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+Put on new gloves by dragging one from your
+inventory to your avatar. Alternately, you can create
+a new one from scratch and wear it.
       </text>
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -949,8 +945,8 @@ scratch and wear it.
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
 Put on a new undershirt by dragging one from your
-inventory to your avatar. Alternately, you create a new
-one from scratch and wear it.
+inventory to your avatar. Alternately, you can create a
+new one from scratch and wear it.
       </text>
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -1036,8 +1032,8 @@ one from scratch and wear it.
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
 Put on new underpants by dragging one from your
-inventory to your avatar. Alternately, you create a new
-one from scratch and wear it.
+inventory to your avatar. Alternately, you can create a
+new one from scratch and wear it.
       </text>
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -1121,9 +1117,9 @@ one from scratch and wear it.
 			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
-Put on a new skirt by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+Put on a new skirt by dragging one from your
+inventory to your avatar. Alternately, you can create
+a new one from scratch and wear it.
 			</text>
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -1206,9 +1202,9 @@ scratch and wear it.
 			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
-Put on a new tattoo by dragging one from your inventory
-to your avatar. Alternately, you create a new one from
-scratch and wear it.
+Put on a new tattoo by dragging one from your
+inventory to your avatar. Alternately, you can create
+a new one from scratch and wear it.
 			</text>
 			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -1293,8 +1289,8 @@ scratch and wear it.
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
 Put on a new alpha mask by dragging one from your
-inventory to your avatar. Alternately, you create a new
-one from scratch and wear it.
+inventory to your avatar. Alternately, you can create a
+new one from scratch and wear it.
 			</text>
 			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -1348,6 +1344,184 @@ one from scratch and wear it.
             <button name="Revert" label="Revert" label_selected="Revert"
              follows="right|bottom" width="82" height="20" left="305" bottom="-478"/>
 		</panel>
+    <panel label="Universal" name="Universal" border="true" follows="all" height="481" left="102" bottom="-482" width="389">
+			<icon bottom="-21" color="1 1 1 1" follows="top|right" height="16"
+			     image_name="icon_lock.tga" left="333" mouse_opaque="true" name="square"
+			     width="16" />
+			<icon bottom="-24" color="1 1 1 1" follows="left|top" height="16" left="8"
+			     mouse_opaque="true" name="icon" width="16" />
+			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom="-24" drop_shadow_visible="true" follows="left|top|right"
+			     font="SansSerif" h_pad="0" halign="left" height="16" left="26"
+			     mouse_opaque="true" name="title" v_pad="0" width="355">
+				[DESC]
+			</text>
+			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom="-24" drop_shadow_visible="true" follows="left|top|right"
+			     font="SansSerif" h_pad="0" halign="left" height="16" left="26"
+			     mouse_opaque="true" name="title_no_modify" v_pad="0" width="355">
+				[DESC]: cannot modify
+			</text>
+			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom="-24" drop_shadow_visible="true" follows="left|top|right"
+			     font="SansSerif" h_pad="0" halign="left" height="16" left="26"
+			     mouse_opaque="true" name="title_loading" v_pad="0" width="355">
+				[DESC]: loading...
+			</text>
+			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom="-24" drop_shadow_visible="true" follows="left|top|right"
+			     font="SansSerif" h_pad="0" halign="left" height="16" left="26"
+			     mouse_opaque="true" name="title_not_worn" v_pad="0" width="355">
+				[DESC]: not worn
+			</text>
+			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom="-38" drop_shadow_visible="true" follows="left|top|right"
+			     font="SansSerifSmall" h_pad="0" halign="left" height="14" left="8"
+			     mouse_opaque="true" name="path" v_pad="0" width="373">
+				Located in [PATH]
+			</text>
+      <tab_container name="layer_tabs" follows="all" left_delta="85" bottom_delta="-30" height="16" width="300" tab_min_width="55"/>
+      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
+			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
+			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
+Put on a new universal by dragging one from your
+inventory to your avatar. Alternately, you can create a
+new one from scratch and wear it.
+			</text>
+			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
+			     font="SansSerifSmall" h_pad="0" halign="left" height="14" left="8"
+			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
+				You do not have permission to modify this wearable.
+			</text>
+            <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+                 bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
+                 font="SansSerif" h_pad="0" halign="right" height="28" right="117"
+                 mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
+                Universal:
+            </text>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       width="80" height="96" left="109" bottom="-174"
+       label="Head Tattoo"
+       name="Head Universal Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       label="Upper Tattoo"
+       width="80" height="96" left_delta="96" bottom_delta="0"
+       name="Upper Universal Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       label="Lower Tattoo"
+       width="80" height="96" left_delta="96" bottom_delta="0"
+       name="Lower Universal Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       width="80" height="96" left_delta="-192" bottom_delta="-106"
+       label="Skirt Tattoo"
+       name="Skirt Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       width="80" height="96" left_delta="96" bottom_delta="0"
+       label="Hair Tattoo"
+       name="Hair Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       width="80" height="96" left_delta="96" bottom_delta="0"
+       label="Eyes Tattoo"
+       name="Eyes Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       width="80" height="96" left_delta="-192" bottom_delta="-106"
+       label="Left Arm Tattoo"
+       name="Left Arm Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       width="80" height="96" left_delta="96" bottom_delta="0"
+       label="Left Leg Tattoo"
+       name="Left Leg Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       width="80" height="96" left_delta="96" bottom_delta="0"
+       label="Aux1 Tattoo"
+       name="Aux1 Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       width="80" height="96" left_delta="-192" bottom_delta="-106"
+       label="Aux2 Tattoo"
+       name="Aux2 Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <texture_picker
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       default_image_name="Default"
+       follows="left|top"
+       width="80" height="96" left_delta="96" bottom_delta="0"
+       label="Aux3 Tattoo"
+       name="Aux3 Tattoo"
+       tool_tip="Click to choose a picture"/>
+      <color_swatch
+       can_apply_immediately="true"
+       allow_no_texture="true"
+       follows="left|top"
+       width="80" height="96" left_delta="96" bottom_delta="0"
+       label="Color/Tint"
+       name="Color/Tint"
+       tool_tip="Click to open color picker"/>
+      <button name="Create New" label="Create New Universal" label_selected="Create New Universal"
+       follows="left|top" width="170" height="24" left="160" bottom="-148"/>
+      <button name="Take Off" label="Take Off"
+       follows="left|top" width="82" height="20" left="8" bottom="-330"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+      <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+      <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
+      <button name="Save" label="Save"
+       follows="right|bottom" width="82" height="20" left="123" bottom="-478"/>
+      <button name="Save As" label="Save As..."
+       follows="right|bottom" width="92" height="20" left="209" bottom="-478"/>
+      <button name="Revert" label="Revert"
+       follows="right|bottom" width="82" height="20" left="305" bottom="-478"/>
+    </panel>
     <panel border="true" bottom="-482" follows="left|top|right|bottom" height="481"
 		     label="Physics" left="102" mouse_opaque="true" name="Physics" width="389">
       <icon bottom="-21" color="1 1 1 1" follows="top|right" height="16"
@@ -1417,9 +1591,9 @@ one from scratch and wear it.
 			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
 			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
-Put on a new physics wearable by dragging one from your
-inventory to your avatar. Alternately, you create a new
-one from scratch and wear it.
+Put on a new physics wearable by dragging one
+from your inventory to your avatar. Alternately, you
+can create a new one from scratch and wear it.
       </text>
       <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
@@ -1450,7 +1624,7 @@ one from scratch and wear it.
 	<scroll_container bottom="-476" follows="left|top|right|bottom" height="382" left="197"
 	     mouse_opaque="false" name="panel_container" opaque="false" width="292" />
 	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="-410" drop_shadow_visible="true" follows="left|top"
+	     bottom="-438" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerif" h_pad="0" halign="left" height="16"
 	     left="8" mouse_opaque="false" name="AvatarHeightText" v_pad="0" width="140">
         Avatar Height:

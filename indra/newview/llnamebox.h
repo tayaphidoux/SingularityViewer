@@ -33,42 +33,28 @@
 #ifndef LL_LLNAMEBOX_H
 #define LL_LLNAMEBOX_H
 
-#include <set>
-
-#include "llview.h"
-#include "llstring.h"
-#include "llfontgl.h"
+#include "llnameui.h"
 #include "lltextbox.h"
 
 class LLNameBox
 :	public LLTextBox
+,	public LLNameUI
 {
 public:
 	virtual void initFromXML(LLXMLNodePtr node, LLView* parent);
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	virtual ~LLNameBox();
+	void displayAsLink(bool link) override final;
+	void setText(const std::string& text) override final { LLTextBox::setText(text); }
+	void setValue(const LLSD& value) override final { LLNameUI::setValue(value); }
+	LLSD getValue() const override final { return LLNameUI::getValue(); }
 
-	void setNameID(const LLUUID& name_id, BOOL is_group);
-
-	void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
-
-	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override final;
 
 protected:
-	LLNameBox (const std::string& name);
+	LLNameBox(const std::string& name);
 	
 	friend class LLUICtrlFactory;
-private:
-	void setName(const std::string& name, BOOL is_group);
-
-	static std::set<LLNameBox*> sInstances;
-
-private:
-	LLUUID mNameID;
-	BOOL mLink;
-	std::string mInitialValue;
-
 };
 
 #endif

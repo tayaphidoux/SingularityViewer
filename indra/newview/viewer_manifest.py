@@ -435,22 +435,27 @@ class WindowsManifest(ViewerManifest):
     def construct(self):
         super(WindowsManifest, self).construct()
 
+        if self.args['configuration'].lower() == '.':
+            config = 'debug' if self.args['buildtype'].lower() == 'debug' else 'release'
+        else:
+            config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
+        pkgbindir = os.path.join(pkgdir, "bin", config)
 
         if True: #self.is_packaging_viewer():
             # Find singularity-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
-            self.path(src='%s\\%s-bin.exe' % (self.args['configuration'],self.viewer_branding_id()), dst=self.final_exe())
+            self.path(src=os.path.join(self.args['dest'], ('%s-bin.exe' % self.viewer_branding_id())), dst=self.final_exe())
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
-                                        'llplugin', 'slplugin', self.args['configuration']),
+                                        'llplugin', 'slplugin', config),
                            "SLplugin.exe")
 
         # Get shared libs from the shared libs staging directory
         with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                          'sharedlibs', self.args['configuration'])):
+                                          'sharedlibs', config)):
 
             # Get llcommon and deps. If missing assume static linkage and continue.
             try:
@@ -472,7 +477,7 @@ class WindowsManifest(ViewerManifest):
 
             # Get fmodstudio dll, continue if missing
             try:
-                if self.args['configuration'].lower() == 'debug':
+                if config == 'debug':
                     self.path("fmodL.dll")
                 else:
                     self.path("fmod.dll")
@@ -510,7 +515,7 @@ class WindowsManifest(ViewerManifest):
             # For google-perftools tcmalloc allocator.
             if(self.address_size == 32):
                 try:
-                    if self.args['configuration'].lower() == 'debug':
+                    if config == 'debug':
                         self.path('libtcmalloc_minimal-debug.dll')
                     else:
                         self.path('libtcmalloc_minimal.dll')
@@ -536,21 +541,20 @@ class WindowsManifest(ViewerManifest):
             with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'plugins')):
 
                 # Plugins - FilePicker
-                with self.prefix(src=os.path.join('filepicker', self.args['configuration'])):
+                with self.prefix(src=os.path.join('filepicker', config)):
                     self.path("basic_plugin_filepicker.dll")
 
                 # Media plugins - LibVLC
-                with self.prefix(src=os.path.join('libvlc', self.args['configuration'])):
+                with self.prefix(src=os.path.join('libvlc', config)):
                     self.path("media_plugin_libvlc.dll")
 
                 # Media plugins - CEF
-                with self.prefix(src=os.path.join('cef', self.args['configuration'])):
+                with self.prefix(src=os.path.join('cef', config)):
                     self.path("media_plugin_cef.dll")
 
             # CEF runtime files - debug
             # CEF runtime files - not debug (release, relwithdebinfo etc.)
-            config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
-            with self.prefix(src=os.path.join(pkgdir, 'bin', config)):
+            with self.prefix(src=pkgbindir):
                 self.path("chrome_elf.dll")
                 self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
@@ -562,7 +566,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("snapshot_blob.bin")
                 self.path("v8_context_snapshot.bin")
 
-            with self.prefix(src=os.path.join(pkgdir, 'bin', config, 'swiftshader'), dst='swiftshader'):
+            with self.prefix(src=os.path.join(pkgbindir, 'swiftshader'), dst='swiftshader'):
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
 
@@ -630,7 +634,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("zh-CN.pak")
                 self.path("zh-TW.pak")
 
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+            with self.prefix(src=os.path.join(pkgbindir, 'release')):
                 self.path("libvlc.dll")
                 self.path("libvlccore.dll")
                 self.path("plugins/")
@@ -698,11 +702,11 @@ class WindowsManifest(ViewerManifest):
     def package_finish(self):
         if 'signature' in self.args and 'VIEWER_SIGNING_PWD' in os.environ:
             try:
-                self.sign(self.args['configuration']+"\\"+self.final_exe())
-                self.sign(self.args['configuration']+"\\SLPlugin.exe")
-                self.sign(self.args['configuration']+"\\SLVoice.exe")
+                self.sign(self.args['dest']+"\\"+self.final_exe())
+                self.sign(self.args['dest']+"\\SLPlugin.exe")
+                self.sign(self.args['dest']+"\\SLVoice.exe")
             except:
-                print "Couldn't sign binaries. Tried to sign %s" % self.args['configuration'] + "\\" + self.final_exe()
+                print "Couldn't sign binaries. Tried to sign %s" % self.args['dest'] + "\\" + self.final_exe()
 		
         # a standard map of strings for replacing in the templates
         substitution_strings = {
@@ -721,9 +725,9 @@ class WindowsManifest(ViewerManifest):
         substitution_strings['installer_file'] = installer_file
 
         # Packaging the installer takes forever, dodge it if we can.
-        installer_path = os.path.join(self.args['configuration'], installer_file);
+        installer_path = os.path.join(self.args['dest'], installer_file);
         if os.path.isfile(installer_path):
-            binary_mod = os.path.getmtime(os.path.join(self.args['configuration'], self.final_exe()))
+            binary_mod = os.path.getmtime(os.path.join(self.args['dest'], self.final_exe()))
             installer_mod = os.path.getmtime(installer_path)
             if binary_mod <= installer_mod:
                 print("Binary is unchanged since last package, touch the binary or delete installer to trigger repackage.")
@@ -770,22 +774,22 @@ class WindowsManifest(ViewerManifest):
         try:
             import _winreg as reg
             NSIS_path = reg.QueryValue(reg.HKEY_LOCAL_MACHINE, r"SOFTWARE\NSIS") + '\\makensis.exe'
-            self.run_command([proper_windows_path(NSIS_path), self.dst_path_of(tempfile)])
+        #    self.run_command([proper_windows_path(NSIS_path), self.dst_path_of(tempfile)])
         except:
             try:
                 NSIS_path = os.environ['ProgramFiles'] + '\\NSIS\\makensis.exe'
-                self.run_command([proper_windows_path(NSIS_path), self.dst_path_of(tempfile)])
+        #   self.run_command([proper_windows_path(NSIS_path), self.dst_path_of(tempfile)])
             except:
                 NSIS_path = os.environ['ProgramFiles(X86)'] + '\\NSIS\\makensis.exe'
-                self.run_command([proper_windows_path(NSIS_path),self.dst_path_of(tempfile)])
+    #       self.run_command([proper_windows_path(NSIS_path),self.dst_path_of(tempfile)])
 
 
         # self.remove(self.dst_path_of(tempfile))
         if 'signature' in self.args and 'VIEWER_SIGNING_PWD' in os.environ:
             try:
-                self.sign(self.args['configuration'] + "\\" + substitution_strings['installer_file'])
+                self.sign(self.args['dest'] + "\\" + substitution_strings['installer_file'])
             except: 
-                print "Couldn't sign windows installer. Tried to sign %s" % self.args['configuration'] + "\\" + substitution_strings['installer_file']
+                print "Couldn't sign windows installer. Tried to sign %s" % self.args['dest'] + "\\" + substitution_strings['installer_file']
 
         self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file

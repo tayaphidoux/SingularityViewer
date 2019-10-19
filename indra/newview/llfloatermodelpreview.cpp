@@ -2021,7 +2021,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 						}
 
 						//add current model to current LoD's model list (LLModel::mLocalID makes a good vector index)
-						S32 idx = list_iter->mModel->mLocalID;
+						size_t idx = list_iter->mModel->mLocalID;
 
 						if (mModel[lod].size() <= idx)
 						{	//stretch model list to fit model at given index

@@ -397,18 +397,20 @@ static LLTextEditor* get_focused_text_editor()
 	return te;
 }
 
-class ContextText : public LLMemberListener<LLView>
+class CopyRawText : public LLMemberListener<LLView>
 {
 	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
 	{
-		auto text = get_focused_text_editor();
-		const auto& op = userdata.asStringRef();
-		if (op == "Cut") text->cut();
-		else if (op == "Copy") text->copy();
-		else if (op == "CopyRaw") text->copyRaw();
-		else if (op == "Paste") text->paste();
-		else if (op == "Delete") text->doDelete();
-		else if (op == "SelectAll") text->selectAll();
+		get_focused_text_editor()->copyRaw();
+		return true;
+	}
+};
+
+class TextEditorVisible : public LLMemberListener<LLView>
+{
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent>, const LLSD& userdata) override
+	{
+		LLMenuGL::sMenuContainer->findControl(userdata["control"].asString())->setValue(!!dynamic_cast<LLTextEditor*>(gFocusMgr.getKeyboardFocus()));
 		return true;
 	}
 };
@@ -583,7 +585,8 @@ void LLTextEditor::spell_add(void* data)
 //static
 void LLTextEditor::addMenuListeners(ext_slurl_cb cb, ext_slurl_visible_cb vcb)
 {
-	(new ContextText)->registerListener(LLMenuGL::sMenuContainer, "Text");
+	(new CopyRawText)->registerListener(LLMenuGL::sMenuContainer, "CopyRawText");
+	(new TextEditorVisible)->registerListener(LLMenuGL::sMenuContainer, "TextEditorVisible");
 	(new ContextUrl)->registerListener(LLMenuGL::sMenuContainer, "Text.Url");
 	(new ContextUrlCopy)->registerListener(LLMenuGL::sMenuContainer, "Text.Url.CopyUUID");
 	(new ContextUrlExt(cb))->registerListener(LLMenuGL::sMenuContainer, "Text.Url.Ext");
@@ -4352,7 +4355,7 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 	if (mReadOnly && mParseHTML && !is_link) // Singu Note: Do not replace html if the user is going to edit it. (Like in profiles)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_PARSE_HTML);
-		S32 start=0,end=0;
+		size_t start=0, end=0;
 		LLUrlMatch match;
 		auto append_substr = [&](const size_t& pos, const size_t& count)
 		{

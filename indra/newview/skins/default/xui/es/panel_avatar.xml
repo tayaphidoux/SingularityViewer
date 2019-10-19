@@ -15,27 +15,21 @@
 			<text name="Name:" >
 				Nombre:
 			</text>
-			<line_editor name="dnname"/>
 			<text name="online_yes">
 				En Línea
 			</text>
 			<text name="label">
 				Nacido:
 			</text>
-			<line_editor name="born"/>
 			<text name="label2">
 				Cuenta:
 			</text>
-			<view_border name="acct_border"/>
 			<text name="acct"/>
 			<text name="partner_label" tool_tip="Compañera/o en Second Life. Para más información ver www.secondlife.com/partner">
 				Compañera/o:
 			</text>
-			<button label="i" label_selected="i" name="partner_info" tool_tip="Pulsa para abrir el Perfil del Compañero/a" left_delta="75"/>
 			<button label="?" label_selected="?" name="partner_help"/>
-			<line_editor name="partner_edit" tool_tip="Compañera/o en Second Life partner. Para más información ver www.secondlife.com/partner"  left_delta="-99">
-				[NAME]
-			</line_editor>
+			<name_editor name="partner_edit"/>
 			<text name="Photo:">
 				Foto:
 			</text>

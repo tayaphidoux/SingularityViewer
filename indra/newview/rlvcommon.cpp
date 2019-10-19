@@ -462,8 +462,8 @@ bool RlvUtil::isNearbyAgent(const LLUUID& idAgent)
 		uuid_vec_t idAgents;
 		LLWorld::getInstance()->getAvatars(&idAgents, NULL);
 
-		for (int idxAgent = 0, cntAgent = idAgents.size(); idxAgent < cntAgent; idxAgent++)
-			if (idAgents[idxAgent] == idAgent)
+		for (const auto& id : idAgents)
+			if (id == idAgent)
 				return true;
 	}
 	return false;

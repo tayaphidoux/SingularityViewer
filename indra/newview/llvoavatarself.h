@@ -28,6 +28,7 @@
 #ifndef LL_LLVOAVATARSELF_H
 #define LL_LLVOAVATARSELF_H
 
+#include "llavatarappearancedefines.h"
 #include "llviewertexture.h"
 #include "llvoavatar.h"
 #include <map>
@@ -119,7 +120,7 @@ private:
  *******************************************************************************/
 
 private:
-	LLUUID mInitialBakeIDs[6];
+	LLUUID mInitialBakeIDs[LLAvatarAppearanceDefines::BAKED_NUM_INDICES];
 	//bool mInitialBakesLoaded;
 
 
@@ -298,9 +299,6 @@ protected:
 public:
 	void 				updateAttachmentVisibility(U32 camera_mode);
 	BOOL 				isWearingAttachment(const LLUUID& inv_item_id) const;
-	BOOL				attachmentWasRequested(const LLUUID& inv_item_id) const;
-	void				addAttachmentRequest(const LLUUID& inv_item_id);
-	void				removeAttachmentRequest(const LLUUID& inv_item_id);
 	LLViewerObject* 	getWornAttachment(const LLUUID& inv_item_id);
 	bool				getAttachedPointName(const LLUUID& inv_item_id, std::string& name) const;
 // [RLVa:KB] - Checked: 2009-12-18 (RLVa-1.1.0i) | Added: RLVa-1.1.0i
@@ -316,8 +314,6 @@ public:
 	boost::signals2::connection setAttachmentCallback(const attachment_signal_t::slot_type& cb);
 // [/RLVa:KB]
 private:
-	// Track attachments that have been requested but have not arrived yet.
-	mutable std::map<LLUUID,LLTimer> mAttachmentRequests;
 // [RLVa:KB] - Checked: 2012-07-28 (RLVa-1.4.7)
 	attachment_signal_t* mAttachmentSignal;
 // [/RLVa:KB]

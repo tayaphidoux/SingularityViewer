@@ -2109,13 +2109,13 @@ LLXMLNodePtr LLMenuGL::getXML(bool save_children) const
 	return node;
 }
 
-void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory *factory)
+void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent)
 {
 	std::string name(child->getName()->mString);
 	if (child->hasName(LL_MENU_GL_TAG))
 	{
 		// SUBMENU
-		LLMenuGL *submenu = (LLMenuGL*)LLMenuGL::fromXML(child, parent, factory);
+		LLMenuGL *submenu = (LLMenuGL*)LLMenuGL::fromXML(child, parent, LLUICtrlFactory::getInstance());
 		appendMenu(submenu);
 		if (LLMenuGL::sMenuContainer != NULL)
 		{
@@ -2193,7 +2193,7 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 		{
 			mask |= MASK_SHIFT;
 		}
-		S32 pipe_pos = shortcut.rfind("|");
+		S32 pipe_pos = shortcut.rfind('|');
 		std::string key_str = shortcut.substr(pipe_pos+1);
 
 		KEY key = KEY_NONE;
@@ -2471,63 +2471,80 @@ BOOL LLMenuGL::isOpen()
 	}
 }
 // static
-LLView* LLMenuGL::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
+LLView* LLMenuGL::fromXML(LLXMLNodePtr node, LLView* parent, LLUICtrlFactory* factory)
 {
 	std::string name("menu");
 	node->getAttributeString("name", name);
 
-	std::string label = name;
-	node->getAttributeString("label", label);
+	LLMenuGL* menu = new LLMenuGL(name);
 
-	LLStringUtil::format(label, LLTrans::getDefaultArgs());
-
-	// parse jump key out of label
-	std::string new_menu_label;
-
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	boost::char_separator<char> sep("_");
-	tokenizer tokens(label, sep);
-	tokenizer::iterator token_iter;
-
-	KEY jump_key = KEY_NONE;
-	S32 token_count = 0;
-	for( token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
+	// Menus can be extended using filename
+	if (node->hasAttribute("filename"))
 	{
-		new_menu_label += (*token_iter);
-		if (token_count > 0)
+		std::string filename;
+		node->getAttributeString("filename", filename);
+		LLXMLNodePtr root;
+		LLUICtrlFactory::getLayeredXMLNode(filename, root);
+		menu->initMenuXML(root, parent);
+	}
+	menu->initMenuXML(node, parent);
+
+	return menu;
+}
+
+void LLMenuGL::initMenuXML(LLXMLNodePtr node, LLView* parent)
+{
+	std::string label;
+	if (node->getAttributeString("label", label))
+	{
+		LLStringUtil::format(label, LLTrans::getDefaultArgs());
+
+		// parse jump key out of label
+		std::string new_menu_label;
+
+		typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+		boost::char_separator<char> sep("_");
+
+		KEY jump_key = KEY_NONE;
+		S32 token_count = 0;
+		for (auto token : tokenizer(label, sep))
 		{
-			jump_key = (*token_iter).c_str()[0];
+			new_menu_label += token;
+			if (token_count > 0)
+			{
+				jump_key = token.front();
+			}
+			++token_count;
 		}
-		++token_count;
+
+		setLabel(new_menu_label);
+		setJumpKey(jump_key);
 	}
 
 	BOOL opaque = TRUE;
 	node->getAttributeBOOL("opaque", opaque);
 
-	LLMenuGL *menu = new LLMenuGL(name, new_menu_label);
-
 	bool b(false);
 	node->getAttribute_bool("scrollable", b);
-	menu->setScrollable(b);
+	setScrollable(b);
 
-	menu->setJumpKey(jump_key);
 
 	BOOL tear_off = FALSE;
 	node->getAttributeBOOL("tear_off", tear_off);
-	menu->setCanTearOff(tear_off);
+	setCanTearOff(tear_off);
 
 	if (node->hasAttribute("drop_shadow"))
 	{
 		BOOL drop_shadow = FALSE;
 		node->getAttributeBOOL("drop_shadow", drop_shadow);
-		menu->setDropShadowed(drop_shadow);
+		setDropShadowed(drop_shadow);
 	}
 
-	menu->setBackgroundVisible(opaque);
+	setBackgroundVisible(opaque);
 	LLColor4 color(0,0,0,1);
 	if (opaque && LLUICtrlFactory::getAttributeColor(node,"color", color))
 	{
-		menu->setBackgroundColor(color);
+		setBackgroundColor(color);
 	}
 
 	BOOL create_jump_keys = FALSE;
@@ -2536,14 +2553,13 @@ LLView* LLMenuGL::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fa
 	LLXMLNodePtr child;
 	for (child = node->getFirstChild(); child.notNull(); child = child->getNextSibling())
 	{
-		menu->parseChildXML(child, parent, factory);
+		parseChildXML(child, parent);
 	}
 
 	if (create_jump_keys)
 	{
-		menu->createJumpKeys();
+		createJumpKeys();
 	}
-	return menu;
 }
 
 
@@ -4776,7 +4792,7 @@ void LLContextMenu::initXML(LLXMLNodePtr node, LLView *context, LLUICtrlFactory 
 		}
 		else
 		{
-			parseChildXML(child, context, factory);
+			parseChildXML(child, context);
 		}
 	}
 }

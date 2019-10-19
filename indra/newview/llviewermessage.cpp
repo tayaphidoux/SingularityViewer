@@ -168,7 +168,6 @@ extern bool gShiftFrame;
 // function prototypes
 bool check_offer_throttle(const std::string& from_name, bool check_only);
 bool check_asset_previewable(const LLAssetType::EType asset_type);
-void callbackCacheEstateOwnerName(const LLUUID& id, const LLAvatarName& av_name);
 static void process_money_balance_reply_extended(LLMessageSystem* msg);
 
 //inventory offer throttle globals
@@ -8595,7 +8594,10 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelEstateInfo::updateEstateName(estate_name);
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
-	LLAvatarNameCache::get(estate_owner_id, boost::bind(&callbackCacheEstateOwnerName, _1, _2));
+	LLPanelEstateCovenant::updateEstateOwnerID(estate_owner_id);
+	LLPanelLandCovenant::updateEstateOwnerID(estate_owner_id);
+	LLPanelEstateInfo::updateEstateOwnerID(estate_owner_id);
+	LLFloaterBuyLand::updateEstateOwnerID(estate_owner_id);
 
 	// standard message, not from system
 	std::string last_modified;
@@ -8605,7 +8607,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	}
 	else
 	{
-		last_modified = LLTrans::getString("covenant_modified") + " " + formatted_time((time_t)covenant_timestamp);
+		last_modified = LLTrans::getString("covenant_modified") + ' ' + formatted_time((time_t)covenant_timestamp);
 	}
 
 	LLPanelEstateCovenant::updateLastModified(last_modified);
@@ -8642,15 +8644,6 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 		LLPanelLandCovenant::updateCovenantText(covenant_text);
 		LLFloaterBuyLand::updateCovenantText(covenant_text, covenant_id);
 	}
-}
-
-void callbackCacheEstateOwnerName(const LLUUID& id, const LLAvatarName& av_name)
-{
-	const std::string name(av_name.getNSName());
-	LLPanelEstateCovenant::updateEstateOwnerName(name);
-	LLPanelLandCovenant::updateEstateOwnerName(name);
-	LLPanelEstateInfo::updateEstateOwnerName(name);
-	LLFloaterBuyLand::updateEstateOwnerName(name);
 }
 
 void onCovenantLoadComplete(LLVFS *vfs,

@@ -34,106 +34,46 @@
 
 #include "llnamebox.h"
 
-#include "llerror.h"
-#include "llfontgl.h"
-#include "llui.h"
-#include "llviewercontrol.h"
-#include "lluuid.h"
-
-#include "llcachename.h"
-#include "llagent.h"
-
-// statics
-std::set<LLNameBox*> LLNameBox::sInstances;
-
 static LLRegisterWidget<LLNameBox> r("name_box");
 
-
 LLNameBox::LLNameBox(const std::string& name)
-:	LLTextBox(name, LLRect(), "" , NULL, TRUE)
+: LLNameUI()
+, LLTextBox(name, LLRect(), LLStringUtil::null, nullptr, TRUE)
 {
-	mNameID = LLUUID::null;
-	mLink = false;
-	//mParseHTML = mLink; // STORM-215
-	mInitialValue = "(retrieving)";
-	LLNameBox::sInstances.insert(this);
-	setText(LLStringUtil::null);
+	setClickedCallback(boost::bind(&LLNameUI::showProfile, this));
 }
 
-LLNameBox::~LLNameBox()
+void LLNameBox::displayAsLink(bool link)
 {
-	LLNameBox::sInstances.erase(this);
+	static const LLUICachedControl<LLColor4> color("HTMLAgentColor");
+	setColor(link ? color : LLUI::sColorsGroup->getColor("LabelTextColor"));
+	setDisabledColor(link ? color : LLUI::sColorsGroup->getColor("LabelDisabledColor"));
 }
 
-void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
+// virtual
+BOOL LLNameBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	mNameID = name_id;
-
-	std::string name;
-	BOOL got_name = FALSE;
-
-	if (!is_group)
+	auto handled = LLTextBox::handleRightMouseDown(x, y, mask);
+	if (mAllowInteract && !handled)
 	{
-		got_name = gCacheName->getFullName(name_id, name);
+		// Singu TODO: Generic menus for groups
+		if (!mIsGroup && mNameID.notNull())
+		{
+			showMenu(this, sMenus[0], x, y);
+			handled = true;
+		}
 	}
-	else
-	{
-		got_name = gCacheName->getGroupName(name_id, name);
-	}
-
-	// Got the name already? Set it.
-	// Otherwise it will be set later in refresh().
-	if (got_name)
-		setName(name, is_group);
-	else
-		setText(mInitialValue);
-}
-
-void LLNameBox::refresh(const LLUUID& id, const std::string& full_name, bool is_group)
-{
-	if (id == mNameID)
-	{
-		setName(full_name, is_group);
-	}
-}
-
-void LLNameBox::refreshAll(const LLUUID& id, const std::string& full_name, bool is_group)
-{
-	std::set<LLNameBox*>::iterator it;
-	for (it = LLNameBox::sInstances.begin();
-		 it != LLNameBox::sInstances.end();
-		 ++it)
-	{
-		LLNameBox* box = *it;
-		box->refresh(id, full_name, is_group);
-	}
-}
-
-void LLNameBox::setName(const std::string& name, BOOL is_group)
-{
-	if (mLink)
-	{
-		std::string url;
-
-		if (is_group)
-			url = "[secondlife:///app/group/" + mNameID.asString() + "/about " + name + "]";
-		else
-			url = "[secondlife:///app/agent/" + mNameID.asString() + "/about " + name + "]";
-
-		setText(url);
-	}
-	else
-	{
-		setText(name);
-	}
+	return handled;
 }
 
 // virtual
 void LLNameBox::initFromXML(LLXMLNodePtr node, LLView* parent)
 {
 	LLTextBox::initFromXML(node, parent);
-	node->getAttributeBOOL("link", mLink);
 	node->getAttributeString("initial_value", mInitialValue);
+	setText(mInitialValue);
+	node->getAttribute_bool("rlv_sensitive", mRLVSensitive);
+	node->getAttribute_bool("is_group", mIsGroup);
 }
 
 // static
@@ -143,4 +83,3 @@ LLView* LLNameBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 	name_box->initFromXML(node,parent);
 	return name_box;
 }
-

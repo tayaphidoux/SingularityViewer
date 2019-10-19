@@ -141,18 +141,11 @@ LLPanelAvatarSecondLife::LLPanelAvatarSecondLife(const std::string& name,
 
 LLPanelAvatarSecondLife::~LLPanelAvatarSecondLife()
 {
-	mCacheConnection.disconnect();
 	LLMuteList::instance().removeObserver(this);
 }
 
 void LLPanelAvatarSecondLife::refresh()
 {
-}
-
-void LLPanelAvatarSecondLife::updatePartnerName(const LLAvatarName& name)
-{
-	mCacheConnection.disconnect();
-	childSetTextArg("partner_edit", "[NAME]", name.getNSName());
 }
 
 //-----------------------------------------------------------------------------
@@ -167,7 +160,7 @@ void LLPanelAvatarSecondLife::clearControls()
 	childSetValue("born", LLStringUtil::null);
 	childSetValue("acct", LLStringUtil::null);
 
-	childSetTextArg("partner_edit", "[NAME]", LLStringUtil::null);
+	childSetValue("partner_edit", LLUUID::null);
 	mPartnerID = LLUUID::null;
 
 	getChild<LLScrollListCtrl>("groups")->deleteAllItems();
@@ -214,13 +207,8 @@ void LLPanelAvatarSecondLife::processProperties(void* data, EAvatarProcessorType
 			bool allow_publish = (pAvatarData->flags & AVATAR_ALLOW_PUBLISH);
 			childSetValue("allow_publish", allow_publish);
 
-			setPartnerID(pAvatarData->partner_id);
-			if (mPartnerID.notNull())
-			{
-				mCacheConnection.disconnect();
-				mCacheConnection = LLAvatarNameCache::get(mPartnerID, boost::bind(&LLPanelAvatarSecondLife::updatePartnerName, this, _2));
-				childSetEnabled("partner_info", TRUE);
-			}
+			mPartnerID = pAvatarData->partner_id;
+			getChildView("partner_edit")->setValue(mPartnerID);
 		}
 	}
 	else if (type == APT_GROUPS)
@@ -359,11 +347,6 @@ BOOL LLPanelAvatarSecondLife::postBuild()
 	childSetEnabled("born", FALSE);
 	childSetEnabled("partner_edit", FALSE);
 	getChild<LLUICtrl>("partner_help")->setCommitCallback(boost::bind(show_partner_help));
-	if (LLUICtrl* ctrl = getChild<LLUICtrl>("partner_info"))
-	{
-		ctrl->setCommitCallback(boost::bind(LLAvatarActions::showProfile, boost::ref(mPartnerID), false));
-		ctrl->setEnabled(mPartnerID.notNull());
-	}
 
 	childSetAction("?", boost::bind(LLNotificationsUtil::add, "ClickPublishHelpAvatar"));
 	LLPanelAvatar* pa = getPanelAvatar();
@@ -399,7 +382,7 @@ BOOL LLPanelAvatarSecondLife::postBuild()
 	ctrl->setFallbackImageName("default_profile_picture.j2c");
 	auto show_pic = [&]
 	{
-		show_picture(getChild<LLTextureCtrl>("img")->getImageAssetID(), profile_picture_title(getChildView("dnname")->getValue()));
+		show_picture(getChild<LLTextureCtrl>("img")->getImageAssetID(), profile_picture_title(getChild<LLLineEditor>("dnname")->getText()));
 	};
 	auto show_pic_if_not_self = [=] { if (!ctrl->canChange()) show_pic(); };
 
@@ -1249,24 +1232,18 @@ void LLPanelAvatar::setOnlineStatus(EOnlineStatus online_status)
 	}
 }
 
-void LLPanelAvatar::onAvatarNameResponse(const LLUUID& agent_id, const LLAvatarName& av_name)
-{
-	mCacheConnection.disconnect();
-	getChild<LLLineEditor>("dnname")->setText(gSavedSettings.getBOOL("SinguCompleteNameProfiles") ? av_name.getCompleteName() : av_name.getNSName());
-}
-
 void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id)
 {
-	if (avatar_id.isNull()) return;
-
-	//BOOL avatar_changed = FALSE;
+	auto dnname = getChild<LLNameEditor>("dnname");
 	if (avatar_id != mAvatarID)
 	{
-		//avatar_changed = TRUE;
 		if (mAvatarID.notNull())
 			LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarID, this);
 		mAvatarID = avatar_id;
+		dnname->setNameID(avatar_id, false);
 	}
+
+	if (avatar_id.isNull()) return;
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver(mAvatarID, this);
 
@@ -1292,12 +1269,10 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id)
 	if (LLDropTarget* drop_target = findChild<LLDropTarget>("drop_target_rect"))
 		drop_target->setEntityID(mAvatarID);
 
-	mCacheConnection.disconnect();
-	mCacheConnection = LLAvatarNameCache::get(avatar_id, boost::bind(&LLPanelAvatar::onAvatarNameResponse, this, _1, _2));
+	dnname->setShowCompleteName(gSavedSettings.getBOOL("SinguCompleteNameProfiles"));
 
-	LLNameEditor* key_edit = getChild<LLNameEditor>("avatar_key");
-	if (key_edit)
-		key_edit->setText(mAvatarID.asString());
+	if (auto key_edit = getChildView("avatar_key"))
+		key_edit->setValue(mAvatarID.asString());
 
 	// While we're waiting for data off the network, clear out the  old data.
 	if (mPanelSecondLife)

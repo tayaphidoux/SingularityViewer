@@ -59,8 +59,6 @@
 
 static LLRegisterWidget<LLScrollListCtrl> r("scroll_list");
 
-std::vector<LLMenuGL*> LLScrollListCtrl::sMenus = {}; // List menus that recur, such as general avatars or groups menus
-
 // local structures & classes.
 struct SortScrollListItem
 {
@@ -314,7 +312,7 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
 	return ret;
 }
 
-uuid_vec_t LLScrollListCtrl::getSelectedIDs()
+uuid_vec_t LLScrollListCtrl::getSelectedIDs() const
 {
 	uuid_vec_t ids;
 	if (!getCanSelect()) return ids;
@@ -1813,10 +1811,7 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		if (col->mHeader && col->mHeader->getRect().pointInRect(x,y)) // Right clicking a column header shouldn't bring up a menu
 			return FALSE;
 	}
-	gFocusMgr.setKeyboardFocus(this); // Menu listeners rely on this
-	mPopupMenu->buildDrawLabels();
-	mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
-	LLMenuGL::showPopup(this, mPopupMenu, x, y);
+	showMenu(this, mPopupMenu, x, y);
 	return TRUE;
 }
 
@@ -2749,10 +2744,11 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 	LLSD columns;
 	S32 index = 0;
 	const std::string nodename(std::string(node->getName()->mString) + '.');
-	const std::string kidcolumn(nodename + "columns");
+	const std::string kidcolumns(nodename + "columns");
+	const std::string kidcolumn(nodename + "column");
 	for (LLXMLNodePtr child = node->getFirstChild(); child.notNull(); child = child->getNextSibling())
 	{
-		if (child->hasName("column") || child->hasName(kidcolumn))
+		if (child->hasName("column")  || child->hasName("columns") || child->hasName(kidcolumn) || child->hasName(kidcolumns))
 		{
 			std::string labelname("");
 			if (child->getAttributeString("label", labelname))
@@ -2832,9 +2828,10 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 			bool explicit_column = false;
 			for (LLXMLNodePtr row_child = child->getFirstChild(); row_child.notNull(); row_child = row_child->getNextSibling())
 			{
-				if (row_child->hasName("column"))
+				if (row_child->hasName("column") || row_child->hasName("columns"))
 				{
 					std::string value = row_child->getTextContents();
+					row_child->getAttributeString("value", value);
 					row["columns"][column_idx]["value"] = value;
 
 					std::string columnname;

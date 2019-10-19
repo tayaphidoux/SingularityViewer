@@ -1,3 +1,4 @@
+
 /** 
  * @file indra_constants.h
  * @brief some useful short term constants for Indra
@@ -293,6 +294,19 @@ const U32 START_LOCATION_ID_COUNT 		= 6;
 
 // group constants
 const U32 GROUP_MIN_SIZE = 2;
+
+
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_HEAD;
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_UPPER;
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_LOWER;
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_EYES;
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_SKIRT;
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_HAIR;
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_LEFTARM;
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_LEFTLEG;
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_AUX1;
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_AUX2;
+LL_COMMON_API extern const LLUUID IMG_USE_BAKED_AUX3;
 
 // radius within which a chat message is fully audible
 const F32 CHAT_WHISPER_RADIUS = 10.f;

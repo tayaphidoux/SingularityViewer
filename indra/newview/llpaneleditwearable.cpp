@@ -103,6 +103,7 @@ enum ESubpart
 	SUBPART_SKIRT,
 	SUBPART_ALPHA,
 	SUBPART_TATTOO,
+	SUBPART_UNIVERSAL,
 	SUBPART_PHYSICS_BREASTS_UPDOWN,
 	SUBPART_PHYSICS_BREASTS_INOUT,
 	SUBPART_PHYSICS_BREASTS_LEFTRIGHT,
@@ -245,6 +246,7 @@ LLEditWearableDictionary::Wearables::Wearables()
 	addEntry(LLWearableType::WT_SKIRT,              new WearableEntry(LLWearableType::WT_SKIRT,"edit_skirt_title",1,1,1, TEX_SKIRT, TEX_SKIRT, SUBPART_SKIRT));
 	addEntry(LLWearableType::WT_ALPHA,              new WearableEntry(LLWearableType::WT_ALPHA,"edit_alpha_title",0,5,1, TEX_LOWER_ALPHA, TEX_UPPER_ALPHA, TEX_HEAD_ALPHA, TEX_EYES_ALPHA, TEX_HAIR_ALPHA, SUBPART_ALPHA));
 	addEntry(LLWearableType::WT_TATTOO,     new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title",1,3,1, TEX_HEAD_TATTOO, TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO, SUBPART_TATTOO));
+	addEntry(LLWearableType::WT_UNIVERSAL, new WearableEntry(LLWearableType::WT_UNIVERSAL, "edit_universal_title", 1, 11, 1, TEX_HEAD_UNIVERSAL_TATTOO, TEX_HEAD_UNIVERSAL_TATTOO, TEX_UPPER_UNIVERSAL_TATTOO, TEX_LOWER_UNIVERSAL_TATTOO, TEX_SKIRT_TATTOO, TEX_HAIR_TATTOO, TEX_EYES_TATTOO, TEX_LEFT_ARM_TATTOO, TEX_LEFT_LEG_TATTOO, TEX_AUX1_TATTOO, TEX_AUX2_TATTOO, TEX_AUX3_TATTOO, SUBPART_UNIVERSAL));
 	addEntry(LLWearableType::WT_PHYSICS,    new WearableEntry(LLWearableType::WT_PHYSICS,"edit_physics_title",0,0,7, SUBPART_PHYSICS_BREASTS_UPDOWN, SUBPART_PHYSICS_BREASTS_INOUT, SUBPART_PHYSICS_BREASTS_LEFTRIGHT, SUBPART_PHYSICS_BELLY_UPDOWN, SUBPART_PHYSICS_BUTT_UPDOWN, SUBPART_PHYSICS_BUTT_LEFTRIGHT, SUBPART_PHYSICS_ADVANCED));
 }
 
@@ -315,6 +317,8 @@ LLEditWearableDictionary::Subparts::Subparts()
 	addEntry(SUBPART_UNDERPANTS, new SubpartEntry(SUBPART_UNDERPANTS, "mPelvis", "underpants",LLStringUtil::null, LLVector3d(0.f, 0.f, -0.5f), LLVector3d(-1.6f, 0.15f, -0.5f), SEX_BOTH));
 	addEntry(SUBPART_ALPHA, new SubpartEntry(SUBPART_ALPHA, "mPelvis", "alpha",LLStringUtil::null, LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f), SEX_BOTH));
 	addEntry(SUBPART_TATTOO, new SubpartEntry(SUBPART_TATTOO, "mPelvis", "tattoo", LLStringUtil::null, LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
+	addEntry(SUBPART_UNIVERSAL, new SubpartEntry(SUBPART_UNIVERSAL, "mPelvis", "universal", LLStringUtil::null, LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f), SEX_BOTH));
+
 	addEntry(SUBPART_PHYSICS_BREASTS_UPDOWN, new SubpartEntry(SUBPART_PHYSICS_BREASTS_UPDOWN, "mTorso", "physics_breasts_updown", "Breast Bounce", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-0.8f, 0.15f, 0.38),SEX_FEMALE));
 	addEntry(SUBPART_PHYSICS_BREASTS_INOUT, new SubpartEntry(SUBPART_PHYSICS_BREASTS_INOUT, "mTorso", "physics_breasts_inout", "Breast Cleavage", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-0.8f, 0.15f, 0.38f),SEX_FEMALE));
 	addEntry(SUBPART_PHYSICS_BREASTS_LEFTRIGHT, new SubpartEntry(SUBPART_PHYSICS_BREASTS_LEFTRIGHT, "mTorso", "physics_breasts_leftright", "Breast Sway", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-0.8f, 0.15f, 0.38f),SEX_FEMALE));
@@ -354,6 +358,7 @@ LLEditWearableDictionary::ColorSwatchCtrls::ColorSwatchCtrls()
 	addEntry ( TEX_UPPER_UNDERSHIRT, new PickerControlEntry (TEX_UPPER_UNDERSHIRT, "Color/Tint" ));
 	addEntry ( TEX_LOWER_UNDERPANTS, new PickerControlEntry (TEX_LOWER_UNDERPANTS, "Color/Tint" ));
 	addEntry ( TEX_HEAD_TATTOO, new PickerControlEntry(TEX_HEAD_TATTOO, "Color/Tint" ));
+	addEntry (TEX_HEAD_UNIVERSAL_TATTOO, new PickerControlEntry(TEX_HEAD_UNIVERSAL_TATTOO, "Color/Tint"));
 }
 
 LLEditWearableDictionary::TextureCtrls::TextureCtrls()
@@ -381,6 +386,17 @@ LLEditWearableDictionary::TextureCtrls::TextureCtrls()
 	addEntry ( TEX_LOWER_TATTOO, new PickerControlEntry (TEX_LOWER_TATTOO, "Lower Tattoo", LLUUID::null, TRUE ));
 	addEntry ( TEX_UPPER_TATTOO, new PickerControlEntry (TEX_UPPER_TATTOO, "Upper Tattoo", LLUUID::null, TRUE ));
 	addEntry ( TEX_HEAD_TATTOO, new PickerControlEntry (TEX_HEAD_TATTOO, "Head Tattoo", LLUUID::null, TRUE ));
+	addEntry ( TEX_LOWER_UNIVERSAL_TATTOO, new PickerControlEntry( TEX_LOWER_UNIVERSAL_TATTOO, "Lower Universal Tattoo", LLUUID::null, TRUE));
+	addEntry ( TEX_UPPER_UNIVERSAL_TATTOO, new PickerControlEntry( TEX_UPPER_UNIVERSAL_TATTOO, "Upper Universal Tattoo", LLUUID::null, TRUE));
+	addEntry ( TEX_HEAD_UNIVERSAL_TATTOO, new PickerControlEntry( TEX_HEAD_UNIVERSAL_TATTOO, "Head Universal Tattoo", LLUUID::null, TRUE));
+	addEntry ( TEX_SKIRT_TATTOO, new PickerControlEntry(TEX_SKIRT_TATTOO, "Skirt Tattoo", LLUUID::null, TRUE));
+	addEntry ( TEX_HAIR_TATTOO, new PickerControlEntry(TEX_HAIR_TATTOO, "Hair Tattoo", LLUUID::null, TRUE));
+	addEntry ( TEX_EYES_TATTOO, new PickerControlEntry(TEX_EYES_TATTOO, "Eyes Tattoo", LLUUID::null, TRUE));
+	addEntry (TEX_LEFT_ARM_TATTOO, new PickerControlEntry(TEX_LEFT_ARM_TATTOO, "Left Arm Tattoo", LLUUID::null, TRUE));
+	addEntry (TEX_LEFT_LEG_TATTOO, new PickerControlEntry(TEX_LEFT_LEG_TATTOO, "Left Leg Tattoo", LLUUID::null, TRUE));
+	addEntry (TEX_AUX1_TATTOO, new PickerControlEntry(TEX_AUX1_TATTOO, "Aux1 Tattoo", LLUUID::null, TRUE));
+	addEntry (TEX_AUX2_TATTOO, new PickerControlEntry(TEX_AUX2_TATTOO, "Aux2 Tattoo", LLUUID::null, TRUE));
+	addEntry (TEX_AUX3_TATTOO, new PickerControlEntry(TEX_AUX3_TATTOO, "Aux3 Tattoo", LLUUID::null, TRUE));
 }
 
 LLEditWearableDictionary::PickerControlEntry::PickerControlEntry(ETextureIndex tex_index,
@@ -407,9 +423,9 @@ get_pickers_indexes(const LLEditWearableDictionary::WearableEntry *wearable_entr
 // Specializations of this template function return picker control entry for particular control type.
 template <typename T>
 const LLEditWearableDictionary::PickerControlEntry*
-get_picker_entry (const ETextureIndex index) { return NULL; }
+get_picker_entry (const ETextureIndex index) { return nullptr; }
 
-typedef boost::function<void(LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry*)> function_t;
+typedef std::function<void(LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry*)> function_t;
 
 typedef struct PickerControlEntryNamePredicate
 {
@@ -473,16 +489,13 @@ find_picker_ctrl_entry_if(LLWearableType::EType type, const Predicate pred)
 	if (!wearable_entry)
 	{
 		LL_WARNS() << "could not get wearable dictionary entry for wearable of type: " << type << LL_ENDL;
-		return NULL;
+                return nullptr;
 	}
 	const texture_vec_t& indexes = get_pickers_indexes<CtrlType>(wearable_entry);
-	for (texture_vec_t::const_iterator
-			iter = indexes.begin(),
-			iter_end = indexes.end();
-			iter != iter_end; ++iter)
+        for (auto te : indexes)
 	{
-		const ETextureIndex te = *iter;
-		const LLEditWearableDictionary::PickerControlEntry* entry = get_picker_entry<CtrlType>(te);
+            const LLEditWearableDictionary::PickerControlEntry*     entry
+                        = get_picker_entry<CtrlType>(te);
 		if (!entry)
 		{
 			LL_WARNS() << "could not get picker dictionary entry (" << te << ") for wearable of type: " << type << LL_ENDL;
@@ -493,7 +506,7 @@ find_picker_ctrl_entry_if(LLWearableType::EType type, const Predicate pred)
 			return entry;
 		}
 	}
-	return NULL;
+        return nullptr;
 }
 
 template <typename CtrlType>
@@ -699,19 +712,28 @@ BOOL LLPanelEditWearable::postBuild()
 	mCreateNew = getChild<LLUICtrl>("Create New");
 	mCreateNew->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnCreateNew, this));
 
-	mCreateNewLayer = getChild<LLUICtrl>("New Layer");
-	mCreateNewLayer->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnCreateNew, this));
+	if (mCreateNewLayer = findChild<LLUICtrl>("New Layer"))
+	{
+		mCreateNewLayer->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnCreateNew, this));
+	}
 
-	mTakeOff = getChild<LLUICtrl>("Take Off");
-	// If PG, can't take off underclothing or shirt
-	mCanTakeOff = !(gAgent.isTeen() && (mType == LLWearableType::WT_UNDERSHIRT || mType == LLWearableType::WT_UNDERPANTS) );
-	mTakeOff->setVisible(mCanTakeOff);
-	mTakeOff->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnTakeOff, this));
+	if (mTakeOff = findChild<LLUICtrl>("Take Off"))
+	{
+		// If PG, can't take off underclothing or shirt
+		mCanTakeOff = !(gAgent.isTeen() && (mType == LLWearableType::WT_UNDERSHIRT || mType == LLWearableType::WT_UNDERPANTS) );
+		mTakeOff->setVisible(mCanTakeOff);
+		mTakeOff->setCommitCallback(boost::bind(&LLPanelEditWearable::onBtnTakeOff, this));
+	}
 
-	mArrowLeft = getChild<LLUICtrl>("Arrow Left");
-	mArrowLeft->setCommitCallback(boost::bind(&LLPanelEditWearable::onMoveToLayer, this, true));
-	mArrowRight = getChild<LLUICtrl>("Arrow Right");
-	mArrowRight->setCommitCallback(boost::bind(&LLPanelEditWearable::onMoveToLayer, this, false));
+	if (mArrowLeft = findChild<LLUICtrl>("Arrow Left"))
+	{
+		mArrowLeft->setCommitCallback(boost::bind(&LLPanelEditWearable::onMoveToLayer, this, true));
+	}
+
+	if (mArrowRight = findChild<LLUICtrl>("Arrow Right"))
+	{
+		mArrowRight->setCommitCallback(boost::bind(&LLPanelEditWearable::onMoveToLayer, this, false));
+	}
 
 
 	if (mSexRadio = findChild<LLUICtrl>("sex radio"))
@@ -751,9 +773,9 @@ BOOL LLPanelEditWearable::postBuild()
 		{
 			LL_WARNS() << "could not get wearable dictionary entry for wearable of type: " << mType << LL_ENDL;
 		}
-		U8 num_subparts = (U8) wearable_entry->mSubparts.size();
+		const U8 num_subparts = (U8) wearable_entry->mSubparts.size();
 
-		for (U8 index = 0; index < num_subparts; ++index)
+		for (U8 index = 0; num_subparts > 1 && index < num_subparts; ++index)
 		{
 			// dive into data structures to get the panel we need
 			ESubpart subpart_e = wearable_entry->mSubparts[index];
@@ -768,7 +790,7 @@ BOOL LLPanelEditWearable::postBuild()
 			
 			if (!subpart_entry->mButtonName.empty())
 			{
-				LL_INFOS() << "Finding button " << subpart_entry->mButtonName << LL_ENDL;
+				//LL_INFOS() << "Finding button " << subpart_entry->mButtonName << LL_ENDL;
 				LLButton* btn(findChild<LLButton>(subpart_entry->mButtonName));
 				llassert_always(btn);
 				mSubpartBtns.push_back(btn);
@@ -857,9 +879,9 @@ void LLPanelEditWearable::draw()
 	const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(mType);
 	if (wearable_entry)
 	{
-		U8 num_subparts = (U8) wearable_entry->mSubparts.size();
+		const U8 num_subparts = (U8) wearable_entry->mSubparts.size();
 
-		for (U8 index = 0; index < num_subparts; ++index)
+		for (U8 index = 0; num_subparts > 1 && index < num_subparts; ++index)
 		{
 			// dive into data structures to get the panel we need
 			ESubpart subpart_e = wearable_entry->mSubparts[index];
@@ -1484,13 +1506,25 @@ void LLPanelEditWearable::updateScrollingPanelUI()
 	bool max_layers = gAgentWearables.getClothingLayerCount() == LLAgentWearables::MAX_CLOTHING_LAYERS;
 	bool show_create_new = !has_wearable && !max_layers;
 
-	mTakeOff->setEnabled(has_wearable);
-	if (mCanTakeOff) mTakeOff->setVisible(has_wearable);
-	mCreateNewLayer->setVisible(has_wearable && !max_layers);
-	mArrowLeft->setEnabled(has_wearable && gAgentWearables.getBottomWearable(mType) != wearable);
-	mArrowLeft->setVisible(has_wearable);
-	mArrowRight->setEnabled(has_wearable && gAgentWearables.getTopWearable(mType) != wearable);
-	mArrowRight->setVisible(has_wearable);
+	if (mTakeOff)
+	{
+		mTakeOff->setEnabled(has_wearable);
+		if (mCanTakeOff) mTakeOff->setVisible(has_wearable);
+	}
+	if (mCreateNewLayer)
+	{
+		mCreateNewLayer->setVisible(has_wearable && !max_layers);
+	}
+	if (mArrowLeft)
+	{
+		mArrowLeft->setEnabled(has_wearable && gAgentWearables.getBottomWearable(mType) != wearable);
+		mArrowLeft->setVisible(has_wearable);
+	}
+	if (mArrowRight)
+	{
+		mArrowRight->setEnabled(has_wearable && gAgentWearables.getTopWearable(mType) != wearable);
+		mArrowRight->setVisible(has_wearable);
+	}
 	mCreateNew->setVisible(show_create_new);
 	mNotWornI->setVisible(show_create_new);
 	mNotWornT->setVisible(show_create_new);
@@ -1501,8 +1535,8 @@ void LLPanelEditWearable::updateScrollingPanelUI()
 
 	 // do nothing else if we don't have a valid wearable we're editing
 	if (!wearable) return;
-	LL_INFOS() << llformat("%#.8lX", wearable) << LL_ENDL;
-	LL_INFOS() << "cur_wearable->isDirty()=" << wearable->isDirty() << LL_ENDL;
+	//LL_INFOS() << llformat("%#.8lX", wearable) << LL_ENDL;
+	//LL_INFOS() << "cur_wearable->isDirty()=" << wearable->isDirty() << LL_ENDL;
 	refreshWearables(false);
 }
 

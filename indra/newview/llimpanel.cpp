@@ -329,7 +329,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	case IM_SESSION_GROUP_START:
 	case IM_SESSION_INVITE:
 	case IM_SESSION_CONFERENCE_START:
-		mCommitCallbackRegistrar.add("FlipDing", boost::bind<void>(boost::lambda::_1 = !boost::lambda::_1, boost::ref(mDing)));
+		mCommitCallbackRegistrar.add("FlipDing", [=](LLUICtrl*, const LLSD&) { mDing = !mDing; });
 		// determine whether it is group or conference session
 		if (gAgent.isInGroup(mSessionUUID))
 		{

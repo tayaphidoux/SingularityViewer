@@ -458,8 +458,9 @@ public:
 	virtual ~LLMenuGL( void );
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	void initMenuXML(LLXMLNodePtr node, LLView* parent);
 
-	void parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory *factory);
+	void parseChildXML(LLXMLNodePtr child, LLView *parent);
 
 	// LLView Functionality
 	/*virtual*/ BOOL handleUnicodeCharHere( llwchar uni_char );
@@ -580,15 +581,17 @@ public:
 	void resetScrollPositionOnShow(bool reset_scroll_pos) { mResetScrollPositionOnShow = reset_scroll_pos; }
 	bool isScrollPositionOnShowReset() { return mResetScrollPositionOnShow; }
 protected:
-	friend class LLTextEditor;
 	void createSpilloverBranch();
 	void cleanupSpilloverBranch();
+
+public:
 	// Add the menu item to this menu.
 	virtual BOOL append( LLMenuItemGL* item );
 
 	// add a menu - this will create a cascading menu
 	virtual BOOL appendMenu( LLMenuGL* menu );
 
+protected:
 	// TODO: create accessor methods for these?
 	typedef std::list< LLMenuItemGL* > item_list_t;
 	item_list_t mItems;

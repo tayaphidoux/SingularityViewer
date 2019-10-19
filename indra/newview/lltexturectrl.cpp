@@ -60,19 +60,22 @@
 #include "llscrollcontainer.h"
 #include "lltoolmgr.h"
 #include "lltoolpipette.h"
-
-#include "lltool.h"
+#include "llglheaders.h"
+#include "llselectmgr.h"
+#include "lltrans.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llviewerobject.h"
 #include "llviewercontrol.h"
-#include "llglheaders.h"
-#include "lluictrlfactory.h"
-#include "lltrans.h"
+
+#include "llavatarappearancedefines.h"
+
 // <edit>
 #include "llmenugl.h"
 // </edit>
 
 // tag: vaa emerald local_asset_browser [begin]
+//#include <boost/algorithm/cxx11/any_of.hpp>
 #include "floaterlocalassetbrowse.h"
 #include "llscrolllistctrl.h"
 #define	LOCALLIST_COL_ID 1
@@ -177,6 +180,7 @@ public:
 		   void		onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	static void		onShowFolders(LLUICtrl* ctrl, void* userdata);
 	static void		onApplyImmediateCheck(LLUICtrl* ctrl, void* userdata);
+	void			onBakeTextureSelect(const LLSD& val);
 	void			onFilterEdit(const std::string& filter_string );
 		   void		onTextureSelect( const LLTextureEntry& te );
 
@@ -285,22 +289,43 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 		mNoCopyTextureSelected = FALSE;
 		mIsDirty = TRUE;
 		mImageAssetID = image_id; 
-		LLUUID item_id = findItemID(mImageAssetID, FALSE);
-		if (item_id.isNull())
+
+		std::string tab;
+		if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
 		{
-			mInventoryPanel->getRootFolder()->clearSelection();
+			tab = "bake";
+			getChild<LLScrollListCtrl>("l_bake_use_texture_combo_box")->selectByID(mImageAssetID);
 		}
+		/* TODO: Figure out how to select local asset if in use?
+		// tag: vaa emerald local_asset_browser [begin]
+		else if (boost::algorithm::any_of_equal(mLocalScrollCtrl->getAllIDs(), mImageAssetID))
+		{
+			tab = "local_tab";
+			mLocalScrollCtrl->selectByID(mImageAssetID);
+		}
+		// tag: vaa emerald local_asset_browser [end]
+		*/
 		else
 		{
-			LLInventoryItem* itemp = gInventory.getItem(image_id);
-			if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
+			LLUUID item_id = findItemID(mImageAssetID, FALSE);
+			if (item_id.isNull())
 			{
-				// no copy texture
-				getChild<LLUICtrl>("apply_immediate_check")->setValue(FALSE);
-				mNoCopyTextureSelected = TRUE;
+				mInventoryPanel->getRootFolder()->clearSelection();
 			}
-			mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
+			else
+			{
+				tab = "server_tab";
+				LLInventoryItem* itemp = gInventory.getItem(image_id);
+				if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
+				{
+					// no copy texture
+					getChild<LLUICtrl>("apply_immediate_check")->setValue(FALSE);
+					mNoCopyTextureSelected = TRUE;
+				}
+				mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
+			}
 		}
+		if (!tab.empty()) getChild<LLTabContainer>("actions_tab_container")->selectTabByName(tab);
 	}
 }
 
@@ -557,6 +582,8 @@ BOOL LLFloaterTexturePicker::postBuild()
 	// update permission filter once UI is fully initialized
 	updateFilterPermMask();
 	LLToolPipette::getInstance()->setToolSelectCallback(boost::bind(&LLFloaterTexturePicker::onTextureSelect, this, _1));
+
+	getChild<LLUICtrl>("l_bake_use_texture_combo_box")->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onBakeTextureSelect, this, _2));
 	return TRUE;
 }
 
@@ -623,10 +650,28 @@ void LLFloaterTexturePicker::draw()
 	//BOOL allow_copy = FALSE;
 	if( mOwner ) 
 	{
-		mTexturep = NULL;
+        mTexturep = nullptr;
 		if(mImageAssetID.notNull())
 		{
-			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_PREVIEW);
+			LLPointer<LLViewerFetchedTexture> texture = NULL;
+
+			if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
+			{
+				LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+				if (obj)
+				{
+					LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
+					texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+				}
+			}
+
+			if (texture.isNull())
+			{
+				texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID);
+			}
+
+			mTexturep = texture;
+			mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
 		}
 		else if (!mFallbackImageName.empty())
 		{
@@ -1028,6 +1073,19 @@ void LLFloaterTexturePicker::onApplyImmediateCheck(LLUICtrl* ctrl, void *user_da
 	// </FS:Ansariel>
 	picker->updateFilterPermMask();
 	picker->commitIfImmediateSet();
+}
+
+void LLFloaterTexturePicker::onBakeTextureSelect(const LLSD& val)
+{
+	LLUUID imageID = val.asUUID();
+
+	setImageID(imageID);
+
+	if (mCanPreview)
+	{
+		// only commit intentional selections, not implicit ones
+		commitIfImmediateSet();
+	}
 }
 
 void LLFloaterTexturePicker::updateFilterPermMask()
@@ -1581,12 +1639,31 @@ void LLTextureCtrl::draw()
 
 	if (!mValid)
 	{
-		mTexturep = NULL;
+		mTexturep = nullptr;
 	}
 	else if (!mImageAssetID.isNull())
 	{
-		mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES,LLGLTexture::BOOST_PREVIEW, LLViewerTexture::LOD_TEXTURE);
-		mTexturep->forceToSaveRawImage(0) ;
+		LLPointer<LLViewerFetchedTexture> texture = NULL;
+
+		if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
+		{
+			LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+			if (obj)
+			{
+				LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
+				texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+			}
+		}
+
+		if (texture.isNull())
+		{
+			texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		}
+
+		texture->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+		texture->forceToSaveRawImage(0) ;
+
+		mTexturep = texture;
 	}
 	else if (!mFallbackImageName.empty())
 	{
@@ -1595,7 +1672,7 @@ void LLTextureCtrl::draw()
 	}
 	else	// mImageAssetID == LLUUID::null
 	{
-		mTexturep = NULL;
+		mTexturep = nullptr;
 	}
 	
 	// Border

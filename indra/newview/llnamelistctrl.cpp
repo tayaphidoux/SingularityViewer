@@ -217,7 +217,8 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 		LLAvatarName av_name;
 		if (id.isNull())
 		{
-			fullname = LLTrans::getString("AvatarNameNobody");
+			static const auto nobody = LLTrans::getString("AvatarNameNobody");
+			fullname = nobody;
 		}
 		else if (LLAvatarNameCache::get(id, &av_name))
 		{

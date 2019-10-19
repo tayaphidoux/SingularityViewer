@@ -368,7 +368,6 @@ LLPanelLandGeneral::LLPanelLandGeneral(LLParcelSelectionHandle& parcel)
 	, mBtnDeedToGroup(nullptr)
 	, mBtnSetGroup(nullptr)
 	, mTextOwner(nullptr)
-	, mBtnProfile(nullptr)
 	, mContentRating(nullptr)
 	, mLandType(nullptr)
 	, mTextGroup(nullptr)
@@ -414,18 +413,12 @@ BOOL LLPanelLandGeneral::postBuild()
 	
 	mContentRating = getChild<LLTextBox>("ContentRatingText");
 	mLandType = getChild<LLTextBox>("LandTypeText");
-	
-	mBtnProfile = getChild<LLButton>("Profile...");
-	mBtnProfile->setClickedCallback(boost::bind(&LLPanelLandGeneral::onClickProfile, this));
 
-	
 	mTextGroup = getChild<LLTextBox>("GroupText");
 
 	
 	mBtnSetGroup = getChild<LLButton>("Set...");
 	mBtnSetGroup->setCommitCallback(boost::bind(&LLPanelLandGeneral::onClickSetGroup, this));
-
-	getChild<LLButton>("group_profile")->setClickedCallback(onClickInfoGroup, this);
 
 	mCheckDeedToGroup = getChild<LLCheckBoxCtrl>( "check deed");
 	childSetCommitCallback("check deed", onCommitAny, this);
@@ -564,14 +557,12 @@ void LLPanelLandGeneral::refresh()
 		mCheckContributeWithDeed->set(FALSE);
 		mCheckContributeWithDeed->setEnabled(FALSE);
 
-		mTextOwner->setText(LLStringUtil::null);
+		mTextOwner->setValue(LLUUID::null);
 		mContentRating->setText(LLStringUtil::null);
 		mLandType->setText(LLStringUtil::null);
-		mBtnProfile->setLabel(getString("profile_text"));
-		mBtnProfile->setEnabled(FALSE);
 
 		mTextClaimDate->setText(LLStringUtil::null);
-		mTextGroup->setText(LLStringUtil::null);
+		mTextGroup->setValue(LLUUID::null);
 		mTextPrice->setText(LLStringUtil::null);
 
 		mSaleInfoForSale1->setVisible(FALSE);
@@ -626,16 +617,19 @@ void LLPanelLandGeneral::refresh()
 		BOOL can_be_sold = owner_sellable || estate_manager_sellable;
 
 		const LLUUID &owner_id = parcel->getOwnerID();
+		const LLUUID& group_id = parcel->getGroupID();
 		BOOL is_public = parcel->isPublic();
+		bool group_owned = parcel->getIsGroupOwned();
 
 		// Is it owned?
+		mTextOwner->setValue(is_public ? LLSD(LLUUID::null) : LLSD().with("id", owner_id).with("group", group_owned));
+		mTextGroup->setValue(is_public ? LLUUID::null : group_id);
 		if (is_public)
 		{
 			mTextSalePending->setText(LLStringUtil::null);
 			mTextSalePending->setEnabled(FALSE);
 			mTextOwner->setText(getString("public_text"));
 			mTextOwner->setEnabled(FALSE);
-			mBtnProfile->setEnabled(FALSE);
 			mTextClaimDate->setText(LLStringUtil::null);
 			mTextClaimDate->setEnabled(FALSE);
 			mTextGroup->setText(getString("none_text"));
@@ -665,21 +659,13 @@ void LLPanelLandGeneral::refresh()
 			mTextOwner->setEnabled(TRUE);
 
 			// We support both group and personal profiles
-			mBtnProfile->setEnabled(TRUE);
-
-			if (parcel->getGroupID().isNull())
+			if (group_id.isNull())
 			{
-				// Not group owned, so "Profile"
-				mBtnProfile->setLabel(getString("profile_text"));
-
 				mTextGroup->setText(getString("none_text"));
 				mTextGroup->setEnabled(FALSE);
 			}
 			else
 			{
-				// Group owned, so "Info"
-				mBtnProfile->setLabel(getString("info_text"));
-
 				//mTextGroup->setText("HIPPOS!");//parcel->getGroupName());
 				mTextGroup->setEnabled(TRUE);
 			}
@@ -702,9 +688,7 @@ void LLPanelLandGeneral::refresh()
 		mEditDesc->setEnabled(can_edit_identity);
 
 		BOOL can_edit_agent_only = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_NO_POWERS);
-		mBtnSetGroup->setEnabled(can_edit_agent_only && !parcel->getIsGroupOwned());
-
-		const LLUUID& group_id = parcel->getGroupID();
+		mBtnSetGroup->setEnabled(can_edit_agent_only && !group_owned);
 
 		// Can only allow deeding if you own it and it's got a group.
 		BOOL enable_deed = (owner_id == gAgent.getID()
@@ -723,7 +707,7 @@ void LLPanelLandGeneral::refresh()
 		mBtnDeedToGroup->setEnabled(   parcel->getAllowDeedToGroup()
 									&& group_id.notNull()
 									&& can_deed
-									&& !parcel->getIsGroupOwned()
+									&& !group_owned
 									);
 
 		mEditName->setText( parcel->getName() );
@@ -838,34 +822,24 @@ void LLPanelLandGeneral::refreshNames()
 	LLParcel *parcel = mParcel->getParcel();
 	if (!parcel)
 	{
-		mTextOwner->setText(LLStringUtil::null);
-		mTextGroup->setText(LLStringUtil::null);
+		mTextOwner->setValue(LLUUID::null);
+		mTextGroup->setValue(LLUUID::null);
 		return;
 	}
 
-	std::string owner;
-	if (parcel->getIsGroupOwned())
+	bool group_owned = parcel->getIsGroupOwned();
+	mTextOwner->setValue(LLSD().with("id", parcel->getOwnerID()).with("group", group_owned));
+	if (group_owned)
 	{
-		owner = getString("group_owned_text");
-	}
-	else
-	{
-		// Figure out the owner's name
-		gCacheName->getFullName(parcel->getOwnerID(), owner);
+		mTextOwner->setText(getString("group_owned_text"));
 	}
 
 	if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
 	{
-		owner += getString("sale_pending_text");
+		mTextOwner->setText(mTextOwner->getText() + getString("sale_pending_text"));
 	}
-	mTextOwner->setText(owner);
 
-	std::string group;
-	if (!parcel->getGroupID().isNull())
-	{
-		gCacheName->getGroupName(parcel->getGroupID(), group);
-	}
-	mTextGroup->setText(group);
+	mTextGroup->setValue(parcel->getGroupID());
 
 	if (parcel->getForSale())
 	{
@@ -881,13 +855,6 @@ void LLPanelLandGeneral::refreshNames()
 			mSaleInfoForSale2->setTextArg("[BUYER]", getString("anyone"));
 		}
 	}
-}
-
-
-// virtual
-void LLPanelLandGeneral::draw()
-{
-	LLPanel::draw();
 }
 
 void LLPanelLandGeneral::onClickSetGroup()
@@ -907,32 +874,6 @@ void LLPanelLandGeneral::onClickSetGroup()
 	}
 }
 
-// static
-void LLPanelLandGeneral::onClickInfoGroup(void* userdata)
-{
-	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)userdata;
-	LLParcel* parcel = panelp->mParcel->getParcel();
-	if (!parcel) return;
-	LLGroupActions::show(parcel->getGroupID());
-}
-
-void LLPanelLandGeneral::onClickProfile()
-{
-	LLParcel* parcel = mParcel->getParcel();
-	if (!parcel) return;
-
-	if (parcel->getIsGroupOwned())
-	{
-		const LLUUID& group_id = parcel->getGroupID();
-		LLGroupActions::show(group_id);
-	}
-	else
-	{
-		const LLUUID& avatar_id = parcel->getOwnerID();
-		LLAvatarActions::showProfile(avatar_id);
-	}
-}
-
 // public
 void LLPanelLandGeneral::setGroup(const LLUUID& group_id)
 {
@@ -942,7 +883,6 @@ void LLPanelLandGeneral::setGroup(const LLUUID& group_id)
 	// Set parcel properties and send message
 	parcel->setGroupID(group_id);
 	//parcel->setGroupName(group_name);
-	//mTextGroup->setText(group_name);
 
 	// Send update
 	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate(parcel);
@@ -1197,7 +1137,6 @@ BOOL LLPanelLandObjects::postBuild()
 	mOwnerList = getChild<LLNameListCtrl>("owner list");
 	mOwnerList->sortByColumnIndex(3, FALSE);
 	mOwnerList->setCommitCallback(boost::bind(&LLPanelLandObjects::onCommitList,this));
-	mOwnerList->setDoubleClickCallback(boost::bind(&LLPanelLandObjects::onDoubleClickOwner, this));
 
 	return TRUE;
 }
@@ -1208,35 +1147,6 @@ BOOL LLPanelLandObjects::postBuild()
 // virtual
 LLPanelLandObjects::~LLPanelLandObjects()
 { }
-
-// static
-void LLPanelLandObjects::onDoubleClickOwner(void *userdata)
-{
-	LLPanelLandObjects *self = (LLPanelLandObjects *)userdata;
-
-	LLScrollListItem* item = self->mOwnerList->getFirstSelected();
-	if (item)
-	{
-		LLUUID owner_id = item->getUUID();
-		// Look up the selected name, for future dialog box use.
-		const LLScrollListCell* cell;
-		cell = item->getColumn(1);
-		if (!cell)
-		{
-			return;
-		}
-		// Is this a group?
-		BOOL is_group = cell->getValue().asString() == OWNER_GROUP;
-		if (is_group)
-		{
-			LLGroupActions::show(owner_id);
-		}
-		else
-		{
-			LLAvatarActions::showProfile(owner_id);
-		}
-	}
-}
 
 // public
 void LLPanelLandObjects::refresh()
@@ -1349,12 +1259,6 @@ void LLPanelLandObjects::refresh()
 			mBtnRefresh->setEnabled(TRUE);
 		}
 	}
-}
-
-// virtual
-void LLPanelLandObjects::draw()
-{
-	LLPanel::draw();
 }
 
 void send_other_clean_time_message(S32 parcel_local_id, S32 other_clean_time)
@@ -3145,13 +3049,12 @@ void LLPanelLandCovenant::updateLastModified(const std::string& text)
 }
 
 // static
-void LLPanelLandCovenant::updateEstateOwnerName(const std::string& name)
+void LLPanelLandCovenant::updateEstateOwnerID(const LLUUID& id)
 {
 	LLPanelLandCovenant* self = LLFloaterLand::getCurrentPanelLandCovenant();
 	if (self)
 	{
-		LLTextBox* editor = self->getChild<LLTextBox>("estate_owner_text");
-		if (editor) editor->setText(name);
+		self->getChildView("estate_owner_text")->setValue(id);
 	}
 }
 

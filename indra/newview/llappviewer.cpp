@@ -51,7 +51,6 @@
 #include "llviewerstats.h"
 #include "llmarketplacefunctions.h"
 #include "llmarketplacenotifications.h"
-#include "llmd5.h"
 #include "llmeshrepository.h"
 #include "llmodaldialog.h"
 #include "llpumpio.h"
@@ -63,7 +62,6 @@
 #include "llares.h" 
 #include "llcurl.h"
 #include "llcalc.h"
-#include "lltexturestats.h"
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
 #include "llviewermedia.h"
@@ -138,8 +136,6 @@
 #include "llassetstorage.h"
 #include "llpolymesh.h"
 #include "llaudioengine.h"
-#include "llstreamingaudio.h"
-#include "llviewermenu.h"
 #include "llselectmgr.h"
 #include "lltrans.h"
 #include "lltracker.h"
@@ -147,7 +143,6 @@
 #include "llworldmapview.h"
 #include "llpostprocess.h"
 #include "llwlparammanager.h"
-#include "llwaterparammanager.h"
 
 #include "lldebugview.h"
 #include "llconsole.h"
@@ -166,9 +161,7 @@
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "floaterlocalassetbrowse.h"
-#include "llstatusbar.h"
 #include "llsurface.h"
-#include "llvosky.h"
 #include "llvotree.h"
 #include "llfolderview.h"
 #include "lltoolbar.h"
@@ -215,6 +208,8 @@
 //----------------------------------------------------------------------------
 // llviewernetwork.h
 #include "llviewernetwork.h"
+
+#include <random>
 
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
@@ -468,6 +463,7 @@ static void settings_to_globals()
 
 	MENU_BAR_HEIGHT		= gSavedSettings.getS32("MenuBarHeight");
 	MENU_BAR_WIDTH		= gSavedSettings.getS32("MenuBarWidth");
+	extern S32 STATUS_BAR_HEIGHT;
 	STATUS_BAR_HEIGHT	= gSavedSettings.getS32("StatusBarHeight");
 
 	LLCOMBOBOX_HEIGHT	= BTN_HEIGHT - 2;
@@ -862,7 +858,7 @@ bool LLAppViewer::init()
 #endif
 	LLMIMETypes::parseMIMETypes( mime_types_name ); 
 
-	// Copy settings to globals. *TODO: Remove or move to appropriage class initializers
+	// Copy settings to globals. *TODO: Remove or move to appropriate class initializers
 	settings_to_globals();
 	// Setup settings listeners
 	settings_setup_listeners();
@@ -990,7 +986,7 @@ bool LLAppViewer::init()
 			minSpecs += "\n";
 			unsupported = true;
 		}
-		if(gSysMemory.getPhysicalMemoryClamped() < minRAM)
+		if(gSysMemory.getPhysicalMemoryKB() < minRAM)
 		{
 			minSpecs += LLNotificationTemplates::instance().getGlobalString("UnsupportedRAM");
 			minSpecs += "\n";
@@ -1577,7 +1573,7 @@ bool LLAppViewer::cleanup()
 	*/
 	// </edit>
 
-
+	void cleanup_menus();
 	cleanup_menus();
 
 	// Wait for any pending VFS IO
@@ -2692,8 +2688,8 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
 	gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
 	
-	gDebugInfo["RAMInfo"]["Physical"] = (LLSD::Integer)(gSysMemory.getPhysicalMemoryKB().value());
-	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
+	gDebugInfo["RAMInfo"]["Physical"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().value());
+	gDebugInfo["RAMInfo"]["Allocated"] = LLSD::Integer(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
 	gDebugInfo["OSInfo"] = getOSInfo().getOSStringSimple();
 
 	// The user is not logged on yet, but record the current grid choice login url
@@ -3341,8 +3337,14 @@ bool LLAppViewer::initCache()
 		// </edit>
 	}
 
-	LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
-	
+    {
+        std::random_device rnddev;
+        std::mt19937 rng(rnddev());
+        std::uniform_int_distribution<> dist(0, 4);
+        LLSplashScreen::update(LLTrans::getString(
+            llformat("StartupInitializingTextureCache%d", dist(rng))));
+    }
+
 	// Init the texture cache
 	// Allocate 80% of the cache size for textures
 	const U64Bytes MIN_CACHE_SIZE = U32Megabytes(64);

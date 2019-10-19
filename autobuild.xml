@@ -47,40 +47,6 @@
         <key>version</key>
         <string>1.2.15</string>
       </map>
-      <key>abseil-cpp</key>
-      <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/alchemyviewer/3p-abseil-src</string>
-        <key>copyright</key>
-        <string>Copyright 2018 The Abseil Authors.</string>
-        <key>description</key>
-        <string>Abseil Common Libraries</string>
-        <key>license</key>
-        <string>Apache 2.0</string>
-        <key>license_file</key>
-        <string>LICENSES/abseil-cpp.txt</string>
-        <key>name</key>
-        <string>abseil-cpp</string>
-        <key>platforms</key>
-        <map>
-          <key>common</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>b82d5aa8380926240f3415279480c831</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/abseil-cpp/common/abseil_cpp-ac78ffc.1-common-1.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>common</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>ac78ffc.1</string>
-      </map>
       <key>apr_suite</key>
       <map>
         <key>copyright</key>

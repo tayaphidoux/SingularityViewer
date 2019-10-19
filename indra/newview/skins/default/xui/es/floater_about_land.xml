@@ -25,16 +25,10 @@
 			<text name="Owner:">
 				Propietario:
 			</text>
-			<text name="OwnerText">
-				Leyla Linden
-			</text>
-			<button label="Perfil..." label_selected="Perfil..." name="Profile..."/>
 			<text name="Group:">
 				Grupo:
 			</text>
-			<text name="GroupText"/>
 			<button label="Definir..." label_selected="Definir..." name="Set..."/>
-			<button label="Info" name="group_profile"/>
 			<check_box label="Permitir transferir al grupo" name="check deed" tool_tip="Un oficial del grupo puede transferir este terreno al grupo. El terreno será sostenido por el grupo en sus asignaciones de terreno."/>
 			<button label="Transferir..." label_selected="Transferir..." name="Deed..." tool_tip="Sólo puedes transferir un terreno si eres un oficial del grupo seleccionado."/>
 			<check_box label="El propietario hace una contribución transfiriendo" name="check contrib" tool_tip="Cuando el terreno se transfiere al grupo, el antiguo propietario contribuye con una asignación suficiente de terreno."/>
@@ -105,12 +99,6 @@
 			<string name="group_owned_text">
 				(Propiedad del Grupo)
 			</string>
-			<string name="profile_text">
-				Perfil...
-			</string>
-			<string name="info_text">
-				Información...
-			</string>
 			<string name="public_text">
 				(público)
 			</string>
@@ -139,9 +127,9 @@ Ve al Menú Mundo &gt; Acerca del terreno o selecciona otra parcela para ver sus
 			<text name="estate_owner_lbl">
 				Propietario:
 			</text>
-			<text name="estate_owner_text">
+			<name_box name="estate_owner_text">
 				(ninguno)
-			</text>
+			</name_box>
 			<text_editor name="covenant_editor">
 				No se ha aportado un contrato para este estado.
 			</text_editor>

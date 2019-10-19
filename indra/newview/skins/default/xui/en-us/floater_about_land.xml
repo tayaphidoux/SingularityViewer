@@ -63,32 +63,25 @@
 			     mouse_opaque="true" name="Owner:" v_pad="0" width="92">
 				Owner:
 			</text>
-			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			<name_box type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-140" drop_shadow_visible="true" enabled="true" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="16" left="96"
 			     mouse_opaque="true" name="OwnerText" v_pad="0">
 				Leyla Linden
-			</text>
-			<button bottom="-140" enabled="true" follows="left|top" font="SansSerifSmall"
-			     halign="center" height="16" label="Profile..." label_selected="Profile..."
-			     left="350" mouse_opaque="true" name="Profile..." scale_image="true"
-			     width="90" />
+			</name_box>
 			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-160" drop_shadow_visible="true" enabled="true" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="16" left="4"
 			     mouse_opaque="true" name="Group:" v_pad="0" width="92">
 				Group:
 			</text>
-			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			<name_box type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-162" drop_shadow_visible="true" enabled="false" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="16" left="96"
-			     mouse_opaque="true" name="GroupText" v_pad="0" width="250" />
+			     mouse_opaque="true" name="GroupText" v_pad="0" is_group="true"/>
 			<button bottom="-160" enabled="true" follows="left|top" font="SansSerifSmall"
 			     halign="center" height="16" label="Set..." label_selected="Set..."
-			     left="350" mouse_opaque="true" name="Set..." scale_image="true" width="50" />
-			<button bottom="-160" enabled="true" follows="left|top" font="SansSerifSmall"
-			     halign="center" height="16" label="Info"
-			     left="400" mouse_opaque="true" name="group_profile" scale_image="true" width="50" />
+			     left="350" mouse_opaque="true" name="Set..." scale_image="true" width="90" />
 			<check_box bottom="-180" enabled="false" follows="left|top" font="SansSerifSmall"
 			     height="16" initial_value="false" label="Allow Deed to Group" left="96"
 			     mouse_opaque="true" name="check deed" radio_style="false"
@@ -240,12 +233,6 @@
 			<string name="group_owned_text">
 				(Group Owned)
 			</string>
-			<string name="profile_text">
-				Profile...
-			</string>
-			<string name="info_text">
-				Info...
-			</string>
 			<string name="public_text">
 				(public)
 			</string>
@@ -287,12 +274,12 @@ Go to World menu > About Land or select another parcel to show its details.
 			     mouse_opaque="false" name="estate_owner_lbl" v_pad="0" width="100">
 				Owner:
 			</text>
-			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			<name_box type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-60" drop_shadow_visible="true" enabled="true" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="20" left="120"
 			     mouse_opaque="false" name="estate_owner_text" v_pad="0">
 				(none)
-			</text>
+			</name_box>
 			<text_editor type="string" length="1" bottom="-175" embedded_items="false" enabled="false"
 			     follows="left|top|right|bottom" font="SansSerifSmall" height="115"
 			     left="120" max_length="65535" mouse_opaque="true" name="covenant_editor"

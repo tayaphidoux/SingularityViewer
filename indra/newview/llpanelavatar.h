@@ -119,13 +119,9 @@ public:
 	void clearControls();
 	void enableControls(BOOL own_avatar);
 	void updateOnlineText(BOOL online, BOOL have_calling_card);
-	void updatePartnerName(const LLAvatarName& name);
 
-	void setPartnerID(LLUUID id) { mPartnerID = id; }
-	
 private:
 	LLUUID				mPartnerID;
-	boost::signals2::connection mCacheConnection;
 };
 
 
@@ -281,8 +277,6 @@ public:
 	BOOL canClose();
 
 	void setAvatar(LLViewerObject *avatarp);
-
-	void onAvatarNameResponse(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 	// Fill in the avatar ID and handle some field fill-in, as well as 
 	// button enablement.

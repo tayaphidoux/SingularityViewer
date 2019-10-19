@@ -1067,34 +1067,6 @@ BOOL LLVOAvatarSelf::isWearingAttachment(const LLUUID& inv_item_id) const
 }
 
 //-----------------------------------------------------------------------------
-BOOL LLVOAvatarSelf::attachmentWasRequested(const LLUUID& inv_item_id) const
-{
-	constexpr F32 REQUEST_EXPIRATION_SECONDS = 5.0;  // any request older than this is ignored/removed.
-	auto it = mAttachmentRequests.find(inv_item_id);
-	if (it != mAttachmentRequests.end())
-	{
-		if (it->second.getElapsedTimeF32() > REQUEST_EXPIRATION_SECONDS)
-			mAttachmentRequests.erase(it);
-		else
-			return TRUE;
-	}
-	return FALSE;
-}
-
-//-----------------------------------------------------------------------------
-void LLVOAvatarSelf::addAttachmentRequest(const LLUUID& inv_item_id)
-{
-	LLTimer current_time;
-	mAttachmentRequests[inv_item_id] = current_time;
-}
-
-//-----------------------------------------------------------------------------
-void LLVOAvatarSelf::removeAttachmentRequest(const LLUUID& inv_item_id)
-{
-	mAttachmentRequests.erase(inv_item_id);
-}
-
-//-----------------------------------------------------------------------------
 // getWornAttachment()
 //-----------------------------------------------------------------------------
 LLViewerObject* LLVOAvatarSelf::getWornAttachment(const LLUUID& inv_item_id)
@@ -1182,8 +1154,6 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	{
 		const LLUUID& attachment_id = viewer_object->getAttachmentItemID();
 		LLAppearanceMgr::instance().registerAttachment(attachment_id);
-		// Clear any pending requests once the attachment arrives.
-		removeAttachmentRequest(attachment_id);
 		updateLODRiggedAttachments();		
 
 // [RLVa:KB] - Checked: 2010-08-22 (RLVa-1.2.1a) | Modified: RLVa-1.2.1a

@@ -83,7 +83,6 @@ LLPanelGroupGeneral::LLPanelGroupGeneral(const std::string& name,
 	mGroupNameEditor(NULL),
 	mFounderName(NULL),
 	mInsignia(NULL),
-	mGroupName(NULL),
 	mEditCharter(NULL),
 	mBtnJoinGroup(NULL),
 	mListVisibleMembers(NULL),
@@ -121,8 +120,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 
 	// General info
 	mGroupNameEditor = getChild<LLLineEditor>("group_name_editor", recurse);
-	mGroupName = getChild<LLTextBox>("group_name", recurse);
-	
+
 	mInsignia = getChild<LLTextureCtrl>("insignia", recurse);
 	if (mInsignia)
 	{
@@ -263,7 +261,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 
 		mBtnJoinGroup->setVisible(FALSE);
 		mBtnInfo->setVisible(FALSE);
-		mGroupName->setVisible(FALSE);
+		getChildView("group_name")->setVisible(FALSE);
 	}
 
 	std::string member_count(LLTrans::getString("LoadingData"));
@@ -731,15 +729,14 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 
 		if (mInsignia) mInsignia->setEnabled(can_change_ident);
 		if (mEditCharter) mEditCharter->setEnabled(can_change_ident);
-	
-		if (mGroupName) mGroupName->setText(gdatap->mName);
-		if (mGroupNameEditor) mGroupNameEditor->setVisible(FALSE);
-		if (mFounderName) mFounderName->setNameID(gdatap->mFounderID,FALSE);
 
-		LLNameEditor* key_edit = getChild<LLNameEditor>("group_key");
-		if(key_edit)
+		getChildView("group_name")->setValue(mGroupID);
+		if (mGroupNameEditor) mGroupNameEditor->setVisible(FALSE);
+		if (mFounderName) mFounderName->setValue(gdatap->mFounderID);
+
+		if (auto key_edit = getChildView("group_key"))
 		{
-			key_edit->setText(gdatap->getID().asString());
+			key_edit->setValue(gdatap->getID().asString());
 		}
 
 		if (mInsignia)
@@ -908,7 +905,6 @@ void LLPanelGroupGeneral::updateChanged()
 	LLUICtrl *check_list[] =
 	{
 		mGroupNameEditor,
-		mGroupName,
 		mFounderName,
 		mInsignia,
 		mEditCharter,

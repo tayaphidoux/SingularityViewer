@@ -385,7 +385,7 @@ public:
 		static const LLCachedControl<bool> debug_show_memory("DebugShowMemory");
 		if (debug_show_memory)
 		{
-			addText(xpos, ypos, llformat("Memory: %d (KB)", LLMemory::getWorkingSetSize() / 1024)); 
+			addText(xpos, ypos, llformat("Memory: %d (KB)", LLMemory::getCurrentRSS() / 1024));
 			ypos += y_inc;
 		}
 #endif

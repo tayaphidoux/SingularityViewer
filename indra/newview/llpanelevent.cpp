@@ -139,9 +139,8 @@ void LLPanelEvent::processEventInfoReply(LLMessageSystem *msg, void **)
 	msg->getU32("EventData", "EventID", event_id);
 
 	// look up all panels which have this avatar
-	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
+	for (auto& self : sAllPanels)
 	{
-		LLPanelEvent* self = *iter;
 		// Skip updating panels which aren't for this event
 		if (self->mEventID != event_id)
 		{
@@ -152,6 +151,7 @@ void LLPanelEvent::processEventInfoReply(LLMessageSystem *msg, void **)
 		self->mTBCategory->setText(self->mEventInfo.mCategoryStr);
 		self->mTBDate->setText(self->mEventInfo.mTimeStr);
 		self->mTBDesc->setText(self->mEventInfo.mDesc, false);
+		self->mTBRunBy->setValue(self->mEventInfo.mRunByID);
 
 		self->mTBDuration->setText(llformat("%d:%.2d", self->mEventInfo.mDuration / 60, self->mEventInfo.mDuration % 60));
 
@@ -203,17 +203,6 @@ void LLPanelEvent::processEventInfoReply(LLMessageSystem *msg, void **)
 			self->mNotifyBtn->setLabel(self->getString("notify"));
 		}
 	}
-}
-
-
-void LLPanelEvent::draw()
-{
-	std::string name;
-	gCacheName->getFullName(mEventInfo.mRunByID, name);
-
-	mTBRunBy->setText(name);
-
-	LLPanel::draw();
 }
 
 void LLPanelEvent::resetInfo()

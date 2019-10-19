@@ -64,7 +64,7 @@
      width="150">
         Estate owner:
     </text>
-    <text
+    <name_box
      type="string"
      length="1"
      follows="left|top"
@@ -74,10 +74,9 @@
      bottom_delta="0"
      name="estate_owner"
      left_delta="156"
-     use_ellipses="true"
-     width="290">
+     use_ellipses="true">
         (unknown)
-    </text>
+    </name_box>
 
     <view_border
      bevel_style="none"

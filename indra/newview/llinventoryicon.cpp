@@ -79,6 +79,7 @@ LLIconDictionary::LLIconDictionary()
 	addEntry(LLInventoryType::ICONNAME_CLOTHING_SKIRT, 			new IconEntry("inv_item_skirt.tga"));
 	addEntry(LLInventoryType::ICONNAME_CLOTHING_ALPHA, 			new IconEntry("inv_item_alpha.tga"));
 	addEntry(LLInventoryType::ICONNAME_CLOTHING_TATTOO, 		new IconEntry("inv_item_tattoo.tga"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_UNIVERSAL,      new IconEntry("Inv_Universal.png"));
 	addEntry(LLInventoryType::ICONNAME_ANIMATION, 				new IconEntry("inv_item_animation.tga"));
 	addEntry(LLInventoryType::ICONNAME_GESTURE, 				new IconEntry("inv_item_gesture.tga"));
 

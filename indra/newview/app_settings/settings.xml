@@ -12685,7 +12685,10 @@ This should be as low as possible, but too low may break functionality</string>
   <key>AlwaysRenderFriends</key>
     <map>
       <key>Comment</key>
-      <string>Always render friends regardless of max complexity, a value of 2 will only render friends</string>
+      <string>0 - Render avatars with complexity below RenderAvatarMaxComplexity
+1 - Always renders friends, regardless of max complexity
+2 - Only renders friends
+3 - Only renders self</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

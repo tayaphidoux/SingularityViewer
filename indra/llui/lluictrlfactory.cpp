@@ -406,16 +406,16 @@ LLMenuGL *LLUICtrlFactory::buildMenu(const std::string &filename, LLView* parent
 	LLXMLNodePtr root;
 	LLMenuGL*    menu;
 
-	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
+	if (!getLayeredXMLNode(filename, root))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	// root must be called panel
-	if( !root->hasName( "menu_bar" ) && !root->hasName( "menu" ) && !root->hasName("context_menu"))
+	if (!root->hasName("menu_bar") && !root->hasName("menu") && !root->hasName("context_menu"))
 	{
-		LL_WARNS() << "Root node should be named menu bar or menu in : " << filename << LL_ENDL;
-		return NULL;
+		LL_WARNS() << "Root node should be named menu bar or menu in: " << filename << LL_ENDL;
+		return nullptr;
 	}
 
 	if (root->hasName("menu") || root->hasName("context_menu"))

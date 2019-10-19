@@ -6331,7 +6331,9 @@ void LLVolumeFace::allocateIndices(S32 num_indices, bool copy)
 	S32 new_size = ((num_indices * sizeof(U16)) + 0xF) & ~0xF;
 	if (copy && num_indices && mIndices && mNumIndices)
 	{
+#if !LL_USE_TCMALLOC
 		S32 old_size = ((mNumIndices * sizeof(U16)) + 0xF) & ~0xF;
+#endif
 
 		mIndices = (U16*)ll_aligned_realloc_16(mIndices, new_size, old_size);
 

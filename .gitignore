@@ -3,10 +3,12 @@
 *.aps
 *.suo
 *.vshost.exe
+*/.vs
 /bin/
 /bin-release/
 /bin
 /bin-release
+/indra/out/
 /indra/viewer-*
 /indra/newview/vivox-runtime/
 /indra/newview/dbghelp.dll

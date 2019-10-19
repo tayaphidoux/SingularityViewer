@@ -1543,7 +1543,7 @@ bool LLViewerRegion::simulatorFeaturesReceived() const
 	return mSimulatorFeaturesReceived;
 }
 
-void LLViewerRegion::getSimulatorFeatures(LLSD& sim_features)
+void LLViewerRegion::getSimulatorFeatures(LLSD& sim_features) const
 {
 	sim_features = mSimulatorFeatures;
 }
@@ -2365,6 +2365,12 @@ bool LLViewerRegion::meshUploadEnabled() const
 		return (mSimulatorFeatures.has("MeshUploadEnabled") &&
 				mSimulatorFeatures["MeshUploadEnabled"].asBoolean());
 	}
+}
+
+bool LLViewerRegion::bakesOnMeshEnabled() const
+{
+	return (mSimulatorFeatures.has("BakesOnMeshEnabled") &&
+		mSimulatorFeatures["BakesOnMeshEnabled"].asBoolean());
 }
 
 bool LLViewerRegion::meshRezEnabled() const

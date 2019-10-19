@@ -74,9 +74,6 @@ public:
 	
 protected:
 	// ui callbacks
-	void onClickCreator();
-	void onClickOwner();
-	void onClickLastOwner();
 	void onCommitName();
 	void onCommitDescription();
 	void onCommitPermissions();

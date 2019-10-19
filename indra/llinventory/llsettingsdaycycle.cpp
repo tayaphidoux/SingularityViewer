@@ -608,7 +608,7 @@ LLSettingsDay::validation_list_t LLSettingsDay::validationList()
     return validation;
 }
 
-LLSettingsDay::CycleTrack_t& LLSettingsDay::getCycleTrack(S32 track)
+LLSettingsDay::CycleTrack_t& LLSettingsDay::getCycleTrack(size_t track)
 {
     static CycleTrack_t emptyTrack;
     if (mDayTracks.size() <= track)
@@ -617,7 +617,7 @@ LLSettingsDay::CycleTrack_t& LLSettingsDay::getCycleTrack(S32 track)
     return mDayTracks[track];
 }
 
-const LLSettingsDay::CycleTrack_t& LLSettingsDay::getCycleTrackConst(S32 track) const
+const LLSettingsDay::CycleTrack_t& LLSettingsDay::getCycleTrackConst(size_t track) const
 {
     static CycleTrack_t emptyTrack;
     if (mDayTracks.size() <= track)
