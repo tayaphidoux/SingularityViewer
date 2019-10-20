@@ -5,6 +5,7 @@
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
+include(CheckCCompilerFlag)
 include(Variables)
 
 # Portable compilation flags.
@@ -199,10 +200,13 @@ if (LINUX)
 
     # End of hacks.
 
-    if (NOT STANDALONE)
-      # this stops us requiring a really recent glibc at runtime
-      add_definitions(-fno-stack-protector)
-    endif (NOT STANDALONE)
+    CHECK_C_COMPILER_FLAG(-fstack-protector-strong HAS_STRONG_STACK_PROTECTOR)
+    if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+      if(HAS_STRONG_STACK_PROTECTOR)
+        add_compile_options(-fstack-protector-strong)
+      endif(HAS_STRONG_STACK_PROTECTOR)
+    endif (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+
     if (${ARCH} STREQUAL "x86_64")
       add_definitions(-pipe)
       set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math")

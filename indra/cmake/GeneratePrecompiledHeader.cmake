@@ -94,7 +94,7 @@ macro(target_precompiled_header TARGET_NAME PRECOMPILED_HEADER PRECOMPILED_SOURC
         # Add a custom target for building the precompiled header.
         add_custom_command(
             OUTPUT ${OUTPUT_NAME}
-            COMMAND ${CMAKE_CXX_COMPILER} @${PCH_FLAGS_FILE} ${COMPILER_FLAGS} -x c++-header -std=${CXX_STD} -o ${OUTPUT_NAME} ${PRECOMPILED_HEADER}
+            COMMAND ${CMAKE_CXX_COMPILER} @${PCH_FLAGS_FILE} ${COMPILER_FLAGS} -x c++-header -o ${OUTPUT_NAME} ${PRECOMPILED_HEADER}
             DEPENDS ${PRECOMPILED_HEADER})
         add_custom_target(${TARGET_NAME}_gch DEPENDS ${OUTPUT_NAME})
         add_dependencies(${TARGET_NAME} ${TARGET_NAME}_gch)

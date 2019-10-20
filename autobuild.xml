@@ -2925,10 +2925,10 @@
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>make</string>
+                <string>ninja</string>
                 <key>options</key>
                 <array>
-                  <string>-j 7</string>
+                  <string>-v</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2936,7 +2936,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Unix Makefiles</string>
+                  <string>Ninja</string>
                 </array>
               </map>
               <key>default</key>
@@ -2949,10 +2949,10 @@
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>make</string>
+                <string>ninja</string>
                 <key>options</key>
                 <array>
-                  <string>-j 7</string>
+                  <string>-v</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2960,7 +2960,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Unix Makefiles</string>
+                  <string>Ninja</string>
                 </array>
               </map>
               <key>name</key>
@@ -2981,10 +2981,10 @@
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>make</string>
+                <string>ninja</string>
                 <key>options</key>
                 <array>
-                  <string>-j 7</string>
+                  <string>-v</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2992,7 +2992,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Unix Makefiles</string>
+                  <string>Ninja</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                 </array>
               </map>
@@ -3006,10 +3006,10 @@
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>make</string>
+                <string>ninja</string>
                 <key>options</key>
                 <array>
-                  <string>-j 7</string>
+                  <string>--v</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3017,7 +3017,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Unix Makefiles</string>
+                  <string>Ninja</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                 </array>
               </map>
