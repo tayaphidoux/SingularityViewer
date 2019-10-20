@@ -458,31 +458,24 @@ class WindowsManifest(ViewerManifest):
                                           'sharedlibs', config)):
 
             # Get llcommon and deps. If missing assume static linkage and continue.
-            try:
-                self.path('llcommon.dll')
-                self.path('libapr-1.dll')
-                self.path('libaprutil-1.dll')
-                self.path('libapriconv-1.dll')
-
-            except RuntimeError as err:
-                print err.message
+            if self.path('llcommon.dll') == 0:
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
+            self.path('libapr-1.dll')
+            self.path('libaprutil-1.dll')
+            self.path('libapriconv-1.dll')
+
             # Mesh 3rd party libs needed for auto LOD and collada reading
-            try:
-                self.path("glod.dll")
-            except RuntimeError as err:
-                print err.message
+            if self.path("glod.dll") == 0:
                 print "Skipping GLOD library (assumming linked statically)"
 
             # Get fmodstudio dll, continue if missing
-            try:
-                if config == 'debug':
-                    self.path("fmodL.dll")
-                else:
-                    self.path("fmod.dll")
-            except:
-                print "Skipping fmodstudio audio library(assuming other audio engine)"
+            if config is "debug":
+                if self.path("fmodL.dll") == 0:
+                   print "Skipping fmodstudio audio library(assuming other audio engine)"
+            else:
+                if self.path("fmod.dll") == 0:
+                   print "Skipping fmodstudio audio library(assuming other audio engine)"
 
             # Vivox runtimes
             self.path("SLVoice.exe")
@@ -514,13 +507,12 @@ class WindowsManifest(ViewerManifest):
 
             # For google-perftools tcmalloc allocator.
             if(self.address_size == 32):
-                try:
-                    if config == 'debug':
-                        self.path('libtcmalloc_minimal-debug.dll')
-                    else:
-                        self.path('libtcmalloc_minimal.dll')
-                except:
-                    print "Skipping libtcmalloc_minimal.dll"
+                if config == 'debug':
+                    if self.path('libtcmalloc_minimal-debug.dll') == 0:
+                        print "Skipping libtcmalloc_minimal.dll"
+                else:
+                    if self.path('libtcmalloc_minimal.dll') == 0:
+                        print "Skipping libtcmalloc_minimal.dll"
 
             # For msvc redist
             try:
@@ -665,9 +657,9 @@ class WindowsManifest(ViewerManifest):
                     out_path = installed_dir
                     result += 'SetOutPath ' + out_path + '\n'
             if install:
-                result += 'File ' + pkg_file + '\n'
+                result += 'File "' + pkg_file + '"\n'
             else:
-                result += 'Delete ' + wpath(os.path.join('$INSTDIR', rel_file)) + '\n'
+                result += 'Delete "' + wpath(os.path.join('$INSTDIR', rel_file)) + '"\n'
 
         # at the end of a delete, just rmdir all the directories
         if not install:
@@ -774,17 +766,15 @@ class WindowsManifest(ViewerManifest):
         try:
             import _winreg as reg
             NSIS_path = reg.QueryValue(reg.HKEY_LOCAL_MACHINE, r"SOFTWARE\NSIS") + '\\makensis.exe'
-        #    self.run_command([proper_windows_path(NSIS_path), self.dst_path_of(tempfile)])
+            self.run_command([proper_windows_path(NSIS_path), self.dst_path_of(tempfile)])
         except:
             try:
                 NSIS_path = os.environ['ProgramFiles'] + '\\NSIS\\makensis.exe'
-        #   self.run_command([proper_windows_path(NSIS_path), self.dst_path_of(tempfile)])
+                self.run_command([proper_windows_path(NSIS_path), self.dst_path_of(tempfile)])
             except:
                 NSIS_path = os.environ['ProgramFiles(X86)'] + '\\NSIS\\makensis.exe'
-    #       self.run_command([proper_windows_path(NSIS_path),self.dst_path_of(tempfile)])
-
-
-        # self.remove(self.dst_path_of(tempfile))
+                self.run_command([proper_windows_path(NSIS_path),self.dst_path_of(tempfile)])
+        self.remove(self.dst_path_of(tempfile))
         if 'signature' in self.args and 'VIEWER_SIGNING_PWD' in os.environ:
             try:
                 self.sign(self.args['dest'] + "\\" + substitution_strings['installer_file'])
