@@ -462,7 +462,6 @@ static void settings_to_globals()
 	BTN_HEIGHT			= gSavedSettings.getS32("ButtonHeight");
 
 	MENU_BAR_HEIGHT		= gSavedSettings.getS32("MenuBarHeight");
-	MENU_BAR_WIDTH		= gSavedSettings.getS32("MenuBarWidth");
 	extern S32 STATUS_BAR_HEIGHT;
 	STATUS_BAR_HEIGHT	= gSavedSettings.getS32("StatusBarHeight");
 

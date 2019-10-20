@@ -47,7 +47,6 @@
 
 
 extern S32 MENU_BAR_HEIGHT;
-extern S32 MENU_BAR_WIDTH;
 
 // These callbacks are used by the LLMenuItemCallGL and LLMenuItemCheckGL
 // classes during their work.

@@ -206,7 +206,6 @@ extern AIHTTPView* gHttpView;
 
 LLMenuBarGL		*gMenuBarView = NULL;
 LLViewerMenuHolderGL	*gMenuHolder = NULL;
-LLMenuGL		*gPopupMenuView = NULL;
 LLMenuBarGL		*gLoginMenuBarView = NULL;
 
 // Pie menus
@@ -220,7 +219,6 @@ LLContextMenu	*gPieLand	= NULL;
 const std::string CLIENT_MENU_NAME("Advanced");
 const std::string SERVER_MENU_NAME("Admin");
 
-const std::string SAVE_INTO_INVENTORY("Save Object Back to My Inventory");
 const std::string SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents");
 
 LLMenuGL* gAttachSubMenu = NULL;
@@ -453,7 +451,6 @@ BOOL enable_land_selected( void* );
 BOOL enable_more_than_one_selected(void* );
 BOOL enable_selection_you_own_all(void*);
 BOOL enable_selection_you_own_one(void*);
-BOOL enable_save_into_inventory(void*);
 BOOL enable_save_into_task_inventory(void*);
 
 BOOL enable_detach(const LLSD& = LLSD());
@@ -638,16 +635,6 @@ void init_menus()
 	initialize_menus();
 
 	///
-	/// Popup menu
-	///
-	/// The popup menu is now populated by the show_context_menu()
-	/// method.
-	
-	gPopupMenuView = new LLMenuGL( "Popup" );
-	gPopupMenuView->setVisible( FALSE );
-	gMenuHolder->addChild( gPopupMenuView );
-
-	///
 	/// Pie menus
 	///
 	build_pie_menus();
@@ -658,9 +645,6 @@ void init_menus()
 	/// set up the colors
 	///
 	LLColor4 color;
-
-	color = gColors.getColor( "MenuPopupBgColor" );
-	gPopupMenuView->setBackgroundColor( color );
 
 	// If we are not in production, use a different color to make it apparent.
 	if (LLViewerLogin::getInstance()->isInProductionGrid())
@@ -1768,9 +1752,6 @@ void cleanup_menus()
 
 	delete gMenuBarView;
 	gMenuBarView = NULL;
-
-	delete gPopupMenuView;
-	gPopupMenuView = NULL;
 
 	delete gMenuHolder;
 	gMenuHolder = NULL;
@@ -5131,7 +5112,8 @@ class LLToolsSaveToInventory : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if(enable_save_into_inventory(NULL))
+		bool enable_save_into_inventory();
+		if(enable_save_into_inventory())
 		{
 			derez_objects(DRD_SAVE_INTO_AGENT_INVENTORY, LLUUID::null);
 		}
@@ -7664,7 +7646,7 @@ bool LLHasAsset::operator()(LLInventoryCategory* cat,
 	return FALSE;
 }
 
-BOOL enable_save_into_inventory(void*)
+bool enable_save_into_inventory()
 {
 	// *TODO: clean this up
 	// find the last root

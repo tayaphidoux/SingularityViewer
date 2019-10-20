@@ -48,7 +48,6 @@ void cleanup_menus();
 void show_debug_menus(); // checks for if menus should be shown first.
 void show_context_menu( S32 x, S32 y, MASK mask );
 void show_build_mode_context_menu(S32 x, S32 y, MASK mask);
-BOOL enable_save_into_inventory(void*);
 void handle_reset_view();
 void handle_cut(void*);
 void handle_copy(void*);
@@ -159,11 +158,8 @@ protected:
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
-extern const std::string SAVE_INTO_INVENTORY;
-
 extern LLMenuBarGL*		gMenuBarView;
 //extern LLView*			gMenuBarHolder;
-extern LLMenuGL*		gPopupMenuView;
 extern LLViewerMenuHolderGL*	gMenuHolder;
 extern LLMenuBarGL*		gLoginMenuBarView;
 
