@@ -1671,6 +1671,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLAPPEARANCE_LIBRARIES}
     absl::flat_hash_map
     absl::node_hash_map
+    ${FMT_LIBRARY}
     )
 
 if (LINUX)
