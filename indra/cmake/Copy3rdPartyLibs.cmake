@@ -179,16 +179,10 @@ elseif(LINUX)
         libatk-1.0.so
         libexpat.so
         libexpat.so.1
-        libfreetype.so.6.12.3
-        libfreetype.so.6
-        libfreetype.so
         libGLOD.so
         libgmodule-2.0.so
         libgobject-2.0.so
         libopenal.so
-        libfontconfig.so.1.8.0
-        libfontconfig.so.1
-        libfontconfig.so
        )
 
     if (USE_TCMALLOC)
