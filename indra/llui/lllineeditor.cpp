@@ -43,18 +43,18 @@
 #include "lltimer.h"
 
 #include "llcalc.h"
-//#include "llclipboard.h"
+#include "llclipboard.h"
 #include "llcontrol.h"
 #include "llbutton.h"
 #include "llfocusmgr.h"
 #include "llkeyboard.h"
+#include "llmenugl.h"
 #include "llrect.h"
 #include "llresmgr.h"
 #include "llstring.h"
 #include "llwindow.h"
 #include "llui.h"
 #include "lluictrlfactory.h"
-#include "llclipboard.h"
 #include "../newview/lgghunspell_wrapper.h"
 
 //

@@ -766,7 +766,7 @@ LLMenuGL* LLTextEditor::createUrlContextMenu(S32 x, S32 y, const std::string &in
 
 	// create and return the context menu from the XUI file
 	llassert(LLMenuGL::sMenuContainer != NULL);
-	auto menu = LLUICtrlFactory::getInstance()->buildMenu(xui_file, LLMenuGL::sMenuContainer);
+	auto menu = LLUICtrlFactory::instance().buildMenu(xui_file, LLMenuGL::sMenuContainer);
 	if (menu)
 	{
 		if (mIsFriendSignal)
@@ -1535,7 +1535,7 @@ BOOL LLTextEditor::handleRightMouseDown( S32 x, S32 y, MASK mask )
 	const LLStyleSP style = segment ? segment->getStyle() : nullptr;
 	auto submenu = (style && style->isLink()) ? createUrlContextMenu(x, y, style->getLinkHREF()) : nullptr;
 	// Add url menu to base menu if we have a selection, otherwise make it the menu.
-	auto menu = (submenu && !hasSelection()) ? submenu : LLUICtrlFactory::getInstance()->buildMenu("menu_texteditor.xml", LLMenuGL::sMenuContainer);
+	auto menu = (submenu && !hasSelection()) ? submenu : LLUICtrlFactory::instance().buildMenu("menu_texteditor.xml", LLMenuGL::sMenuContainer);
 	mPopupMenuHandle = menu->getHandle();
 	if (menu)
 	{

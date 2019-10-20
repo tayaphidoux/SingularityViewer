@@ -45,6 +45,7 @@
 #include "llfloatersearchreplace.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
+#include "llmenugl.h"
 #include "llnotificationsutil.h"
 #include "llresmgr.h"
 #include "roles_constants.h"

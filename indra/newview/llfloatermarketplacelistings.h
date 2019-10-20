@@ -217,6 +217,8 @@ private:
 	LLTextEditor*	mEditor;
 };
 
+
+#if 0
 //-----------------------------------------------------------------------------
 // LLFloaterItemProperties
 //-----------------------------------------------------------------------------
@@ -232,5 +234,6 @@ public:
 
 private:
 };
+#endif
 
 #endif // LL_LLFLOATERMARKETPLACELISTINGS_H

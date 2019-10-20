@@ -43,14 +43,11 @@
 #include "lleditmenuhandler.h"
 
 #include "llpreeditor.h"
-#include "llmenugl.h"
 
 class LLFontGL;
-class LLScrollbar;
-class LLViewBorder;
 class LLKeywordToken;
+class LLMenuGL;
 class LLTextCmd;
-class LLUICtrlFactory;
 
 class LLTextEditor : public LLUICtrl, LLEditMenuHandler, protected LLPreeditor
 {
