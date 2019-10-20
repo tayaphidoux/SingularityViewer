@@ -77,6 +77,7 @@
   <check_box bottom_delta="-20" enabled="true" follows="left|top" font="SansSerifSmall"
 		 height="16" initial_value="false" label="Physics"
 		 mouse_opaque="true" name="checkbox_physics" radio_style="false" width="100" />
+  <check_box bottom_delta="-20" enabled="false" follows="left|top" height="16" initial_value="false" label="Universal" mouse_opaque="true" name="checkbox_universal" width="100"/>
   <check_box bottom="-196" enabled="false" follows="left|top" font="SansSerifSmall"
 	     height="16" initial_value="false" label="Chest" left_delta="100"
 	     mouse_opaque="true" name="checkbox_Chest" radio_style="false" width="100" />
