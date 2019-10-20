@@ -32,12 +32,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#if defined(_DEBUG)
-# if _MSC_VER >= 1400 // Visual C++ 2005 or later
-#	define WINDOWS_CRT_MEM_CHECKS 1
-# endif
-#endif
-
 #include "llwindowwin32.h" // *FIX: for setting gIconResource.
 
 #include "llappviewerwin32.h"
@@ -73,19 +67,6 @@
 #include "llcommandlineparser.h"
 #include "lltrans.h"
 
-// *FIX:Mani - This hack is to fix a linker issue with libndofdev.lib
-// The lib was compiled under VS2005 - in VS2003 we need to remap assert
-#ifdef LL_DEBUG
-#ifdef LL_MSVC7 
-extern "C" {
-    void _wassert(const wchar_t * _Message, const wchar_t *_File, unsigned _Line)
-    {
-        LL_ERRS() << _Message << LL_ENDL;
-    }
-}
-#endif
-#endif
-
 const std::string LLAppViewerWin32::sWindowClass = "Second Life";
 
 // Create app mutex creates a unique global windows object. 
@@ -101,7 +82,7 @@ bool create_app_mutex()
 	bool result = true;
 	LPCWSTR unique_mutex_name = L"SecondLifeAppMutex";
 	HANDLE hMutex;
-	hMutex = CreateMutex(NULL, TRUE, unique_mutex_name); 
+	hMutex = CreateMutex(nullptr, TRUE, unique_mutex_name); 
 	if(GetLastError() == ERROR_ALREADY_EXISTS) 
 	{     
 		result = false;
@@ -240,7 +221,9 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 
 	LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(lpCmdLine);
 	
+#if !defined(USE_CRASHPAD)
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
+#endif
 
 	// Set a debug info flag to indicate if multiple instances are running.
 	bool found_other_instance = !create_app_mutex();
@@ -332,7 +315,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	 
 	}
 	delete viewer_app_ptr;
-	viewer_app_ptr = NULL;
+	viewer_app_ptr = nullptr;
 
 	//start updater
 	if(LLAppViewer::sUpdaterInfo)
@@ -392,13 +375,13 @@ void LLAppViewerWin32::disableWinErrorReporting()
 
 const S32 MAX_CONSOLE_LINES = 500;
 
-void create_console()
+static bool create_console()
 {
 
 	CONSOLE_SCREEN_BUFFER_INFO coninfo;
 
 	// allocate a console for this app
-	AllocConsole();
+	const bool isConsoleAllocated = AllocConsole();
 
 	// set the screen buffer to be big enough to let us scroll text
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
@@ -410,16 +393,16 @@ void create_console()
 	freopen("CONOUT$", "w", stdout);
 	freopen("CONOUT$", "w", stderr);
 
-	setvbuf( stdin, NULL, _IONBF, 0 );
-	setvbuf( stdout, NULL, _IONBF, 0 );
-	setvbuf( stderr, NULL, _IONBF, 0 );
+	setvbuf( stdin, nullptr, _IONBF, 0 );
+	setvbuf( stdout, nullptr, _IONBF, 0 );
+	setvbuf( stderr, nullptr, _IONBF, 0 );
 
-
+    return isConsoleAllocated;
 }
 
-
 LLAppViewerWin32::LLAppViewerWin32(const char* cmd_line) :
-    mCmdLine(cmd_line)
+	mCmdLine(cmd_line),
+	mIsConsoleAllocated(false)
 {
 }
 
@@ -442,15 +425,6 @@ bool LLAppViewerWin32::init()
 	LLWinDebug::instance().init();
 #endif
 
-#if LL_WINDOWS
-#if LL_SEND_CRASH_REPORTS
-
-	LLAppViewer* pApp = LLAppViewer::instance();
-	pApp->initCrashReporting();
-
-#endif
-#endif
-
 	bool success = LLAppViewer::init();
 
     return success;
@@ -462,18 +436,24 @@ bool LLAppViewerWin32::cleanup()
 
 	gDXHardware.cleanup();
 
+	if (mIsConsoleAllocated)
+	{
+		FreeConsole();
+		mIsConsoleAllocated = false;
+	}
+
 	return result;
 }
 
-bool LLAppViewerWin32::initLogging()
+void LLAppViewerWin32::initLoggingAndGetLastDuration()
 {
-	return LLAppViewer::initLogging();
+	LLAppViewer::initLoggingAndGetLastDuration();
 }
 
 void LLAppViewerWin32::initConsole()
 {
 	// pop up debug console
-	create_console();
+	mIsConsoleAllocated = create_console();
 	return LLAppViewer::initConsole();
 }
 
@@ -571,7 +551,7 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 	}
 
 	// Find the system language.
-	FL_Locale *locale = NULL;
+	FL_Locale *locale = nullptr;
 	FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
 	if (success != 0)
 	{
@@ -595,12 +575,6 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 bool LLAppViewerWin32::restoreErrorTrap()
 {	
 	return true;
-	//return LLWinDebug::checkExceptionHandler();
-}
-
-void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
-{
-	// Singu Note: we don't fork the crash logger on start
 }
 
 //virtual
@@ -610,9 +584,9 @@ bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
 	mbstowcs(window_class, sWindowClass.c_str(), 255);
 	window_class[255] = 0;
 	// Use the class instead of the window name.
-	HWND other_window = FindWindow(window_class, NULL);
+	HWND other_window = FindWindow(window_class, nullptr);
 
-	if (other_window != NULL)
+	if (other_window != nullptr)
 	{
 		LL_DEBUGS() << "Found other window with the name '" << getWindowTitle() << "'" << LL_ENDL;
 		COPYDATASTRUCT cds;
@@ -638,13 +612,13 @@ std::string LLAppViewerWin32::generateSerialNumber()
 	DWORD serial = 0;
 	DWORD flags = 0;
 	BOOL success = GetVolumeInformation(
-			L"C:\\",
-			NULL,		// volume name buffer
+			TEXT("C:\\"),
+			nullptr,		// volume name buffer
 			0,			// volume name buffer size
 			&serial,	// volume serial
-			NULL,		// max component length
+			nullptr,		// max component length
 			&flags,		// file system flags
-			NULL,		// file system name buffer
+			nullptr,		// file system name buffer
 			0);			// file system name buffer size
 	if (success)
 	{

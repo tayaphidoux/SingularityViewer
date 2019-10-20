@@ -525,6 +525,12 @@ class WindowsManifest(ViewerManifest):
             except:
                 print "Skipping msvc redist files"
 
+        # For crashpad
+        with self.prefix(src=pkgbindir):
+            self.path("crashpad_handler.exe")
+            if not self.is_packaging_viewer():
+                self.path("crashpad_handler.pdb")
+
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
 

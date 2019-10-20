@@ -36,6 +36,11 @@ option(USE_PRECOMPILED_HEADERS "Enable use of precompiled header directives wher
 option(USE_LTO "Enable Whole Program Optimization and related folding and binary reduction routines" OFF)
 option(UNATTENDED "Disable use of uneeded tooling for automated builds" OFF)
 
+# Configure crash reporting
+option(USE_CRASHPAD "Build support for crashpad reporting engine" OFF)
+set(CRASHPAD_URL "" CACHE STRING "Crashpad endpoint url")
+set(VIEWER_SYMBOL_FILE "" CACHE STRING "Name of tarball into which to place symbol files")
+
 # Media Plugins
 option(ENABLE_MEDIA_PLUGINS "Turn off building media plugins if they are imported by third-party library mechanism" ON)
 option(LIBVLCPLUGIN "Turn off building support for libvlc plugin" ON)

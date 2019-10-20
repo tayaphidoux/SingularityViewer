@@ -368,13 +368,6 @@ const U32 MAP_ITEM_CLASSIFIED = 0x08;
 const U32 MAP_ITEM_ADULT_EVENT = 0x09;
 const U32 MAP_ITEM_LAND_FOR_SALE_ADULT = 0x0a;
 
-// Crash reporter behavior
-const char* const CRASH_SETTINGS_FILE = "settings_crash_behavior.xml";
-const char* const CRASH_BEHAVIOR_SETTING = "CrashSubmitBehavior";
-const S32 CRASH_BEHAVIOR_ASK = 0;
-const S32 CRASH_BEHAVIOR_ALWAYS_SEND = 1;
-const S32 CRASH_BEHAVIOR_NEVER_SEND = 2;
-
 // Export/Import return values
 const S32 EXPORT_SUCCESS = 0;
 const S32 EXPORT_ERROR_PERMISSIONS = -1;

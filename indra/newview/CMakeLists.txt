@@ -12,6 +12,7 @@ include(BuildPackagesInfo)
 include(BuildVersion)
 include(BuildBranding)
 include(CMakeCopyIfDifferent)
+include(CrashPad)
 include(DBusGlib)
 include(FMODSTUDIO)
 include(GeneratePrecompiledHeader)
@@ -48,6 +49,11 @@ include(ViewerMiscLibs)
 include(WinManifest)
 include(ZLIB)
 include(URIPARSER)
+
+
+if(USE_CRASHPAD)
+  include_directories(${CRASHPAD_INCLUDE_DIRS})
+endif(USE_CRASHPAD)
 
 include_directories(
     ${STATEMACHINE_INCLUDE_DIRS}
@@ -143,7 +149,6 @@ set(viewer_SOURCE_FILES
     llconfirmationmanager.cpp
     llconsole.cpp
     llcontrolavatar.cpp
-    llcrashlogger.cpp
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldaycyclemanager.cpp
@@ -681,7 +686,6 @@ set(viewer_HEADER_FILES
     llconfirmationmanager.h
     llconsole.h
     llcontrolavatar.h
-    llcrashlogger.h
     llcurrencyuimanager.h
     llcylinder.h
     lldaycyclemanager.h
@@ -1375,7 +1379,6 @@ set(viewer_APPSETTINGS_FILES
     app_settings/settings.xml
     app_settings/settings_ascent.xml
     app_settings/settings_ascent_coa.xml
-    app_settings/settings_crash_behavior.xml
     app_settings/settings_files.xml
     app_settings/settings_per_account.xml
     app_settings/settings_sh.xml
@@ -1624,6 +1627,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${PNG_PRELOAD_ARCHIVES}
     ${ZLIB_PRELOAD_ARCHIVES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
+    ${CRASHPAD_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
     ${LLAUDIO_VORBIS_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
@@ -1823,8 +1827,10 @@ if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
 
-if (PACKAGE)
+if (PACKAGE AND USE_CRASHPAD)
+  # Breakpad symbol-file generation
   set(SYMBOL_NAME ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_CHANNEL_NOSPACE}-${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}-symbols)
+
   set(SYMBOL_SEARCH_DIRS "")
   if (WINDOWS)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
@@ -1854,7 +1860,6 @@ if (PACKAGE)
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
 
-  if(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
   if(GEN_IS_MULTI_CONFIG)
       set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
   else()
@@ -1875,14 +1880,14 @@ if (PACKAGE)
     DEPENDS generate_breakpad_symbols.py
         VERBATIM)
 
-  add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
-  add_dependencies(generate_breakpad_symbols ${VIEWER_BINARY_NAME})
-if(VIEWER_COPY_MANIFEST)
-  add_dependencies(generate_breakpad_symbols ${VIEWER_COPY_MANIFEST})
-endif(VIEWER_COPY_MANIFEST)
-  add_dependencies(llpackage generate_breakpad_symbols)
-  endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
-endif (PACKAGE)
+    add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" ${VIEWER_BINARY_NAME} "${VIEWER_COPY_MANIFEST}")
+    add_dependencies(generate_symbols ${VIEWER_BINARY_NAME})
+    if (WINDOWS OR LINUX)
+      add_dependencies(generate_symbols "${VIEWER_COPY_MANIFEST}")
+    endif (WINDOWS OR LINUX)
+
+  add_dependencies(llpackage generate_symbols)
+endif ()
 
 # Add tests
 if (LL_TESTS)

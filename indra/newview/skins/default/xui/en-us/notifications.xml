@@ -11452,6 +11452,19 @@ Object successfully exported to: [FILENAME]
 
   <notification
    icon="alertmodal.tga"
+   name="SubmitCrashReports"
+   type="alertmodal">
+Would you like to help improve [SHORT_APP_NAME] by sending crash reports?
+
+(You can change your answer in Preferences -> General -> Crash reports)
+  <usetemplate
+   name="okcancelbuttons"
+   notext="No"
+   yestext="Yes"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="SupportChatShowInfo"
    type="alertmodal">
 You have just entered a [SHORT_APP_NAME] support group chat. To help provide support, [SHORT_APP_NAME] can prepend useful information to your messages. This can easily be toggled later via the checkbox in the support group chat.

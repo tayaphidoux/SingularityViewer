@@ -13,7 +13,6 @@ include(Boost)
 include(OpenSSL)
 include(LLSharedLibs)
 include(Json)
-include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
 include(ZLIB)
 include(URIPARSER)
@@ -291,7 +290,6 @@ target_link_libraries(
     llcommon
     PUBLIC
     absl::hash
-    ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
