@@ -37,6 +37,7 @@
 #include "llinventoryobserver.h"
 #include "llinventoryfunctions.h"
 #include "llmarketplacefunctions.h"
+#include "llmenugl.h"
 //#include "llnotificationhandler.h"
 //#include "llnotificationmanager.h"
 #include "llnotificationsutil.h"
