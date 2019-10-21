@@ -200,9 +200,14 @@ LLView* LLComboBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 	// if we haven't already gotten a value from our control_name and
 	// if providing user text entry or descriptive label
 	// don't select an item under the hood
-	if (combo_box->getControlName().empty() && !combo_box->acceptsTextInput() && combo_box->mLabel.empty())
+	if (combo_box->getControlName().empty())
 	{
-		combo_box->selectFirstItem();
+		const auto text = combo_box->acceptsTextInput();
+		std::string label;
+		if (node->getAttributeString("label", label))
+			text ? combo_box->setLabel(label) : combo_box->mList->selectItemByLabel(label, FALSE);
+		else if (!text && combo_box->mLabel.empty())
+			combo_box->selectFirstItem();
 	}
 
 	return combo_box;
