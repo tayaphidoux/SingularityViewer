@@ -1471,9 +1471,10 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 	// <edit>
 	if(!mEnable) return FALSE;
 
-	BOOL handled = LLUICtrl::handleMouseDown( x, y , mask );
+	const auto clicked_picture = mBorder->parentPointInView(x, y);
+	BOOL handled = (mCaption->getText().empty() || clicked_picture) && LLUICtrl::handleMouseDown( x, y , mask );
 
-	if (!handled && mBorder->parentPointInView(x, y))
+	if (!handled && clicked_picture)
 	{
 		showPicker(FALSE);
 		//grab textures first...
