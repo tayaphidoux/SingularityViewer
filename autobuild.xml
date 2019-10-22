@@ -915,50 +915,6 @@
         <key>version</key>
         <string>2.00.03.192211300</string>
       </map>
-      <key>fontconfig</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (C) 2000,2001,2002,2003,2004,2006,2007 Keith Packard, 2005 Patrick Lam, 2009 Roozbeh Pournader, 2008,2009 Red Hat, Inc., 2008 Danilo Šegan, 2012 Google, Inc.</string>
-        <key>description</key>
-        <string>Fontconfig is a library for configuring and customizing font access.</string>
-        <key>license</key>
-        <string>bsd</string>
-        <key>license_file</key>
-        <string>LICENSES/fontconfig.txt</string>
-        <key>name</key>
-        <string>fontconfig</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2843c48e6c84a51e3d6aa05dace4c8c0</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-fontconfig-update/rev/290569/arch/Linux/installer/fontconfig-2.11.0-linux-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>25726244f5bcd05f412514b030098c3c</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-trusty/fontconfig-2.11.0-linux64-201603241804.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>2.11.0</string>
-      </map>
       <key>fonts</key>
       <map>
         <key>copyright</key>
@@ -1064,32 +1020,6 @@
             </map>
             <key>name</key>
             <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>52f87a65cc61ec4b05721c079d015b19</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-freetype-update/rev/290557/arch/Linux/installer/freetype-2.4.4-linux-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>b10ba0775b9f1033daf580a2cb55789d</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-trusty/freetype-2.6.3-linux64-201603241755.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
@@ -2945,10 +2875,10 @@
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>make</string>
+                <string>ninja</string>
                 <key>options</key>
                 <array>
-                  <string>-j 7</string>
+                  <string>-v</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2956,7 +2886,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Unix Makefiles</string>
+                  <string>Ninja</string>
                 </array>
               </map>
               <key>default</key>
@@ -2969,10 +2899,10 @@
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>make</string>
+                <string>ninja</string>
                 <key>options</key>
                 <array>
-                  <string>-j 7</string>
+                  <string>-v</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2980,7 +2910,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Unix Makefiles</string>
+                  <string>Ninja</string>
                 </array>
               </map>
               <key>name</key>
@@ -3001,10 +2931,10 @@
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>make</string>
+                <string>ninja</string>
                 <key>options</key>
                 <array>
-                  <string>-j 7</string>
+                  <string>-v</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3012,7 +2942,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Unix Makefiles</string>
+                  <string>Ninja</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                 </array>
               </map>
@@ -3026,10 +2956,10 @@
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>make</string>
+                <string>ninja</string>
                 <key>options</key>
                 <array>
-                  <string>-j 7</string>
+                  <string>--v</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3037,7 +2967,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Unix Makefiles</string>
+                  <string>Ninja</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                 </array>
               </map>

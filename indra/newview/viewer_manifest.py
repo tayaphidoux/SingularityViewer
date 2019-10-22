@@ -477,6 +477,10 @@ class WindowsManifest(ViewerManifest):
                 if self.path("fmod.dll") == 0:
                    print "Skipping fmodstudio audio library(assuming other audio engine)"
 
+            # Get OpenAL dlls, continue if missing
+            if self.path("alut.dll","OpenAL32.dll") == 0:
+                print "Skipping OpenAL audio library (assuming other audio engine)"
+
             # Vivox runtimes
             self.path("SLVoice.exe")
             if (self.address_size == 64):

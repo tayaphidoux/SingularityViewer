@@ -3,9 +3,6 @@ include(Prebuilt)
 
 if (NOT STANDALONE)
   use_prebuilt_binary(slvoice)
-  if(LINUX)
-    use_prebuilt_binary(fontconfig)
-  endif(LINUX)
 else (NOT STANDALONE)
   # Download there even when using standalone.
   set(STANDALONE OFF)
@@ -15,5 +12,10 @@ else (NOT STANDALONE)
   endif(LINUX AND ${ARCH} STREQUAL "x86_64")
   set(STANDALONE ON)
 endif(NOT STANDALONE)
+
+if(LINUX)
+  include(FindPkgConfig)
+  pkg_check_modules(FONTCONFIG REQUIRED fontconfig)
+endif(LINUX)
 
 use_prebuilt_binary(fonts)
