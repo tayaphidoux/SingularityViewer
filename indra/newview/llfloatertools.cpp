@@ -543,10 +543,43 @@ void LLFloaterTools::refresh()
 		S32 link_count = selection->getRootObjectCount();
 		S32 prim_count = selection->getObjectCount();
 		auto child = getChild<LLUICtrl>("link_num_obj_count");
+		auto selected_face = -1;
+		if (auto node = prim_count == 1 ? *selection->begin() : nullptr)
+		//for (const auto& node : selection) // All selected objects
+		{
+			// TODO: Count selected faces? What use is there for this?
+			if (node->getTESelectMask() == 0xFFFFFFFF) // All faces selected
+			{
+				selected_face = -2; // Multiple
+			}
+			if (const auto& obj = node->getObject()) // This node's object
+			{
+				//if (!obj->isSelected()) continue;
+				const auto& numTEs = obj->getNumTEs();
+				for (S32 te = 0; selected_face != -2 && te < numTEs; ++te) // Faces
+				{
+					if (!node->isTESelected(te)) continue;
+					if (selected_face != -1)
+					{
+						selected_face = -2; // Multiple
+					}
+					else selected_face = te;
+				}
+			}
+			//if (selected_face == -2) break;
+		}
 		// Added in Link Num value -HgB
 		std::string value_string;
 		bool edit_linked(mCheckSelectIndividual->getValue());
+		if (mRadioSelectFace->getValue() || selected_face > 0) // In select faces mode, show either multiple or the face number, otherwise only show if single face selected
 		{
+			child->setTextArg("[DESC]", getString("Selected Face:"));
+			if (selected_face < 0)
+			{
+				value_string = LLTrans::getString(selected_face == -1 && !prim_count ? "None" : "multiple_textures");
+			}
+			else LLResMgr::getInstance()->getIntegerString(value_string, selected_face);
+		}
 		else if (edit_linked && prim_count == 1) //Selecting a single prim in "Edit Linked" mode, show link number
 		{
 			link_cost = selection->getSelectedObjectCost();
