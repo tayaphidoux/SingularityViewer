@@ -102,7 +102,7 @@ public:
 	
 	bool getPurgeCache() const { return mPurgeCache; }
 	
-	const std::string& getSecondLifeTitle() const; // The Second Life title.
+	std::string getSecondLifeTitle() const; // The Second Life title.
 	const std::string& getWindowTitle() const; // The window display name.
 
     void forceDisconnect(const std::string& msg); // Force disconnection, with a message to the user.

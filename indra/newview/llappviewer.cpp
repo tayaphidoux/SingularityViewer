@@ -3774,7 +3774,7 @@ void LLAppViewer::purgeCache()
 	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), mask);
 }
 
-const std::string& LLAppViewer::getSecondLifeTitle() const
+std::string LLAppViewer::getSecondLifeTitle() const
 {
 	return LLTrans::getString("APP_NAME");
 }
