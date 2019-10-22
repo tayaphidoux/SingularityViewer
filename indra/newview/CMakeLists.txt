@@ -49,6 +49,10 @@ include(WinManifest)
 include(ZLIB)
 include(URIPARSER)
 
+if(FMODSTUDIO)
+  include_directories(${FMODSTUDIO_INCLUDE_DIR})
+endif(FMODSTUDIO)
+
 include_directories(
     ${STATEMACHINE_INCLUDE_DIRS}
     ${DBUSGLIB_INCLUDE_DIRS}
@@ -71,6 +75,7 @@ include_directories(
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${HUNSPELL_INCLUDE_DIR}
+    ${OPENAL_LIB_INCLUDE_DIRS}
     ${LLAPPEARANCE_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
@@ -1422,7 +1427,15 @@ if (WINDOWS)
   list(APPEND viewer_SOURCE_FILES ${viewer_INSTALLER_FILES})
 endif (WINDOWS)
 
-set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
+if (OPENAL)
+  list(APPEND LLSTARTUP_COMPILE_DEFINITIONS "LL_OPENAL=1")
+endif (OPENAL)
+
+if (FMODSTUDIO)
+  list(APPEND LLSTARTUP_COMPILE_DEFINITIONS "LL_FMODSTUDIO=1")
+endif (FMODSTUDIO)
+
+set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_DEFINITIONS "${LLSTARTUP_COMPILE_DEFINITIONS}")
 
 if (LIBVLCPLUGIN)
     set_source_files_properties(llfloaterabout.cpp PROPERTIES COMPILE_DEFINITIONS "VLCPLUGIN=1")

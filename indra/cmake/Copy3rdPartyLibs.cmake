@@ -86,6 +86,11 @@ if(WINDOWS)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
     endif(NOT DISABLE_TCMALLOC)
 
+    if(OPENAL)
+      set(debug_files ${debug_files} alut.dll OpenAL32.dll)
+      set(release_files ${release_files} alut.dll OpenAL32.dll)
+    endif(OPENAL)
+
     if (FMODSTUDIO)
       set(debug_files ${debug_files} fmodL.dll)
       set(release_files ${release_files} fmod.dll)
