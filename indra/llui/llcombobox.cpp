@@ -205,7 +205,7 @@ LLView* LLComboBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 		const auto text = combo_box->acceptsTextInput();
 		std::string label;
 		if (node->getAttributeString("label", label))
-			text ? combo_box->setLabel(label) : combo_box->mList->selectItemByLabel(label, FALSE);
+			text ? combo_box->setLabel(label) : (void)combo_box->mList->selectItemByLabel(label, FALSE);
 		else if (!text && combo_box->mLabel.empty())
 			combo_box->selectFirstItem();
 	}
