@@ -538,36 +538,41 @@ void LLFloaterTools::refresh()
 	else
 #endif
 	{
-		F32 link_cost  = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
-		S32 link_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
-
+		auto selection = LLSelectMgr::getInstance()->getSelection();
+		F32 link_cost  = selection->getSelectedLinksetCost();
+		S32 link_count = selection->getRootObjectCount();
+		S32 prim_count = selection->getObjectCount();
+		auto child = getChild<LLUICtrl>("link_num_obj_count");
 		// Added in Link Num value -HgB
-		S32 prim_count = LLSelectMgr::getInstance()->getEditSelection()->getObjectCount();
 		std::string value_string;
-		bool edit_linked(gSavedSettings.getBOOL("EditLinkedParts"));
-		if (edit_linked && prim_count == 1) //Selecting a single prim in "Edit Linked" mode, show link number
+		bool edit_linked(mCheckSelectIndividual->getValue());
 		{
-			link_cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectCost();
-			childSetTextArg("link_num_obj_count", "[DESC]", std::string("Link number:"));
+		else if (edit_linked && prim_count == 1) //Selecting a single prim in "Edit Linked" mode, show link number
+		{
+			link_cost = selection->getSelectedObjectCost();
+			child->setTextArg("[DESC]", getString("Link number:"));
 
-			LLViewerObject* selected = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
-			if (selected && selected->getRootEdit())
+			if (LLViewerObject* selected = selection->getFirstObject())
 			{
-				LLViewerObject::child_list_t children = selected->getRootEdit()->getChildren();
-				if (children.empty())
+				if (auto root = selected->getRootEdit())
 				{
-					value_string = "0"; // An unlinked prim is "link 0".
-				}
-				else
-				{
-					children.push_front(selected->getRootEdit()); // need root in the list too
-					S32 index = 1;
-					for (LLViewerObject::child_list_t::iterator iter = children.begin(); iter != children.end(); ++iter, ++index)
+					LLViewerObject::child_list_t children = root->getChildren();
+					if (children.empty())
 					{
-						if ((*iter)->isSelected())
+						value_string = "0"; // An unlinked prim is "link 0".
+					}
+					else
+					{
+						children.push_front(selected->getRootEdit()); // need root in the list too
+						S32 index = 1;
+						for (const auto& child : children)
 						{
-							LLResMgr::getInstance()->getIntegerString(value_string, index);
-							break;
+							++index;
+							if (child->isSelected())
+							{
+								LLResMgr::getInstance()->getIntegerString(value_string, index);
+								break;
+							}
 						}
 					}
 				}
@@ -575,16 +580,16 @@ void LLFloaterTools::refresh()
 		}
 		else if (edit_linked)
 		{
-			childSetTextArg("link_num_obj_count", "[DESC]", std::string("Selected prims:"));
+			child->setTextArg("[DESC]", getString("Selected prims:"));
 			LLResMgr::getInstance()->getIntegerString(value_string, prim_count);
-			link_cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectCost();
+			link_cost = selection->getSelectedObjectCost();
 		}
 		else
 		{
-			childSetTextArg("link_num_obj_count", "[DESC]", std::string("Selected objects:"));
+			child->setTextArg("[DESC]", getString("Selected objects:"));
 			LLResMgr::getInstance()->getIntegerString(value_string, link_count);
 		}
-		childSetTextArg("link_num_obj_count", "[NUM]", value_string);
+		child->setTextArg("[NUM]", value_string);
 
 		/* Singu Note: We're not using this yet because we have no place to put it
 		LLCrossParcelFunctor func;
@@ -610,18 +615,17 @@ void LLFloaterTools::refresh()
 			}
 		}
 
-		LLStringUtil::format_map_t selection_args;
-		selection_args["OBJ_COUNT"] = llformat("%.1d", prim_count);
-		selection_args["LAND_IMPACT"] = llformat(edit_linked ? "%.2f" : "%.0f", link_cost);
+		auto sel_count = getChild<LLTextBox>("selection_count");
+		bool have_selection = !selection->isEmpty();
+		if (have_selection)
+		{
+			LLStringUtil::format_map_t selection_args;
+			selection_args["OBJ_COUNT"] = llformat("%.1d", prim_count);
+			selection_args["LAND_IMPACT"] = llformat(edit_linked ? "%.2f" : "%.0f", link_cost);
 
-		std::ostringstream selection_info;
-
-		selection_info << getString("status_selectcount", selection_args);
-
-		getChild<LLTextBox>("selection_count")->setText(selection_info.str());
-
-		bool have_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
-		childSetVisible("selection_count",  have_selection);
+			sel_count->setText(getString("status_selectcount", selection_args));
+		}
+		sel_count->setVisible(have_selection);
 		//childSetVisible("remaining_capacity", have_selection);
 		childSetVisible("selection_empty", !have_selection);
 	}
