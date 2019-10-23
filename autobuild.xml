@@ -2959,7 +2959,7 @@
                 <string>ninja</string>
                 <key>options</key>
                 <array>
-                  <string>--v</string>
+                  <string>-v</string>
                 </array>
               </map>
               <key>configure</key>
