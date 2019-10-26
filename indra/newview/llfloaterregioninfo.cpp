@@ -4115,6 +4115,30 @@ void LLPanelEstateAccess::requestEstateGetAccessCoro(std::string url)
 }
 */
 
+const std::string& getNAString()
+{
+	static const auto na = LLTrans::getString("na");
+	return na;
+}
+
+void handlePseudoISO8601(const std::string& date_str, LLSD& column, const std::string& fmt)
+{
+	if (date_str.front() == '0') // server returns the "0000-00-00 00:00:00" date in case it doesn't know it
+	{
+		column["value"] = getNAString();
+	}
+	else
+	{
+		std::tm time = {};
+		if (std::istringstream(date_str) >> std::get_time(&time, "%Y-%m-%d %T"))
+		{
+			column["value"] = LLDate(mktime(&time));
+			column["type"] = "date";
+			column["format"] = fmt;
+		}
+		else column["value"] = date_str;
+	}
+}
 void LLPanelEstateAccess::onEstateAccessReceived(const LLSD& result)
 {
 	LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
@@ -4149,10 +4173,10 @@ void LLPanelEstateAccess::onEstateAccessReceived(const LLSD& result)
 		std::string msg = LLTrans::getString("RegionInfoBannedResidents", args);
 		panel->getChild<LLUICtrl>("ban_resident_label")->setValue(LLSD(msg));
 
+		const auto format = gSavedSettings.getString("ShortDateFormat");
 		const auto order = banned_agent_name_list->getSortOrder();
 		banned_agent_name_list->clearSortOrder();
 		banned_agent_name_list->deleteAllItems();
-		static const auto na = LLTrans::getString("na");
 		for (LLSD::array_const_iterator it = result["BannedAgents"].beginArray(); it != result["BannedAgents"].endArray(); ++it)
 		{
 			LLSD item;
@@ -4161,19 +4185,19 @@ void LLPanelEstateAccess::onEstateAccessReceived(const LLSD& result)
 
 			columns[0]["column"] = "name"; // to be populated later
 
-			columns[1]["column"] = "last_login_date";
-			columns[1]["value"] = (*it)["last_login_date"].asString().substr(0, 16); // cut the seconds
+			auto& col = columns[1];
+			col["column"] = "last_login_date";
+			handlePseudoISO8601((*it)["last_login_date"].asString(), col, format);
 
-			std::string ban_date = (*it)["ban_date"].asString();
 			columns[2]["column"] = "ban_date";
-			columns[2]["value"] = ban_date[0] != '0' ? ban_date.substr(0, 16) : na; // server returns the "0000-00-00 00:00:00" date in case it doesn't know it
+			handlePseudoISO8601((*it)["ban_date"].asString(), columns[2], format);
 
 			columns[3]["column"] = "bannedby";
 			LLUUID banning_id = (*it)["banning_id"].asUUID();
 			LLAvatarName av_name;
 			if (banning_id.isNull())
 			{
-				columns[3]["value"] = na;
+				columns[3]["value"] = getNAString();
 			}
 			else if (LLAvatarNameCache::get(banning_id, &av_name))
 			{
