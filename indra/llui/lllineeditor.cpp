@@ -3038,9 +3038,15 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
 					}
 				}
 
+				const std::string showstr("Show Misspellings"), hidestr("Hide Misspellings");
 				bool show = !glggHunSpell->getSpellCheckHighlight();
-				auto word = show ? "Show Misspellings" : "Hide Misspellings";
-				menu->addChild(new LLMenuItemCallGL(word, spell_show, nullptr, show ? &show : nullptr));
+				auto word = show ? showstr : hidestr;
+				if (!menu->hasChild(word))
+				{
+					menu->addChild(new LLMenuItemCallGL(word, spell_show, nullptr, show ? &show : nullptr));
+					if (auto child = menu->getChild<LLView>(show ? hidestr : showstr, false, false))
+						menu->removeChild(child);
+				}
 			}
 
 			mLastContextMenuX = x;
