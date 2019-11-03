@@ -289,7 +289,7 @@ void LLMediaRemoteCtrl::enableMediaButtons()
 				{
 					sLastTooltip = info_text;
 					LLChat chat;
-					chat.mText = getString("Now_playing") + " " + info_text;
+					chat.mText = getString("Now_playing") + ' ' + info_text;
 					chat.mSourceType = CHAT_SOURCE_SYSTEM;
 					// Lie to RLVa so it won't filter this
 					chat.mRlvLocFiltered = true;

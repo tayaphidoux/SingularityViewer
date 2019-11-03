@@ -705,7 +705,7 @@ void fake_local_chat(std::string msg)
 	chat.mSourceType = CHAT_SOURCE_SYSTEM;
 	if (rlv_handler_t::isEnabled()) chat.mRlvLocFiltered = chat.mRlvNamesFiltered = true;
 	chat.mPosAgent = gAgent.getPositionAgent();
-	chat.mURL = "secondlife:///app/agent/" + gAgentID.asString() + "/about";
+	chat.mURL = LLAvatarActions::getSLURL(gAgentID);
 	if (action) chat.mChatStyle = CHAT_STYLE_IRC;
 	if (!LLAvatarNameCache::getNSName(gAgentID, chat.mFromName))
 	{

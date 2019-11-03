@@ -51,6 +51,7 @@
 // project include
 #include "ascentkeyword.h"
 #include "llagent.h"
+#include "llavataractions.h"
 #include "llchatbar.h"
 #include "llconsole.h"
 #include "llfloaterchatterbox.h"
@@ -195,7 +196,7 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 		(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) )
 // [/RLVa:KB]
 	{
-		chat.mURL = llformat("secondlife:///app/agent/%s/about",chat.mFromID.asString().c_str());
+		chat.mURL = LLAvatarActions::getSLURL(chat.mFromID);
 	}
 
 	if (chat.mSourceType == CHAT_SOURCE_OBJECT)
