@@ -6549,7 +6549,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    log_to_chat="true"
    type="notifytip">
     <tag>friendship</tag>
-[NAME] is [STATUS]
+[secondlife:///app/agent/[ID]/about [NAME]] is [STATUS]
   </notification>
 
   <notification

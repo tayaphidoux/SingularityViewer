@@ -495,7 +495,7 @@ http://secondlife.com/support para obtener ayuda sobre cómo solucionar este pro
 	<string name="RemapControlInputs">Reconfigurar tus controles de entrada</string>
 	<string name="AnimateYourAvatar">Animar tu avatar</string>
 	<string name="AttachToYourAvatar">Anexar a tu avatar</string>
-	<string name="AGroupMemberNamed">un miembro del grupo de nombre</string>	
+	<string name="AGroupMemberNamed">un miembro del secondlife:///app/group/[GROUP_ID]/about de nombre secondlife:///app/agent/[FROM_ID]/about</string>
 	<string name="ReleaseOwnership">Liberar propiedad y hacer público</string>
 	<string name="LinkAndDelink">Enlazar y desenlazar de otros objetos</string>
 	<string name="AddAndRemoveJoints">Agregar o remover uniones con otros objetos</string>

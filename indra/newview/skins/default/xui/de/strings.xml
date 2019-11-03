@@ -352,7 +352,6 @@
 	<string name="RemapControlInputs">Steuerung neu zuweisen</string>
 	<string name="AnimateYourAvatar">Avatar animieren</string>
 	<string name="AttachToYourAvatar">An Avatar anhängen</string>
-	<string name="AGroupMemberNamed">A group member named</string>
 	<string name="ReleaseOwnership">Eigentum aufgeben und öffentlich machen</string>
 	<string name="LinkAndDelink">Mit Objekten verknüpfen und davon trennen</string>
 	<string name="AddAndRemoveJoints">Verbindungen zu anderen Objekten hinzufügen und entfernen</string>

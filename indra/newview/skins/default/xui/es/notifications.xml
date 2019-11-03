@@ -3444,7 +3444,7 @@ Pero, vaya, diviértete si quieres.
 	</notification>
 	
 	<notification name="FriendOnlineOffline">
-		[NAME] está [STATUS]
+		[secondlife:///app/agent/[ID]/about [NAME]] está [STATUS]
 	</notification>
 	
 	<notification name="AddSelfFriend">

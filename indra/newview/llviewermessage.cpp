@@ -2801,12 +2801,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				info->mTransactionID = session_id;
 				info->mType = (LLAssetType::EType) asset_type;
 				info->mFolderID = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(info->mType));
-				std::string from_name;
-
-				from_name += LLTrans::getString("AGroupMemberNamed") + " ";
-				from_name += name;
-
-				info->mFromName = from_name;
+				info->mFromName = LLTrans::getString("AGroupMemberNamed", LLSD().with("GROUP_ID", group_id).with("FROM_ID", from_id));
 				info->mDesc = item_name;
 				info->mHost = msg->getSender();
 			}
