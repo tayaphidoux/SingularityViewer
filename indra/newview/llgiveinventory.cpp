@@ -349,9 +349,10 @@ void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im
 	else
 	{
 		std::string full_name;
-		if (gCacheName->getFullName(to_agent, full_name))
+		if (LLAvatarNameCache::getNSName(to_agent, full_name))
 		{
-			LLChat chat(LLTrans::getString("inventory_item_offered_to") + " " + full_name);
+			std::string getAvatarSLURL(const LLUUID& id, const std::string& name);
+			LLChat chat(LLTrans::getString("inventory_item_offered_to") + ' ' + getAvatarSLURL(to_agent, full_name));
 			chat.mSourceType = CHAT_SOURCE_SYSTEM;
 			LLFloaterChat::addChatHistory(chat);
 		}

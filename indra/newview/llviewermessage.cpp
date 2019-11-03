@@ -2217,6 +2217,12 @@ std::string replace_wildcards(std::string input, const LLUUID& id, const std::st
 	return input;
 }
 
+std::string getAvatarSLURL(const LLUUID& id, const std::string& name)
+{
+	auto ret = llformat("secondlife:///app/agent/%s/about", id.asString().data());
+	return name.empty() ? ret : ('[' + ret + ' ' + name + ']');
+}
+
 void autoresponder_finish(bool show_autoresponded, const LLUUID& session_id, const LLUUID& from_id, const std::string& name, const LLUUID& itemid, bool is_muted)
 {
 	LLAvatarName av_name;
@@ -2224,7 +2230,7 @@ void autoresponder_finish(bool show_autoresponded, const LLUUID& session_id, con
 	void cmdline_printchat(const std::string& message);
 	if (show_autoresponded)
 	{
-		const std::string notice(LLTrans::getString("IM_autoresponded_to") + " [secondlife:///app/agent/" + from_id.asString() + "/about " + ns_name + ']');
+		const std::string notice(LLTrans::getString("IM_autoresponded_to") + ' ' + getAvatarSLURL(from_id, ns_name));
 		is_muted ? cmdline_printchat(notice) : gIMMgr->addMessage(session_id, from_id, name, notice);
 	}
 	if (LLViewerInventoryItem* item = gInventory.getItem(itemid))
