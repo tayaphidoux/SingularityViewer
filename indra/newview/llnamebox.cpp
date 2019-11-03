@@ -70,12 +70,13 @@ BOOL LLNameBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 // virtual
 BOOL LLNameBox::handleHover(S32 x, S32 y, MASK mask)
 {
+	auto handled = LLTextBox::handleHover(x, y, mask);
 	if (mAllowInteract)
 	{
 		getWindow()->setCursor(UI_CURSOR_HAND);
-		return true;
+		handled = true;
 	}
-	return LLTextBox::handleHover(x, y, mask);
+	return handled;
 }
 
 // virtual

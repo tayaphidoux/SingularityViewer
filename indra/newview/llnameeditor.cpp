@@ -94,12 +94,13 @@ BOOL LLNameEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 // virtual
 BOOL LLNameEditor::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (mAllowInteract)
+	auto handled = LLLineEditor::handleHover(x, y, mask);
+	if (mAllowInteract && mClickForProfile && !mIsSelecting)
 	{
 		getWindow()->setCursor(UI_CURSOR_HAND);
-		return true;
+		handled = true;
 	}
-	return LLLineEditor::handleHover(x, y, mask);
+	return handled;
 }
 
 void LLNameEditor::displayAsLink(bool link)
