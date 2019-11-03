@@ -162,7 +162,7 @@ void LLFloaterScriptDebug::addScriptLine(LLChat& chat, const LLColor4& color)
 		floater_label = user_name;
 	}
 
-	chat.mURL = LLSLURL("objectim", source_id, LLURI::mapToQueryString(sdQuery)).getLocationString();
+	chat.mURL = LLSLURL("objectim", source_id, LLURI::mapToQueryString(sdQuery)).getSLURLString();
 
 	addOutputWindow(LLUUID::null);
 	addOutputWindow(source_id);
@@ -212,6 +212,7 @@ LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLUUID& object_id)
 	mHistoryEditor->setFollowsAll();
 	mHistoryEditor->setEnabled( FALSE );
 	mHistoryEditor->setTabStop( TRUE );  // We want to be able to cut or copy from the history.
+	mHistoryEditor->setParseHTML(true);
 	addChild(mHistoryEditor);
 }
 
@@ -235,6 +236,7 @@ void LLFloaterScriptDebugOutput::initFloater(const std::string& title, BOOL resi
 	mHistoryEditor->setFollowsAll();
 	mHistoryEditor->setEnabled( FALSE );
 	mHistoryEditor->setTabStop( TRUE );  // We want to be able to cut or copy from the history.
+	mHistoryEditor->setParseHTML(true);
 	addChild(mHistoryEditor);
 }
 
@@ -251,7 +253,7 @@ void LLFloaterScriptDebugOutput::addLine(const LLChat& chat, std::string message
 		mHistoryEditor->appendText(chat.mURL, false, true);
 	}
 	LLStyleSP style(new LLStyle(true, color, LLStringUtil::null));
-	mHistoryEditor->appendText(message, false, true, style, false);
+	mHistoryEditor->appendText(message, false, false, style, false);
 }
 
 //static
