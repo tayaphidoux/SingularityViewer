@@ -3731,7 +3731,7 @@ private:
 };
 #endif
 
-void add_floater_chat(const LLChat &chat, const BOOL history)
+void add_floater_chat(LLChat &chat, const BOOL history)
 {
 	if (history)
 	{
