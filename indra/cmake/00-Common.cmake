@@ -5,6 +5,7 @@
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
+include(CheckCCompilerFlag)
 include(Variables)
 
 # Portable compilation flags.
@@ -16,19 +17,6 @@ set(CMAKE_C_FLAGS_RELEASE
     "${CMAKE_CXX_FLAGS_RELEASE}")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
     "-DLL_RELEASE=1 -D_SECURE_SCL=0 -DNDEBUG -DLL_RELEASE_WITH_DEBUG_INFO=1")
-
-# Configure crash reporting
-set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
-set(NON_RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in developer builds")
-
-if(RELEASE_CRASH_REPORTING)
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DLL_SEND_CRASH_REPORTS=1")
-endif()
-
-if(NON_RELEASE_CRASH_REPORTING)
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DLL_SEND_CRASH_REPORTS=1")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DLL_SEND_CRASH_REPORTS=1")
-endif()
 
 # Don't bother with a MinSizeRel build.
 set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release;Debug" CACHE STRING
@@ -54,6 +42,14 @@ if (WINDOWS)
   if (WORD_SIZE EQUAL 32)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
   endif (WORD_SIZE EQUAL 32)
+
+  if (FULL_DEBUG_SYMS OR USE_CRASHPAD)
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEBUG:FULL")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG:FULL")
+  else ()
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEBUG:FASTLINK")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG:FASTLINK")
+  endif ()
 
   if (USE_LTO)
     if(INCREMENTAL_LINK)
@@ -199,10 +195,13 @@ if (LINUX)
 
     # End of hacks.
 
-    if (NOT STANDALONE)
-      # this stops us requiring a really recent glibc at runtime
-      add_definitions(-fno-stack-protector)
-    endif (NOT STANDALONE)
+    CHECK_C_COMPILER_FLAG(-fstack-protector-strong HAS_STRONG_STACK_PROTECTOR)
+    if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+      if(HAS_STRONG_STACK_PROTECTOR)
+        add_compile_options(-fstack-protector-strong)
+      endif(HAS_STRONG_STACK_PROTECTOR)
+    endif (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+
     if (${ARCH} STREQUAL "x86_64")
       add_definitions(-pipe)
       set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math")
@@ -306,6 +305,13 @@ endif (LINUX OR DARWIN)
 if (STANDALONE)
   add_definitions(-DLL_STANDALONE=1)
 else (STANDALONE)
+  #Enforce compile-time correctness for fmt strings
+  add_definitions(-DFMT_STRING_ALIAS=1)
+
+  if(USE_CRASHPAD)
+    add_definitions(-DUSE_CRASHPAD=1 -DCRASHPAD_URL="${CRASHPAD_URL}")
+  endif()
+
   set(${ARCH}_linux_INCLUDES
       atk-1.0
       cairo

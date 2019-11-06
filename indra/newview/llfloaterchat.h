@@ -60,13 +60,15 @@ public:
 	void updateConsoleVisibility();
 
 	static void setHistoryCursorAndScrollToEnd();
-	
+
 	// Add chat to console and history list.
 	// Color based on source, type, distance.
-	static void addChat(const LLChat& chat, BOOL from_im = FALSE, BOOL local_agent = FALSE);
+	static void addChat(const std::string& str, BOOL from_im = FALSE, BOOL local_agent = FALSE);
+	static void addChat(LLChat& chat, BOOL from_im = FALSE, BOOL local_agent = FALSE);
 	
 	// Add chat to history alone.
-	static void addChatHistory(const LLChat& chat, bool log_to_file = true);
+	static void addChatHistory(const std::string& str, bool log_to_file = true);
+	static void addChatHistory(LLChat& chat, bool log_to_file = true);
 	
 	static void triggerAlerts(const std::string& text);
 

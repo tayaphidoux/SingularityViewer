@@ -94,7 +94,6 @@ AIThreadSafeDC<settings_map_type> gSettings;
 LLControlGroup gSavedSettings("Global");	// saved at end of session
 LLControlGroup gSavedPerAccountSettings("PerAccount"); // saved at end of session
 LLControlGroup gColors("Colors");	// saved at end of session
-LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session
 
 std::string gLastRunVersion;
 

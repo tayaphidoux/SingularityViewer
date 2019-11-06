@@ -42,8 +42,11 @@ LLMaterialID::LLMaterialID()
 
 LLMaterialID::LLMaterialID(const LLSD& pMaterialID)
 {
-	llassert(pMaterialID.isBinary());
-	parseFromBinary(pMaterialID.asBinary());
+	llassert(pMaterialID.isBinary() || pMaterialID.isUUID());
+	if (pMaterialID.isUUID())
+		set(pMaterialID.asUUID().mData);
+	else
+		parseFromBinary(pMaterialID.asBinary());
 }
 
 LLMaterialID::LLMaterialID(const LLSD::Binary& pMaterialID)

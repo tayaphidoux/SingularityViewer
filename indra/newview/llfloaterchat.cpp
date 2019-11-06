@@ -51,6 +51,7 @@
 // project include
 #include "ascentkeyword.h"
 #include "llagent.h"
+#include "llavataractions.h"
 #include "llchatbar.h"
 #include "llconsole.h"
 #include "llfloaterchatterbox.h"
@@ -195,7 +196,7 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 		(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) )
 // [/RLVa:KB]
 	{
-		chat.mURL = llformat("secondlife:///app/agent/%s/about",chat.mFromID.asString().c_str());
+		chat.mURL = LLAvatarActions::getSLURL(chat.mFromID);
 	}
 
 	if (chat.mSourceType == CHAT_SOURCE_OBJECT)
@@ -227,6 +228,12 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	edit->appendText(line, false, prepend_newline, style, false);
 }
 
+void LLFloaterChat::addChatHistory(const std::string& str, bool log_to_file)
+{
+	LLChat chat(str);
+	addChatHistory(chat, log_to_file);
+}
+
 void log_chat_text(const LLChat& chat)
 {
 	std::string histstr;
@@ -238,7 +245,7 @@ void log_chat_text(const LLChat& chat)
 	LLLogChat::saveHistory(std::string("chat"), histstr);
 }
 // static
-void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
+void LLFloaterChat::addChatHistory(LLChat& chat, bool log_to_file)
 {	
 // [RLVa:KB] - Checked: 2009-07-08 (RLVa-1.0.0e)
 	if (rlv_handler_t::isEnabled())
@@ -246,20 +253,18 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 		// TODO-RLVa: we might cast too broad a net by filtering here, needs testing
 		if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC)) && (!chat.mRlvLocFiltered) && (CHAT_SOURCE_AGENT != chat.mSourceType) )
 		{
-			LLChat& rlvChat = const_cast<LLChat&>(chat);
-			RlvUtil::filterLocation(rlvChat.mText);
-			rlvChat.mRlvLocFiltered = TRUE;
+			RlvUtil::filterLocation(chat.mText);
+			chat.mRlvLocFiltered = TRUE;
 		}
 		if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) && (!chat.mRlvNamesFiltered) )
 		{
 			// NOTE: this will also filter inventory accepted/declined text in the chat history
-			LLChat& rlvChat = const_cast<LLChat&>(chat);
 			if (CHAT_SOURCE_AGENT != chat.mSourceType)
 			{
 				// Filter object and system chat (names are filtered elsewhere to save ourselves an gObjectList lookup)
-				RlvUtil::filterNames(rlvChat.mText);
+				RlvUtil::filterNames(chat.mText);
 			}
-			rlvChat.mRlvNamesFiltered = TRUE;
+			chat.mRlvNamesFiltered = TRUE;
 		}
 	}
 // [/RLVa:KB]
@@ -275,10 +280,7 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
-		LLFloaterScriptDebug::addScriptLine(chat.mText,
-											chat.mFromName, 
-											color, 
-											chat.mFromID);
+		LLFloaterScriptDebug::addScriptLine(chat, color);
 		if (!gSavedSettings.getBOOL("ScriptErrorsAsChat"))
 		{
 			return;
@@ -339,8 +341,14 @@ void LLFloaterChat::onClickToggleShowMute(bool show_mute, LLTextEditor* history_
 	(show_mute ? history_editor_with_mute : history_editor)->setCursorAndScrollToEnd();
 }
 
+void LLFloaterChat::addChat(const std::string& str, BOOL from_im, BOOL local_agent)
+{
+	LLChat chat(str);
+	addChat(chat, from_im, local_agent);
+}
+
 // Put a line of chat in all the right places
-void LLFloaterChat::addChat(const LLChat& chat, 
+void LLFloaterChat::addChat(LLChat& chat,
 			  BOOL from_instant_message, 
 			  BOOL local_agent)
 {
@@ -356,20 +364,18 @@ void LLFloaterChat::addChat(const LLChat& chat,
 		// TODO-RLVa: we might cast too broad a net by filtering here, needs testing
 		if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC)) && (!chat.mRlvLocFiltered) && (CHAT_SOURCE_AGENT != chat.mSourceType) )
 		{
-			LLChat& rlvChat = const_cast<LLChat&>(chat);
 			if (!from_instant_message)
-				RlvUtil::filterLocation(rlvChat.mText);
-			rlvChat.mRlvLocFiltered = TRUE;
+				RlvUtil::filterLocation(chat.mText);
+			chat.mRlvLocFiltered = TRUE;
 		}
 		if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) && (!chat.mRlvNamesFiltered) )
 		{
-			LLChat& rlvChat = const_cast<LLChat&>(chat);
 			if ( (!from_instant_message) && (CHAT_SOURCE_AGENT != chat.mSourceType) )
 			{
 				// Filter object and system chat (names are filtered elsewhere to save ourselves an gObjectList lookup)
-				RlvUtil::filterNames(rlvChat.mText);
+				RlvUtil::filterNames(chat.mText);
 			}
-			rlvChat.mRlvNamesFiltered = TRUE;
+			chat.mRlvNamesFiltered = TRUE;
 		}
 	}
 // [/RLVa:KB]

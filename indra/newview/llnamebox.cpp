@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llnamebox.h"
+#include "llwindow.h"
 
 static LLRegisterWidget<LLNameBox> r("name_box");
 
@@ -62,6 +63,18 @@ BOOL LLNameBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 			showMenu(this, sMenus[0], x, y);
 			handled = true;
 		}
+	}
+	return handled;
+}
+
+// virtual
+BOOL LLNameBox::handleHover(S32 x, S32 y, MASK mask)
+{
+	auto handled = LLTextBox::handleHover(x, y, mask);
+	if (mAllowInteract)
+	{
+		getWindow()->setCursor(UI_CURSOR_HAND);
+		handled = true;
 	}
 	return handled;
 }

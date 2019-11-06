@@ -75,7 +75,6 @@
 // </edit>
 
 // tag: vaa emerald local_asset_browser [begin]
-//#include <boost/algorithm/cxx11/any_of.hpp>
 #include "floaterlocalassetbrowse.h"
 #include "llscrolllistctrl.h"
 #define	LOCALLIST_COL_ID 1
@@ -298,10 +297,9 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 		}
 		/* TODO: Figure out how to select local asset if in use?
 		// tag: vaa emerald local_asset_browser [begin]
-		else if (boost::algorithm::any_of_equal(mLocalScrollCtrl->getAllIDs(), mImageAssetID))
+		else if (mLocalScrollCtrl->selectByID(mImageAssetID))
 		{
 			tab = "local_tab";
-			mLocalScrollCtrl->selectByID(mImageAssetID);
 		}
 		// tag: vaa emerald local_asset_browser [end]
 		*/
@@ -966,7 +964,7 @@ void LLFloaterTexturePicker::onBtnBrowser(void *userdata)
 // reacts to user clicking a valid field in the local scroll list.
 void LLFloaterTexturePicker::onLocalScrollCommit()
 {
-	LLUUID id(mLocalScrollCtrl->getSelectedItemLabel(LOCALLIST_COL_ID));
+	LLUUID id(mLocalScrollCtrl->getStringUUIDSelectedItem());
 
 	mOwner->setImageAssetID(id);
 	if (childGetValue("apply_immediate_check").asBoolean())
@@ -1473,9 +1471,10 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 	// <edit>
 	if(!mEnable) return FALSE;
 
-	BOOL handled = LLUICtrl::handleMouseDown( x, y , mask );
+	const auto clicked_picture = mBorder->parentPointInView(x, y);
+	BOOL handled = (mCaption->getText().empty() || clicked_picture) && LLUICtrl::handleMouseDown( x, y , mask );
 
-	if (!handled && mBorder->parentPointInView(x, y))
+	if (!handled && clicked_picture)
 	{
 		showPicker(FALSE);
 		//grab textures first...

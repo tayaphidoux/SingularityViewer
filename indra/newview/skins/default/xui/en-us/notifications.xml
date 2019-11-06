@@ -6549,7 +6549,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    log_to_chat="true"
    type="notifytip">
     <tag>friendship</tag>
-[NAME] is [STATUS]
+[secondlife:///app/agent/[ID]/about [NAME]] is [STATUS]
   </notification>
 
   <notification
@@ -11448,6 +11448,19 @@ Do you wish to export anyway?
    name="WavefrontExportSuccess"
    type="notifytip">
 Object successfully exported to: [FILENAME]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SubmitCrashReports"
+   type="alertmodal">
+Would you like to help improve [SHORT_APP_NAME] by sending crash reports?
+
+(You can change your answer in Preferences -> General -> Crash reports)
+  <usetemplate
+   name="okcancelbuttons"
+   notext="No"
+   yestext="Yes"/>
   </notification>
 
   <notification

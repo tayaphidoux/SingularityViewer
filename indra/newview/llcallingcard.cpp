@@ -745,6 +745,7 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
 	// Use display name only because this user is your friend
 	LLSD args;
 	args["NAME"] = av_name.getNSName(friend_name_system());
+	args["ID"] = agent_id;
 	args["STATUS"] = online ? LLTrans::getString("OnlineStatus") : LLTrans::getString("OfflineStatus");
 
 	// Popup a notify box with online status of this agent

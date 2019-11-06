@@ -36,6 +36,7 @@ class LLMaterialID
 {
 public:
 	LLMaterialID();
+	LLMaterialID(const LLUUID& id) { set(id.mData); }
 	LLMaterialID(const LLSD& pMaterialID);
 	LLMaterialID(const LLSD::Binary& pMaterialID);
 	LLMaterialID(const void* pMemory);

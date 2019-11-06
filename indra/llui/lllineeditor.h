@@ -101,16 +101,6 @@ public:
 	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ void	onMouseCaptureLost();
 
-    struct SpellMenuBind
-    {
-        LLLineEditor* origin;
-        void * menuItem;
-        std::string word;
-        S32 wordPositionStart;
-        S32 wordPositionEnd;
-    };
-
-    virtual void spellReplace(SpellMenuBind* spellData);
 	virtual void insert(std::string what,S32 wher);
 
 	// LLEditMenuHandler overrides
@@ -304,7 +294,6 @@ protected:
     S32				 mEndSpellHere;			// the location of the last char on the screen
 	BOOL			mSpellCheckable;		// set in xui as "spell_check". Default value for a field
     LLFrameTimer     mSpellTimer;
-    std::vector<SpellMenuBind* > suggestionMenuItems;
 	S32 mLastContextMenuX;
 
 	// line history support:

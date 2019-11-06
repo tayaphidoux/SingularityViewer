@@ -2219,12 +2219,10 @@ std::string replace_wildcards(std::string input, const LLUUID& id, const std::st
 
 void autoresponder_finish(bool show_autoresponded, const LLUUID& session_id, const LLUUID& from_id, const std::string& name, const LLUUID& itemid, bool is_muted)
 {
-	LLAvatarName av_name;
-	const std::string ns_name(LLAvatarNameCache::get(from_id, &av_name) ? av_name.getNSName() : name);
 	void cmdline_printchat(const std::string& message);
 	if (show_autoresponded)
 	{
-		const std::string notice(LLTrans::getString("IM_autoresponded_to") + ' ' + ns_name);
+		const std::string notice(LLTrans::getString("IM_autoresponded_to") + ' ' + LLAvatarActions::getSLURL(from_id));
 		is_muted ? cmdline_printchat(notice) : gIMMgr->addMessage(session_id, from_id, name, notice);
 	}
 	if (LLViewerInventoryItem* item = gInventory.getItem(itemid))
@@ -2232,7 +2230,7 @@ void autoresponder_finish(bool show_autoresponded, const LLUUID& session_id, con
 		LLGiveInventory::doGiveInventoryItem(from_id, item, session_id);
 		if (show_autoresponded)
 		{
-			const std::string notice(llformat("%s %s \"%s\"", ns_name.c_str(), LLTrans::getString("IM_autoresponse_sent_item").c_str(), item->getName().c_str()));
+			const std::string notice(llformat("%s %s \"%s\"", LLAvatarActions::getSLURL(from_id).data(), LLTrans::getString("IM_autoresponse_sent_item").c_str(), item->getName().c_str()));
 			is_muted ? cmdline_printchat(notice) : gIMMgr->addMessage(session_id, from_id, name, notice);
 		}
 	}
@@ -2803,12 +2801,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				info->mTransactionID = session_id;
 				info->mType = (LLAssetType::EType) asset_type;
 				info->mFolderID = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(info->mType));
-				std::string from_name;
-
-				from_name += LLTrans::getString("AGroupMemberNamed") + " ";
-				from_name += name;
-
-				info->mFromName = from_name;
+				info->mFromName = LLTrans::getString("AGroupMemberNamed", LLSD().with("GROUP_ID", group_id).with("FROM_ID", from_id));
 				info->mDesc = item_name;
 				info->mHost = msg->getSender();
 			}
@@ -3368,7 +3361,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 						// <edit>
 						if (IM_LURE_USER == dialog)
-							gAgent.showLureDestination(name, region_handle, pos.mV[VX], pos.mV[VY], pos.mV[VZ]);
+							gAgent.showLureDestination(LLAvatarActions::getSLURL(from_id), region_handle, pos.mV[VX], pos.mV[VY], pos.mV[VZ]);
 						script_msg_api(from_id.asString().append(IM_LURE_USER == dialog ? ", 2" : ", 3"));
 						// </edit>
 					}
@@ -3733,7 +3726,7 @@ private:
 };
 #endif
 
-void add_floater_chat(const LLChat &chat, const BOOL history)
+void add_floater_chat(LLChat &chat, const BOOL history)
 {
 	if (history)
 	{
@@ -7174,7 +7167,7 @@ void chat_mean_collision(const LLUUID& id, const LLAvatarName& avname, const EMe
 	args["MAG"] = llformat("%f", mag);
 	LLChat chat(LLTrans::getString("BumpedYou", args));
 	chat.mFromName = name;
-	chat.mURL = llformat("secondlife:///app/agent/%s/about", id.asString().c_str());
+	chat.mURL = LLAvatarActions::getSLURL(id);
 	chat.mSourceType = CHAT_SOURCE_SYSTEM;
 	LLFloaterChat::addChat(chat);
 }

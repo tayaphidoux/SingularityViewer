@@ -12,6 +12,7 @@ include(BuildPackagesInfo)
 include(BuildVersion)
 include(BuildBranding)
 include(CMakeCopyIfDifferent)
+include(CrashPad)
 include(DBusGlib)
 include(FMODSTUDIO)
 include(GeneratePrecompiledHeader)
@@ -49,6 +50,15 @@ include(WinManifest)
 include(ZLIB)
 include(URIPARSER)
 
+
+if(FMODSTUDIO)
+  include_directories(${FMODSTUDIO_INCLUDE_DIR})
+endif(FMODSTUDIO)
+
+if(USE_CRASHPAD)
+  include_directories(${CRASHPAD_INCLUDE_DIRS})
+endif(USE_CRASHPAD)
+
 include_directories(
     ${STATEMACHINE_INCLUDE_DIRS}
     ${DBUSGLIB_INCLUDE_DIRS}
@@ -71,6 +81,7 @@ include_directories(
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${HUNSPELL_INCLUDE_DIR}
+    ${OPENAL_LIB_INCLUDE_DIRS}
     ${LLAPPEARANCE_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
@@ -143,7 +154,6 @@ set(viewer_SOURCE_FILES
     llconfirmationmanager.cpp
     llconsole.cpp
     llcontrolavatar.cpp
-    llcrashlogger.cpp
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldaycyclemanager.cpp
@@ -681,7 +691,6 @@ set(viewer_HEADER_FILES
     llconfirmationmanager.h
     llconsole.h
     llcontrolavatar.h
-    llcrashlogger.h
     llcurrencyuimanager.h
     llcylinder.h
     lldaycyclemanager.h
@@ -1303,16 +1312,16 @@ if (WINDOWS)
     set_source_files_properties(${viewer_RESOURCE_FILES}
                                 PROPERTIES HEADER_FILE_ONLY TRUE)
 
-    set(viewer_RESOURCE_FILES
+
+    list(APPEND viewer_RESOURCE_FILES
         ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
-        ${viewer_RESOURCE_FILES}
         )
 
     set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
       PROPERTIES COMPILE_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/res"
       )
 
-    SOURCE_GROUP("Resource Files" FILES ${viewer_RESOURCE_FILES})
+    source_group("Resource Files" FILES ${viewer_RESOURCE_FILES})
 
     list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
 
@@ -1375,7 +1384,6 @@ set(viewer_APPSETTINGS_FILES
     app_settings/settings.xml
     app_settings/settings_ascent.xml
     app_settings/settings_ascent_coa.xml
-    app_settings/settings_crash_behavior.xml
     app_settings/settings_files.xml
     app_settings/settings_per_account.xml
     app_settings/settings_sh.xml
@@ -1422,7 +1430,15 @@ if (WINDOWS)
   list(APPEND viewer_SOURCE_FILES ${viewer_INSTALLER_FILES})
 endif (WINDOWS)
 
-set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
+if (OPENAL)
+  list(APPEND LLSTARTUP_COMPILE_DEFINITIONS "LL_OPENAL=1")
+endif (OPENAL)
+
+if (FMODSTUDIO)
+  list(APPEND LLSTARTUP_COMPILE_DEFINITIONS "LL_FMODSTUDIO=1")
+endif (FMODSTUDIO)
+
+set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_DEFINITIONS "${LLSTARTUP_COMPILE_DEFINITIONS}")
 
 if (LIBVLCPLUGIN)
     set_source_files_properties(llfloaterabout.cpp PROPERTIES COMPILE_DEFINITIONS "VLCPLUGIN=1")
@@ -1624,6 +1640,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${PNG_PRELOAD_ARCHIVES}
     ${ZLIB_PRELOAD_ARCHIVES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
+    ${CRASHPAD_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
     ${LLAUDIO_VORBIS_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
@@ -1671,6 +1688,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLAPPEARANCE_LIBRARIES}
     absl::flat_hash_map
     absl::node_hash_map
+    ${FMT_LIBRARY}
     )
 
 if (LINUX)
@@ -1822,8 +1840,10 @@ if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
 
-if (PACKAGE)
+if (PACKAGE AND USE_CRASHPAD)
+  # Breakpad symbol-file generation
   set(SYMBOL_NAME ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_CHANNEL_NOSPACE}-${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}-symbols)
+
   set(SYMBOL_SEARCH_DIRS "")
   if (WINDOWS)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
@@ -1853,7 +1873,6 @@ if (PACKAGE)
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
 
-  if(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
   if(GEN_IS_MULTI_CONFIG)
       set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
   else()
@@ -1874,14 +1893,14 @@ if (PACKAGE)
     DEPENDS generate_breakpad_symbols.py
         VERBATIM)
 
-  add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
-  add_dependencies(generate_breakpad_symbols ${VIEWER_BINARY_NAME})
-if(VIEWER_COPY_MANIFEST)
-  add_dependencies(generate_breakpad_symbols ${VIEWER_COPY_MANIFEST})
-endif(VIEWER_COPY_MANIFEST)
-  add_dependencies(llpackage generate_breakpad_symbols)
-  endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
-endif (PACKAGE)
+    add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" ${VIEWER_BINARY_NAME} "${VIEWER_COPY_MANIFEST}")
+    add_dependencies(generate_symbols ${VIEWER_BINARY_NAME})
+    if (WINDOWS OR LINUX)
+      add_dependencies(generate_symbols "${VIEWER_COPY_MANIFEST}")
+    endif (WINDOWS OR LINUX)
+
+  add_dependencies(llpackage generate_symbols)
+endif ()
 
 # Add tests
 if (LL_TESTS)

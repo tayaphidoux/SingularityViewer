@@ -2538,17 +2538,6 @@ This should be as low as possible, but too low may break functionality</string>
 		<integer>1</integer>
     </map>
     <!-- Standard SL options (To my knowledge) -->
-    <key>CrashHostUrl</key>
-    <map>
-      <key>Comment</key>
-      <string>A URL pointing to a crash report handler; overrides cluster negotiation to locate crash handler.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://crash.singularityviewer.org/report.php</string>>
-    </map>
     <key>AFKTimeout</key>
     <map>
       <key>Comment</key>
@@ -10749,17 +10738,6 @@ This should be as low as possible, but too low may break functionality</string>
       <string>S32</string>
       <key>Value</key>
       <integer>18</integer>
-    </map>
-    <key>MenuBarWidth</key>
-    <map>
-      <key>Comment</key>
-      <string/>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>410</integer>
     </map>
  <key>MeshEnabled</key>
   <map>
@@ -18982,24 +18960,13 @@ This should be as low as possible, but too low may break functionality</string>
     <key>CrashSubmitBehavior</key>
     <map>
       <key>Comment</key>
-      <string>Controls behavior when viewer crashes (0 = ask before sending crash report, 1 = always send crash report, 2 = never send crash report)</string>
+      <string>Controls behavior when viewer crashes (0 = never send crash report, 1 = always send crash report)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>CrashReportID</key>
-    <map>
-      <key>Comment</key>
-      <string>ID of the last crash report sent. Zero indicates that no crash report has been sent. Non-zero value can be useful infermation for developers to track a specific issue</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
+      <integer>-1</integer>
     </map>
 
     <key>EveryoneCopy</key>

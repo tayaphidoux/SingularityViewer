@@ -8,6 +8,10 @@
     <floater.string name="status_selectcount">
         Primitives: [OBJ_COUNT], LI: [LAND_IMPACT]
     </floater.string>
+    <string name="Selected Face:" value="Selected Face:"/>
+    <string name="Link number:" value="Link number:"/>
+    <string name="Selected prims:" value="Selected prims:"/>
+    <string name="Selected objects:" value="Selected objects:"/>
     <floater.string
      name="status_remaining_capacity">
         Remaining capacity [LAND_CAPACITY].

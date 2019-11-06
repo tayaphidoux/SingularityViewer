@@ -47,7 +47,6 @@
 
 
 extern S32 MENU_BAR_HEIGHT;
-extern S32 MENU_BAR_WIDTH;
 
 // These callbacks are used by the LLMenuItemCallGL and LLMenuItemCheckGL
 // classes during their work.
@@ -897,6 +896,7 @@ public:
 	LLView*const getVisibleMenu() const;
 	virtual BOOL hasVisibleMenu() const {return getVisibleMenu() != NULL;}
 
+	static LLMenuItemGL* getActivatedItem() { return static_cast<LLMenuItemGL*>(sItemLastSelectedHandle.get()); }
 	static void setActivatedItem(LLMenuItemGL* item);
 
 	// Need to detect if mouse-up after context menu spawn has moved.

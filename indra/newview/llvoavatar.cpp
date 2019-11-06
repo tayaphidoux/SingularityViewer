@@ -45,6 +45,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llanimationstates.h"
+#include "llavataractions.h"
 #include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcontrolavatar.h"
@@ -6427,8 +6428,8 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 				LLAvatarNameCache::getNSName(mID, name);
 				LLChat chat;
 				chat.mFromName = name;
-				chat.mText = name + " " + LLTrans::getString("took_a_snapshot") + ".";
-				chat.mURL = llformat("secondlife:///app/agent/%s/about",mID.asString().c_str());
+				chat.mText = name + ' ' + LLTrans::getString("took_a_snapshot") + '.';
+				chat.mURL = LLAvatarActions::getSLURL(mID);
 				chat.mSourceType = CHAT_SOURCE_SYSTEM;
 				LLFloaterChat::addChat(chat);
 			}

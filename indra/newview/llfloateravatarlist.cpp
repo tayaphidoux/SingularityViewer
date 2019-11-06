@@ -114,7 +114,7 @@ namespace
 		chat.mFromName = name;
 		chat.mFromID = key;
 		if (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) // RLVa:LF - No way!
-			chat.mURL = llformat("secondlife:///app/agent/%s/about", key.asString().c_str());
+			chat.mURL = LLAvatarActions::getSLURL(key);
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
 		LLFloaterChat::addChat(chat);
 	}

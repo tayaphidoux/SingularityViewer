@@ -36,6 +36,7 @@
 
 #include "llmenugl.h"
 #include "lluictrlfactory.h"
+#include "llwindow.h"
 
 static LLRegisterWidget<LLNameEditor> r("name_editor");
 
@@ -90,6 +91,18 @@ BOOL LLNameEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return LLLineEditor::handleRightMouseDown(x, y, mask);
 }
 
+// virtual
+BOOL LLNameEditor::handleHover(S32 x, S32 y, MASK mask)
+{
+	auto handled = LLLineEditor::handleHover(x, y, mask);
+	if (mAllowInteract && mClickForProfile && !mIsSelecting)
+	{
+		getWindow()->setCursor(UI_CURSOR_HAND);
+		handled = true;
+	}
+	return handled;
+}
+
 void LLNameEditor::displayAsLink(bool link)
 {
 	static const LLUICachedControl<LLColor4> color("HTMLAgentColor");
@@ -108,6 +121,9 @@ LLXMLNodePtr LLNameEditor::getXML(bool save_children) const
 	LLXMLNodePtr node = LLLineEditor::getXML();
 
 	node->setName(LL_NAME_EDITOR_TAG);
+	node->createChild("label", TRUE)->setStringValue(mInitialValue);
+	node->createChild("rlv_sensitive", TRUE)->setBoolValue(mRLVSensitive);
+	node->createChild("click_for_profile", TRUE)->setBoolValue(mClickForProfile);
 
 	return node;
 }

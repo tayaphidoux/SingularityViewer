@@ -39,6 +39,8 @@ if (BUILD_TESTING)
 endif()
 
 #Download the rest of the libraries
-#FetchContent_MakeAvailable(fmt)
+if(WINDOWS)
+FetchContent_MakeAvailable(fmt)
+endif()
 
 set(CMAKE_FOLDER "")

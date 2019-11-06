@@ -22,6 +22,7 @@ set(cmake_SOURCE_FILES
     ConfigurePkgConfig.cmake
     CURL.cmake
     Copy3rdPartyLibs.cmake
+    CrashPad.cmake
     Cwdebug.cmake
     DBusGlib.cmake
     DeploySharedLibs.cmake
@@ -32,7 +33,6 @@ set(cmake_SOURCE_FILES
     FindCARes.cmake
     FindColladadom.cmake
     FindGLOD.cmake
-    FindGoogleBreakpad.cmake
     FindGooglePerfTools.cmake
     FindHunSpell.cmake
     FindNDOF.cmake
@@ -47,7 +47,6 @@ set(cmake_SOURCE_FILES
     GStreamer010Plugin.cmake
     Glui.cmake
     Glut.cmake
-    GoogleBreakpad.cmake
     GooglePerfTools.cmake
     Hunspell.cmake
     JPEG.cmake

@@ -73,7 +73,6 @@ using namespace LLOldEvents;
 LLMenuHolderGL *LLMenuGL::sMenuContainer = nullptr;
 
 S32 MENU_BAR_HEIGHT = 0;
-S32 MENU_BAR_WIDTH = 0;
 
 ///============================================================================
 /// Local function declarations, constants, enums, and typedefs

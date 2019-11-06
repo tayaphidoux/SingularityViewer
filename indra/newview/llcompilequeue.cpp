@@ -470,7 +470,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 				std::string text = LLTrans::getString("CompileQueueProblemUploading");
 				LLChat chat(text);
 				LLFloaterChat::addChat(chat);
-				buffer = text + LLTrans::getString(":") + " " + data->mScriptName;
+				buffer = text + LLTrans::getString(":") + ' ' + data->mScriptName;
 				LL_WARNS() << "Problem uploading script asset." << LL_ENDL;
 				if(queue) queue->removeItemByItemID(data->mItemId);
 			}
@@ -485,18 +485,18 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 			LLChat chat(LLTrans::getString("CompileQueueScriptNotFound"));
 			LLFloaterChat::addChat(chat);
 
-			buffer = LLTrans::getString("CompileQueueProblemDownloading") + LLTrans::getString(":") + " " + data->mScriptName;
+			buffer = LLTrans::getString("CompileQueueProblemDownloading") + LLTrans::getString(":") + ' ' + data->mScriptName;
 		}
 		else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
 		{
 			LLChat chat(LLTrans::getString("CompileQueueInsufficientPermDownload"));
 			LLFloaterChat::addChat(chat);
 
-			buffer = LLTrans::getString("CompileQueueInsufficientPermFor") + LLTrans::getString(":") + " " + data->mScriptName;
+			buffer = LLTrans::getString("CompileQueueInsufficientPermFor") + LLTrans::getString(":") + ' ' + data->mScriptName;
 		}
 		else
 		{
-			buffer = LLTrans::getString("CompileQueueUnknownFailure") + (" ") + data->mScriptName;
+			buffer = LLTrans::getString("CompileQueueUnknownFailure") + ' ' + data->mScriptName;
 		}
 
 		LL_WARNS() << "Problem downloading script asset." << LL_ENDL;
@@ -590,7 +590,7 @@ void LLFloaterResetQueue::handleInventory(LLViewerObject* viewer_obj,
 			{
 				LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
 				std::string buffer;
-				buffer = getString("Resetting") + LLTrans::getString(":") + " " + item->getName();
+				buffer = getString("Resetting") + LLTrans::getString(":") + ' ' + item->getName();
 				getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
 				LLMessageSystem* msg = gMessageSystem;
 				msg->newMessageFast(_PREHASH_ScriptReset);
@@ -650,7 +650,7 @@ void LLFloaterRunQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
 				LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 				std::string buffer;
-				buffer = getString("Running") + LLTrans::getString(":") + " " + item->getName();
+				buffer = getString("Running") + LLTrans::getString(":") + ' ' + item->getName();
 				list->addSimpleElement(buffer, ADD_BOTTOM);
 
 				LLMessageSystem* msg = gMessageSystem;
@@ -750,7 +750,7 @@ void LLFloaterNotRunQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
 				LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 				std::string buffer;
-				buffer = getString("NotRunning") + LLTrans::getString(":") + " " + item->getName();
+				buffer = getString("NotRunning") + LLTrans::getString(":") + ' ' + item->getName();
 				list->addSimpleElement(buffer, ADD_BOTTOM);
 
 				LLMessageSystem* msg = gMessageSystem;

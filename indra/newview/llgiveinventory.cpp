@@ -36,6 +36,7 @@
 #include "llagentdata.h"
 #include "llagentui.h"
 #include "llagentwearables.h"
+#include "llavataractions.h"
 #include "llfloaterchat.h" //for addChatHistory
 #include "llfloatertools.h" // for gFloaterTool
 #include "llhudeffecttrail.h"
@@ -348,13 +349,9 @@ void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im
 	// If this item was given by drag-and-drop on avatar while IM panel wasn't open, log this action to IM history.
 	else
 	{
-		std::string full_name;
-		if (gCacheName->getFullName(to_agent, full_name))
-		{
-			LLChat chat(LLTrans::getString("inventory_item_offered_to") + " " + full_name);
-			chat.mSourceType = CHAT_SOURCE_SYSTEM;
-			LLFloaterChat::addChatHistory(chat);
-		}
+		LLChat chat(LLTrans::getString("inventory_item_offered_to") + ' ' + LLAvatarActions::getSLURL(to_agent));
+		chat.mSourceType = CHAT_SOURCE_SYSTEM;
+		LLFloaterChat::addChatHistory(chat);
 	}
 }
 
