@@ -6436,39 +6436,6 @@ static std::string reason_from_transaction_type(S32 transaction_type,
 	}
 }
 
-static void money_balance_group_notify(const LLUUID& group_id,
-									   const std::string& name,
-									   bool is_group,
-									   std::string message,
-									   LLStringUtil::format_map_t args,
-									   LLSD payload)
-{
-	bool no_transaction_clutter = gSavedSettings.getBOOL("LiruNoTransactionClutter");
-	std::string notification = no_transaction_clutter ? "Payment" : "SystemMessage";
-	args["NAME"] = name;
-	LLSD msg_args;
-	msg_args["MESSAGE"] = LLTrans::getString(message,args);
-	LLNotificationsUtil::add(notification,msg_args,payload);
-
-	if (!no_transaction_clutter) LLFloaterChat::addChat(msg_args["MESSAGE"].asString()); // Alerts won't automatically log to chat.
-}
-
-static void money_balance_avatar_notify(const LLUUID& agent_id,
-										const LLAvatarName& av_name,
-										std::string message,
-									   	LLStringUtil::format_map_t args,
-									   	LLSD payload)
-{
-	bool no_transaction_clutter = gSavedSettings.getBOOL("LiruNoTransactionClutter");
-	std::string notification = no_transaction_clutter ? "Payment" : "SystemMessage";
-	args["NAME"] = av_name.getNSName();
-	LLSD msg_args;
-	msg_args["MESSAGE"] = LLTrans::getString(message,args);
-	LLNotificationsUtil::add(notification,msg_args,payload);
-
-	if (!no_transaction_clutter) LLFloaterChat::addChat(msg_args["MESSAGE"].asString()); // Alerts won't automatically log to chat.
-}
-
 static void process_money_balance_reply_extended(LLMessageSystem* msg)
 {
 	// Added in server 1.40 and viewer 2.1, support for localization
@@ -6573,19 +6540,15 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	// Despite using SLURLs, wait until the name is available before
 	// showing the notification, otherwise the UI layout is strange and
 	// the user sees a "Loading..." message
-	if (is_name_group)
-	{
-		gCacheName->getGroup(name_id,
-						boost::bind(&money_balance_group_notify,
-									_1, _2, _3, message,
-									args, payload));
-	}
-	else {
-		LLAvatarNameCache::get(name_id,
-							   boost::bind(&money_balance_avatar_notify,
-										   _1, _2, message,
-										   args, payload));
-	}
+	// Singu Note: Wat? SLURLs resolve over time, not the end of the world.
+	bool no_transaction_clutter = gSavedSettings.getBOOL("LiruNoTransactionClutter");
+	std::string notification = no_transaction_clutter ? "Payment" : "SystemMessage";
+	args["NAME"] = is_name_group ? LLGroupActions::getSLURL(name_id) : LLAvatarActions::getSLURL(name_id);
+	LLSD msg_args;
+	msg_args["MESSAGE"] = LLTrans::getString(message,args);
+	LLNotificationsUtil::add(notification,msg_args,payload);
+
+	if (!no_transaction_clutter) LLFloaterChat::addChat(msg_args["MESSAGE"].asString()); // Alerts won't automatically log to chat.
 }
 
 bool handle_prompt_for_maturity_level_change_callback(const LLSD& notification, const LLSD& response)
