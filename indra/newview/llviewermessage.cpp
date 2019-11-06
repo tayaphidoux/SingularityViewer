@@ -1419,6 +1419,8 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		return false;
 	}
 
+	chat.mSourceType = CHAT_SOURCE_SYSTEM; // There's a slim potential of a user-editable field being a url here?
+
 	LLViewerInventoryCategory* catp = NULL;
 	catp = gInventory.getCategory(mObjectID);
 	LLViewerInventoryItem* itemp = NULL;
