@@ -801,7 +801,7 @@ LLView* LLScrollContainer::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFa
 		panelp = new LLPanel(std::string("dummy"), LLRect::null, FALSE);
 	}
 
-	ret->mScrolledView = panelp;
+	ret->addChild(panelp);
 
 	return ret;
 }

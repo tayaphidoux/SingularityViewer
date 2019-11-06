@@ -46,9 +46,6 @@ una nueva y vistiéndotela.
 			<text name="no modify instructions">
 				No tienes permiso para modificar este ítem.
 			</text>
-			<text name="Item Action Label">
-				Forma:
-			</text>
 			<button label="Crear Nueva Forma" label_selected="Crear Nueva Forma" name="Create New"/>
 			<text name="avatar_height_label">
 				Alto:
@@ -91,9 +88,6 @@ una nueva y vistiéndotela.
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
 			</text>
-			<text name="Item Action Label">
-				Piel:
-			</text>
 			<texture_picker label="Tatuaje Cabeza" name="Head Tattoos" tool_tip="Pulsa para elegir una imagen"/>
 			<texture_picker label="Tatuaje Superior" name="Upper Tattoos" tool_tip="Pulsa para elegir una imagen" width="78"/>
 			<texture_picker label="Tatuaje Inferior" name="Lower Tattoos" tool_tip="Pulsa para elegir una imagen"/>
@@ -131,9 +125,6 @@ uno nuevo y vistiéndotelo.
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
 			</text>
-			<text name="Item Action Label">
-				Pelo:
-			</text>
 			<texture_picker label="Textura" name="Texture" tool_tip="Pulsa para elegir una imagen"/>
 			<button label="Crear Pelo" label_selected="Crear Pelo" name="Create New"/>
 			<button label="Guardar" label_selected="Guardar" name="Save" width="65"/>
@@ -164,9 +155,6 @@ uno nuevo y vistiéndotelo.
 			</text>
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
-			</text>
-			<text name="Item Action Label">
-				Ojos:
 			</text>
 			<texture_picker label="Iris" name="Iris" tool_tip="Pulsa para elegir una imagen"/>
 			<button label="Crear Ojos" label_selected="Crear Ojos" name="Create New"/>
@@ -211,9 +199,6 @@ una nueva y vistiéndotela.
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
 			</text>
-			<text name="Item Action Label">
-				Camisa:
-			</text>
 		</panel>
 		<!-- =========================== -->
 		<panel label="Pantalones" name="Pants">
@@ -250,9 +235,6 @@ uno nuevo y vistiéndotelo.
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
 			</text>
-			<text name="Item Action Label">
-				Pantalones:
-			</text>
 		</panel>
 		<!-- =========================== -->
 		<panel label="Zapatos" name="Shoes">
@@ -279,9 +261,6 @@ un par nuevo y vistiéndotelo.
 			</text>
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
-			</text>
-			<text name="Item Action Label">
-				Zapatos:
 			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulsa para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color" />
@@ -320,9 +299,6 @@ un par nuevo y vistiéndotelas.
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
 			</text>
-			<text name="Item Action Label">
-				Medias:
-			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulsa para elegir una imagen" />
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color" />
 			<button label="Crear Medias" label_selected="Crear Medias" name="Create New"/>
@@ -359,9 +335,6 @@ una nueva y vistiéndotela.
 			</text>
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
-			</text>
-			<text name="Item Action Label">
-				Chaqueta:
 			</text>
 			<texture_picker label="Tela Superior" name="Upper Fabric" tool_tip="Pulsa para elegir una imagen"/>
 			<texture_picker label="Tela Inferior" name="Lower Fabric" tool_tip="Pulsa para elegir una imagen"/>
@@ -401,9 +374,6 @@ nuevos y vistiéndotelos.
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
 			</text>
-			<text name="Item Action Label">
-				Guantes:
-			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulsa para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 			<button label="Crear Guantes" label_selected="Crear Guantes" name="Create New"/>
@@ -440,9 +410,6 @@ una camiseta y vistiéndotela.
 			</text>
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
-			</text>
-			<text name="Item Action Label">
-				Camiseta:
 			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulsa para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
@@ -481,9 +448,6 @@ ropa interior y vistiéndotela.
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
 			</text>
-			<text name="Item Action Label">
-				Ropa Interior:
-			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulsa para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 			<button label="Crear Ropa Interior" label_selected="Crear Ropa Interior" name="Create New"/>
@@ -521,9 +485,6 @@ una nueva y vistiéndotela.
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
 			</text>
-			<text name="Item Action Label">
-				Falda:
-			</text>
 			<texture_picker label="Tela" name="Fabric" tool_tip="Pulsa para elegir una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 			<button label="Crear Falda" label_selected="Crear Falda" name="Create New"/>
@@ -560,9 +521,6 @@ uno nuevo y vistiéndotelo.
 			</text>
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
-			</text>
-			<text name="Item Action Label">
-				Tatuaje:
 			</text>
 			<texture_picker name="Head Tattoo" label="Tatuaje Cabeza" tool_tip="Pulsa para elegir una imagen" width="78"/>
 			<texture_picker name="Upper Tattoo" label="Tatuaje Superior" tool_tip="Pulsa para elegir una imagen" width="78"/>
@@ -602,9 +560,6 @@ una nueva y vistiéndotela.
 				</text>
 				<text name="no modify instructions">
 					No tienes permiso para modificar este item.
-				</text>
-				<text name="Item Action Label">
-					Alfa:
 				</text>
 				<texture_picker name="Head Alpha" label="Alfa: Cabeza" tool_tip="Pulsa para elegir una imagen"/>
 				<texture_picker name="Upper Alpha" label="Alfa Superior" tool_tip="Pulsa para elegir una imagen"/>
@@ -651,9 +606,8 @@ una nueva y vistiéndotela.
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
 			</text>
-            <text name="Item Action Label"  right="107">
-                Universal:
-            </text>
+      <scroll_container name="tab_container">
+      <panel name="tab_panel">
 			<texture_picker label="Tatuaje Cabeza" name="Head Universal Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
 			<texture_picker label="Tatuaje Superior" name="Upper Universal Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
 			<texture_picker label="Tatuaje Inferior" name="Lower Universal Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
@@ -666,6 +620,8 @@ una nueva y vistiéndotela.
 			<texture_picker label="Tatuaje Aux2" name="Aux2 Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
 			<texture_picker label="Tatuaje Aux3" name="Aux3 Tattoo" tool_tip="Pulsa para seleccionar una imagen"/>
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para Seleccionar un color"/>
+      </panel>
+      </scroll_container>
 			<button name="Create New" label="Crear Nueva Capa Universal" label_selected="Crear Nueva Capa Universal" width="174"/>
 			<button name="Take Off" label="Quitarse"/>
 			<button name="New Layer" label="Nueva Capa"/>
@@ -710,9 +666,6 @@ una nueva y vistiéndotela.
 			</text>
 			<text name="no modify instructions">
 				No tienes permiso para modificar este item.
-			</text>
-			<text name="Item Action Label">
-				Física:
 			</text>
 			<button label="Crear Física" label_selected="Crear Física" name="Create New"/>
 			<button label="Guardar" label_selected="Guardar" name="Save" width="65"/>

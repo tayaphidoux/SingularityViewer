@@ -98,12 +98,6 @@ new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
 				You do not have permission to modify this wearable.
 			</text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Shape:
-      </text>
       <button bottom="-148" follows="left|top" halign="center" height="24"
 			     label="Create New Shape" label_selected="Create New Shape" left="160"
 			     mouse_opaque="true" name="Create New" scale_image="true" width="170" />
@@ -195,12 +189,6 @@ new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
         You do not have permission to modify this wearable.
       </text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Skin:
-      </text>
       <texture_picker allow_no_texture="true" bottom="-273" can_apply_immediately="true"
 			     default_image_name="Default" follows="left|top" height="80"
 			     label="Head Tattoos" left="8" mouse_opaque="true" name="Head Tattoos"
@@ -289,12 +277,6 @@ new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
         You do not have permission to modify this wearable.
       </text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Hair:
-      </text>
 			<texture_picker allow_no_texture="false" bottom="-273" can_apply_immediately="true"
 			     default_image_name="Default" follows="left|top" height="80" label="Texture"
 			     left="8" mouse_opaque="true" name="Texture"
@@ -362,12 +344,6 @@ scratch and wear it.
 			     font="SansSerifSmall" h_pad="0" halign="left" height="14" left="8"
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
 				You do not have permission to modify this wearable.
-			</text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Eyes:
       </text>
       <texture_picker allow_no_texture="false" bottom="-145" can_apply_immediately="true"
 			     default_image_name="Default" follows="left|top" height="80" label="Iris"
@@ -465,12 +441,6 @@ a new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
         You do not have permission to modify this wearable.
       </text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Shirt:
-      </text>
     </panel>
     <panel border="true" bottom="-482" follows="left|top|right|bottom" height="481"
 		     label="Pants" left="102" mouse_opaque="true" name="Pants" width="389">
@@ -550,12 +520,6 @@ a new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
         You do not have permission to modify this wearable.
       </text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Pants:
-      </text>
 		</panel>
 		<panel border="true" bottom="-482" follows="left|top|right|bottom" height="481"
 		     label="Shoes" left="102" mouse_opaque="true" name="Shoes" width="389">
@@ -608,12 +572,6 @@ a new one from scratch and wear it.
 			     font="SansSerifSmall" h_pad="0" halign="left" height="14" left="8"
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
 				You do not have permission to modify this wearable.
-			</text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Shoes:
       </text>
 			<texture_picker allow_no_texture="false" bottom="-145" can_apply_immediately="true"
 			     default_image_name="Default" follows="left|top" height="80" label="Fabric"
@@ -694,12 +652,6 @@ a new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
 				You do not have permission to modify this wearable.
 			</text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Socks:
-      </text>
       <texture_picker allow_no_texture="false" bottom="-145" can_apply_immediately="true"
 			     default_image_name="Default" follows="left|top" height="80" label="Fabric"
 			     left="8" mouse_opaque="true" name="Fabric"
@@ -778,12 +730,6 @@ a new one from scratch and wear it.
 			     font="SansSerifSmall" h_pad="0" halign="left" height="14" left="8"
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
         You do not have permission to modify this wearable.
-      </text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Jacket:
       </text>
       <texture_picker allow_no_texture="false" bottom="-145" can_apply_immediately="true"
 			     default_image_name="Default" follows="left|top" height="80"
@@ -868,12 +814,6 @@ a new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
         You do not have permission to modify this wearable.
       </text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Gloves:
-      </text>
       <texture_picker allow_no_texture="false" bottom="-145" can_apply_immediately="true"
 			     default_image_name="Default" follows="left|top" height="80" label="Fabric"
 			     left="8" mouse_opaque="true" name="Fabric"
@@ -953,12 +893,6 @@ new one from scratch and wear it.
 			     font="SansSerifSmall" h_pad="0" halign="left" height="14" left="8"
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
         You do not have permission to modify this wearable.
-      </text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Undershirt:
       </text>
       <texture_picker allow_no_texture="false" bottom="-145" can_apply_immediately="true"
 			     default_image_name="Default" follows="left|top" height="80" label="Fabric"
@@ -1041,12 +975,6 @@ new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
         You do not have permission to modify this wearable.
       </text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Underpants:
-      </text>
 			<texture_picker allow_no_texture="false" bottom="-145" can_apply_immediately="true"
 			     default_image_name="Default" follows="left|top" height="80" label="Fabric"
 			     left="8" mouse_opaque="true" name="Fabric"
@@ -1127,12 +1055,6 @@ a new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
         You do not have permission to modify this wearable.
       </text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-                 bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-                 font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-                 mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Skirt:
-      </text>
       <texture_picker allow_no_texture="false" bottom="-145" can_apply_immediately="true"
 			     default_image_name="Default" follows="left|top" height="80" label="Fabric"
 			     left="8" mouse_opaque="true" name="Fabric"
@@ -1212,30 +1134,24 @@ a new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
 				You do not have permission to modify this wearable.
 			</text>
-            <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-                 bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-                 font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-                 mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-                Tattoo:
-            </text>
             <texture_picker  name="Head Tattoo" label="Head Tattoo" tool_tip="Click to choose a picture"
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
-             follows="left|top" width="70" height="80" left="14" bottom="-145"/>
+             follows="left|top" width="80" height="98" left="108" bottom="-171"/>
             <texture_picker name="Upper Tattoo" label="Upper Tattoo" tool_tip="Click to choose a picture"
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
-             follows="left|top" width="70" height="80" left="14" bottom="-235"/>
+             follows="left|top" width="80" height="98" left_delta="96" bottom_delta="0"/>
             <texture_picker name="Lower Tattoo" label="Lower Tattoo" tool_tip="Click to choose a picture"
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
-             follows="left|top" width="70" height="80" left="14" bottom="-325"/>
-			<color_swatch border_color="0.45098 0.517647 0.607843 1" bottom="-415"
-			 can_apply_immediately="true" color="1 1 1 1" follows="left|top" height="80"
-			 label="Color/Tint" left="14" mouse_opaque="true" name="Color/Tint"
-			 tool_tip="Click to open Color Picker" width="70" />
+       follows="left|top" width="80" height="98" left="108" bottom_delta="-106"/>
+      <color_swatch border_color="0.45098 0.517647 0.607843 1" left_delta="96" bottom_delta="0"
+			 can_apply_immediately="true" color="1 1 1 1" follows="left|top" height="96"
+			 label="Color/Tint" mouse_opaque="true" name="Color/Tint"
+			 tool_tip="Click to open Color Picker" width="80" />
 			<button name="Create New" label="Create New Tattoo" label_selected="Create New Tattoo"
                  follows="left|top" halign="center" width="170" height="24" left="160" bottom="-148"
 			     mouse_opaque="true" scale_image="true"/>
             <button name="Take Off" label="Take Off" label_selected="Take Off"
-             follows="left|top" width="82" height="20" left="8" bottom="-440"/>
+       follows="left|top" width="82" height="20" left="8" bottom="-330"/>
             <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
             <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
             <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
@@ -1298,44 +1214,37 @@ new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
 				You do not have permission to modify this wearable.
 			</text>
-            <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-                 bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-                 font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-                 mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-                Alpha:
-            </text>
             <texture_picker name="Head Alpha" label="Head Alpha" tool_tip="Click to choose a picture"
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
              follows="left|top" width="64" height="80" left="120" bottom="-165"/>
             <texture_picker name="Upper Alpha" label="Upper Alpha" tool_tip="Click to choose a picture"
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
-             follows="left|top" width="64" height="80" left_delta="90" bottom="-165"/>
+             follows="left|top" width="64" height="80" left_delta="96" bottom="-165"/>
             <texture_picker  name="Lower Alpha" label="Lower Alpha" tool_tip="Click to choose a picture"
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
-             follows="left|top" width="64" height="80" left_delta="90" bottom="-165"/>
+             follows="left|top" width="64" height="80" left_delta="96" bottom="-165"/>
             <check_box name="head alpha texture invisible"
              follows="left|top" width="16" height="16" left="142" bottom="-90"/>
             <check_box name="upper alpha texture invisible"
-             follows="left|top" width="16" height="16" left_delta="90" bottom="-90"/>
+             follows="left|top" width="16" height="16" left_delta="96" bottom="-90"/>
             <check_box name="lower alpha texture invisible"
-             follows="left|top" width="16" height="16" left_delta="90" bottom="-90"/>
+             follows="left|top" width="16" height="16" left_delta="96" bottom="-90"/>
             <texture_picker name="Hair Alpha" label="Hair Alpha" tool_tip="Click to choose a picture"
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
              follows="left|top" width="64" height="80" left="120" bottom="-280"/>
             <texture_picker name="Eye Alpha" label="Eye Alpha" tool_tip="Click to choose a picture"
              can_apply_immediately="true" default_image_name="Default" allow_no_texture="true"
-             follows="left|top" width="64" height="80" left_delta="90" bottom="-280"/>
+             follows="left|top" width="64" height="80" left_delta="96" bottom="-280"/>
             <check_box name="hair alpha texture invisible"
              follows="left|top" width="16" height="16" left="142" bottom="-205"/>
             <check_box name="eye alpha texture invisible"
-             follows="left|top" width="16" height="16" left_delta="90" bottom="-205"/>
+       follows="left|top" width="16" height="16" left_delta="96" bottom="-205"/>
 			<button name="Create New" label="Create New Alpha" label_selected="Create New Alpha"
-                 follows="left|top" halign="center" width="170" height="24" left="160" bottom="-148"
-			     mouse_opaque="true" scale_image="true"/>
-            <button name="Take Off" label="Take Off" label_selected="Take Off"
-             follows="left|top" width="82" height="20" left="117" bottom="-320"/>
-            <button bottom_delta="0" left_delta="86" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
-            <button bottom_delta="0" left_delta="86" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
+         follows="left|top" width="170" height="24" left="160" bottom="-148"/>
+            <button name="Take Off" label="Take Off"
+             follows="left|top" width="82" height="20" left="8" bottom="-330"/>
+            <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
+            <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
             <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
             <button name="Save" label="Save" label_selected="Save"
              follows="right|bottom" width="82" height="20" left="123" bottom="-478"/>
@@ -1380,134 +1289,132 @@ new one from scratch and wear it.
 			     mouse_opaque="true" name="path" v_pad="0" width="373">
 				Located in [PATH]
 			</text>
-      <tab_container name="layer_tabs" follows="all" left_delta="85" bottom_delta="-30" height="16" width="300" tab_min_width="55"/>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-			     bottom="-104" drop_shadow_visible="true" follows="left|top|right"
-			     font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
-			     mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
-Put on a new universal by dragging one from your
-inventory to your avatar. Alternately, you can create a
-new one from scratch and wear it.
-			</text>
-			<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-			     bottom="-50" drop_shadow_visible="true" follows="left|top|right"
-			     font="SansSerifSmall" h_pad="0" halign="left" height="14" left="8"
-			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
-				You do not have permission to modify this wearable.
-			</text>
-            <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-                 bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-                 font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-                 mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-                Universal:
-            </text>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       width="80" height="96" left="109" bottom="-174"
-       label="Head Tattoo"
-       name="Head Universal Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       label="Upper Tattoo"
-       width="80" height="96" left_delta="96" bottom_delta="0"
-       name="Upper Universal Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       label="Lower Tattoo"
-       width="80" height="96" left_delta="96" bottom_delta="0"
-       name="Lower Universal Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       width="80" height="96" left_delta="-192" bottom_delta="-106"
-       label="Skirt Tattoo"
-       name="Skirt Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       width="80" height="96" left_delta="96" bottom_delta="0"
-       label="Hair Tattoo"
-       name="Hair Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       width="80" height="96" left_delta="96" bottom_delta="0"
-       label="Eyes Tattoo"
-       name="Eyes Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       width="80" height="96" left_delta="-192" bottom_delta="-106"
-       label="Left Arm Tattoo"
-       name="Left Arm Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       width="80" height="96" left_delta="96" bottom_delta="0"
-       label="Left Leg Tattoo"
-       name="Left Leg Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       width="80" height="96" left_delta="96" bottom_delta="0"
-       label="Aux1 Tattoo"
-       name="Aux1 Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       width="80" height="96" left_delta="-192" bottom_delta="-106"
-       label="Aux2 Tattoo"
-       name="Aux2 Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <texture_picker
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       default_image_name="Default"
-       follows="left|top"
-       width="80" height="96" left_delta="96" bottom_delta="0"
-       label="Aux3 Tattoo"
-       name="Aux3 Tattoo"
-       tool_tip="Click to choose a picture"/>
-      <color_swatch
-       can_apply_immediately="true"
-       allow_no_texture="true"
-       follows="left|top"
-       width="80" height="96" left_delta="96" bottom_delta="0"
-       label="Color/Tint"
-       name="Color/Tint"
-       tool_tip="Click to open color picker"/>
+      <tab_container name="layer_tabs" follows="all" left="100" bottom="-451" height="398" width="292" tab_min_width="55"/>
+      <scroll_container name="tab_container" border="true" follows="all" left="100" bottom="-451" height="382" width="292">
+      <panel name="tab_panel" left="0" bottom="0" height="418" width="274" follows="top|left">
+        <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+             bottom="-104" drop_shadow_visible="true" follows="left|top|right"
+             font="SansSerifSmall" h_pad="0" halign="left" height="28" left="102"
+             mouse_opaque="true" name="not worn instructions" v_pad="0" width="284">
+          Put on a new universal by dragging one from your
+          inventory to your avatar. Alternately, you can create a
+          new one from scratch and wear it.
+        </text>
+        <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+             bottom="-50" drop_shadow_visible="true" follows="left|top|right"
+             font="SansSerifSmall" h_pad="0" halign="left" height="14" left="8"
+             mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
+          You do not have permission to modify this wearable.
+        </text>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         width="80" height="96" left="2" bottom="-100"
+         label="Head Tattoo"
+         name="Head Universal Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         label="Upper Tattoo"
+         width="80" height="96" left_delta="96" bottom_delta="0"
+         name="Upper Universal Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         label="Lower Tattoo"
+         width="80" height="96" left_delta="96" bottom_delta="0"
+         name="Lower Universal Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         width="80" height="96" left_delta="-192" bottom_delta="-106"
+         label="Skirt Tattoo"
+         name="Skirt Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         width="80" height="96" left_delta="96" bottom_delta="0"
+         label="Hair Tattoo"
+         name="Hair Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         width="80" height="96" left_delta="96" bottom_delta="0"
+         label="Eyes Tattoo"
+         name="Eyes Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         width="80" height="96" left_delta="-192" bottom_delta="-106"
+         label="Left Arm Tattoo"
+         name="Left Arm Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         width="80" height="96" left_delta="96" bottom_delta="0"
+         label="Left Leg Tattoo"
+         name="Left Leg Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         width="80" height="96" left_delta="96" bottom_delta="0"
+         label="Aux1 Tattoo"
+         name="Aux1 Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         width="80" height="96" left_delta="-192" bottom_delta="-106"
+         label="Aux2 Tattoo"
+         name="Aux2 Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <texture_picker
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         default_image_name="Default"
+         follows="left|top"
+         width="80" height="96" left_delta="96" bottom_delta="0"
+         label="Aux3 Tattoo"
+         name="Aux3 Tattoo"
+         tool_tip="Click to choose a picture"/>
+        <color_swatch
+         can_apply_immediately="true"
+         allow_no_texture="true"
+         follows="left|top"
+         width="80" height="96" left_delta="96" bottom_delta="0"
+         label="Color/Tint"
+         name="Color/Tint"
+         tool_tip="Click to open color picker"/>
+        </panel>
+        </scroll_container>
       <button name="Create New" label="Create New Universal" label_selected="Create New Universal"
        follows="left|top" width="170" height="24" left="160" bottom="-148"/>
       <button name="Take Off" label="Take Off"
@@ -1551,7 +1458,7 @@ new one from scratch and wear it.
 			     height="16" label="Advanced Parameters" label_selected="Advanced Parameters" left="8"
 			     mouse_opaque="true" name="Advanced Parameters" scale_image="true" width="82" />
       <button name="Take Off" label="Take Off" label_selected="Take Off"
-           follows="left|top" width="82" height="20" left="8" bottom="-375"/>
+           follows="left|top" width="82" height="20" left="8" bottom="-330"/>
       <button bottom_delta="-26" follows="left|top" height="20" width="82" name="New Layer" label="New Layer"/>
       <button bottom_delta="-26" follows="left|top" height="20" width="41" name="Arrow Left" label="◀️◀️" tool_tip="Move to inner layer."/>
       <button bottom_delta="0" left_delta="41" height="20" follows="left|top" width="41" name="Arrow Right" label="▶️▶️" tool_tip="Move to outer layer."/>
@@ -1601,12 +1508,6 @@ can create a new one from scratch and wear it.
 			     mouse_opaque="true" name="no modify instructions" v_pad="0" width="373">
         You do not have permission to modify this wearable.
       </text>
-      <text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom="-486" drop_shadow_visible="true" follows="left|bottom|right"
-           font="SansSerif" h_pad="0" halign="right" height="28" right="117"
-           mouse_opaque="true" name="Item Action Label" v_pad="0" width="100">
-        Physics:
-      </text>
       <button bottom="-148" follows="left|top" halign="center" height="24"
 			     label="Create New Physics" label_selected="Create New Physics" left="160"
 			     mouse_opaque="true" name="Create New" scale_image="true" width="170" />
@@ -1624,7 +1525,7 @@ can create a new one from scratch and wear it.
 	<scroll_container bottom="-476" follows="left|top|right|bottom" height="382" left="197"
 	     mouse_opaque="false" name="panel_container" opaque="false" width="292" />
 	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="-438" drop_shadow_visible="true" follows="left|top"
+	     bottom="-424" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerif" h_pad="0" halign="left" height="16"
 	     left="8" mouse_opaque="false" name="AvatarHeightText" v_pad="0" width="140">
         Avatar Height:
