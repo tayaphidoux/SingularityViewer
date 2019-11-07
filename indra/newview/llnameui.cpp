@@ -40,7 +40,8 @@
 #include "llgroupactions.h"
 #include "lltrans.h"
 
-#include "rlvhandler.h"
+#include "rlvactions.h"
+#include "rlvcommon.h"
 
 // statics
 std::set<LLNameUI*> LLNameUI::sInstances;
@@ -97,7 +98,7 @@ void LLNameUI::setNameText()
 
 	if (!mIsGroup && got_name && mRLVSensitive) // Filter if needed
 	{
-		if ((gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) || gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMETAGS))
+		if ((RlvActions::hasBehaviour(RLV_BHVR_SHOWNAMES) || RlvActions::hasBehaviour(RLV_BHVR_SHOWNAMETAGS))
 			&& mNameID != gAgentID && RlvUtil::isNearbyAgent(mNameID))
 		{
 			mAllowInteract = false;
