@@ -4130,7 +4130,7 @@ void handlePseudoISO8601(const std::string& date_str, LLSD& column, const std::s
 	else
 	{
 		std::tm time = {};
-		if (std::istringstream(date_str) >> std::get_time(&time, "%Y-%m-%d %T"))
+		if (std::istringstream(date_str) >> std::get_time(&time, "%F %T"))
 		{
 			column["value"] = LLDate(mktime(&time));
 			column["type"] = "date";
