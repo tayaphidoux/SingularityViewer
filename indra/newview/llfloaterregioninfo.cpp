@@ -4121,6 +4121,27 @@ const std::string& getNAString()
 	return na;
 }
 
+#if defined(__GNUC__) && __GNUC__ < 5 // On GCC 4, implement std::get_time using strptime
+#include <time.h>
+
+namespace std
+{
+	struct get_time
+	{
+		tm* mTime;
+		const char* mFmt;
+		get_time(tm* time, const char* fmt) : mTime(time), mFmt(fmt) {}
+	};
+
+	istringstream& operator>>(istringstream&& str, get_time&& rhs)
+	{
+		if (!strptime(str.str().data(), rhs.mFmt, rhs.mTime))
+			str.setstate(ios_base::failbit);
+		return str;
+	}
+}
+#endif
+
 void handlePseudoISO8601(const std::string& date_str, LLSD& column, const std::string& fmt)
 {
 	if (date_str.front() == '0') // server returns the "0000-00-00 00:00:00" date in case it doesn't know it
