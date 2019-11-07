@@ -481,13 +481,6 @@ void LLAttachmentsMgr::onAttachmentArrived(const LLUUID& inv_item_id)
     bool expected = mAttachmentRequests.getTime(inv_item_id, timer);
     LLInventoryItem *item = gInventory.getItem(inv_item_id);
 
-    if (item && boost::algorithm::contains(item->getName(), " Bridge v") && gSavedSettings.getBOOL("SGDetachBridge"))
-    {
-        LL_INFOS() << "Bridge detected! detaching" << LL_ENDL;
-        LLVOAvatarSelf::detachAttachmentIntoInventory(item->getUUID());
-        return;
-    }
-
     if (!expected)
     {
         LL_WARNS() << "ATT Attachment was unexpected or arrived after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds: "
@@ -505,6 +498,13 @@ void LLAttachmentsMgr::onAttachmentArrived(const LLUUID& inv_item_id)
         mCOFLinkBatchTimer.reset();
     }
     mRecentlyArrivedAttachments.insert(inv_item_id);
+
+    static const LLCachedControl<bool> detach_bridge("SGDetachBridge");
+    if (detach_bridge && item && boost::algorithm::contains(item->getName(), " Bridge v"))
+    {
+        LL_INFOS() << "Bridge detected! detaching" << LL_ENDL;
+        LLVOAvatarSelf::detachAttachmentIntoInventory(item->getUUID());
+    }
 }
 
 void LLAttachmentsMgr::onDetachRequested(const LLUUID& inv_item_id)
