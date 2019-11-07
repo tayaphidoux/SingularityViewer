@@ -9456,6 +9456,7 @@ struct MenuSLURLDict : public LLSingleton<MenuSLURLDict>
 		insert("RequestTeleport", LLAvatarActions::teleportRequest);
 		void teleport_to(const LLUUID& id);
 		insert("TeleportTo", teleport_to, is_nearby);
+		insert("Track", track_av, is_nearby);
 		insert("Focus", LLFloaterAvatarList::setFocusAvatar, is_nearby);
 		insert("ParcelEject", [](const LLUUID& id) { confirm_eject(uuid_vec_t(1, id)); }, is_nearby);
 		insert("Freeze", [](const LLUUID& id) { confirm_freeze(uuid_vec_t(1, id)); }, is_nearby);
