@@ -660,6 +660,8 @@ class WindowsManifest(ViewerManifest):
         out_path = None
         for pkg_file in dest_files:
             rel_file = os.path.normpath(pkg_file.replace(self.get_dst_prefix()+os.path.sep,''))
+            if install and rel_file.startswith(("llplugin\\libvlc", "llplugin\\plugins\\")):
+                continue
             installed_dir = wpath(os.path.join('$INSTDIR', os.path.dirname(rel_file)))
             pkg_file = wpath(os.path.normpath(pkg_file))
             if installed_dir != out_path:

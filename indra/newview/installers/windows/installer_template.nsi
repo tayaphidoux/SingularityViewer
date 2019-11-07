@@ -408,6 +408,19 @@ Section "Viewer"
   
   ;This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
   %%INSTALL_FILES%%
+
+  ;Download LibVLC
+!ifdef WIN64_BIN_BUILD
+  NSISdl::download "http://download.videolan.org/pub/videolan/vlc/2.2.8/win64/vlc-2.2.8-win64.7z" "$INSTDIR\libvlc.7z"
+!else
+  NSISdl::download "http://download.videolan.org/pub/videolan/vlc/2.2.8/win32/vlc-2.2.8-win32.7z" "$INSTDIR\libvlc.7z"
+!endif
+  Nsis7z::Extract "$INSTDIR\libvlc.7z"
+  Rename "$INSTDIR\vlc-2.2.8\libvlc.dll" "$INSTDIR\llplugin\libvlc.dll"
+  Rename "$INSTDIR\vlc-2.2.8\libvlccore.dll" "$INSTDIR\llplugin\libvlccore.dll"
+  Rename "$INSTDIR\vlc-2.2.8\plugins" "$INSTDIR\llplugin\plugins"
+  RMDir /r "$INSTDIR\vlc-2.2.8"
+  Delete "$INSTDIR\libvlc.7z"
   
   ;Pass the installer's language to the client to use as a default
   StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
