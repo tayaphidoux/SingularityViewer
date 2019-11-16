@@ -86,7 +86,9 @@ void LLNameBox::initFromXML(LLXMLNodePtr node, LLView* parent)
 	node->getAttributeString("initial_value", mInitialValue);
 	setText(mInitialValue);
 	node->getAttribute_bool("rlv_sensitive", mRLVSensitive);
-	node->getAttribute_bool("is_group", mIsGroup);
+	bool is_group;
+	node->getAttribute_bool("is_group", is_group);
+	setIsGroup(is_group);
 }
 
 // static

@@ -47,10 +47,21 @@
 std::set<LLNameUI*> LLNameUI::sInstances;
 
 LLNameUI::LLNameUI(const std::string& loading, bool rlv_sensitive, const LLUUID& id, bool is_group)
-: mNameID(id), mRLVSensitive(rlv_sensitive), mIsGroup(is_group), mAllowInteract(false)
+: mNameID(id), mRLVSensitive(rlv_sensitive), mIsGroup(!is_group), mAllowInteract(false)
 , mInitialValue(!loading.empty() ? loading : LLTrans::getString("LoadingData"))
 {
-	if (mIsGroup) sInstances.insert(this);
+	setIsGroup(is_group);
+}
+
+void LLNameUI::setIsGroup(bool is_group)
+{
+	if (mIsGroup != is_group)
+	{
+		if (mIsGroup = is_group)
+			sInstances.insert(this);
+		else
+			sInstances.erase(this);
+	}
 }
 
 void LLNameUI::setNameID(const LLUUID& name_id, bool is_group)
@@ -58,14 +69,7 @@ void LLNameUI::setNameID(const LLUUID& name_id, bool is_group)
 	mNameID = name_id;
 	mConnection.disconnect();
 
-	if (mIsGroup != is_group)
-	{
-		if (is_group)
-			sInstances.insert(this);
-		else
-			sInstances.erase(this);
-	}
-	mIsGroup = is_group;
+	setIsGroup(is_group);
 
 	if (mAllowInteract = mNameID.notNull())
 	{
