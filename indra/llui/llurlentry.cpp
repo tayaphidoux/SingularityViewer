@@ -1,5 +1,3 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /** 
  * @file llurlentry.cpp
  * @author Martin Reddy
@@ -72,7 +70,7 @@ std::string LLUrlEntryBase::getIcon(const std::string &url)
 
 LLStyleSP LLUrlEntryBase::getStyle() const
 {
-	static LLUICachedControl<LLColor4> color("HTMLLinkColor");
+	static const LLUICachedControl<LLColor4> color("HTMLLinkColor");
 	LLStyleSP style_params(new LLStyle(true, color, LLStringUtil::null));
 	//style_params->mUnderline = true; // Singu Note: We're not gonna bother here, underlining on hover
 	return style_params;
@@ -230,7 +228,7 @@ static std::string getStringAfterToken(const std::string& str, const std::string
 	size_t pos = str.find(token);
 	if (pos == std::string::npos)
 	{
-		return std::string();
+		return LLStringUtil::null;
 	}
 
 	pos += token.size();
@@ -385,9 +383,9 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
 	if (path_parts == actual_parts)
 	{
 		// handle slurl with (X,Y,Z) coordinates
-		LLStringUtil::convertToS32(path_array[path_parts-3],x);
-		LLStringUtil::convertToS32(path_array[path_parts-2],y);
-		LLStringUtil::convertToS32(path_array[path_parts-1],z);
+		LLStringUtil::convertToS32(path_array[path_parts-3].asString(),x);
+		LLStringUtil::convertToS32(path_array[path_parts-2].asString(),y);
+		LLStringUtil::convertToS32(path_array[path_parts-1].asString(),z);
 
 		if((x>= 0 && x<= 256) && (y>= 0 && y<= 256) && (z>= 0))
 		{
@@ -398,8 +396,8 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
 	{
 		// handle slurl with (X,Y) coordinates
 
-		LLStringUtil::convertToS32(path_array[path_parts-2],x);
-		LLStringUtil::convertToS32(path_array[path_parts-1],y);
+		LLStringUtil::convertToS32(path_array[path_parts-2].asString(),x);
+		LLStringUtil::convertToS32(path_array[path_parts-1].asString(),y);
 		;
 		if((x>= 0 && x<= 256) && (y>= 0 && y<= 256))
 		{
@@ -409,7 +407,7 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
 	else if (path_parts == (actual_parts-2))
 	{
 		// handle slurl with (X) coordinate
-		LLStringUtil::convertToS32(path_array[path_parts-1],x);
+		LLStringUtil::convertToS32(path_array[path_parts-1].asString(),x);
 		if(x>= 0 && x<= 256)
 		{
 			return TRUE;
@@ -427,6 +425,7 @@ LLUrlEntrySLURL::LLUrlEntrySLURL()
 	// see http://slurl.com/about.php for details on the SLURL format
 	mPattern = boost::regex("https?://(maps.secondlife.com|slurl.com)/secondlife/[^ /]+(/\\d+){0,3}(/?(\\?\\S*)?)?",
 							boost::regex::perl|boost::regex::icase);
+	mIcon = "Hand";
 	mMenuName = "menu_url_slurl.xml";
 	mTooltip = LLTrans::getString("TooltipSLURL");
 }
@@ -643,10 +642,11 @@ bool LLUrlEntryAgent::underlineOnHoverOnly(const std::string &string) const
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
+	static std::string name_wait_str = LLTrans::getString("LoadingData");
 	if (!gCacheName)
 	{
 		// probably at the login screen, use short string for layout
-		return LLTrans::getString("LoadingData");
+		return name_wait_str;
 	}
 
 	std::string agent_id_string = getIDStringFromUrl(url);
@@ -679,13 +679,13 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 			mAvatarNameCacheConnections.emplace(agent_id, connection);
 			addObserver(agent_id_string, url, cb);
 		}
-		return LLTrans::getString("LoadingData");
+		return name_wait_str;
 	}
 }
 
 LLStyleSP LLUrlEntryAgent::getStyle() const
 {
-	static LLUICachedControl<LLColor4> color("HTMLAgentColor");
+	static const LLUICachedControl<LLColor4> color("HTMLAgentColor");
 	LLStyleSP style_params(new LLStyle(true, color, LLStringUtil::null));
 	return style_params;
 }
@@ -762,10 +762,11 @@ void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
 
 std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
+	static std::string name_wait_str = LLTrans::getString("LoadingData");
 	if (!gCacheName)
 	{
 		// probably at the login screen, use short string for layout
-		return LLTrans::getString("LoadingData");
+		return name_wait_str;
 	}
 
 	std::string agent_id_string = getIDStringFromUrl(url);
@@ -794,13 +795,13 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 			mAvatarNameCacheConnections.emplace(agent_id, connection);
 			addObserver(agent_id_string, url, cb);
 		}
-		return LLTrans::getString("LoadingData");
+		return name_wait_str;
 	}
 }
 
 LLStyleSP LLUrlEntryAgentName::getStyle() const
 {
-	static LLUICachedControl<LLColor4> color("HTMLAgentColor");
+	static const LLUICachedControl<LLColor4> color("HTMLAgentColor");
 	LLStyleSP style_params(new LLStyle(true, color, LLStringUtil::null));
 	return style_params;
 }
@@ -1084,11 +1085,8 @@ void LLUrlEntryParcel::processParcelInfo(const LLParcelData& parcel_data)
 				parcel_data.sim_name.c_str(), region_x, region_y, region_z);
 	}
 
-	for (std::set<LLUrlEntryParcel*>::iterator iter = sParcelInfoObservers.begin();
-			iter != sParcelInfoObservers.end();
-			++iter)
+	for (auto url_entry : sParcelInfoObservers)
 	{
-		LLUrlEntryParcel* url_entry = *iter;
 		if (url_entry)
 		{
 			url_entry->onParcelInfoReceived(parcel_data.parcel_id.asString(), label);
