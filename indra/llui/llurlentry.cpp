@@ -1430,8 +1430,9 @@ std::string LLUrlEntryNoLink::getLabel(const std::string &url, const LLUrlLabelC
 LLStyleSP LLUrlEntryNoLink::getStyle() const
 { 
 	// Don't render as URL (i.e. no context menu or hand cursor).
-	// Singu Note: What the heck? No, that's misleading!!
-	return LLUrlEntryBase::getStyle();
+	LLStyleSP style(new LLStyle());
+	style->setLinkHREF(" ");
+	return style;
 }
 
 
@@ -1535,5 +1536,4 @@ std::string LLUrlEntryJira::getUrl(const std::string &url) const
 	) % url).str();
 }
 // </alchemy>
-
 

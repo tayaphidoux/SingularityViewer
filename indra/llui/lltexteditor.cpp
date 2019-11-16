@@ -4295,6 +4295,12 @@ void LLTextEditor::appendTextImpl(const std::string &new_text, const LLStyleSP s
 		};
 		auto append_link = [&](const std::string& link, LLStyleSP link_style)
 		{
+			if (!link_style->isLink())
+			{
+				appendAndHighlightText(link, part, style);
+				return;
+			}
+
 			if (style) // Respect styling
 			{
 				const auto& text_style = *style;
@@ -4432,7 +4438,7 @@ void LLTextEditor::appendAndHighlightText(const std::string& new_text, S32 highl
 	std::string::size_type start = 0;
 	/*std::string::size_type pos = new_text.find('\n',start);
 
-	while(pos!=-1)
+	while(pos != std::string::npos)
 	{
 		if(pos!=start)
 		{
