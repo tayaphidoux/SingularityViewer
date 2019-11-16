@@ -4973,6 +4973,7 @@ void LLAgent::onFoundLureDestination(LLSimInfo *siminfo)
 			msg.append(llformat(" (%s)", maturity.c_str()));
 		}
 		LLChat chat(msg);
+		chat.mSourceType = CHAT_SOURCE_SYSTEM;
 		LLFloaterChat::addChat(chat);
 	}
 	else
