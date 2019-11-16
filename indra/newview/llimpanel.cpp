@@ -1670,7 +1670,7 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 	}
 
 	//self->addHistoryLine(line, LLColor4::grey, FALSE);
-	LLStyleSP style(new LLStyle(gSavedSettings.getColor4("SystemChatColor")));
+	LLStyleSP style(new LLStyle(true, gSavedSettings.getColor4("LogChatColor"), LLStringUtil::null));
 	self->mHistoryEditor->appendText(message, false, true, style, false);
 }
 

@@ -2079,6 +2079,24 @@ This should be as low as possible, but too low may break functionality</string>
 	  <key>IsCOA</key>
 	  <integer>1</integer>
     </map>
+    <key>LogChatColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of chat messages loaded from your log</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.5</real>
+        <real>0.5</real>
+        <real>0.5</real>
+        <real>1.0</real>
+      </array>
+	  <key>IsCOA</key>
+	  <integer>1</integer>
+    </map>
     <key>UISndAlert</key>
     <map>
       <key>Comment</key>

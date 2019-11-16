@@ -277,7 +277,7 @@ void LLFloaterChat::addChatHistory(LLChat& chat, bool log_to_file)
 	
 	LLColor4 color = get_text_color(chat);
 	
-	if (!log_to_file) color = LLColor4::grey;	//Recap from log file.
+	if (!log_to_file) color = gSavedSettings.getColor("LogChatColor");	//Recap from log file.
 
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
