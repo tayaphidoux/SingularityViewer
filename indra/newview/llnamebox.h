@@ -41,7 +41,6 @@ class LLNameBox final
 ,	public LLNameUI
 {
 public:
-	virtual void initFromXML(LLXMLNodePtr node, LLView* parent);
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	void displayAsLink(bool link) override final;
@@ -52,10 +51,11 @@ public:
 	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override final;
 	BOOL handleHover(S32 x, S32 y, MASK mask) override final;
 
-protected:
-	LLNameBox(const std::string& name);
-	
-	friend class LLUICtrlFactory;
+	LLNameBox(const std::string& name,
+		const LLUUID& name_id = LLUUID::null,
+		bool is_group = false,
+		const std::string& loading = LLStringUtil::null,
+		bool rlv_sensitive = false);
 };
 
 #endif
