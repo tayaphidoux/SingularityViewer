@@ -28,8 +28,8 @@ struct LFIDBearer
 {
 	virtual ~LFIDBearer() { if (sActive == this) sActive = nullptr; }
 	virtual LLUUID getStringUUIDSelectedItem() const = 0;
-	virtual uuid_vec_t getSelectedIDs() const = 0;
-	virtual S32 getNumSelected() const = 0;
+	virtual uuid_vec_t getSelectedIDs() const { return { getStringUUIDSelectedItem() }; }
+	virtual S32 getNumSelected() const { return getStringUUIDSelectedItem().notNull(); }
 
 	template<typename T> static T* getActive() { return static_cast<T*>(sActive); }
 	static LLUUID getActiveSelectedID() { return sActive->getStringUUIDSelectedItem(); }

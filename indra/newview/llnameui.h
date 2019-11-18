@@ -48,7 +48,6 @@ struct LLNameUI : public LFIDBearer
 	}
 
 	LLUUID getStringUUIDSelectedItem() const override final { return mNameID; }
-	uuid_vec_t getSelectedIDs() const override final { return { mNameID }; }
 	S32 getNumSelected() const override final { return 1; }
 
 	void setIsGroup(bool is_group);
