@@ -749,8 +749,7 @@ void init_menus()
 	gMenuHolder->addChild(gLoginMenuBarView);
 
 	// Singu Note: Initialize common ScrollListMenus here
-	LFIDBearer::addCommonMenu(LLUICtrlFactory::getInstance()->buildMenu("menu_avs_list.xml", gMenuHolder)); // 0
-	//LFIDBearer::addCommonMenu(LLUICtrlFactory::getInstance()->buildMenu("menu_groups_list.xml")); // 1 // Singu TODO
+	LFIDBearer::buildMenus();
 
 	LLView* ins = gMenuBarView->getChildView("insert_world", true, false);
 	ins->setVisible(false);
@@ -9328,7 +9327,7 @@ class ListStartCall : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLAvatarActions::startCall(LFIDBearer::getActiveSelectedID());
+		(LFIDBearer::getActiveType == LFIDBearer::GROUP ? LLGroupActions::startCall : LLAvatarActions::startCall)(LFIDBearer::getActiveSelectedID());
 		return true;
 	}
 };
@@ -9346,7 +9345,9 @@ class ListStartIM : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLAvatarActions::startIM(LFIDBearer::getActiveSelectedID());
+		const auto&& im = LFIDBearer::getActiveType() == LFIDBearer::GROUP ? [](const LLUUID& id) { LLGroupActions::startIM(id); } : LLAvatarActions::startIM;
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+			im(id);
 		return true;
 	}
 };
@@ -9539,6 +9540,62 @@ struct MenuSLURLDict : public LLSingleton<MenuSLURLDict>
 	{
 		auto it = mEntries.find(cmd);
 		return it == mEntries.end() || !(*it).second.second || (*it).second.second(id);
+	}
+};
+
+class ListIsInGroup : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		auto in_group = false;
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+			if (!(in_group = LLGroupActions::isInGroup(id)))
+				break;
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(in_group);
+		return true;
+	}
+};
+
+class ListNotInGroup : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		auto in_group = true;
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+			if (in_group = LLGroupActions::isInGroup(id))
+				break;
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(!in_group);
+		return true;
+	}
+};
+
+class ListLeave : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+			LLGroupActions::leave(id);
+		return true;
+	}
+};
+
+class ListJoin : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+			LLGroupActions::join(id);
+		return true;
+	}
+};
+
+class ListActivate : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+			LLGroupActions::activate(id);
+		return true;
 	}
 };
 
@@ -9925,6 +9982,11 @@ void initialize_menus()
 	addMenu(new ListEstateBan(), "List.EstateBan");
 	addMenu(new ListEstateEject(), "List.EstateEject");
 	addMenu(new ListToggleMute(), "List.ToggleMute");
+	addMenu(new ListIsInGroup, "List.IsInGroup");
+	addMenu(new ListNotInGroup, "List.NotInGroup");
+	addMenu(new ListLeave, "List.Leave");
+	addMenu(new ListJoin, "List.Join");
+	addMenu(new ListActivate, "List.Activate");
 
 	add_radar_listeners();
 

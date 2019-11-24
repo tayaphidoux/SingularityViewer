@@ -76,15 +76,14 @@ BOOL LLNameEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	bool simple_menu = mContextMenuHandle.get()->getName() == "rclickmenu";
 	std::string new_menu;
-	// Singu TODO: Generic menus for groups
-	bool needs_simple = mIsGroup || !mAllowInteract || mNameID.isNull(); // Need simple if no ID or blocking interaction
+	bool needs_simple = !mAllowInteract || mNameID.isNull(); // Need simple if no ID or blocking interaction
 	if (!simple_menu && needs_simple) // Switch to simple menu
 	{
 		new_menu = "menu_texteditor.xml";
 	}
-	else if (!needs_simple && simple_menu)
+	else // TODO: This is lazy, but I cannot recall a name editor that switches between group and avatar, so logic is not needed yet.
 	{
-		new_menu = "menu_nameeditor_avatar.xml";
+		new_menu = mIsGroup ? "menu_nameeditor_group.xml" : "menu_nameeditor_avatar.xml";
 	}
 	if (!new_menu.empty()) setContextMenu(LLUICtrlFactory::instance().buildMenu(new_menu, LLMenuGL::sMenuContainer));
 	sActive = this;

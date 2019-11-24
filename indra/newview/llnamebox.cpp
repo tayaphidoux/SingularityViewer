@@ -67,10 +67,9 @@ BOOL LLNameBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	auto handled = LLTextBox::handleRightMouseDown(x, y, mask);
 	if (mAllowInteract && !handled)
 	{
-		// Singu TODO: Generic menus for groups
-		if (!mIsGroup && mNameID.notNull())
+		if (mNameID.notNull())
 		{
-			showMenu(this, sMenus[0], x, y);
+			showMenu(this, sMenus[getSelectedType()], x, y);
 			handled = true;
 		}
 	}

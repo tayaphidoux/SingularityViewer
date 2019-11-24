@@ -49,10 +49,13 @@ struct LFIDBearer
 	static S32 getActiveNumSelected() { return sActive->getNumSelected(); }
 	static Type getActiveType() { return sActive->getSelectedType(); }
 
+	static void buildMenus();
+	LLMenuGL* showMenu(LLView* self, const std::string& menu_name, S32 x, S32 y, std::function<void(LLMenuGL*)> on_menu_built = nullptr);
 	void showMenu(LLView* self, LLMenuGL* menu, S32 x, S32 y);
-	static void addCommonMenu(LLMenuGL* menu) { sMenus.push_back(menu); }
 
 protected:
-	static std::vector<LLMenuGL*> sMenus; // Menus that recur, such as general avatars or groups menus
+	// Menus that recur, such as general avatars or groups menus
+	static const std::array<const std::string, COUNT> sMenuStrings;
+	static std::array<LLMenuGL*, COUNT> sMenus;
 	static LFIDBearer* sActive;
 };
