@@ -89,75 +89,75 @@ typedef LLMemberListener<LLView> view_listener_t;
 class LLScaleMap : public view_listener_t
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 
 class LLChatRings : public view_listener_t
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 
 class LLCheckChatRings : public view_listener_t
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 
 class LLStopTracking : public view_listener_t
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 
 class LLIsTracking : public view_listener_t
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 
 //moymod - Custom minimap markers :o
 class mmsetred : public view_listener_t //moymod
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 class mmsetgreen : public view_listener_t //moymod
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 class mmsetblue : public view_listener_t //moymod
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 class mmsetyellow : public view_listener_t //moymod
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 class mmsetcustom : public view_listener_t //moymod
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 class mmsetunmark : public view_listener_t //moymod
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 class mmenableunmark : public view_listener_t //moymod
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 
 // [SL:KB] - Patch: World-MiniMap | Checked: 2012-07-08 (Catznip-3.3.0)
 class OverlayToggle : public view_listener_t
 {
 public:
-	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override final;
 };
 // [/SL:KB]
 
@@ -251,7 +251,7 @@ BOOL LLNetMap::postBuild()
 
 	updateMinorDirections();
 
-	mPopupMenu = LLUICtrlFactory::getInstance()->buildMenu("menu_mini_map.xml", this);
+	mPopupMenu = LLUICtrlFactory::getInstance()->buildMenu("menu_mini_map.xml", gMenuHolder);
 	if (!mPopupMenu) mPopupMenu = new LLMenuGL(LLStringUtil::null);
 	mPopupMenu->setVisible(FALSE);
 	return TRUE;
