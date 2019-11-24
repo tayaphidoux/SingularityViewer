@@ -1399,7 +1399,7 @@ void LLPanelAvatar::onClickCopy(const LLSD& val)
 	}
 	else
 	{
-		void copy_profile_uri(const LLUUID& id, bool group = false);
+		void copy_profile_uri(const LLUUID& id, LFIDBearer::Type type = LFIDBearer::AVATAR);
 		copy_profile_uri(mAvatarID);
 	}
 }

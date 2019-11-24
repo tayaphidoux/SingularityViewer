@@ -1,6 +1,7 @@
 /* Copyright (C) 2019 Liru Færs
  *
  * LFIDBearer is a class that holds an ID or IDs that menus can use
+ * This class also bears the type of ID/IDs that it is holding
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,15 +27,27 @@ class LLView;
 
 struct LFIDBearer
 {
+	enum Type : S8
+	{
+		MULTIPLE = -2,
+		NONE = -1,
+		AVATAR = 0,
+		GROUP,
+		OBJECT,
+		COUNT
+	};
+
 	virtual ~LFIDBearer() { if (sActive == this) sActive = nullptr; }
 	virtual LLUUID getStringUUIDSelectedItem() const = 0;
 	virtual uuid_vec_t getSelectedIDs() const { return { getStringUUIDSelectedItem() }; }
 	virtual S32 getNumSelected() const { return getStringUUIDSelectedItem().notNull(); }
+	virtual Type getSelectedType() const { return AVATAR; }
 
 	template<typename T> static T* getActive() { return static_cast<T*>(sActive); }
 	static LLUUID getActiveSelectedID() { return sActive->getStringUUIDSelectedItem(); }
 	static uuid_vec_t getActiveSelectedIDs() { return sActive->getSelectedIDs(); }
 	static S32 getActiveNumSelected() { return sActive->getNumSelected(); }
+	static Type getActiveType() { return sActive->getSelectedType(); }
 
 	void showMenu(LLView* self, LLMenuGL* menu, S32 x, S32 y);
 	static void addCommonMenu(LLMenuGL* menu) { sMenus.push_back(menu); }

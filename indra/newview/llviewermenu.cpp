@@ -94,6 +94,7 @@
 #include "llframestats.h"
 #include "llavataractions.h"
 #include "llgivemoney.h"
+#include "llgroupactions.h"
 #include "llgroupmgr.h"
 #include "llhoverview.h"
 #include "llhudeffecttrail.h"
@@ -9034,16 +9035,19 @@ template<typename T> T* get_focused()
 	return t;
 }
 
-const LLWString get_slurl_for(const LLUUID& id, bool group)
+const std::string get_slurl_for(const LLUUID& id, LFIDBearer::Type type)
 {
-	std::string str("secondlife:///app/");
-	str += group ? "group/" : "agent/";
-	return utf8str_to_wstring(str + id.asString() + "/about");
+	return type == LFIDBearer::GROUP ? LLGroupActions::getSLURL(id) : LLAvatarActions::getSLURL(id);
 }
 
-void copy_profile_uri(const LLUUID& id, bool group)
+const LLWString get_wslurl_for(const LLUUID& id, LFIDBearer::Type type)
 {
-	gViewerWindow->getWindow()->copyTextToClipboard(get_slurl_for(id, group));
+	return utf8str_to_wstring(get_slurl_for(id, type));
+}
+
+void copy_profile_uri(const LLUUID& id, LFIDBearer::Type type)
+{
+	gViewerWindow->getWindow()->copyTextToClipboard(get_wslurl_for(id, type));
 }
 
 class ListEnableAnySelected : public view_listener_t
@@ -9145,7 +9149,7 @@ class ListCopySLURL : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		copy_profile_uri(LFIDBearer::getActiveSelectedID(), false);
+		copy_profile_uri(LFIDBearer::getActiveSelectedID(), LFIDBearer::getActiveType());
 		return true;
 	}
 };
@@ -9242,7 +9246,12 @@ class ListShowProfile : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLAvatarActions::showProfiles(LFIDBearer::getActiveSelectedIDs());
+		switch (LFIDBearer::getActiveType())
+		{
+		case LFIDBearer::AVATAR: LLAvatarActions::showProfiles(LFIDBearer::getActiveSelectedIDs()); break;
+		case LFIDBearer::GROUP: LLGroupActions::showProfiles(LFIDBearer::getActiveSelectedIDs()); break;
+		default: break;
+		}
 		return true;
 	}
 };

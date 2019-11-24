@@ -149,6 +149,8 @@ public:
 									  std::string& tooltip_msg);
 	BOOL handleDoubleClick(S32 x, S32 y, MASK mask) override;
 
+	Type getSelectedType() const override final;
+
 	void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
 
 	void sortByName(BOOL ascending);
