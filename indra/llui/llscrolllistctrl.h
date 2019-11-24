@@ -259,6 +259,14 @@ public:
 	void setContextMenu(U8 index) { mPopupMenu = sMenus[index]; }
 	void setContextMenu(const std::string& menu);
 
+	Type getSelectedType() const override
+	{
+		for (auto i = 0; mPopupMenu && i < COUNT; ++i)
+			if (sMenus[i] == mPopupMenu)
+				return (Type)i;
+		return LFIDBearer::getSelectedType();
+	}
+
 	// Overridden from LLView
 	/*virtual*/ void    draw();
 	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
