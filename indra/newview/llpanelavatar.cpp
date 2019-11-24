@@ -1236,13 +1236,12 @@ void LLPanelAvatar::setOnlineStatus(EOnlineStatus online_status)
 
 void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id)
 {
-	auto dnname = getChild<LLNameEditor>("dnname");
 	if (avatar_id != mAvatarID)
 	{
 		if (mAvatarID.notNull())
 			LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarID, this);
 		mAvatarID = avatar_id;
-		dnname->setNameID(avatar_id, false);
+		getChild<LLNameEditor>("dnname")->setNameID(avatar_id, false);
 	}
 
 	if (avatar_id.isNull()) return;
@@ -1270,8 +1269,6 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id)
 
 	if (LLDropTarget* drop_target = findChild<LLDropTarget>("drop_target_rect"))
 		drop_target->setEntityID(mAvatarID);
-
-	dnname->setShowCompleteName(gSavedSettings.getBOOL("SinguCompleteNameProfiles"));
 
 	if (auto key_edit = getChildView("avatar_key"))
 		key_edit->setValue(mAvatarID.asString());

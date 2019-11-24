@@ -45,10 +45,11 @@ LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 		bool is_group,
 		const std::string& loading,
 		bool rlv_sensitive,
+		const std::string& name_system,
 		bool click_for_profile,
 		const LLFontGL* glfont,
 		S32 max_text_length)
-: LLNameUI(loading, rlv_sensitive, name_id, is_group)
+: LLNameUI(loading, rlv_sensitive, name_id, is_group, name_system)
 , LLLineEditor(name, rect, LLStringUtil::null, glfont, max_text_length)
 , mClickForProfile(click_for_profile)
 {
@@ -124,6 +125,7 @@ LLXMLNodePtr LLNameEditor::getXML(bool save_children) const
 	node->createChild("label", TRUE)->setStringValue(mInitialValue);
 	node->createChild("rlv_sensitive", TRUE)->setBoolValue(mRLVSensitive);
 	node->createChild("click_for_profile", TRUE)->setBoolValue(mClickForProfile);
+	node->createChild("name_system", TRUE)->setStringValue(mNameSystem);
 
 	return node;
 }
@@ -145,10 +147,12 @@ LLView* LLNameEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	node->getAttribute_bool("rlv_sensitive", rlv_sensitive);
 	bool click_for_profile = true;
 	node->getAttribute_bool("click_for_profile", click_for_profile);
+	std::string name_system;
+	node->getAttributeString("name_system", name_system);
 
 	LLNameEditor* line_editor = new LLNameEditor("name_editor",
 								rect,
-								id, is_group, loading, rlv_sensitive,
+								id, is_group, loading, rlv_sensitive, name_system,
 								click_for_profile,
 								LLView::selectFont(node),
 								max_text_length);

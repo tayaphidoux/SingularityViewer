@@ -41,8 +41,9 @@ LLNameBox::LLNameBox(const std::string& name,
 	const LLUUID& name_id,
 	bool is_group,
 	const std::string& loading,
-	bool rlv_sensitive)
-: LLNameUI(loading, rlv_sensitive, name_id, is_group)
+	bool rlv_sensitive,
+	const std::string& name_system)
+: LLNameUI(loading, rlv_sensitive, name_id, is_group, name_system)
 , LLTextBox(name, LLRect(), LLStringUtil::null, nullptr, TRUE)
 {
 	setClickedCallback(boost::bind(&LLNameUI::showProfile, this));
@@ -99,7 +100,9 @@ LLView* LLNameBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 	node->getAttributeString("initial_value", loading);
 	bool rlv_sensitive = false;
 	node->getAttribute_bool("rlv_sensitive", rlv_sensitive);
-	LLNameBox* name_box = new LLNameBox("name_box", id, is_group, loading, rlv_sensitive);
+	std::string name_system;
+	node->getAttributeString("name_system", name_system);
+	LLNameBox* name_box = new LLNameBox("name_box", id, is_group, loading, rlv_sensitive, name_system);
 	name_box->initFromXML(node,parent);
 
 	return name_box;

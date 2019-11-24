@@ -38,13 +38,13 @@
 
 struct LLNameUI : public LFIDBearer
 {
-	LLNameUI(const std::string& loading = LLStringUtil::null, bool rlv_sensitive = false, const LLUUID& id = LLUUID::null, bool is_group = false);
+	LLNameUI(const std::string& loading = LLStringUtil::null, bool rlv_sensitive = false, const LLUUID& id = LLUUID::null, bool is_group = false, const std::string& name_system = LLStringUtil::null);
 	virtual ~LLNameUI()
 	{
 		if (mIsGroup)
 			sInstances.erase(this);
-		else
-			mConnection.disconnect();
+		for (auto& connection : mConnections)
+			connection.disconnect();
 	}
 
 	LLUUID getStringUUIDSelectedItem() const override final { return mNameID; }
@@ -56,7 +56,6 @@ struct LLNameUI : public LFIDBearer
 	void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
 	static void refreshAll(const LLUUID& id, const std::string& full_name, bool is_group);
 
-	void setShowCompleteName(bool show) { mShowCompleteName = show; }
 	void showProfile();
 
 	virtual void displayAsLink(bool link) = 0; // Override to make the name display as a link
@@ -75,8 +74,7 @@ struct LLNameUI : public LFIDBearer
 
 private:
 	static std::set<LLNameUI*> sInstances;
-	boost::signals2::connection mConnection;
-	bool mShowCompleteName = false;
+	std::array<boost::signals2::connection, 2> mConnections;
 
 protected:
 	LLUUID mNameID;
@@ -84,4 +82,5 @@ protected:
 	bool mIsGroup;
 	bool mAllowInteract;
 	std::string mInitialValue;
+	std::string mNameSystem;
 };
