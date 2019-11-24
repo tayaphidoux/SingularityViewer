@@ -89,6 +89,19 @@ BOOL LLNameBox::handleHover(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+// virtual
+LLXMLNodePtr LLNameBox::getXML(bool save_children) const
+{
+	LLXMLNodePtr node = LLTextBox::getXML();
+
+	node->setName("name_box");
+	node->createChild("initial_value", TRUE)->setStringValue(mInitialValue);
+	node->createChild("rlv_sensitive", TRUE)->setBoolValue(mRLVSensitive);
+	node->createChild("name_system", TRUE)->setStringValue(mNameSystem);
+
+	return node;
+}
+
 // static
 LLView* LLNameBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {

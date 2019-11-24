@@ -9423,8 +9423,7 @@ class ListToggleMute : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const uuid_vec_t& ids = LFIDBearer::getActiveSelectedIDs();
-		for (const auto& id : ids)
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
 			LLAvatarActions::toggleBlock(id);
 		return true;
 	}
@@ -9901,9 +9900,8 @@ void initialize_menus()
 void region_change()
 {
 	// Remove current dynamic items
-	for (custom_menu_item_list_t::iterator i = gCustomMenuItems.begin(); i != gCustomMenuItems.end(); ++i)
+	for (auto item : gCustomMenuItems)
 	{
-		LLMenuItemCallGL* item = (*i);
 		item->getParent()->removeChild(item);
 		delete item;
 	}

@@ -41,6 +41,7 @@ class LLNameBox final
 ,	public LLNameUI
 {
 public:
+	LLXMLNodePtr getXML(bool save_children = true) const override final;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	void displayAsLink(bool link) override final;
