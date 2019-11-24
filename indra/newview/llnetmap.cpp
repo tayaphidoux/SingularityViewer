@@ -1377,9 +1377,9 @@ BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	if (mPopupMenu)
 	{
 		showMenu(this, mPopupMenu, x, y);
-		mPopupMenu->getChildView("avs_menu")->setVisible(!mClosestAgentsAtLastClick.empty() &&
+	mPopupMenu->getChildView("avs_menu")->setVisible(!mClosestAgentsAtLastClick.empty() && !
 // [RLVa:LF] - 2019
-			!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)
+			gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)
 // [/RLVa:LF]
 		);
 	}
