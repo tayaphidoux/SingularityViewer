@@ -9327,7 +9327,7 @@ class ListStartCall : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		(LFIDBearer::getActiveType == LFIDBearer::GROUP ? LLGroupActions::startCall : LLAvatarActions::startCall)(LFIDBearer::getActiveSelectedID());
+		(LFIDBearer::getActiveType() == LFIDBearer::GROUP ? LLGroupActions::startCall : LLAvatarActions::startCall)(LFIDBearer::getActiveSelectedID());
 		return true;
 	}
 };
