@@ -9489,60 +9489,6 @@ class ListToggleMute : public view_listener_t
 	}
 };
 
-struct MenuSLURLDict : public LLSingleton<MenuSLURLDict>
-{
-	typedef std::function<void (const LLUUID&)> cb;
-	typedef std::function<bool (const LLUUID&)> vcb;
-	typedef std::map<std::string, std::pair<cb, vcb>> slurl_menu_map;
-	slurl_menu_map mEntries;
-	MenuSLURLDict()
-	{
-		// Text Editor menus
-		LLTextEditor::setIsObjectBlockedCallback(boost::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
-		LLTextEditor::setIsFriendCallback(LLAvatarActions::isFriend);
-		LLTextEditor::addMenuListeners(boost::bind(&MenuSLURLDict::action, this, _1, _2), boost::bind(&MenuSLURLDict::visible, this, _1, _2));
-
-		// Add the entries
-		insert("ShowWebProfile", boost::bind(LLAvatarActions::showProfile, _1, true), boost::bind(can_show_web_profile));
-		insert("Pay", LLAvatarActions::pay);
-		insert("Call", LLAvatarActions::startCall);
-		insert("Share", LLAvatarActions::share);
-		insert("AbuseReport", LLFloaterReporter::showFromObject);
-		insert("InviteToGroup", [](const LLUUID& id) { LLAvatarActions::inviteToGroup(id); });
-		insert("BanFromGroup", [](const LLUUID& id) { ban_from_group(uuid_vec_t(1, id)); });
-		insert("ShowLog", [](const LLUUID& id) { show_log_browser(id); });
-		insert("OfferTeleport", [](const LLUUID& id) { LLAvatarActions::offerTeleport(id); }, [](const LLUUID& id) { return LLAvatarActions::canOfferTeleport(id); });
-		insert("RequestTeleport", LLAvatarActions::teleportRequest);
-		void teleport_to(const LLUUID& id);
-		insert("TeleportTo", teleport_to, is_nearby);
-		insert("Track", track_av, is_nearby);
-		insert("Focus", LLFloaterAvatarList::setFocusAvatar, is_nearby);
-		insert("ParcelEject", [](const LLUUID& id) { confirm_eject(uuid_vec_t(1, id)); }, is_nearby);
-		insert("Freeze", [](const LLUUID& id) { confirm_freeze(uuid_vec_t(1, id)); }, is_nearby);
-		insert("EstateBan", [](const LLUUID& id) { confirm_estate_ban(uuid_vec_t(1, id)); }, is_nearby);
-		insert("EstateEject", [](const LLUUID & id) { confirm_estate_kick(uuid_vec_t(1, id)); }, is_nearby);
-		insert("Mute", LLAvatarActions::toggleBlock, [](const LLUUID& id) { return LLAvatarActions::canBlock(id) && !LLAvatarActions::isBlocked(id); });
-		insert("Unmute", LLAvatarActions::toggleBlock, LLAvatarActions::isBlocked);
-	}
-
-	void insert(const std::string& key, cb callback, vcb vcallback = nullptr)
-	{
-		mEntries[key] = std::make_pair(callback, vcallback);
-	}
-
-	void action(const std::string& cmd, LLUUID id) const
-	{
-		auto it = mEntries.find(cmd);
-		if (it != mEntries.end())
-			(*it).second.first(id);
-	}
-	bool visible(const std::string& cmd, LLUUID id) const
-	{
-		auto it = mEntries.find(cmd);
-		return it == mEntries.end() || !(*it).second.second || (*it).second.second(id);
-	}
-};
-
 class ListIsInGroup : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9990,7 +9936,7 @@ void initialize_menus()
 
 	add_radar_listeners();
 
-	MenuSLURLDict::getInstance();
+	LLTextEditor::addMenuListeners();
 
 	// Media Ctrl menus
 	addMenu(new MediaCtrlCopyURL(), "Copy.PageURL");
