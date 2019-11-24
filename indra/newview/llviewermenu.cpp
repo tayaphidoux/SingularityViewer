@@ -9104,15 +9104,39 @@ class ListEnableIsNotFriend : public view_listener_t
 	}
 };
 
+class ListEnableUnmute : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		bool are_blocked = false;
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+			if (are_blocked = LLAvatarActions::isBlocked(id)) // If any are blocked, allow unblocking
+				break;
+
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(are_blocked);
+		return true;
+	}
+};
+
 class ListEnableMute : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const uuid_vec_t& ids = LFIDBearer::getActiveSelectedIDs();
-		bool can_block = true;
-		for (uuid_vec_t::const_iterator it = ids.begin(); can_block && it != ids.end(); ++it)
-			can_block = LLAvatarActions::canBlock(*it);
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(can_block);
+		bool blockable = false;
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+		{
+			if (!LLAvatarActions::canBlock(id)) // Exit early only when someone is unblockable
+			{
+				blockable = false;
+				break;
+			}
+			else if (blockable) // At least one is unblocked, keep looking for unblockables
+				continue;
+
+			blockable = !LLAvatarActions::isBlocked(id);
+		}
+
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(blockable);
 		return true;
 	}
 };
@@ -9145,6 +9169,32 @@ class ListBanFromGroup : public view_listener_t
 	}
 };
 
+void copy_from_ids(const uuid_vec_t & ids, std::function<std::string(const LLUUID&)> func);
+
+class ListCopyNames : public view_listener_t
+{
+	static std::string getGroupName(const LLUUID& id)
+	{
+		std::string ret;
+		gCacheName->getGroupName(id, ret);
+		return ret;
+	}
+
+	static std::string getAvatarName(const LLUUID& id)
+	{
+		std::string ret;
+		LLAvatarNameCache::getNSName(id, ret);
+		return ret;
+	}
+
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLWString str;
+		copy_from_ids(LFIDBearer::getActiveSelectedIDs(), LFIDBearer::getActiveType() == LFIDBearer::GROUP ? getGroupName : getAvatarName);
+		if (!str.empty()) LLView::getWindow()->copyTextToClipboard(str);
+		return true;
+	}
+};
 class ListCopySLURL : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9845,10 +9895,12 @@ void initialize_menus()
 	addMenu(new ListEnableCall(), "List.EnableCall");
 	addMenu(new ListEnableIsFriend(), "List.EnableIsFriend");
 	addMenu(new ListEnableIsNotFriend(), "List.EnableIsNotFriend");
+	addMenu(new ListEnableUnmute(), "List.EnableUnmute");
 	addMenu(new ListEnableMute(), "List.EnableMute");
 	addMenu(new ListEnableOfferTeleport(), "List.EnableOfferTeleport");
 	addMenu(new ListVisibleWebProfile(), "List.VisibleWebProfile");
 	addMenu(new ListBanFromGroup(), "List.BanFromGroup");
+	addMenu(new ListCopyNames(), "List.CopyNames");
 	addMenu(new ListCopySLURL(), "List.CopySLURL");
 	addMenu(new ListCopyUUIDs(), "List.CopyUUIDs");
 	addMenu(new ListInviteToGroup(), "List.InviteToGroup");
