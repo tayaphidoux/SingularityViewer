@@ -8661,11 +8661,13 @@ bool LLVOAvatar::isTooComplex() const
 {
 	static const LLCachedControl<S32> always_render_friends("AlwaysRenderFriends", 0);
 	bool too_complex;
-	if (isSelf() || (always_render_friends && always_render_friends != 3 && LLAvatarTracker::instance().isBuddy(getID())))
+	// 'AlwaysRenderFriends' == 0, or an animesh, falls through to the complexity limits, if not self. Self is always rendered.
+	// 1 always render friends, 2 render only friends, 3 render only self
+	if (isSelf() || (always_render_friends && always_render_friends != 3 && !isControlAvatar() && LLAvatarTracker::instance().isBuddy(getID())))
 	{
 		too_complex = false;
 	}
-	else if (always_render_friends >= 2)
+	else if ((always_render_friends >= 2) && !isControlAvatar())
 	{
 		too_complex = true;
 	}
