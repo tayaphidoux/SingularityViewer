@@ -355,7 +355,7 @@ with the same filename but different name
   <texture name="inv_item_socks.tga"/>
   <texture name="inv_item_sound.tga"/>
   <texture name="inv_item_tattoo.tga"/>
-  <texture name="Inv_Universal" file_name="Inv_Universal.png" preload="false" />
+  <texture name="Inv_Universal.png"/>
   <texture name="inv_item_texture.tga"/>
   <texture name="inv_item_underpants.tga"/>
   <texture name="inv_item_undershirt.tga"/>
