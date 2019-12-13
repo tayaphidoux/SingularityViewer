@@ -8667,7 +8667,7 @@ bool LLVOAvatar::isTooComplex() const
 	{
 		too_complex = false;
 	}
-	else if ((always_render_friends >= 2) && !isControlAvatar())
+	else if (always_render_friends >= 2 && !isControlAvatar())
 	{
 		too_complex = true;
 	}
