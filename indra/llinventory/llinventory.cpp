@@ -1165,8 +1165,10 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 		// mType, these are the two asset types that are IT_WEARABLE:
 		static U32 AT_BODYPART = 13;	// LLAssetType::AT_BODYPART
 		// Viewer local values:
-		static U32 WT_UNKNOWN = 16;		// LLWearableType::WT_UNKNOWN
-		static U32 WT_COUNT = 17;		// LLWearableType::WT_COUNT
+		static U32 WT_UNKNOWN = 17;		// LLWearableType::WT_UNKNOWN
+		static U32 WT_COUNT = 18;		// LLWearableType::WT_COUNT
+										// Keep WT_UNKNOWN and WT_COUNT
+										// in sync with llwearabletype.h
 		// The last 8 bits of mFlags contain the wearable type.
 		static U32 II_FLAGS_SUBTYPE_MASK = 0xff;	// LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK
 

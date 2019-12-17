@@ -58,6 +58,7 @@ public:
 		WT_UNKNOWN	  = 17,	// Singu note: used for corrupt wearables that do not have their type set in the inventory database.
 							// While all the above values are serialized and stored in the database, this value is local only:
 							// When a new item with value 17 is added by upstream, just increase this value to 18 (and WT_COUNT to 19).
+							// Keep WT_UNKNOWN and WT_COUNT in sync with llinventory.cpp
 		WT_COUNT	  = 18,
 
 		WT_INVALID	  = 255,
