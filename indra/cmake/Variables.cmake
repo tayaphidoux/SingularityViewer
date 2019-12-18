@@ -28,13 +28,15 @@ set(LIBS_OPEN_PREFIX)
 set(SCRIPTS_PREFIX ../scripts)
 set(VIEWER_PREFIX)
 set(INTEGRATION_TESTS_PREFIX)
+
 option(LL_TESTS "Build and run unit and integration tests (disable for build timing runs to reduce variation" OFF)
 option(BUILD_TESTING "Build test suite" OFF)
+option(UNATTENDED "Disable use of uneeded tooling for automated builds" OFF)
 
+# Compiler and toolchain options
 option(INCREMENTAL_LINK "Use incremental linking on win32 builds (enable for faster links on some machines)" OFF)
 option(USE_PRECOMPILED_HEADERS "Enable use of precompiled header directives where supported." ON)
-option(USE_LTO "Enable Whole Program Optimization and related folding and binary reduction routines" OFF)
-option(UNATTENDED "Disable use of uneeded tooling for automated builds" OFF)
+option(USE_LTO "Enable global and interprocedural optimizations" OFF)
 
 # Configure crash reporting
 option(USE_CRASHPAD "Build support for crashpad reporting engine" OFF)
@@ -44,7 +46,6 @@ set(VIEWER_SYMBOL_FILE "" CACHE STRING "Name of tarball into which to place symb
 # Media Plugins
 option(ENABLE_MEDIA_PLUGINS "Turn off building media plugins if they are imported by third-party library mechanism" ON)
 option(LIBVLCPLUGIN "Turn off building support for libvlc plugin" ON)
-
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LIBVLCPLUGIN OFF)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -54,13 +55,11 @@ set(DISABLE_TCMALLOC OFF CACHE BOOL "Disable linkage of TCMalloc. (64bit builds 
 set(DISABLE_FATAL_WARNINGS TRUE CACHE BOOL "Set this to FALSE to enable fatal warnings.")
 
 # Audio Engines
-option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" ON)
-
-# Window implementation
-option(LLWINDOW_SDL2 "Use SDL2 for window and input handling" OFF)
+option(USE_FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
 
 # Proprietary Library Features
-option(NVAPI "Use nvapi driver interface library" OFF)
+option(USE_NVAPI "Use nvapi driver interface library" OFF)
+
 
 if(LIBS_CLOSED_DIR)
   file(TO_CMAKE_PATH "${LIBS_CLOSED_DIR}" LIBS_CLOSED_DIR)
@@ -200,46 +199,44 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LL_ARCH_DIR universal-darwin)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
+# Platform specific
+if (WINDOWS)
+  option(LLWINDOW_SDL2 "Use SDL2 for window and input handling. Windows only" OFF)
+endif()
+
 # Default deploy grid
 set(GRID agni CACHE STRING "Target Grid")
 
-set(VIEWER_PRODUCT_NAME "Singularity" CACHE STRING "Viewer Base Name")
-string(TOLOWER ${VIEWER_PRODUCT_NAME} VIEWER_PRODUCT_NAME_LOWER)
+set(VIEWER_CHANNEL_BASE "Singularity" CACHE STRING "Viewer Channel Base Name")
+set(VIEWER_CHANNEL_TYPE "Test" CACHE STRING "Viewer Channel Type Name")
+set(VIEWER_CHANNEL_CODENAME "Default" CACHE STRING "Viewer Channel Code Name for Project type")
 
-set(VIEWER_CHANNEL_BASE "Test" CACHE STRING "Viewer Channel Name")
-set(VIEWER_CHANNEL "${VIEWER_PRODUCT_NAME} ${VIEWER_CHANNEL_BASE}")
-string(TOLOWER ${VIEWER_CHANNEL} VIEWER_CHANNEL_LOWER)
+if("${VIEWER_CHANNEL_TYPE}" STREQUAL "Project")
+set(VIEWER_CHANNEL "${VIEWER_CHANNEL_BASE} ${VIEWER_CHANNEL_TYPE} ${VIEWER_CHANNEL_CODENAME}" CACHE INTERNAL "Viewer Channel Combined Name" FORCE)
+else()
+set(VIEWER_CHANNEL "${VIEWER_CHANNEL_BASE} ${VIEWER_CHANNEL_TYPE}" CACHE INTERNAL "Viewer Channel Combined Name" FORCE)
+endif()
+
+set(VIEWER_BINARY_NAME "singularity" CACHE STRING
+    "The name of the viewer executable to create.")
+
 string(REPLACE " " "" VIEWER_CHANNEL_ONEWORD ${VIEWER_CHANNEL})
+set(VIEWER_CHANNEL_NOSPACE ${VIEWER_CHANNEL_ONEWORD} CACHE STRING "Prefix used for resulting artifacts.")
 
 option(VIEWER_CHANNEL_GRK "Greek character(s) to represent the viewer channel for support purposes, override only for special branches" "")
 if (NOT VIEWER_CHANNEL_GRK)
-    if (VIEWER_CHANNEL_BASE MATCHES "Test")
+    if (VIEWER_CHANNEL_TYPE MATCHES "Test")
         set(VIEWER_CHANNEL_GRK "\\u03C4") # "τ"
-    elseif (VIEWER_CHANNEL_BASE MATCHES "Alpha")
+    elseif (VIEWER_CHANNEL_TYPE MATCHES "Alpha")
         set(VIEWER_CHANNEL_GRK "\\u03B1") # "α"
-    elseif (VIEWER_CHANNEL_BASE MATCHES "Beta")
+    elseif (VIEWER_CHANNEL_TYPE MATCHES "Beta")
         set(VIEWER_CHANNEL_GRK "\\u03B2") # "β"
     endif ()
 endif (NOT VIEWER_CHANNEL_GRK)
 
-if(VIEWER_CHANNEL_LOWER MATCHES "^${VIEWER_PRODUCT_NAME_LOWER} release")
-  set(VIEWER_PACKAGE_ID "${VIEWER_PRODUCT_NAME}Release")
-  set(VIEWER_EXE_STRING "${VIEWER_PRODUCT_NAME}Viewer")
-  set(VIEWER_SHORTCUT_STRING "${VIEWER_PRODUCT_NAME} Viewer")
-else()
-  set(VIEWER_PACKAGE_ID ${VIEWER_CHANNEL_ONEWORD})
-  set(VIEWER_EXE_STRING ${VIEWER_CHANNEL_ONEWORD})
-  set(VIEWER_SHORTCUT_STRING ${VIEWER_CHANNEL})
-endif()
-
-set(VIEWER_CHANNEL_NOSPACE ${VIEWER_CHANNEL_ONEWORD} CACHE STRING "Prefix used for resulting artifacts.")
-
-set(VIEWER_BRANDING_ID "singularity" CACHE STRING "Viewer branding id")
-
 option(ENABLE_SIGNING "Enable signing the viewer" OFF)
 set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
 
-set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
 # Compiler and toolchain options
 option(USESYSTEMLIBS "Use libraries from your system rather than Linden-supplied prebuilt libraries." OFF)
 option(STANDALONE "Use libraries from your system rather than Linden-supplied prebuilt libraries." OFF)
@@ -248,7 +245,6 @@ if (USESYSTEMLIBS)
 elseif (STANDALONE)
     set(USESYSTEMLIBS ON)
 endif (USESYSTEMLIBS)
-
 
 
 source_group("CMake Rules" FILES CMakeLists.txt)

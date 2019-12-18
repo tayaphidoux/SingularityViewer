@@ -2,7 +2,7 @@
 include(Prebuilt)
 include(Variables)
 
-if (NVAPI)
+if (USE_NVAPI)
   if (WINDOWS)
     use_prebuilt_binary(nvapi)
     if (WORD_SIZE EQUAL 32)
@@ -13,7 +13,7 @@ if (NVAPI)
   else (WINDOWS)
     set(NVAPI_LIBRARY "")
   endif (WINDOWS)
-else (NVAPI)
+else (USE_NVAPI)
   set(NVAPI_LIBRARY "")
-endif (NVAPI)
+endif (USE_NVAPI)
 

@@ -5,7 +5,7 @@ stages:
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
-build:staging:windows32:
+build:master:windows32:
   stage: build
   tags:
     - autobuild
@@ -13,17 +13,17 @@ build:staging:windows32:
   before_script:
     - pipenv install
   script:
-    - pipenv run autobuild configure -c Release -A32 -- -DFMODSTUDIO=ON -DNVAPI=ON -DUSE_LTO=OFF -DVS_DISABLE_FATAL_WARNINGS=ON -DUSE_CRASHPAD=ON -DCRASHPAD_URL="$env:SENTRY_DSN" -DVIEWER_CHANNEL_BASE:STRING="Alpha" -DPACKAGE=ON
+    - pipenv run autobuild configure -c Release -A32 -- -DUSE_FMODSTUDIO=ON -DUSE_NVAPI=ON -DUSE_LTO=ON -DVS_DISABLE_FATAL_WARNINGS=ON -DVIEWER_CHANNEL_TYPE="Test"
     - pipenv run autobuild build -c Release -A32 --no-configure
-    - sentry-cli upload-dif SingularityAlphaViewer.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb vcruntime140.dll msvcp140.dll glod.dll
   artifacts:
+    name: "$env:CI_COMMIT_REF_NAME-$env:CI_COMMIT_SHORT_SHA"
+    expire_in: 2 week
     paths:
       - build-vc-32/newview/Release/Singularity*Setup.exe
   only:
-    refs:
-      - master
-      
-build:staging:windows64:
+    - schedules
+
+build:master:windows64:
   stage: build
   tags:
     - autobuild
@@ -31,28 +31,191 @@ build:staging:windows64:
   before_script:
     - pipenv install
   script:
-    - pipenv run autobuild configure -c Release -A64 -- -DFMODSTUDIO=ON -DNVAPI=ON -DUSE_LTO=ON -DVS_DISABLE_FATAL_WARNINGS=ON -DUSE_CRASHPAD=ON -DCRASHPAD_URL="$env:SENTRY_DSN" -DVIEWER_CHANNEL_BASE:STRING="Alpha" -DPACKAGE=ON
+    - pipenv run autobuild configure -c Release -A64 -- -DUSE_FMODSTUDIO=ON -DUSE_NVAPI=ON -DUSE_LTO=ON -DVS_DISABLE_FATAL_WARNINGS=ON -DVIEWER_CHANNEL_TYPE="Test"
     - pipenv run autobuild build -c Release -A64 --no-configure
-    - sentry-cli upload-dif SingularityAlphaViewer.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb libhunspell.dll libhunspell.pdb vcruntime140.dll msvcp140.dll glod.dll
   artifacts:
+    name: "$env:CI_COMMIT_REF_NAME-$env:CI_COMMIT_SHORT_SHA"
+    expire_in: 2 week
     paths:
       - build-vc-64/newview/Release/Singularity*Setup.exe
   only:
-    refs:
-      - master
-      
-deploy:staging:
+    - schedules
+
+build:project:windows32:
+  stage: build
+  tags:
+    - autobuild
+    - windows
+  before_script:
+    - pipenv install
+  script:
+    - $env:VIEWER_CHANNEL_CODENAME = $env:CI_COMMIT_REF_NAME[8..100] -join ''
+    - pipenv run autobuild configure -c Release -A32 -- -DUSE_FMODSTUDIO=ON -DUSE_NVAPI=ON -DUSE_LTO=ON -DVS_DISABLE_FATAL_WARNINGS=ON -DUSE_CRASHPAD=ON -DCRASHPAD_URL="$env:SENTRY_DSN_NONPROD" -DVIEWER_CHANNEL_TYPE="Project" -DVIEWER_CHANNEL_CODENAME="$env:VIEWER_CHANNEL_CODENAME"
+    - pipenv run autobuild build -c Release -A32 --no-configure
+    - cd build-vc-32/newview/Release/
+    - $env:SENTRY_PROJECT = $env:SENTRY_PROJECT_NONPROD
+    - sentry-cli upload-dif singularity-bin.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb vcruntime140.dll msvcp140.dll glod.dll
+  artifacts:
+    name: "$env:CI_COMMIT_REF_NAME-$env:CI_COMMIT_SHORT_SHA"
+    expire_in: 2 week
+    paths:
+      - build-vc-32/newview/Release/Singularity*Setup.exe
+  only:
+    - /^project-.*$/
+    - schedules
+  except:
+    - beta
+    - release
+
+build:project:windows64:
+  stage: build
+  tags:
+    - autobuild
+    - windows
+  before_script:
+    - pipenv install
+  script:
+    - $env:VIEWER_CHANNEL_CODENAME = $env:CI_COMMIT_REF_NAME[8..100] -join ''
+    - pipenv run autobuild configure -c Release -A64 -- -DUSE_FMODSTUDIO=ON -DUSE_NVAPI=ON -DUSE_LTO=ON -DVS_DISABLE_FATAL_WARNINGS=ON -DUSE_CRASHPAD=ON -DCRASHPAD_URL="$env:SENTRY_DSN_NONPROD" -DVIEWER_CHANNEL_TYPE="Project" -DVIEWER_CHANNEL_CODENAME="$env:VIEWER_CHANNEL_CODENAME"
+    - pipenv run autobuild build -c Release -A64 --no-configure
+    - cd build-vc-64/newview/Release/
+    - $env:SENTRY_PROJECT = $env:SENTRY_PROJECT_NONPROD
+    - sentry-cli upload-dif singularity-bin.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb vcruntime140.dll msvcp140.dll libhunspell.dll libhunspell.pdb glod.dll
+  artifacts:
+    name: "$env:CI_COMMIT_REF_NAME-$env:CI_COMMIT_SHORT_SHA"
+    expire_in: 2 week
+    paths:
+      - build-vc-64/newview/Release/Singularity*Setup.exe
+  only:
+    - /^project-.*$/
+    - schedules
+  except:
+    - beta
+    - release
+
+build:beta:windows32:
+  stage: build
+  tags:
+    - autobuild
+    - windows
+  before_script:
+    - pipenv install
+  script:
+    - pipenv run autobuild configure -c Release -A32 -- -DUSE_FMODSTUDIO=ON -DUSE_NVAPI=ON -DUSE_LTO=ON -DVS_DISABLE_FATAL_WARNINGS=ON -DUSE_CRASHPAD=ON -DCRASHPAD_URL="$env:SENTRY_DSN_PROD" -DVIEWER_CHANNEL_TYPE="Beta"
+    - pipenv run autobuild build -c Release -A32 --no-configure
+    - cd build-vc-32/newview/Release/
+    - $env:SENTRY_PROJECT = $env:SENTRY_PROJECT_PROD
+    - sentry-cli upload-dif singularity-bin.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb vcruntime140.dll msvcp140.dll glod.dll
+  artifacts:
+    name: "$env:CI_COMMIT_REF_NAME-$env:CI_COMMIT_SHORT_SHA"
+    expire_in: 2 week
+    paths:
+      - build-vc-32/newview/Release/Singularity*Setup.exe
+  only:
+    - beta
+    - schedules
+  except:
+    - /^project-.*$/
+    - release
+
+build:beta:windows64:
+  stage: build
+  tags:
+    - autobuild
+    - windows
+  before_script:
+    - pipenv install
+  script:
+    - pipenv run autobuild configure -c Release -A64 -- -DUSE_FMODSTUDIO=ON -DUSE_NVAPI=ON -DUSE_LTO=ON -DVS_DISABLE_FATAL_WARNINGS=ON -DUSE_CRASHPAD=ON -DCRASHPAD_URL="$env:SENTRY_DSN_PROD" -DVIEWER_CHANNEL_TYPE="Beta"
+    - pipenv run autobuild build -c Release -A64 --no-configure
+    - cd build-vc-64/newview/Release/
+    - $env:SENTRY_PROJECT = $env:SENTRY_PROJECT_PROD
+    - sentry-cli upload-dif singularity-bin.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb vcruntime140.dll msvcp140.dll libhunspell.dll libhunspell.pdb glod.dll
+  artifacts:
+    name: "$env:CI_COMMIT_REF_NAME-$env:CI_COMMIT_SHORT_SHA"
+    expire_in: 2 week
+    paths:
+      - build-vc-64/newview/Release/Singularity*Setup.exe
+  only:
+    - beta
+    - schedules
+  except:
+    - /^project-.*$/
+    - release
+
+build:release:windows32:
+  stage: build
+  tags:
+    - autobuild
+    - windows
+  before_script:
+    - pipenv install
+  script:
+    - pipenv run autobuild configure -c Release -A32 -- -DUSE_FMODSTUDIO=ON -DUSE_NVAPI=ON -DUSE_LTO=ON -DVS_DISABLE_FATAL_WARNINGS=ON -DUSE_CRASHPAD=ON -DCRASHPAD_URL="$env:SENTRY_DSN_PROD" -DVIEWER_CHANNEL_TYPE="Beta"
+    - pipenv run autobuild build -c Release -A32 --no-configure
+    - cd build-vc-32/newview/Release/
+    - $env:SENTRY_PROJECT = $env:SENTRY_PROJECT_PROD
+    - sentry-cli upload-dif singularity-bin.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb vcruntime140.dll msvcp140.dll glod.dll
+  artifacts:
+    name: "$env:CI_COMMIT_REF_NAME-$env:CI_COMMIT_SHORT_SHA"
+    expire_in: 2 week
+    paths:
+      - build-vc-32/newview/Release/Singularity*Setup.exe
+  only:
+    - release
+    - schedules
+  except:
+    - /^project-.*$/
+    - beta
+
+build:release:windows64:
+  stage: build
+  tags:
+    - autobuild
+    - windows
+  before_script:
+    - pipenv install
+  script:
+    - pipenv run autobuild configure -c Release -A64 -- -DUSE_FMODSTUDIO=ON -DUSE_NVAPI=ON -DUSE_LTO=ON -DVS_DISABLE_FATAL_WARNINGS=ON -DUSE_CRASHPAD=ON -DCRASHPAD_URL="$env:SENTRY_DSN_PROD" -DVIEWER_CHANNEL_TYPE="Beta"
+    - pipenv run autobuild build -c Release -A64 --no-configure
+    - cd build-vc-64/newview/Release/
+    - $env:SENTRY_PROJECT = $env:SENTRY_PROJECT_PROD
+    - sentry-cli upload-dif singularity-bin.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb vcruntime140.dll msvcp140.dll libhunspell.dll libhunspell.pdb glod.dll
+  artifacts:
+    name: "$env:CI_COMMIT_REF_NAME-$env:CI_COMMIT_SHORT_SHA"
+    expire_in: 2 week
+    paths:
+      - build-vc-64/newview/Release/Singularity*Setup.exe
+  only:
+    - release
+    - schedules
+  except:
+    - /^project-.*$/
+    - beta
+
+deploy:nexus:
   stage: deploy
   tags:
     - autobuild
     - windows
   script:
+    - $UploadDestDirLower = $env:CI_COMMIT_REF_NAME.ToLower().Replace("-", "/")
+    - $UploadDestDirLower
+    - $UploadDestVer = $($(Get-Content .\indra\newview\VIEWER_VERSION.txt) + "." + $(git rev-list HEAD --count | Out-String)).trim()
+    - $UploadDestVer
     - mkdir upload
     - cp build-vc-*/newview/Release/Singularity*Setup.exe upload/
-    - $FileNameWin32 = Get-ChildItem -Path . -Name -Include upload/Singularity*_i686_Setup.exe
-    - curl.exe -v --user "$env:AUTOBUILD_HTTP_USER:$env:AUTOBUILD_HTTP_PASS" --upload-file ./$FileNameWin32 https://pkg.alchemyviewer.org/repository/singularity-project/alpha/$FileNameWin32
-    - $FileNameWin64 = Get-ChildItem -Path . -Name -Include upload/Singularity*_x86_64_Setup.exe
-    - curl.exe -v --user "$env:AUTOBUILD_HTTP_USER:$env:AUTOBUILD_HTTP_PASS" --upload-file ./$FileNameWin64 https://pkg.alchemyviewer.org/repository/singularity-project/alpha/$FileNameWin64
+    - cd upload
+    - $FileNameWin32 = Get-ChildItem -Path . -Name -Include Singularity_*_i686_Setup.exe
+    - $FileNameWin32
+    - curl.exe -v --user "${env:AUTOBUILD_HTTP_USER}:${env:AUTOBUILD_HTTP_PASS}" --upload-file $FileNameWin32 "https://pkg.alchemyviewer.org/repository/viewer/singularity/${UploadDestDirLower}/${UploadDestVer}/${FileNameWin32}"
+    - $FileNameWin64 = Get-ChildItem -Path . -Name -Include Singularity_*_x86_64_Setup.exe
+    - $FileNameWin64
+    - curl.exe -v --user "${env:AUTOBUILD_HTTP_USER}:${env:AUTOBUILD_HTTP_PASS}" --upload-file $FileNameWin64 "https://pkg.alchemyviewer.org/repository/viewer/singularity/${UploadDestDirLower}/${UploadDestVer}/${FileNameWin64}"
+  when: manual
   only:
+    - /^project-.*$/
+    - beta
+    - release
+  except:
     - master
-

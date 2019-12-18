@@ -51,9 +51,9 @@ include(ZLIB)
 include(URIPARSER)
 
 
-if(FMODSTUDIO)
+if(USE_FMODSTUDIO)
   include_directories(${FMODSTUDIO_INCLUDE_DIR})
-endif(FMODSTUDIO)
+endif(USE_FMODSTUDIO)
 
 if(USE_CRASHPAD)
   include_directories(${CRASHPAD_INCLUDE_DIRS})
@@ -1239,11 +1239,11 @@ if (WINDOWS)
          llwindebug.h
          )
 
-  if (NVAPI)
+  if (USE_NVAPI)
     set(APPVWRW32_COMPILE_FLAGS "${APPVWRW32_COMPILE_FLAGS} -DUSE_NVAPI=1")
-  else (NVAPI)
+  else (USE_NVAPI)
     set(APPVWRW32_COMPILE_FLAGS "${APPVWRW32_COMPILE_FLAGS} -UUSE_NVAPI")
-  endif (NVAPI)
+  endif (USE_NVAPI)
   set_source_files_properties(llappviewerwin32.cpp PROPERTIES COMPILE_FLAGS "${APPVWRW32_COMPILE_FLAGS}")
 
     # Replace the icons with the appropriate ones for the channel
@@ -1434,9 +1434,9 @@ if (OPENAL)
   list(APPEND LLSTARTUP_COMPILE_DEFINITIONS "LL_OPENAL=1")
 endif (OPENAL)
 
-if (FMODSTUDIO)
+if (USE_FMODSTUDIO)
   list(APPEND LLSTARTUP_COMPILE_DEFINITIONS "LL_FMODSTUDIO=1")
-endif (FMODSTUDIO)
+endif (USE_FMODSTUDIO)
 
 set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_DEFINITIONS "${LLSTARTUP_COMPILE_DEFINITIONS}")
 
@@ -1535,7 +1535,7 @@ if (WINDOWS)
             )
     endif (ADDRESS_SIZE EQUAL 64)
 
-    if (FMODSTUDIO)
+    if (USE_FMODSTUDIO)
       if (WORD_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
              ${SHARED_LIB_STAGING_DIR}/Release/fmod64.dll
@@ -1548,7 +1548,7 @@ if (WINDOWS)
              ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
             )
       endif (WORD_SIZE EQUAL 64)
-    endif (FMODSTUDIO)
+    endif (USE_FMODSTUDIO)
 
     if(MSVC_IDE)
       set(VIEWER_BUILD_DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
@@ -1564,10 +1564,10 @@ if (WINDOWS)
         --actions=copy
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
-        --branding_id=${VIEWER_BRANDING_ID}
+        --branding_id=${VIEWER_BINARY_NAME}
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
-	--configuration=${VIEWER_BUILD_DEST_DIR}
+        --configuration=${VIEWER_BUILD_DEST_DIR}
         --dest=${VIEWER_BUILD_DEST_DIR}
         --grid=${GRID}
         --channel=${VIEWER_CHANNEL}
@@ -1606,12 +1606,12 @@ if (WINDOWS)
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
-          --branding_id=${VIEWER_BRANDING_ID}
+          --branding_id=${VIEWER_BINARY_NAME}
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
           --channel=${VIEWER_CHANNEL}
           --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-	  --configuration=${VIEWER_BUILD_DEST_DIR}
+          --configuration=${VIEWER_BUILD_DEST_DIR}
           --dest=${VIEWER_BUILD_DEST_DIR}
           --grid=${GRID}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
@@ -1711,7 +1711,7 @@ if (LINUX)
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
-        --branding_id=${VIEWER_BRANDING_ID}
+        --branding_id=${VIEWER_BINARY_NAME}
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         --channel=${VIEWER_CHANNEL}
@@ -1735,7 +1735,7 @@ if (LINUX)
         --arch=${ARCH}
         --actions=copy
         --artwork=${ARTWORK_DIR}
-        --branding_id=${VIEWER_BRANDING_ID}
+        --branding_id=${VIEWER_BINARY_NAME}
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         --configuration=${CMAKE_CFG_INTDIR}
@@ -1793,7 +1793,7 @@ if (DARWIN)
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       --actions=copy
       --artwork=${ARTWORK_DIR}
-      --branding_id=${VIEWER_BRANDING_ID}
+      --branding_id=${VIEWER_BINARY_NAME}
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
       --configuration=${CMAKE_CFG_INTDIR}
@@ -1868,7 +1868,7 @@ if (FALSE)
   if (LINUX)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/packaged")
     set(VIEWER_SYMBOL_FILE "${SYMBOL_NAME}-${AUTOBUILD_PLATFORM_NAME}.tar.bz2")
-    set(VIEWER_EXE_GLOBS "${VIEWER_BRANDING_ID}-do-not-run-directly SLPlugin")
+    set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}-do-not-run-directly SLPlugin")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
