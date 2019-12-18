@@ -3,23 +3,13 @@
 # cmake_minimum_required should appear before any
 # other commands to guarantee full compatibility
 # with the version specified
-## prior to 2.8, the add_custom_target commands used in setting the version did not work correctly
-if(WIN32)
-  cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
-else()
-  cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
-endif()
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 set(ROOT_PROJECT_NAME "Singularity" CACHE STRING
     "The root project/makefile/solution name. Defaults to Singularity.")
 project(${ROOT_PROJECT_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-
-include(Variables)
-include(00-Common)
-include(BuildVersion)
-include(CTest)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -28,6 +18,11 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
+
+include(Variables)
+include(00-Common)
+include(BuildVersion)
+include(CTest)
 
 add_subdirectory(deps)
 
@@ -65,8 +60,10 @@ add_subdirectory(${LIBS_OPEN_PREFIX}plugins)
 
 add_subdirectory(${VIEWER_PREFIX}newview/statemachine)
 add_subdirectory(${VIEWER_PREFIX}newview)
-add_dependencies(viewer ${VIEWER_BRANDING_ID}-bin)
+add_dependencies(viewer ${VIEWER_BINARY_NAME})
+
 
 if (WINDOWS)
-  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${VIEWER_BRANDING_ID}-bin)
+  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    PROPERTY VS_STARTUP_PROJECT ${VIEWER_BINARY_NAME})
 endif (WINDOWS)
