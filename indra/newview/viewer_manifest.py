@@ -135,9 +135,24 @@ class ViewerManifest(LLManifest):
 
             # File in the newview/ directory
             self.path("gpu_table.txt")
-            # The summary.json file gets left in the build directory by newview/CMakeLists.txt.
-            if not self.path2basename(os.pardir, "summary.json"):
-                print "No summary.json file"
+
+            #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
+            #platform is computed above with other arg parsing
+            build_data_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),
+                            "Channel Base": CHANNEL_VENDOR_BASE,
+                            "Channel":self.channel_with_pkg_suffix(),
+                            "Platform":self.build_data_json_platform,
+                            "Address Size":self.address_size,
+                            "Update Service":"https://app.alchemyviewer.org/update",
+                            }
+            build_data_dict = self.finish_build_data_dict(build_data_dict)
+            with open(os.path.join(os.pardir,'build_data.json'), 'w') as build_data_handle:
+                json.dump(build_data_dict,build_data_handle)
+
+            #we likely no longer need the test, since we will throw an exception above, but belt and suspenders and we get the
+            #return code for free.
+            if not self.path2basename(os.pardir, "build_data.json"):
+                print "No build_data.json file"
 
     def standalone(self):
         return self.args['standalone'] == "ON"
@@ -1140,6 +1155,8 @@ class DarwinManifest(ViewerManifest):
         self.remove(sparsename)
 
 class LinuxManifest(ViewerManifest):
+    build_data_json_platform = 'lnx'
+
     def is_packaging_viewer(self):
         super(LinuxManifest, self).is_packaging_viewer()
         return True # We always want a packaged viewer even without archive.
