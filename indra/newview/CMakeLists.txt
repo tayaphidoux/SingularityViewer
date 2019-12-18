@@ -617,9 +617,6 @@ set(viewer_SOURCE_FILES
     wlfPanel_AdvSettings.cpp
     )
 
-set(VIEWER_BINARY_NAME "singularity-bin" CACHE STRING
-    "The name of the viewer executable to create.")
-
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
@@ -1564,7 +1561,7 @@ if (WINDOWS)
         --actions=copy
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
-        --branding_id=${VIEWER_BINARY_NAME}
+        --branding_id=${VIEWER_BRANDING_ID}
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         --configuration=${VIEWER_BUILD_DEST_DIR}
@@ -1606,7 +1603,7 @@ if (WINDOWS)
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
-          --branding_id=${VIEWER_BINARY_NAME}
+          --branding_id=${VIEWER_BRANDING_ID}
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
           --channel=${VIEWER_CHANNEL}
@@ -1711,7 +1708,7 @@ if (LINUX)
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
-        --branding_id=${VIEWER_BINARY_NAME}
+        --branding_id=${VIEWER_BRANDING_ID}
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         --channel=${VIEWER_CHANNEL}
@@ -1735,7 +1732,7 @@ if (LINUX)
         --arch=${ARCH}
         --actions=copy
         --artwork=${ARTWORK_DIR}
-        --branding_id=${VIEWER_BINARY_NAME}
+        --branding_id=${VIEWER_BRANDING_ID}
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         --configuration=${CMAKE_CFG_INTDIR}
@@ -1793,7 +1790,7 @@ if (DARWIN)
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       --actions=copy
       --artwork=${ARTWORK_DIR}
-      --branding_id=${VIEWER_BINARY_NAME}
+      --branding_id=${VIEWER_BRANDING_ID}
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
       --configuration=${CMAKE_CFG_INTDIR}
@@ -1868,7 +1865,7 @@ if (FALSE)
   if (LINUX)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/packaged")
     set(VIEWER_SYMBOL_FILE "${SYMBOL_NAME}-${AUTOBUILD_PLATFORM_NAME}.tar.bz2")
-    set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}-do-not-run-directly SLPlugin")
+    set(VIEWER_EXE_GLOBS "do-not-directly-run-${VIEWER_BINARY_NAME} SLPlugin")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
