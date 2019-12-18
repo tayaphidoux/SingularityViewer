@@ -181,8 +181,7 @@ class ViewerManifest(LLManifest):
         return self.channel().replace(CHANNEL_VENDOR_BASE, "").strip()
 
     def channel_type(self): # returns 'release', 'beta', 'project', or 'test'
-        global CHANNEL_VENDOR_BASE
-        channel_qualifier=self.channel().replace(CHANNEL_VENDOR_BASE, "").lower().strip()
+        channel_qualifier=self.channel_variant().lower()
         if channel_qualifier.startswith('release'):
             channel_type='release'
         elif channel_qualifier.startswith('beta'):
