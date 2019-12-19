@@ -254,13 +254,13 @@ set(VIEWER_CHANNEL_NOSPACE ${VIEWER_CHANNEL_ONEWORD} CACHE STRING "Prefix used f
 
 option(VIEWER_CHANNEL_GRK "Greek character(s) to represent the viewer channel for support purposes, override only for special branches" "")
 if (NOT VIEWER_CHANNEL_GRK)
-    if (VIEWER_CHANNEL_TYPE MATCHES "Test")
-        set(VIEWER_CHANNEL_GRK "\\u03C4") # "τ"
-    elseif (VIEWER_CHANNEL_TYPE MATCHES "Alpha")
-        set(VIEWER_CHANNEL_GRK "\\u03B1") # "α"
-    elseif (VIEWER_CHANNEL_TYPE MATCHES "Beta")
-        set(VIEWER_CHANNEL_GRK "\\u03B2") # "β"
-    endif ()
+  if (VIEWER_CHANNEL_TYPE MATCHES "Test")
+    set(VIEWER_CHANNEL_GRK "\\u03C4") # "τ"
+  elseif (VIEWER_CHANNEL_TYPE MATCHES "Alpha")
+    set(VIEWER_CHANNEL_GRK "\\u03B1") # "α"
+  elseif (VIEWER_CHANNEL_TYPE MATCHES "Beta")
+    set(VIEWER_CHANNEL_GRK "\\u03B2") # "β"
+  endif ()
 endif (NOT VIEWER_CHANNEL_GRK)
 
 option(ENABLE_SIGNING "Enable signing the viewer" OFF)
@@ -270,9 +270,9 @@ set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if 
 option(USESYSTEMLIBS "Use libraries from your system rather than Linden-supplied prebuilt libraries." OFF)
 option(STANDALONE "Use libraries from your system rather than Linden-supplied prebuilt libraries." OFF)
 if (USESYSTEMLIBS)
-    set(STANDALONE ON)
+  set(STANDALONE ON)
 elseif (STANDALONE)
-    set(USESYSTEMLIBS ON)
+  set(USESYSTEMLIBS ON)
 endif (USESYSTEMLIBS)
 
 
