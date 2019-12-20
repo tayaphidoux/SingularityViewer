@@ -300,6 +300,7 @@ target_link_libraries(
     ${Boost_SYSTEM_LIBRARY}
     ${CORESERVICES_LIBRARY}
     ${URIPARSER_LIBRARY}
+    ${RT_LIBRARY}
     )
 
 if (DARWIN)

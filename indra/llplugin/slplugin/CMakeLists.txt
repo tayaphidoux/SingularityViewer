@@ -69,6 +69,7 @@ target_link_libraries(SLPlugin
   ${LLCOMMON_LIBRARIES}
   ${APRUTIL_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES}
+  ${PTHREAD_LIBRARY}
 )
 
 add_dependencies(SLPlugin
