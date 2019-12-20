@@ -726,6 +726,8 @@ void LLAppViewer::initCrashReporting()
 	annotations.emplace("sentry[contexts][app][app_version]", LLVersionInfo::getVersion());
 	annotations.emplace("sentry[contexts][app][app_build]", LLVersionInfo::getChannelAndVersion());
 
+	annotations.emplace("sentry[release]", LLVersionInfo::getChannelAndVersion());
+
 	annotations.emplace("sentry[tags][second_instance]", fmt::to_string(isSecondInstance()));
 	//annotations.emplace("sentry[tags][bitness]", fmt::to_string(ADDRESS_SIZE));
 	annotations.emplace("sentry[tags][bitness]",
@@ -738,7 +740,6 @@ void LLAppViewer::initCrashReporting()
 
 	// Optional arguments to pass to the handler
 	std::vector<std::string> arguments;
-	arguments.push_back("--no-upload-gzip");
 	arguments.push_back("--no-rate-limit");
 	arguments.push_back("--monitor-self");
 
