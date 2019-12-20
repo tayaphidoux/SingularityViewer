@@ -17,14 +17,6 @@ include_directories(
 
 ### basic_plugin_example
 
-if(NOT WORD_SIZE EQUAL 32)
-	if(WINDOWS)
-		# add_definitions(/FIXED:NO)
-	else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-		add_definitions(-fPIC)
-	endif(WINDOWS)
-endif (NOT WORD_SIZE EQUAL 32)
-
 set(basic_plugin_example_SOURCE_FILES
     basic_plugin_example.cpp
     )
@@ -33,6 +25,8 @@ add_library(basic_plugin_example
     SHARED
     ${basic_plugin_example_SOURCE_FILES}
 )
+
+set_target_properties(basic_plugin_example PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_link_libraries(basic_plugin_example
   ${LLPLUGIN_LIBRARIES}

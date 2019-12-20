@@ -15,14 +15,6 @@ include_directories(
 
 ### basic_plugin_base
 
-if(NOT WORD_SIZE EQUAL 32)
-	if(WINDOWS)
-		# add_definitions(/FIXED:NO)
-	else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-		add_definitions(-fPIC)
-	endif(WINDOWS)
-endif (NOT WORD_SIZE EQUAL 32)
-
 set(basic_plugin_base_SOURCE_FILES
     basic_plugin_base.cpp
 )
@@ -41,6 +33,8 @@ list(APPEND basic_plugin_base_SOURCE_FILES ${basic_plugin_base_HEADER_FILES})
 add_library(basic_plugin_base
     ${basic_plugin_base_SOURCE_FILES}
 )
+
+set_target_properties(basic_plugin_base PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_link_libraries(basic_plugin_base
     PUBLIC

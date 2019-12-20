@@ -23,14 +23,6 @@ include_directories(
 
 ### basic_plugin_filepicker
 
-if(NOT WORD_SIZE EQUAL 32)
-	if(WINDOWS)
-		# add_definitions(/FIXED:NO)
-	else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-		add_definitions(-fPIC)
-	endif(WINDOWS)
-endif (NOT WORD_SIZE EQUAL 32)
-
 set(basic_plugin_filepicker_SOURCE_FILES
 	basic_plugin_filepicker.cpp
 	legacy.cpp
@@ -70,6 +62,8 @@ if (DARWIN)
   find_library(IOKIT_LIBRARY IOKit)
   set(OSX_FILE_LIBRARIES ${APPKIT_LIBRARY} ${CARBON_LIBRARY} ${IOKIT_LIBRARY})
 endif (DARWIN)
+
+set_target_properties(basic_plugin_filepicker PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_link_libraries(basic_plugin_filepicker
   ${LLPLUGIN_LIBRARIES}

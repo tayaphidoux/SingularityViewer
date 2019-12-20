@@ -45,6 +45,8 @@ add_library(media_plugin_gstreamer010
     ${media_plugin_gstreamer010_SOURCE_FILES}
 )
 
+set_target_properties(media_plugin_gstreamer010 PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+
 target_link_libraries(media_plugin_gstreamer010
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
