@@ -74,12 +74,6 @@ target_link_libraries(basic_plugin_filepicker
   ${OSX_FILE_LIBRARIES}
 )
 
-add_dependencies(basic_plugin_filepicker
-  ${LLPLUGIN_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
-  ${BASIC_PLUGIN_BASE_LIBRARIES}
-)
-
 if (WINDOWS)
   set_target_properties(
     basic_plugin_filepicker

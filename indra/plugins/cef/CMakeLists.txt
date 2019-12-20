@@ -2,6 +2,7 @@
 
 project(media_plugin_cef)
 
+include(Boost)
 include(00-Common)
 include(LLCommon)
 include(LLImage)
@@ -14,6 +15,7 @@ include(PluginAPI)
 include(MediaPluginBase)
 include(OpenGL)
 include(PulseAudio)
+include(UI)
 
 include(CEFPlugin)
 
@@ -46,10 +48,9 @@ set(media_plugin_cef_HEADER_FILES
 set (media_plugin_cef_LINK_LIBRARIES
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
   ${CEF_PLUGIN_LIBRARIES}
+  ${LLCOMMON_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES})
-
 
 # Select which VolumeCatcher implementation to use
 if (LINUX)
@@ -81,12 +82,6 @@ list(APPEND media_plugin_cef_SOURCE_FILES ${media_plugin_cef_HEADER_FILES})
 add_library(media_plugin_cef
     SHARED
     ${media_plugin_cef_SOURCE_FILES}
-)
-
-add_dependencies(media_plugin_cef
-  ${LLPLUGIN_LIBRARIES}
-  ${MEDIA_PLUGIN_BASE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
 )
 
 set_target_properties(media_plugin_cef PROPERTIES POSITION_INDEPENDENT_CODE TRUE)

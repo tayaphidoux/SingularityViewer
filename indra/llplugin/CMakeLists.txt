@@ -7,6 +7,7 @@ include(LLCommon)
 include(LLMath)
 include(LLMessage)
 include(LLRender)
+include(Boost)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}

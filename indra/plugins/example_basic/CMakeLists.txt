@@ -34,12 +34,6 @@ target_link_libraries(basic_plugin_example
   ${BASIC_PLUGIN_BASE_LIBRARIES}
 )
 
-add_dependencies(basic_plugin_example
-  ${LLPLUGIN_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
-  ${BASIC_PLUGIN_BASE_LIBRARIES}
-)
-
 if (WINDOWS)
   set_target_properties(
     basic_plugin_example

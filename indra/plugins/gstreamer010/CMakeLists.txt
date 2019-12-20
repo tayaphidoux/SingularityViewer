@@ -13,6 +13,7 @@ include(Linking)
 include(PluginAPI)
 include(MediaPluginBase)
 include(FindOpenGL)
+include(Boost)
 
 include(GStreamer010Plugin)
 
@@ -53,11 +54,5 @@ target_link_libraries(media_plugin_gstreamer010
   ${LLCOMMON_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES}
   ${GSTREAMER010_LIBRARIES}
-)
-
-add_dependencies(media_plugin_gstreamer010
-  ${LLPLUGIN_LIBRARIES}
-  ${MEDIA_PLUGIN_BASE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
 )
 

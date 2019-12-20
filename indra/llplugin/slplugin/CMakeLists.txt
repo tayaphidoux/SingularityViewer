@@ -1,7 +1,6 @@
 project(SLPlugin)
 
 include(00-Common)
-include(Linking)
 include(LLCommon)
 include(LLPlugin)
 include(Linking)
@@ -70,12 +69,6 @@ target_link_libraries(SLPlugin
   ${APRUTIL_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES}
   ${PTHREAD_LIBRARY}
-)
-
-add_dependencies(SLPlugin
-  ${LLPLUGIN_LIBRARIES}
-  ${LLMESSAGE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
 )
 
 if (DARWIN)
