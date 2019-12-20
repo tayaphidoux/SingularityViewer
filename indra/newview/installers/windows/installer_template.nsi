@@ -1,6 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Second Life setup.nsi
-;; Copyright 2004-2015, Linden Research, Inc.
+;; secondlife setup.nsi
+;; Copyright 2004-2011, Linden Research, Inc.
+;; Copyright 2013-2015 Alchemy Viewer Project
 ;;
 ;; This library is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public
@@ -95,18 +96,6 @@
   SetOverwrite on
 
 ;--------------------------------
-;Version Information
-
-  VIProductVersion "${VERSION_LONG}"
-  VIAddVersionKey "ProductName" "Singularity Viewer Installer"
-  VIAddVersionKey "Comments" "A viewer for the meta-verse!"
-  VIAddVersionKey "CompanyName" "${VENDORSTR}"
-  VIAddVersionKey "LegalCopyright" "Copyright © 2010-2019, ${VENDORSTR}"
-  VIAddVersionKey "FileDescription" "${APPNAME} Installer"
-  VIAddVersionKey "ProductVersion" "${VERSION_LONG}"
-  VIAddVersionKey "FileVersion" "${VERSION_LONG}"
-
-;--------------------------------
 ;Interface Settings
 
   ;Show Details
@@ -199,6 +188,18 @@
   !include "%%SOURCE%%\installers\windows\lang_zh.nsi"
 
 ;--------------------------------
+;Version Information
+
+  VIProductVersion "${VERSION_LONG}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "Singularity Viewer Installer"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "A viewer for the meta-verse!"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "${VENDORSTR}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright © 2010-2019, ${VENDORSTR}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${APPNAME} Installer"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION_LONG}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION_LONG}"
+
+;--------------------------------
 ;Reserve Files
   
   ;If you are using solid compression, files that are required before
@@ -206,7 +207,7 @@
   ;because this will make your installer start faster.
   
   !insertmacro MUI_RESERVEFILE_LANGDLL
-  ReserveFile "${NSISDIR}\Plugins\x86-unicode\nsisdl.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\NSISdl.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\nsDialogs.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\StartMenu.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\StdUtils.dll"
@@ -438,6 +439,7 @@ Section "Viewer"
     WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Create Account.url" "InternetShortcut" "URL" "http://join.secondlife.com/"
     WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Your Account.url"	"InternetShortcut" "URL" "http://www.secondlife.com/account/"
     WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Scripting Language Help.url" "InternetShortcut" "URL" "http://wiki.secondlife.com/wiki/LSL_Portal"
+
   !insertmacro MUI_STARTMENU_WRITE_END
 
   ;Other shortcuts
