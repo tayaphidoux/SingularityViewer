@@ -1460,8 +1460,7 @@ if(USE_PRECOMPILED_HEADERS)
       ${CMAKE_CURRENT_SOURCE_DIR}/llviewerprecompiledheaders.cpp)
 endif(USE_PRECOMPILED_HEADERS)
 
-set(PACKAGE OFF CACHE BOOL
-    "Add a package target that builds an installer package.")
+option(PACKAGE "Add a package target that builds an installer package." ON)
 
 if (WINDOWS)
     set(release_flags "/MAP")
