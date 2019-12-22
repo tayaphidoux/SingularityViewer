@@ -74,6 +74,10 @@
       <on_click function="List.CopyUUIDs"/>
       <on_enable function="List.EnableAnySelected"/>
     </menu_item_call>
+    <menu_item_call label="Copy Names" name="Copy Names">
+      <on_click function="List.CopyNames"/>
+      <on_enable function="List.EnableAnySelected"/>
+    </menu_item_call>
     <menu_item_call label="Copy SLURL" name="Copy SLURL">
       <on_click function="List.CopySLURL"/>
       <on_visible function="List.EnableSingleSelected"/>
