@@ -391,6 +391,9 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 		if (element.size())
 		{
 			group_list->addElement(element, ADD_SORTED);
+			// Force a name lookup here to get it added to the cache so other UI is prepared
+			std::string dummy;
+			gCacheName->getGroupName(group.mID, dummy);
 		}
 	}
 
