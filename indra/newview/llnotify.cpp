@@ -435,10 +435,9 @@ BOOL LLNotifyBox::handleMouseUp(S32 x, S32 y, MASK mask)
 // virtual
 BOOL LLNotifyBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	bool done = LLPanel::handleRightMouseDown(x, y, mask);
-	if (!done && !mIsTip) moveToBack(true);
-	if (done && mIsTip) mEventTimer.stop(); // Stop timer on hover so the user can interact
-	return done || !mIsTip;
+	if (!LLPanel::handleRightMouseDown(x, y, mask)) // Allow Children to handle first
+		moveToBack(true);
+	return true;
 }
 
 // virtual
