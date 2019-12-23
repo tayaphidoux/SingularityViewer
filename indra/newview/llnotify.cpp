@@ -35,20 +35,12 @@
 #include "llnotify.h"
 
 #include "llchat.h"
-#include "llfocusmgr.h"
-#include "llrender.h"
 
-#include "llbutton.h"
-#include "llfocusmgr.h"
-#include "llglheaders.h"
 #include "lliconctrl.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
 #include "lltrans.h"
 #include "lluiconstants.h"
-#include "llui.h"
-#include "llxmlnode.h"
-#include "llviewercontrol.h"
 #include "llviewerdisplay.h"
 #include "llviewertexturelist.h"
 #include "llfloaterchat.h"	// for add_chat_history()
