@@ -37,12 +37,14 @@
 #include "llchat.h"
 
 #include "lliconctrl.h"
+#include "llmenugl.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
 #include "lltrans.h"
 #include "lluiconstants.h"
 #include "llviewerdisplay.h"
 #include "llviewertexturelist.h"
+#include "llviewerwindow.h" // for gViewerWindow
 #include "llfloaterchat.h"	// for add_chat_history()
 #include "lloverlaybar.h" // for gOverlayBar
 #include "lluictrlfactory.h"
@@ -435,9 +437,27 @@ BOOL LLNotifyBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	bool done = LLPanel::handleRightMouseDown(x, y, mask);
 	if (!done && !mIsTip) moveToBack(true);
+	if (done && mIsTip) mEventTimer.stop(); // Stop timer on hover so the user can interact
 	return done || !mIsTip;
 }
 
+// virtual
+BOOL LLNotifyBox::handleHover(S32 x, S32 y, MASK mask)
+{
+	if (mIsTip) mEventTimer.stop(); // Stop timer on hover so the user can interact
+	return LLPanel::handleHover(x, y, mask);
+}
+
+bool LLNotifyBox::userIsInteracting() const
+{
+	// If the mouse is over us, the user may wish to interact
+	S32 local_x;
+	S32 local_y;
+	screenPointToLocal(gViewerWindow->getCurrentMouseX(), gViewerWindow->getCurrentMouseY(), &local_x, &local_y);
+	return pointInView(local_x, local_y) || // We're actively hovered
+		// our text is the target of an active menu that could be open (getVisibleMenu sucks because it contains a loop of two dynamic casts, so keep this at the end)
+		(mText && mText->getActive<LLTextEditor>() == mText && LLMenuGL::sMenuContainer->getVisibleMenu());
+}
 
 // virtual
 void LLNotifyBox::draw()
@@ -445,7 +465,7 @@ void LLNotifyBox::draw()
 	// If we are teleporting, stop the timer and restart it when the teleporting completes
 	if (gTeleportDisplay)
 		mEventTimer.stop();
-	else if (!mEventTimer.getStarted())
+	else if (!mEventTimer.getStarted() && (!mIsTip || !userIsInteracting())) // If it's not a tip, we can resume instantly, otherwise the user may be interacting
 		mEventTimer.start();
 
 	F32 display_time = mAnimateTimer.getElapsedTimeF32();

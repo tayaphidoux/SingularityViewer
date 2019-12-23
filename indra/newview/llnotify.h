@@ -72,6 +72,8 @@ protected:
 	
 	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
 	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL handleHover(S32 x, S32 y, MASK mask) override;
+	bool userIsInteracting() const;
 
 	// Animate as sliding onto the screen.
 	/*virtual*/ void draw() override;
