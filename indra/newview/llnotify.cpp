@@ -226,23 +226,23 @@ LLNotifyBox::LLNotifyBox(LLNotificationPtr notification)
 
 		const S32 MAX_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE;  // For script dialogs: add space for title.
 
-		auto text = new LLTextEditor(std::string("box"), LLRect(x, y, getRect().getWidth()-2, mIsTip ? BOTTOM : BTN_TOP+16), MAX_LENGTH, LLStringUtil::null, sFont, FALSE, true);
-		text->setWordWrap(TRUE);
-		text->setMouseOpaque(TRUE);
-		text->setBorderVisible(FALSE);
-		text->setTakesNonScrollClicks(TRUE);
-		text->setHideScrollbarForShortDocs(TRUE);
-		text->setReadOnlyBgColor ( LLColor4::transparent ); // the background color of the box is manually 
+		mText = new LLTextEditor(std::string("box"), LLRect(x, y, getRect().getWidth()-2, mIsTip ? BOTTOM : BTN_TOP+16), MAX_LENGTH, LLStringUtil::null, sFont, FALSE, true);
+		mText->setWordWrap(TRUE);
+		mText->setMouseOpaque(TRUE);
+		mText->setBorderVisible(FALSE);
+		mText->setTakesNonScrollClicks(TRUE);
+		mText->setHideScrollbarForShortDocs(TRUE);
+		mText->setReadOnlyBgColor ( LLColor4::transparent ); // the background color of the box is manually 
 															// rendered under the text box, therefore we want 
 															// the actual text box to be transparent
 
 		auto text_color = gColors.getColor(mIsCaution && mIsTip ? "NotifyCautionWarnColor" : "NotifyTextColor");
-		text->setReadOnlyFgColor(text_color); //sets caution text color for tip notifications
+		mText->setReadOnlyFgColor(text_color); //sets caution text color for tip notifications
 		if (!mIsCaution) // We could do some extra color math here to determine if bg's too close to link color, but let's just cross with the link color instead
-			text->setLinkColor(new LLColor4(lerp(text_color, gSavedSettings.getColor4("HTMLLinkColor"), 0.4f)));
-		text->setTabStop(FALSE); // can't tab to it (may be a problem for scrolling via keyboard)
-		text->appendText(message,false,false,nullptr,!layout_script_dialog); // Now we can set the text, since colors have been set.
-		addChild(text);
+			mText->setLinkColor(new LLColor4(lerp(text_color, gSavedSettings.getColor4("HTMLLinkColor"), 0.4f)));
+		mText->setTabStop(FALSE); // can't tab to it (may be a problem for scrolling via keyboard)
+		mText->appendText(message,false,false,nullptr,!layout_script_dialog); // Now we can set the text, since colors have been set.
+		addChild(mText);
 	}
 
 	if (mIsTip)

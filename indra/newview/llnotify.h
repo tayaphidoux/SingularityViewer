@@ -92,7 +92,7 @@ private:
 	void drawBackground() const;
 
 protected:
-	LLTextEditor *mUserInputBox;
+	LLTextEditor *mUserInputBox = nullptr, *mText = nullptr;
 
 	LLNotificationPtr mNotification;
 	bool mIsTip;
