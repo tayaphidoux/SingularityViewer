@@ -43,7 +43,7 @@ class LLNotifyBoxTemplate;
 class LLTextEditor;
 
 // NotifyBox - for notifications that require a response from the user.  
-class LLNotifyBox : 
+class LLNotifyBox final :
 	public LLPanel, 
 	public LLEventTimer,
 	public LLInitClass<LLNotifyBox>,
@@ -54,7 +54,7 @@ public:
 
 	bool isTip() const { return mIsTip; }
 	bool isCaution() const { return mIsCaution; }
-	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void setVisible(BOOL visible) override;
 	void stopAnimation() { mAnimating = false; }
 
 	void close();
@@ -70,12 +70,12 @@ protected:
 
 	LLButton* addButton(const std::string& name, const std::string& label, bool is_option, bool is_default, bool layout_script_dialog);
 	
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
 
 	// Animate as sliding onto the screen.
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL tick();
+	/*virtual*/ void draw() override;
+	/*virtual*/ BOOL tick() override;
 
 	void moveToBack(bool getfocus = false);
 
@@ -111,13 +111,13 @@ protected:
 	bool mAddedDefaultBtn;
 };
 
-class LLNotifyBoxView : public LLUICtrl
+class LLNotifyBoxView final : public LLUICtrl
 {
 public:
 	LLNotifyBoxView(const std::string& name, const LLRect& rect, BOOL mouse_opaque, U32 follows=FOLLOWS_NONE);
 	void showOnly(LLView* ctrl);
 	LLNotifyBox* getFirstNontipBox() const;
-	/*virtual*/ void deleteAllChildren();
+	/*virtual*/ void deleteAllChildren() override;
 
 	struct Matcher
 	{
