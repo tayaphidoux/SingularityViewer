@@ -416,7 +416,8 @@ LLButton* LLNotifyBox::addButton(const std::string& name, const std::string& lab
 
 BOOL LLNotifyBox::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (mIsTip)
+	bool done = LLPanel::handleMouseUp(x, y, mask);
+	if (!done && mIsTip)
 	{
 		mNotification->respond(mNotification->getResponseTemplate(LLNotification::WITH_DEFAULT_BUTTON));
 
@@ -426,7 +427,7 @@ BOOL LLNotifyBox::handleMouseUp(S32 x, S32 y, MASK mask)
 
 	setFocus(TRUE);
 
-	return LLPanel::handleMouseUp(x, y, mask);
+	return done;
 }
 
 // virtual
