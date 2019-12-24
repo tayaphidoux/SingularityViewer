@@ -20,7 +20,7 @@ variables:
       }
     - pipenv run autobuild configure -c Release -- -DUSE_FMODSTUDIO=ON -DUSE_NVAPI=ON -DUSE_LTO=ON -DVS_DISABLE_FATAL_WARNINGS=ON
     - pipenv run autobuild build -c Release --no-configure
-    - If ($env:VIEWER_USE_CRASHPAD) {
+    - If ($env:VIEWER_USE_CRASHPAD -eq 'TRUE') {
     - Push-Location .\build-vc-*\newview\Release\
     - sentry-cli upload-dif --include-sources singularity-bin.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1.dll libcrypto-1_1.pdb libssl-1_1.dll libssl-1_1.pdb libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb vcruntime140.dll msvcp140.dll libhunspell.dll libhunspell.pdb glod.dll
     - Pop-Location }
@@ -70,6 +70,7 @@ build:project:windows32:
   variables:
     AUTOBUILD_ADDRSIZE: 32
     VIEWER_CHANNEL_TYPE: Project
+    VIEWER_USE_CRASHPAD: "FALSE"
   only:
     - /^project-.*$/
 
@@ -87,6 +88,7 @@ build:beta:windows32:
   variables:
     AUTOBUILD_ADDRSIZE: 32
     VIEWER_CHANNEL_TYPE: Beta
+    VIEWER_USE_CRASHPAD: "FALSE"
   <<: *beta_rules
 
 build:beta:windows64:
@@ -101,6 +103,7 @@ build:release:windows32:
   variables:
     AUTOBUILD_ADDRSIZE: 32
     VIEWER_CHANNEL_TYPE: Release
+    VIEWER_USE_CRASHPAD: "FALSE"
   <<: *release_rules
 
 build:release:windows64:
