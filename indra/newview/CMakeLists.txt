@@ -1532,18 +1532,18 @@ if (WINDOWS)
     endif (ADDRESS_SIZE EQUAL 64)
 
     if (USE_FMODSTUDIO)
-      if (WORD_SIZE EQUAL 64)
+      if (ADDRESS_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
              ${SHARED_LIB_STAGING_DIR}/Release/fmod64.dll
              ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod64.dll
              ${SHARED_LIB_STAGING_DIR}/Debug/fmodL64.dll
             )
-      else (WORD_SIZE EQUAL 64)
+      else (ADDRESS_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
              ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
              ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
             )
-      endif (WORD_SIZE EQUAL 64)
+      endif (ADDRESS_SIZE EQUAL 64)
     endif (USE_FMODSTUDIO)
 
     if(MSVC_IDE)

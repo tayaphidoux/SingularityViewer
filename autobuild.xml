@@ -2771,7 +2771,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DWORD_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Singularity</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -2792,7 +2792,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DWORD_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Singularity</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -2943,7 +2943,7 @@
                 <array>
                   <string>-G</string>
                   <string>Ninja</string>
-                  <string>-DWORD_SIZE:STRING=64</string>
+                  <string>-DADDRESS_SIZE:STRING=64</string>
                 </array>
               </map>
               <key>default</key>
@@ -2968,7 +2968,7 @@
                 <array>
                   <string>-G</string>
                   <string>Ninja</string>
-                  <string>-DWORD_SIZE:STRING=64</string>
+                  <string>-DADDRESS_SIZE:STRING=64</string>
                 </array>
               </map>
               <key>name</key>
@@ -3068,7 +3068,7 @@
             </map>
           </map>
           <key>name</key>
-          <string>windows64</string>
+          <string>windows</string>
         </map>
       </map>
       <key>version_file</key>
