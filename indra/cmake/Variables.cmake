@@ -119,7 +119,6 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 # If someone has specified an address size, use that to determine the
 # architecture.  Otherwise, let the architecture specify the address size.
-set(ADDRESS_SIZE ${WORD_SIZE})
 if (ADDRESS_SIZE EQUAL 32)
   #message(STATUS "ADDRESS_SIZE is 32")
   set(ARCH i686)

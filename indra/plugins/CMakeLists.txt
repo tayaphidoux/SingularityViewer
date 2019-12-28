@@ -1,5 +1,7 @@
 # -*- cmake -*-
 
+include(Variables)
+
 add_subdirectory(base_basic)
 add_subdirectory(base_media)
 add_subdirectory(filepicker)
