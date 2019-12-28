@@ -3014,6 +3014,9 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
 		if (!mReadOnly && mSpellCheckable)
 		{
 			constexpr auto spell_sep = "Spell Check Sep";
+			// Remove everything after the separator if we added it, because menus don't autodie yet.
+			for (auto menu_end = menu->end(), menu_it = menu->find(menu->findChild<LLMenuItemGL>(spell_sep)); menu_it != menu_end; ++menu_it)
+				menu->removeChild(*menu_it);
 			menu->addSeparator(spell_sep);
 
 			// search for word matches
@@ -3036,15 +3039,8 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
 				}
 			}
 
-			const std::string showstr("Show Misspellings"), hidestr("Hide Misspellings");
 			bool show = !glggHunSpell->getSpellCheckHighlight();
-			auto word = show ? showstr : hidestr;
-			if (!menu->hasChild(word))
-			{
-				menu->addChild(new LLMenuItemCallGL(word, spell_show, nullptr, show ? &show : nullptr));
-				if (auto child = menu->getChild<LLView>(show ? hidestr : showstr, false, false))
-					menu->removeChild(child);
-			}
+			menu->addChild(new LLMenuItemCallGL(show ? "Show Misspellings" : "Hide Misspellings", spell_show, nullptr, show ? menu : nullptr));
 		}
 
 		mLastContextMenuX = x;
