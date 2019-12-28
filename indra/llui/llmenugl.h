@@ -533,7 +533,8 @@ public:
 	void insert(std::list<LLMenuItemGL*>::iterator position_iter, LLMenuItemGL* item, bool arrange = true);
 
 	// find an item's position
-	std::list<LLMenuItemGL*>::iterator find(LLMenuItemGL* item) { return std::find(mItems.begin(), mItems.end(), item); }
+	typedef std::list<LLMenuItemGL*> item_list_t;
+	item_list_t::iterator find(LLMenuItemGL* item) { return std::find(mItems.begin(), mItems.end(), item); }
 
 	void			setItemLastSelected(LLMenuItemGL* item);	// must be in menu
 	U32				getItemCount();				// number of menu items
