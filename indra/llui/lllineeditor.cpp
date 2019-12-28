@@ -181,7 +181,6 @@ LLLineEditor::LLLineEditor(const std::string& name, const LLRect& rect,
 
 	// make the popup menu available
 	LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_texteditor.xml", LLMenuGL::sMenuContainer);
-	menu->addSeparator();
 	//menu->setBackgroundColor(gColors.getColor("MenuPopupBgColor"));
 	menu->setCanTearOff(FALSE);
 	menu->setVisible(FALSE);
@@ -3014,6 +3013,8 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
 		// spell_check="true" in xui
 		if (!mReadOnly && mSpellCheckable)
 		{
+			constexpr auto spell_sep = "Spell Check Sep";
+			menu->addSeparator(spell_sep);
 
 			// search for word matches
 			S32 wordStart = 0;
