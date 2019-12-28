@@ -534,7 +534,13 @@ public:
 
 	// find an item's position
 	typedef std::list<LLMenuItemGL*> item_list_t;
-	item_list_t::iterator find(LLMenuItemGL* item) { return std::find(mItems.begin(), mItems.end(), item); }
+	item_list_t::const_iterator find(LLMenuItemGL* item) const { return std::find(mItems.begin(), mItems.end(), item); }
+
+	// end of items, for use with other members that return an iterator
+	item_list_t::const_iterator end() const { return mItems.cend(); }
+
+	// get list of items
+	const item_list_t& getItems() const { return mItems; }
 
 	// number of menu items
 	item_list_t::size_type LLMenuGL::getItemCount() const { return mItems.size(); }
@@ -594,9 +600,8 @@ public:
 	virtual BOOL appendMenu( LLMenuGL* menu );
 
 protected:
-	// TODO: create accessor methods for these?
-	typedef std::list< LLMenuItemGL* > item_list_t;
 	item_list_t mItems;
+	// TODO: create accessor methods for these?
 	LLMenuItemGL*mFirstVisibleItem;
 	LLMenuItemGL *mArrowUpItem, *mArrowDownItem;
 
