@@ -536,8 +536,10 @@ public:
 	typedef std::list<LLMenuItemGL*> item_list_t;
 	item_list_t::iterator find(LLMenuItemGL* item) { return std::find(mItems.begin(), mItems.end(), item); }
 
+	// number of menu items
+	item_list_t::size_type LLMenuGL::getItemCount() const { return mItems.size(); }
+
 	void			setItemLastSelected(LLMenuItemGL* item);	// must be in menu
-	U32				getItemCount();				// number of menu items
 	LLMenuItemGL*	getItem(S32 number);		// 0 = first item
 	LLMenuItemGL*	getHighlightedItem();				
 

@@ -3333,11 +3333,6 @@ void LLMenuGL::setTornOff(BOOL torn_off)
 	mTornOff = torn_off;
 }
 
-U32 LLMenuGL::getItemCount()
-{
-	return mItems.size();
-}
-
 LLMenuItemGL* LLMenuGL::getItem(S32 number)
 {
 	if (number >= 0 && number < (S32)mItems.size())
