@@ -490,7 +490,7 @@ public:
 	void setCanTearOff(BOOL tear_off);
 
 	// add a separator to this menu
-	virtual BOOL addSeparator();
+	virtual BOOL addSeparator(const std::string& name = LLStringUtil::null);
 
 	// for branching menu items, bring sub menus up to root level of menu hierarchy
 	virtual void updateParent( LLView* parentp );
@@ -764,7 +764,7 @@ public:
 private:
 	virtual BOOL append(LLMenuItemGL* item);
 public:
-	virtual BOOL addSeparator();
+	virtual BOOL addSeparator(const std::string& name = LLStringUtil::null) override final;
 
 	virtual void arrange( void );
 
@@ -844,7 +844,7 @@ public:
 	/*virtual*/ BOOL jumpKeysActive();
 
 	// add a vertical separator to this menu
-	virtual BOOL addSeparator();
+	virtual BOOL addSeparator(const std::string& name = LLStringUtil::null) override final;
 
 	// LLView Functionality
 	virtual BOOL handleHover( S32 x, S32 y, MASK mask );

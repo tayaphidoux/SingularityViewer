@@ -692,16 +692,17 @@ BOOL LLMenuItemSeparatorGL::handleHover(S32 x, S32 y, MASK mask)
 // This class represents a vertical separator.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLMenuItemVerticalSeparatorGL
+class LLMenuItemVerticalSeparatorGL final
 :	public LLMenuItemSeparatorGL
 {
 public:
-	LLMenuItemVerticalSeparatorGL( void );
+	LLMenuItemVerticalSeparatorGL(const std::string& name = LLStringUtil::null);
 
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override { return FALSE; }
 };
 
-LLMenuItemVerticalSeparatorGL::LLMenuItemVerticalSeparatorGL( void )
+LLMenuItemVerticalSeparatorGL::LLMenuItemVerticalSeparatorGL(const std::string& name)
+: LLMenuItemSeparatorGL(name)
 {
 	setLabel( VERTICAL_SEPARATOR_LABEL );
 }
@@ -826,15 +827,15 @@ U32 LLMenuItemTearOffGL::getNominalHeight( void ) const
 // This class represents a blank, non-functioning item.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLMenuItemBlankGL : public LLMenuItemGL
+class LLMenuItemBlankGL final : public LLMenuItemGL
 {
 public:
-	LLMenuItemBlankGL( void ) :	LLMenuItemGL( LLStringUtil::null, LLStringUtil::null )
+	LLMenuItemBlankGL(const std::string& name = LLStringUtil::null) : LLMenuItemGL(name, LLStringUtil::null)
 	{
 		setEnabled(FALSE);
 	}
-	virtual void onCommit( void ) {}
-	virtual void draw( void ) {}
+	void onCommit() override {}
+	void draw() override {}
 };
 
 
@@ -3243,9 +3244,9 @@ BOOL LLMenuGL::append( LLMenuItemGL* item )
 }
 
 // add a separator to this menu
-BOOL LLMenuGL::addSeparator()
+BOOL LLMenuGL::addSeparator(const std::string& name)
 {
-	LLMenuItemGL* separator = new LLMenuItemSeparatorGL();
+	LLMenuItemGL* separator = new LLMenuItemSeparatorGL(name);
 	return addChild(separator);
 }
 
@@ -4197,10 +4198,10 @@ S32 LLMenuBarGL::getRightmostMenuEdge()
 }
 
 // add a vertical separator to this menu
-BOOL LLMenuBarGL::addSeparator()
+BOOL LLMenuBarGL::addSeparator(const std::string& name)
 {
-	LLMenuItemGL* separator = new LLMenuItemVerticalSeparatorGL();
-	return append( separator );
+	LLMenuItemGL* separator = new LLMenuItemVerticalSeparatorGL(name);
+	return append(separator);
 }
 
 // add a menu - this will create a drop down menu.
@@ -5361,9 +5362,9 @@ BOOL LLPieMenu::append(LLMenuItemGL *item)
 }
 
 // virtual
-BOOL LLPieMenu::addSeparator()
+BOOL LLPieMenu::addSeparator(const std::string& name)
 {
-	return append( new LLMenuItemBlankGL() );
+	return append(new LLMenuItemBlankGL(name));
 }
 
 // virtual
