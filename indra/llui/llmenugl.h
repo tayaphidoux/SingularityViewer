@@ -530,10 +530,10 @@ public:
 
 	// add new item at position
 	void insert(S32 begin, LLView* ctrl, bool arrange = true);
-	void insert(std::list<LLMenuItemGL*>::iterator position_iter, LLMenuItemGL* item, bool arrange = true);
+	typedef std::list<LLMenuItemGL*> item_list_t;
+	void insert(item_list_t::const_iterator position_iter, LLMenuItemGL* item, bool arrange = true);
 
 	// find an item's position
-	typedef std::list<LLMenuItemGL*> item_list_t;
 	item_list_t::const_iterator find(LLMenuItemGL* item) const { return std::find(mItems.begin(), mItems.end(), item); }
 
 	// end of items, for use with other members that return an iterator

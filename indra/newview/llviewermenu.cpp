@@ -10009,7 +10009,7 @@ void parse_simulator_features()
 		LLMenuGL* menu = dynamic_cast<LLMenuGL*>(marker->getParent());
 		if (!menu) continue;
 
-		std::list<LLMenuItemGL*>::iterator it = menu->find(marker);
+		auto it = menu->find(marker);
 
 		for (LLSD::map_iterator j = i->second.beginMap(); j != i->second.endMap(); ++j)
 		{

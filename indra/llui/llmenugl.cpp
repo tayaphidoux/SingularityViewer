@@ -3194,7 +3194,7 @@ void LLMenuGL::insert(S32 position, LLView* ctrl, bool arrange /*= true*/)
 	std::advance(position_iter, position);
 	insert(position_iter, item, arrange);
 }
-void LLMenuGL::insert(item_list_t::iterator position_iter, LLMenuItemGL* item, bool arrange /*= true*/)
+void LLMenuGL::insert(item_list_t::const_iterator position_iter, LLMenuItemGL* item, bool arrange /*= true*/)
 {
 	mItems.insert(position_iter, item);
 	LLUICtrl::addChild(item);
