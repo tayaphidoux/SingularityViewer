@@ -549,7 +549,7 @@ public:
 	const item_list_t& getItems() const { return mItems; }
 
 	// number of menu items
-	item_list_t::size_type LLMenuGL::getItemCount() const { return mItems.size(); }
+	item_list_t::size_type getItemCount() const { return mItems.size(); }
 
 	void			setItemLastSelected(LLMenuItemGL* item);	// must be in menu
 	LLMenuItemGL*	getItem(S32 number);		// 0 = first item
