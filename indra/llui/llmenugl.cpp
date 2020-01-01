@@ -3167,12 +3167,7 @@ void LLMenuGL::erase( S32 begin, S32 end, bool arrange/* = true*/)
 	item_list_t::iterator end_position = mItems.begin();
 	std::advance(end_position, end);
 
-	for (item_list_t::iterator position_iter = start_position; position_iter != end_position; position_iter++)
-	{
-		LLUICtrl::removeChild(*position_iter);
-	}
-
-	mItems.erase(start_position, end_position);
+	erase(start_position, end_position);
 
 	if (arrange)
 	{
