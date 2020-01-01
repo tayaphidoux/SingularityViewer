@@ -390,7 +390,8 @@ void LLPanelPermissions::refresh()
 	// Update last owner text field
 	getChildView("Last Owner:")->setEnabled(TRUE);
 
-	std::string owner_app_link;
+	static const auto none_str = LLTrans::getString("GroupNameNone");
+	std::string owner_app_link(none_str);
 	if (auto view = getChild<LLTextBox>("Creator Name"))
 	{
 		if (LLSelectMgr::getInstance()->selectGetCreator(mCreatorID, owner_app_link))
@@ -405,6 +406,7 @@ void LLPanelPermissions::refresh()
 		view->setEnabled(true);
 	}
 
+	owner_app_link = none_str;
 	const BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(mOwnerID, owner_app_link);
 	if (auto view = getChild<LLTextBox>("Owner Name"))
 	{
@@ -422,6 +424,7 @@ void LLPanelPermissions::refresh()
 
 	if (auto view = getChild<LLTextBox>("Last Owner Name"))
 	{
+		owner_app_link = none_str;
 		if (LLSelectMgr::getInstance()->selectGetLastOwner(mLastOwnerID, owner_app_link))
 		{
 			view->setValue(mLastOwnerID);
