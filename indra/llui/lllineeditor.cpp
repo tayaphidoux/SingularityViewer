@@ -3015,8 +3015,7 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
 		{
 			constexpr auto spell_sep = "Spell Check Sep";
 			// Remove everything after the separator if we added it, because menus don't autodie yet.
-			for (auto menu_end = menu->end(), menu_it = menu->find(menu->findChild<LLMenuItemGL>(spell_sep)); menu_it != menu_end; ++menu_it)
-				menu->removeChild(*menu_it);
+			menu->erase(menu->find(menu->findChild<LLMenuItemGL>(spell_sep)), menu->end());
 			menu->addSeparator(spell_sep);
 
 			// search for word matches

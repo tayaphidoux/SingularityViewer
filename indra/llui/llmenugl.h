@@ -527,10 +527,16 @@ public:
 
 	// erase group of items from menu
 	void erase(S32 begin, S32 end, bool arrange = true);
+	typedef std::list<LLMenuItemGL*> item_list_t;
+	inline item_list_t::iterator erase(item_list_t::const_iterator first, item_list_t::const_iterator last)
+	{
+		for (auto it = first; it != last; ++it)
+			LLUICtrl::removeChild(*it);
+		return mItems.erase(first, last);
+	}
 
 	// add new item at position
 	void insert(S32 begin, LLView* ctrl, bool arrange = true);
-	typedef std::list<LLMenuItemGL*> item_list_t;
 	void insert(item_list_t::const_iterator position_iter, LLMenuItemGL* item, bool arrange = true);
 
 	// find an item's position
