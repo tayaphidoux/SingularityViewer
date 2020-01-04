@@ -2841,6 +2841,12 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 {
 	if(!category) return;
 
+	// Attachments getting lost on TP:
+	// We'll be sending the outfit change request to our current region,
+	// so we'll learn them if they've been sending bad kills.
+	// We don't take kindly to that sorta behaviour round these parts.
+	gAgent.setIsCrossingRegion(false);
+
 	selfClearPhases();
 	selfStartPhase("wear_inventory_category");
 

@@ -8564,6 +8564,7 @@ void handle_rebake_textures(void*)
 	{
 		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
 	}
+	gAgent.setIsCrossingRegion(false); // Attachments getting lost on TP
 }
 
 void toggle_visibility(void* user_data)

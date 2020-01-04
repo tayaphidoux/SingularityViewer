@@ -4904,6 +4904,8 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 	}
 	LL_INFOS("Messaging") << "process_crossed_region()" << LL_ENDL;
 	gAgentAvatarp->resetRegionCrossingTimer();
+	gAgent.setIsCrossingRegion(false); // Attachments getting lost on TP, region crossing hook
+
 
 	U32 sim_ip;
 	msg->getIPAddrFast(_PREHASH_RegionData, _PREHASH_SimIP, sim_ip);
@@ -5300,10 +5302,23 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 			LLViewerObject *objectp = gObjectList.findObject(id);
 			if (objectp)
 			{
-				if (different_region && gAgentAvatarp == objectp->getAvatar())
+				if (gAgentAvatarp == objectp->getAvatar())
 				{
-					LL_WARNS() << "Region other than our own killing our attachments!!" << LL_ENDL;
-					continue;
+					if (different_region)
+					{
+						LL_WARNS() << "Region other than our own killing our attachments!!" << LL_ENDL;
+						continue;
+					}
+					else if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+					{
+						LL_WARNS() << "Region killing our attachments during teleport!!" << LL_ENDL;
+						continue;
+					}
+					else if (gAgent.isCrossingRegion())
+					{
+						LL_WARNS() << "Region killing our attachments during region cross!!" << LL_ENDL;
+						continue;
+					}
 				}
 				// Display green bubble on kill
 				if ( gShowObjectUpdates )
@@ -6850,6 +6865,10 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			{
 				return true;
 			}
+		}
+		else if (notificationID == "expired_region_handoff" || notificationID == "invalid_region_handoff") // borked region handoff
+		{
+			gAgent.setIsCrossingRegion(false); // Attachments getting lost on TP
 		}
 		// HACK -- handle callbacks for specific alerts.
 		if (notificationID == "HomePositionSet")

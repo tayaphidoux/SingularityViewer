@@ -381,6 +381,7 @@ LLAgent::LLAgent() :
 
 	mAgentAccess(new LLAgentAccess(gSavedSettings)),
 	mGodLevelChangeSignal(),
+	mIsCrossingRegion(false),
 	mCanEditParcel(false),
 	mTeleportSourceSLURL(new LLSLURL),
 	mTeleportRequest(),
@@ -4431,6 +4432,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 	{
 		case TELEPORT_NONE:
 			mbTeleportKeepsLookAt = false;
+			mIsCrossingRegion = false; // Attachments getting lost on TP; finished TP
 			break;
 
 		case TELEPORT_MOVING:
