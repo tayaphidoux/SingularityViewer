@@ -600,12 +600,12 @@ void LLFloaterTools::refresh()
 						S32 index = 1;
 						for (const auto& child : children)
 						{
-							++index;
 							if (child->isSelected())
 							{
 								LLResMgr::getInstance()->getIntegerString(value_string, index);
 								break;
 							}
+							++index;
 						}
 					}
 				}
