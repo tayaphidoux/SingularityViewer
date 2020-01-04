@@ -6819,7 +6819,6 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 
 		std::string llsdRaw;
 		LLSD llsdBlock;
-		msgsystem->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, notificationID);
 		msgsystem->getStringFast(_PREHASH_AlertInfo, _PREHASH_ExtraParams, llsdRaw);
 		if (llsdRaw.length())
 		{
@@ -6870,6 +6869,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 		{
 			gAgent.setIsCrossingRegion(false); // Attachments getting lost on TP
 		}
+		else
 		// HACK -- handle callbacks for specific alerts.
 		if (notificationID == "HomePositionSet")
 		{
