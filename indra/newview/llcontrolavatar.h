@@ -52,6 +52,7 @@ public:
     // Delayed kill so we don't make graphics pipeline unhappy calling
     // markDead() inside other graphics pipeline operations.
     void markForDeath();
+    void markDead() override;
 
     void idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time) override;
 	BOOL updateCharacter(LLAgent &agent) override;
