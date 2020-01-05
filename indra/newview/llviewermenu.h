@@ -136,7 +136,7 @@ void handle_object_sit_or_stand();
 void handle_give_money_dialog();
 bool enable_pay_object();
 bool enable_buy_object();
-bool handle_go_to();
+void handle_go_to(const LLVector3d& pos);
 
 // Export to XML or Collada
 void handle_export_selected( void * );
