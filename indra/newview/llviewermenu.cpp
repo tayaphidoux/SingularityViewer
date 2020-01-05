@@ -2837,12 +2837,11 @@ class LLObjectPFLinksetsSelected : public view_listener_t
 
 // </edit>
 
-bool handle_go_to()
+void handle_go_to(const LLVector3d& pos)
 {
 	// try simulator autopilot
 	std::vector<std::string> strings;
 	std::string val;
-	LLVector3d pos = LLToolPie::getInstance()->getPick().mPosGlobal;
 	val = llformat("%.9g", pos.mdV[VX]);
 	strings.push_back(val);
 	val = llformat("%.9g", pos.mdV[VY]);
@@ -2868,14 +2867,13 @@ bool handle_go_to()
 
 	// Could be first use
 	LLFirstUse::useGoTo();
-	return true;
 }
 
 class LLGoToObject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		return handle_go_to();
+		return handle_go_to(LLToolPie::instance().getPick().mPosGlobal);
 	}
 };
 
