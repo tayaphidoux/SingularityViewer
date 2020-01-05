@@ -2873,7 +2873,8 @@ class LLGoToObject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		return handle_go_to(LLToolPie::instance().getPick().mPosGlobal);
+		handle_go_to(LLToolPie::instance().getPick().mPosGlobal);
+		return true;
 	}
 };
 
@@ -9388,6 +9389,17 @@ class ListIsNearby : public view_listener_t
 	}
 };
 
+const LLVector3d& get_av_pos(const LLUUID& id);
+class ListGoTo : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		auto id = LFIDBearer::getActiveSelectedID();
+		handle_go_to(LFIDBearer::getActiveType() == LFIDBearer::AVATAR ? get_av_pos(id) : gObjectList.findObject(id)->getPositionGlobal());
+		return true;
+	}
+};
+
 void track_av(const LLUUID& id);
 class ListTrack : public view_listener_t
 {
@@ -9921,6 +9933,7 @@ void initialize_menus()
 	addMenu(new ListStartIM(), "List.StartIM");
 	addMenu(new ListAbuseReport(), "List.AbuseReport");
 	addMenu(new ListIsNearby, "List.IsNearby");
+	addMenu(new ListGoTo, "List.GoTo");
 	addMenu(new ListTrack, "List.Track");
 	addMenu(new ListEject(), "List.ParcelEject");
 	addMenu(new ListFreeze(), "List.Freeze");

@@ -322,6 +322,17 @@ bool is_nearby(const LLUUID& id)
 	return std::find(avatars.begin(), avatars.end(), id) != avatars.end();
 }
 
+const LLVector3d& get_av_pos(const LLUUID& id)
+{
+	if (const auto inst = LLFloaterAvatarList::getIfExists())
+		if (const auto av = inst->getAvatarEntry(id))
+			return av->getPosition();
+
+	LLWorld::pos_map_t avatars;
+	LLWorld::instance().getAvatars(&avatars);
+	return avatars[id];
+}
+
 void track_av(const LLUUID& id)
 {
 	if (auto inst = LLFloaterAvatarList::getIfExists())
