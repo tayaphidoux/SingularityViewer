@@ -67,6 +67,7 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 	mPanel->postBuild();
 	mPanel->setFollows(FOLLOWS_ALL);
 	mPanel->setEnabled(true);
+	mPanel->removeBorder();
 	addChild(mPanel);
 	removeChild(panel);
 }
