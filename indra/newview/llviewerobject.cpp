@@ -3091,7 +3091,7 @@ void LLViewerObject::linkControlAvatar()
 {
 	if (!getControlAvatar() && isRootEdit())
 	{
-		LLVOVolume *volp = dynamic_cast<LLVOVolume*>(this);
+        LLVOVolume *volp = asVolume();
 		if (!volp)
 		{
 			LL_WARNS() << "called with null or non-volume object" << LL_ENDL;
@@ -5581,6 +5581,12 @@ void LLViewerObject::updateText()
 LLVOAvatar* LLViewerObject::asAvatar()
 {
 	return NULL;
+}
+
+// virtual 
+LLVOVolume* LLViewerObject::asVolume()
+{
+	return nullptr;
 }
 
 // If this object is directly or indirectly parented by an avatar,

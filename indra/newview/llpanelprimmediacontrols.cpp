@@ -320,7 +320,7 @@ void LLPanelPrimMediaControls::updateShape()
 	{
 		bool mini_controls = false;
 		LLMediaEntry *media_data = objectp->getTE(mTargetObjectFace)->getMediaData();
-		LLVOVolume *vol = dynamic_cast<LLVOVolume*>(objectp);
+        LLVOVolume *vol = objectp ? objectp->asVolume() : nullptr;
 		if (media_data && vol)
 		{
 			// Don't show the media controls if we do not have permissions

@@ -6923,7 +6923,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, uuid_set_t*
         }
     }
 
-	LLVOVolume *vobj = dynamic_cast<LLVOVolume*>(vo);
+	LLVOVolume *vobj = vo->asVolume();
 	if (vobj && vobj->isRiggedMesh() &&
 		vobj->getVolume() && vobj->getVolume()->isMeshAssetLoaded() && gMeshRepo.meshRezEnabled())
 	{
@@ -10567,7 +10567,7 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
 	{{
 			LLViewerObject* attached_object = iter.first;
 #endif
-            LLVOVolume *volume = dynamic_cast<LLVOVolume*>(attached_object);
+            LLVOVolume *volume = attached_object->asVolume();
             if (volume)
             {
                 volumes.push_back(volume);
@@ -10580,11 +10580,12 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
                 }
             }
             LLViewerObject::const_child_list_t& children = attached_object->getChildren();
-            for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-                 it != children.end(); ++it)
+			for (LLViewerObject* childp : children)
             {
-                LLViewerObject *childp = *it;
-                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(childp);
+				if (!childp) 
+					continue;
+
+                LLVOVolume *volume = childp->asVolume();
                 if (volume)
                 {
                     volumes.push_back(volume);
@@ -10601,11 +10602,9 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
         {
             volumes.push_back(volp);
             LLViewerObject::const_child_list_t& children = volp->getChildren();
-            for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-                 it != children.end(); ++it)
+            for (LLViewerObject* childp : children)
             {
-                LLViewerObject *childp = *it;
-                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(childp);
+                LLVOVolume *volume = childp ? childp->asVolume() : nullptr;
                 if (volume)
                 {
                     volumes.push_back(volume);
@@ -10950,7 +10949,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
 					++child_iter)
 				{
 					LLViewerObject* child_obj = *child_iter;
-					LLVOVolume *child = dynamic_cast<LLVOVolume*>(child_obj);
+                    LLVOVolume *child = child_obj ? child_obj->asVolume() : nullptr;
 					if (child)
 					{
 						attachment_children_cost += child->getRenderCost(textures);
@@ -11007,7 +11006,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
 				iter != child_list.end(); ++iter)
 			{
 				LLViewerObject* childp = *iter;
-				const LLVOVolume* chld_volume = dynamic_cast<LLVOVolume*>(childp);
+                const LLVOVolume* chld_volume = childp ? childp->asVolume() : nullptr;
 				if (chld_volume)
 				{
 					// get cost and individual textures

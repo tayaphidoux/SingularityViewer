@@ -69,6 +69,7 @@ class LLPrimitive;
 class LLTextureEntry;
 class LLVOAvatar;
 class LLVOInventoryListener;
+class LLVOVolume;
 class LLViewerInventoryItem;
 class LLViewerObject;
 class LLViewerObjectMedia;
@@ -157,6 +158,7 @@ public:
 	BOOL isParticleSource() const;
 
 	virtual LLVOAvatar* asAvatar();
+	virtual LLVOVolume* asVolume();
 
 	LLVOAvatar* getAvatarAncestor();
 

@@ -1383,8 +1383,8 @@ void LLFloaterTools::getMediaState()
 		for ( ; iter != end; ++iter)
 		{
 			LLSelectNode* node = *iter;
-			LLVOVolume* object = dynamic_cast<LLVOVolume*>(node->getObject());
-			if (NULL != object)
+			LLVOVolume* object = node ? node->getObject()->asVolume() : nullptr;
+			if (nullptr != object)
 			{
 				if (!object->permModify())
 				{
