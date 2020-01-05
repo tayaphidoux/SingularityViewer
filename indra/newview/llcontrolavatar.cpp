@@ -109,7 +109,7 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
 		unshift_extents[0] = extents[0] - mPositionConstraintFixup;
 		unshift_extents[1] = extents[1] - mPositionConstraintFixup;
         LLVector3 box_dims = extents[1]-extents[0];
-        //F32 box_size = llmax(box_dims[0],box_dims[1],box_dims[2]);
+        F32 box_size = llmax(box_dims[0],box_dims[1],box_dims[2]);
 
 		if (!mRootVolp->isAttachment())
 		{
@@ -129,15 +129,14 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
 			//	LL_DEBUGS("ConstraintFix") << "unshift_extents " << unshift_extents[0] << " " << unshift_extents[1] << LL_ENDL;
 			//
 			//}
-			}
 		}
-		/*if (box_size/mScaleConstraintFixup > max_legal_size)
+		if (box_size/mScaleConstraintFixup > max_legal_size)
 		{
 			new_scale_fixup = mScaleConstraintFixup*max_legal_size/box_size;
             //LL_DEBUGS("ConstraintFix") << getFullname() << " scale fix, box_size " << box_size << " fixup "
             //						   << mScaleConstraintFixup << " max legal " << max_legal_size
             //						   << " -> new scale " << new_scale_fixup << LL_ENDL;
-		}*/
+		}
 	}
 }
 
@@ -570,8 +569,26 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
             {
                 *intersection = local_intersection;
             }
-			
             hit = mRootVolp;
+        }
+        else
+        {
+            std::vector<LLVOVolume*> volumes;
+            getAnimatedVolumes(volumes);
+
+            for (auto volp : volumes)
+            {
+                if (mRootVolp != volp && volp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, face_hit, &local_intersection, tex_coord, normal, tangent))
+                {
+                    local_end = local_intersection;
+                    if (intersection)
+                    {
+                        *intersection = local_intersection;
+                    }
+                    hit = volp;
+                    break;
+                }
+            }
         }
 	}
 		
