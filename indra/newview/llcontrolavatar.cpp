@@ -339,6 +339,7 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 void LLControlAvatar::markForDeath()
 {
     mMarkedForDeath = true;
+    mRootVolp = NULL;
 }
 
 void LLControlAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
