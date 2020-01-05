@@ -606,7 +606,7 @@ bool LLControlAvatar::shouldRenderRigged() const
 }
 
 // virtual
-BOOL LLControlAvatar::isImpostor()
+BOOL LLControlAvatar::isImpostor() const
 {
     if (mRootVolp && mRootVolp->isAttachment())
     {

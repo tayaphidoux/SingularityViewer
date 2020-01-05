@@ -555,7 +555,7 @@ private:
 	// Impostors
 	//--------------------------------------------------------------------
 public:
-	BOOL 		isImpostor() const;
+	virtual BOOL isImpostor() const;
 	BOOL 		shouldImpostor(const U32 rank_factor = 1) const;
 	BOOL 		needsImpostorUpdate() const;
 	const LLVector3& getImpostorOffset() const;
