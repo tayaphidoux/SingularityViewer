@@ -386,6 +386,8 @@ void LLControlAvatar::updateDebugText()
 
         for (auto volp : volumes)
         {
+            if (volp)
+            {
                 S32 verts = 0;
                 total_tris += volp->getTriangleCount(&verts);
                 total_verts += verts;
