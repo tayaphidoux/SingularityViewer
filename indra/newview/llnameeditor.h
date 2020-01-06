@@ -44,7 +44,7 @@ class LLNameEditor final
 public:
 	LLNameEditor(const std::string& name, const LLRect& rect,
 		const LLUUID& name_id = LLUUID::null,
-		bool is_group = false,
+		const Type& type = AVATAR,
 		const std::string& loading = LLStringUtil::null,
 		bool rlv_sensitive = false,
 		const std::string& name_system = LLStringUtil::null,

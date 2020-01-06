@@ -445,7 +445,7 @@ void LLPanelPermissions::refresh()
 	{
 		if(mLabelGroupName)
 		{
-			mLabelGroupName->setNameID(group_id, TRUE);
+			mLabelGroupName->setNameID(group_id, LFIDBearer::GROUP);
 			mLabelGroupName->setEnabled(TRUE);
 		}
 	}
@@ -453,8 +453,8 @@ void LLPanelPermissions::refresh()
 	{
 		if(mLabelGroupName)
 		{
-			mLabelGroupName->setNameID(LLUUID::null, TRUE);
-			mLabelGroupName->refresh(LLUUID::null, std::string(), true);
+			mLabelGroupName->setNameID(LLUUID::null, LFIDBearer::GROUP);
+			mLabelGroupName->refresh(LLUUID::null, std::string());
 			mLabelGroupName->setEnabled(FALSE);
 		}
 	}
@@ -1016,7 +1016,7 @@ void LLPanelPermissions::cbGroupID(LLUUID group_id)
 {
 	if(mLabelGroupName)
 	{
-		mLabelGroupName->setNameID(group_id, TRUE);
+		mLabelGroupName->setNameID(group_id, LFIDBearer::GROUP);
 	}
 	LLSelectMgr::getInstance()->sendGroup(group_id);
 }

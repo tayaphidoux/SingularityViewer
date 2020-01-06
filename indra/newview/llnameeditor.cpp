@@ -42,20 +42,20 @@ static LLRegisterWidget<LLNameEditor> r("name_editor");
 
 LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 		const LLUUID& name_id,
-		bool is_group,
+		const Type& type,
 		const std::string& loading,
 		bool rlv_sensitive,
 		const std::string& name_system,
 		bool click_for_profile,
 		const LLFontGL* glfont,
 		S32 max_text_length)
-: LLNameUI(loading, rlv_sensitive, name_id, is_group, name_system)
+: LLNameUI(loading, rlv_sensitive, name_id, type, name_system)
 , LLLineEditor(name, rect, LLStringUtil::null, glfont, max_text_length)
 , mClickForProfile(click_for_profile)
 {
 	if (!name_id.isNull())
 	{
-		setNameID(name_id, is_group);
+		setNameID(name_id, type);
 	}
 	else setText(mInitialValue);
 }
@@ -83,7 +83,7 @@ BOOL LLNameEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	}
 	else // TODO: This is lazy, but I cannot recall a name editor that switches between group and avatar, so logic is not needed yet.
 	{
-		new_menu = mIsGroup ? "menu_nameeditor_group.xml" : "menu_nameeditor_avatar.xml";
+		new_menu = mType == GROUP ? "menu_nameeditor_group.xml" : "menu_nameeditor_avatar.xml";
 	}
 	if (!new_menu.empty()) setContextMenu(LLUICtrlFactory::instance().buildMenu(new_menu, LLMenuGL::sMenuContainer));
 	setActive();
@@ -136,8 +136,8 @@ LLView* LLNameEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 
 	S32 max_text_length = 1024;
 	node->getAttributeS32("max_length", max_text_length);
-	bool is_group = false;
-	node->getAttribute_bool("is_group", is_group);
+	S8 type = AVATAR;
+	node->getAttributeS8("type", type);
 	LLUUID id;
 	node->getAttributeUUID("id", id);
 	std::string loading;
@@ -151,7 +151,7 @@ LLView* LLNameEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 
 	LLNameEditor* line_editor = new LLNameEditor("name_editor",
 								rect,
-								id, is_group, loading, rlv_sensitive, name_system,
+								id, (Type)type, loading, rlv_sensitive, name_system,
 								click_for_profile,
 								LLView::selectFont(node),
 								max_text_length);

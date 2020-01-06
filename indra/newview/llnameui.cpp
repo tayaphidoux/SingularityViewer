@@ -46,35 +46,36 @@
 // statics
 std::set<LLNameUI*> LLNameUI::sInstances;
 
-LLNameUI::LLNameUI(const std::string& loading, bool rlv_sensitive, const LLUUID& id, bool is_group, const std::string& name_system)
-: mNameID(id), mRLVSensitive(rlv_sensitive), mIsGroup(!is_group), mAllowInteract(false)
+LLNameUI::LLNameUI(const std::string& loading, bool rlv_sensitive, const LLUUID& id, const Type& type, const std::string& name_system)
+: mNameID(id), mRLVSensitive(rlv_sensitive), mType(NONE), mAllowInteract(false)
 , mNameSystem(name_system.empty() ? "PhoenixNameSystem" : name_system), mInitialValue(!loading.empty() ? loading : LLTrans::getString("LoadingData"))
 {
-	setIsGroup(is_group);
+	setType(type);
 }
 
-void LLNameUI::setIsGroup(bool is_group)
+void LLNameUI::setType(const Type& type)
 {
 	// Disconnect active connections if needed
 	for (auto& connection : mConnections)
 		connection.disconnect();
 
-	if (mIsGroup != is_group)
+	if (mType != type)
 	{
-		if (mIsGroup = is_group)
+		if (type == GROUP)
 			sInstances.insert(this);
 		else
 		{
 			sInstances.erase(this);
 			mConnections[1] = gSavedSettings.getControl(mNameSystem)->getCommitSignal()->connect(boost::bind(&LLNameUI::setNameText, this));
 		}
+		mType = type;
 	}
 }
 
-void LLNameUI::setNameID(const LLUUID& name_id, bool is_group)
+void LLNameUI::setNameID(const LLUUID& name_id, const Type& type)
 {
 	mNameID = name_id;
-	setIsGroup(is_group);
+	setType(type);
 
 	if (mAllowInteract = mNameID.notNull())
 	{
@@ -82,7 +83,7 @@ void LLNameUI::setNameID(const LLUUID& name_id, bool is_group)
 	}
 	else
 	{
-		setText(LLTrans::getString(mIsGroup ? "GroupNameNone" : "AvatarNameNobody"));
+		setText(LLTrans::getString(mType == GROUP ? "GroupNameNone" : "AvatarNameNobody"));
 		displayAsLink(false);
 	}
 }
@@ -92,7 +93,7 @@ void LLNameUI::setNameText()
 	std::string name;
 	bool got_name = false;
 
-	if (mIsGroup)
+	if (mType == GROUP)
 	{
 		got_name = gCacheName->getGroupName(mNameID, name);
 	}
@@ -105,7 +106,7 @@ void LLNameUI::setNameText()
 			mConnections[0] = LLAvatarNameCache::get(mNameID, boost::bind(&LLNameUI::setNameText, this));
 	}
 
-	if (!mIsGroup && got_name && mRLVSensitive) // Filter if needed
+	if (mType == AVATAR && got_name && mRLVSensitive) // Filter if needed
 	{
 		if ((RlvActions::hasBehaviour(RLV_BHVR_SHOWNAMES) || RlvActions::hasBehaviour(RLV_BHVR_SHOWNAMETAGS))
 			&& mNameID != gAgentID && RlvUtil::isNearbyAgent(mNameID))
@@ -143,8 +144,10 @@ void LLNameUI::showProfile()
 {
 	if (!mAllowInteract) return;
 
-	if (mIsGroup)
-		LLGroupActions::show(mNameID);
-	else
-		LLAvatarActions::showProfile(mNameID);
+	switch (LFIDBearer::getActiveType())
+	{
+	case LFIDBearer::GROUP: LLGroupActions::show(mNameID); break;
+	case LFIDBearer::AVATAR: LLAvatarActions::showProfile(mNameID); break;
+	default: break;
+	}
 }

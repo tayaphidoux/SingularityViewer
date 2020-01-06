@@ -1241,7 +1241,7 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id)
 		if (mAvatarID.notNull())
 			LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarID, this);
 		mAvatarID = avatar_id;
-		getChild<LLNameEditor>("dnname")->setNameID(avatar_id, false);
+		getChild<LLNameEditor>("dnname")->setNameID(avatar_id, LFIDBearer::AVATAR);
 	}
 
 	if (avatar_id.isNull()) return;

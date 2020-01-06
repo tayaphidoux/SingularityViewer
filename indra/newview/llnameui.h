@@ -38,21 +38,20 @@
 
 struct LLNameUI : public LFIDBearer
 {
-	LLNameUI(const std::string& loading = LLStringUtil::null, bool rlv_sensitive = false, const LLUUID& id = LLUUID::null, bool is_group = false, const std::string& name_system = LLStringUtil::null);
+	LLNameUI(const std::string& loading = LLStringUtil::null, bool rlv_sensitive = false, const LLUUID& id = LLUUID::null, const Type& type = AVATAR, const std::string& name_system = LLStringUtil::null);
 	virtual ~LLNameUI()
 	{
-		if (mIsGroup)
-			sInstances.erase(this);
+		if (mType == GROUP)	sInstances.erase(this);
 		for (auto& connection : mConnections)
 			connection.disconnect();
 	}
 
 	LLUUID getStringUUIDSelectedItem() const override final { return mNameID; }
 	S32 getNumSelected() const override final { return 1; }
-	Type getSelectedType() const override final { return mIsGroup ? GROUP : AVATAR; }
+	Type getSelectedType() const override final { return mType; }
 
-	void setIsGroup(bool is_group);
-	void setNameID(const LLUUID& name_id, bool is_group);
+	void setType(const Type& type);
+	void setNameID(const LLUUID& name_id, const Type& type);
 	void setNameText(); // Sets the name to whatever the name cache has at the moment
 	void refresh(const LLUUID& id, const std::string& name);
 	static void refreshAll(const LLUUID& id, const std::string& name);
@@ -66,9 +65,9 @@ struct LLNameUI : public LFIDBearer
 	virtual void setValue(const LLSD& value)
 	{
 		if (value.has("id"))
-			setNameID(value["id"].asUUID(), value["group"].asBoolean());
+			setNameID(value["id"].asUUID(), (Type)value["type"].asInteger());
 		else
-			setNameID(value.asUUID(), mIsGroup);
+			setNameID(value.asUUID(), mType);
 	}
 	// Return agent UUIDs
 	virtual LLSD getValue() const { return LLSD(mNameID); }
@@ -80,7 +79,7 @@ private:
 protected:
 	LLUUID mNameID;
 	bool mRLVSensitive; // Whether or not we're doing RLV filtering
-	bool mIsGroup;
+	Type mType;
 	bool mAllowInteract;
 	std::string mInitialValue;
 	std::string mNameSystem;
