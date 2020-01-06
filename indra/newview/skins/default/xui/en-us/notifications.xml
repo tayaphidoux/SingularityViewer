@@ -11415,7 +11415,9 @@ The object you're attempting to restore in world is no copy, if you do not have 
    name="ServerVersionChanged"
    priority="high"
    type="notifytip">
-The region you have entered is running a different simulator version. Click this message for details.
+The region you have entered is running a different simulator version.
+Current simulator: [NEW_VERSION]
+Previous simulator: [OLD_VERSION]
   </notification>
 
   <notification

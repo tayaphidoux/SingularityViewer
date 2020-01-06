@@ -3697,6 +3697,8 @@ Une erreur est survenue pendant la connexion au chat vocal pour [VOICE_CHANNEL_N
 
 	<notification name="ServerVersionChanged">
 La région dans laquelle vous avez pénétré utilise une version de simulateur différente. C'est ballot, mais c'est la vie !
+Current simulator: [NEW_VERSION]
+Previous simulator: [OLD_VERSION]
 	</notification>
 
 	<notification name="UnableToOpenCommandURL">

@@ -4882,9 +4882,10 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 	if (!gLastVersionChannel.empty() && gSavedSettings.getBOOL("SGServerVersionChangedNotification"))
 	{
-		LLSD payload;
-		payload["message"] = version_channel;
-		LLNotificationsUtil::add("ServerVersionChanged", LLSD(), payload);
+		LLSD args;
+		args["OLD_VERSION"] = gLastVersionChannel;
+		args["NEW_VERSION"] = version_channel;
+		LLNotificationsUtil::add("ServerVersionChanged", args);
 	}
 
 	gLastVersionChannel = version_channel;

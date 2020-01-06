@@ -3962,6 +3962,8 @@ Mais detalhes no log.
 
 	<notification name="ServerVersionChanged">
 		A região em que você entrou está rodando uma versão diferente de simulador.
+Current simulator: [NEW_VERSION]
+Previous simulator: [OLD_VERSION]
 	</notification>
 	<notification name="MeshUploadPermError">
 		Erro ao solicitar permissões de upload de mesh.
