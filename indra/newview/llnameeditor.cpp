@@ -86,7 +86,7 @@ BOOL LLNameEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		new_menu = mIsGroup ? "menu_nameeditor_group.xml" : "menu_nameeditor_avatar.xml";
 	}
 	if (!new_menu.empty()) setContextMenu(LLUICtrlFactory::instance().buildMenu(new_menu, LLMenuGL::sMenuContainer));
-	sActive = this;
+	setActive();
 
 	return LLLineEditor::handleRightMouseDown(x, y, mask);
 }

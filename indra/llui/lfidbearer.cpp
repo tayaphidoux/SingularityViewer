@@ -30,7 +30,8 @@ const std::array<const std::string, LFIDBearer::COUNT> LFIDBearer::sMenuStrings
 };
 std::array<LLMenuGL*, LFIDBearer::COUNT> LFIDBearer::sMenus {};
 
-LFIDBearer* LFIDBearer::sActive = nullptr;
+const LFIDBearer* LFIDBearer::sActive = nullptr;
+LFIDBearer::Type LFIDBearer::sActiveType = LFIDBearer::AVATAR;
 
 void LFIDBearer::buildMenus()
 {
@@ -49,7 +50,7 @@ LLMenuGL* LFIDBearer::showMenu(LLView* self, const std::string& menu_name, S32 x
 
 void LFIDBearer::showMenu(LLView* self, LLMenuGL* menu, S32 x, S32 y)
 {
-	sActive = this; // Menu listeners rely on this
+	setActive(); // Menu listeners rely on this
 	menu->buildDrawLabels();
 	menu->updateParent(LLMenuGL::sMenuContainer);
 	LLMenuGL::showPopup(self, menu, x, y);

@@ -130,7 +130,7 @@ void LLPanelGroupTab::handleClickHelp()
 	}
 }
 
-void copy_profile_uri(const LLUUID& id, LFIDBearer::Type type);
+void copy_profile_uri(const LLUUID& id, const LFIDBearer::Type& type);
 
 LLPanelGroup::LLPanelGroup(const LLUUID& group_id)
 :	LLPanel("PanelGroup", LLRect(), FALSE),

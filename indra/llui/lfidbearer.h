@@ -43,11 +43,18 @@ struct LFIDBearer
 	virtual S32 getNumSelected() const { return getStringUUIDSelectedItem().notNull(); }
 	virtual Type getSelectedType() const { return AVATAR; }
 
-	template<typename T> static T* getActive() { return static_cast<T*>(sActive); }
+	template<typename T> static const T* getActive() { return static_cast<const T*>(sActive); }
 	static LLUUID getActiveSelectedID() { return sActive->getStringUUIDSelectedItem(); }
 	static uuid_vec_t getActiveSelectedIDs() { return sActive->getSelectedIDs(); }
 	static S32 getActiveNumSelected() { return sActive->getNumSelected(); }
-	static Type getActiveType() { return sActive->getSelectedType(); }
+	static const Type& getActiveType() { return sActiveType; }
+
+	void setActive() const
+	{
+		sActive = this;
+		sActiveType = getSelectedType();
+		//sActiveIDs or even some kinda hybrid map, if Type is MULTIPLE fill the vals? and remove a buncha virtual functions?
+	}
 
 	static void buildMenus();
 	LLMenuGL* showMenu(LLView* self, const std::string& menu_name, S32 x, S32 y, std::function<void(LLMenuGL*)> on_menu_built = nullptr);
@@ -57,5 +64,8 @@ protected:
 	// Menus that recur, such as general avatars or groups menus
 	static const std::array<const std::string, COUNT> sMenuStrings;
 	static std::array<LLMenuGL*, COUNT> sMenus;
-	static LFIDBearer* sActive;
+
+private:
+	static const LFIDBearer* sActive;
+	static Type sActiveType;
 };

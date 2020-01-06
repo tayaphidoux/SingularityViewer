@@ -1340,18 +1340,15 @@ void LLFolderView::copy() const
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
-		LLFolderViewEventListener* listener = NULL;
-		selected_items_t::iterator item_it;
-		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+		for (auto item : mSelectedItems)
 		{
-			listener = (*item_it)->getListener();
-			if(listener)
+			if(auto listener = item->getListener())
 			{
 				listener->copyToClipboard();
 			}
 		}
 	}
-	mSearchString.clear();
+	//mSearchString.clear(); // Singu Note: There's no good reason to clear out the jumpto item search string now, it'll time out anyway, let's remain const
 }
 
 BOOL LLFolderView::canCut() const

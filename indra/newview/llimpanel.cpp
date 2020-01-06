@@ -1128,7 +1128,7 @@ void LLFloaterIMPanel::removeDynamicFocus()
 	findChild<LLComboBox>("instant_message_flyout")->remove(getString("focus"));
 }
 
-void copy_profile_uri(const LLUUID& id, LFIDBearer::Type type = LFIDBearer::AVATAR);
+void copy_profile_uri(const LLUUID& id, const LFIDBearer::Type& type = LFIDBearer::AVATAR);
 
 void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 {

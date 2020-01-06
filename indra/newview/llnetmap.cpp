@@ -53,6 +53,7 @@
 #include "llavatarnamecache.h"
 #include "llcallingcard.h"
 #include "llcolorscheme.h"
+#include "llfloatermap.h"
 #include "llfloaterworldmap.h"
 #include "llframetimer.h"
 // [SL:KB] - Patch: World-MinimapOverlay | Checked: 2012-06-20 (Catznip-3.3.0)
@@ -1360,7 +1361,7 @@ BOOL LLNetMap::handleMouseUp( S32 x, S32 y, MASK mask )
 bool OverlayToggle::handleEvent(LLPointer<LLEvent> event, const LLSD& sdParam)
 {
 	// Force an overlay update
-	LFIDBearer::getActive<LLNetMap>()->mUpdateParcelImage = true;
+	LLFloaterMap::findInstance()->mPanelMap->mUpdateParcelImage = true;
 	return true;
 }
 // [/SL:KB]
@@ -1472,7 +1473,7 @@ BOOL LLNetMap::handleHover( S32 x, S32 y, MASK mask )
 // static
 bool LLScaleMap::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 {
-	LLNetMap *self = LFIDBearer::getActive<LLNetMap>();
+	auto self = LLFloaterMap::findInstance()->mPanelMap;
 
 	S32 level = userdata.asInteger();
 
