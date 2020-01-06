@@ -261,6 +261,7 @@ bool cmd_line_chat(std::string data, EChatType type)
 		static LLCachedControl<std::string> sRegionMsgCommand(gSavedSettings,  "SinguCmdLineRegionSay");
 		static LLCachedControl<std::string> sTeleportToCam(gSavedSettings,  "AscentCmdTeleportToCam");
 		static LLCachedControl<std::string> sHoverHeight(gSavedSettings, "AlchemyChatCommandHoverHeight", "/hover");
+		static LLCachedControl<std::string> sSetNearbyChatChannelCmd(gSavedSettings, "AlchemyChatCommandSetChatChannel", "/setchannel");
 		static LLCachedControl<std::string> sResyncAnimCommand(gSavedSettings, "AlchemyChatCommandResyncAnim", "/resync");
 		static LLCachedControl<std::string> sKeyToName(gSavedSettings,  "AscentCmdLineKeyToName");
 		static LLCachedControl<std::string> sOfferTp(gSavedSettings,  "AscentCmdLineOfferTp");
@@ -446,6 +447,15 @@ bool cmd_line_chat(std::string data, EChatType type)
 				LLRegionInfoModel::sendEstateOwnerMessage(gMessageSystem, "simulatormessage", LLFloaterRegionInfo::getLastInvoice(), strings);
 			}
 			return false;
+		}
+		else if (cmd == utf8str_tolower(sSetNearbyChatChannelCmd)) // Set nearby chat channel
+		{
+			S32 chan;
+			if (input >> chan)
+			{
+				gSavedSettings.setS32("AlchemyNearbyChatChannel", chan);
+				return false;
+			}
 		}
 		else if (cmd == utf8str_tolower(sTeleportToCam))
 		{

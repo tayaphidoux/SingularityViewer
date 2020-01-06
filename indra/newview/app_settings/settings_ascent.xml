@@ -146,6 +146,17 @@
       <key>Value</key>
       <string>/resync</string>
     </map>
+    <key>AlchemyChatCommandSetChatChannel</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to set nearby chat channel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/setchannel</string>
+    </map>
     <key>AlchemyConnectToNeighbors</key>
     <map>
       <key>Comment</key>
