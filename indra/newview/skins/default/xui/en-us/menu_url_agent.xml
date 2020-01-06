@@ -33,6 +33,11 @@
     <menu_item_call label="Invite To Group" name="Invite To Group">
       <on_click function="List.InviteToGroup"/>
     </menu_item_call>
+    <menu_item_call label="Move To" name="Move To">
+      <on_click function="List.GoTo"/>
+      <on_enable function="List.EnableSingleSelected"/>
+      <on_visible function="List.IsNearby"/>
+    </menu_item_call>
     <menu_item_call label="Offer Teleport" name="Offer Teleport">
       <on_click function="List.OfferTeleport"/>
     </menu_item_call>
