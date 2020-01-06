@@ -255,6 +255,7 @@ bool cmd_line_chat(std::string data, EChatType type)
 		static LLCachedControl<std::string> sPosCommand(gSavedSettings,  "AscentCmdLinePos");
 		static LLCachedControl<std::string> sRezPlatCommand(gSavedSettings,  "AscentCmdLineRezPlatform");
 		static LLCachedControl<std::string> sHomeCommand(gSavedSettings,  "AscentCmdLineTeleportHome");
+		static LLCachedControl<std::string> sSetHomeCommand(gSavedSettings, "AlchemyChatCommandSetHome", "/sethome");
 		static LLCachedControl<std::string> sCalcCommand(gSavedSettings,  "AscentCmdLineCalc");
 		static LLCachedControl<std::string> sMapToCommand(gSavedSettings,  "AscentCmdLineMapTo");
 		static LLCachedControl<std::string> sClearCommand(gSavedSettings,  "AscentCmdLineClearChat");
@@ -363,6 +364,11 @@ bool cmd_line_chat(std::string data, EChatType type)
 		else if (cmd == utf8str_tolower(sHomeCommand)) // home
 		{
 			gAgent.teleportHome();
+			return false;
+		}
+		else if (cmd == utf8str_tolower(sSetHomeCommand)) // sethome
+		{
+			gAgent.setStartPosition(START_LOCATION_ID_HOME);
 			return false;
 		}
 		else if (cmd == utf8str_tolower(sCalcCommand))//Cryogenic Blitz
