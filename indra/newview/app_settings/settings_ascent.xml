@@ -807,6 +807,17 @@
 			<key>Value</key>
 			<string>key2name</string>
 		</map>
+                <key>AscentCmdLineKeyToNameNameSystem</key>
+                <map>
+                  <key>Comment</key>
+		  <string>For key to name command defined by AscentCmdLineKeyToName, the format to show the key's name in. 0 = Old Style, 1 = Display Names and Username, 2 = Displayname only, 3 = Old Style (Display Name)</string>
+		  <key>Persist</key>
+		  <integer>1</integer>
+		  <key>Type</key>
+		  <string>S32</string>
+		  <key>Value</key>
+		  <integer>1</integer>
+                </map>
 		<key>AscentCmdLineOfferTp</key>
 		<map>
 			<key>Comment</key>

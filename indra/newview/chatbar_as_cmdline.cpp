@@ -236,6 +236,7 @@ struct ProfCtrlListAccum : public LLControlGroup::ApplyFunctor
 #endif //PROF_CTRL_CALLS
 void spew_key_to_name(const LLUUID& targetKey, const LLAvatarName& av_name)
 {
+	static const LLCachedControl<S32> ns(gSavedSettings, "AscentCmdLineKeyToNameNameSystem");
 	cmdline_printchat(llformat("%s: %s", targetKey.asString().c_str(), av_name.getNSName().c_str()));
 }
 bool cmd_line_chat(std::string data, EChatType type)
