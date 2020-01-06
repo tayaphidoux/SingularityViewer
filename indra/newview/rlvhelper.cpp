@@ -210,6 +210,10 @@ RlvCommandOptionGeneric::RlvCommandOptionGeneric(const std::string& strOption): 
 	m_fValid = true;
 }
 
+// ============================================================================
+// RlvCommandOption structures
+//
+
 // Checked: 2012-07-28 (RLVa-1.4.7)
 class RlvCommandOptionGetPathCallback
 {
@@ -268,6 +272,14 @@ RlvCommandOptionGetPath::RlvCommandOptionGetPath(const RlvCommand& rlvCmd, getpa
 	else if (rlvCmdOption.isAttachmentPoint())	// ... or it can specify an attachment point
 	{
 		getItemIDs(rlvCmdOption.getAttachmentPoint(), m_idItems);
+	}
+	else if (rlvCmdOption.isUUID())				// ... or it can specify a specific attachment
+	{
+		const LLViewerObject* pAttachObj = gObjectList.findObject(rlvCmdOption.getUUID());
+		if ( (pAttachObj) && (pAttachObj->isAttachment()) && (pAttachObj->permYouOwner()) )
+			m_idItems.push_back(pAttachObj->getAttachmentItemID());
+		else
+			m_fValid = false;
 	}
 	else if (rlvCmdOption.isEmpty())			// ... or it can be empty (in which case we act on the object that issued the command)
 	{
