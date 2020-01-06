@@ -979,8 +979,6 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& tool_tip, LLRect* stick
 
 				LLVector3d myPosition = gAgent.getPositionGlobal();
 
-				std::map<LLUUID, LLVector3d>::iterator current = mClosestAgentsToCursor.begin();
-				std::map<LLUUID, LLVector3d>::iterator end = mClosestAgentsToCursor.end();
 				for (const auto& target : mClosestAgentsToCursor)
 				{
 					const auto& targetUUID = target.first;
