@@ -123,7 +123,7 @@ void LLNameUI::setNameText()
 	setText(got_name ? name : mInitialValue);
 }
 
-void LLNameUI::refresh(const LLUUID& id, const std::string& full_name, bool is_group)
+void LLNameUI::refresh(const LLUUID& id, const std::string& full_name)
 {
 	if (id == mNameID)
 	{
@@ -131,12 +131,11 @@ void LLNameUI::refresh(const LLUUID& id, const std::string& full_name, bool is_g
 	}
 }
 
-void LLNameUI::refreshAll(const LLUUID& id, const std::string& full_name, bool is_group)
+void LLNameUI::refreshAll(const LLUUID& id, const std::string& full_name)
 {
-	if (!is_group) return;
 	for (auto box : sInstances)
 	{
-		box->refresh(id, full_name, is_group);
+		box->refresh(id, full_name);
 	}
 }
 
