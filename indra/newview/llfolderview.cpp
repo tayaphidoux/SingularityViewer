@@ -1333,7 +1333,7 @@ BOOL LLFolderView::canCopy() const
 }
 
 // copy selected item
-void LLFolderView::copy()
+void LLFolderView::copy() const
 {
 	// *NOTE: total hack to clear the inventory clipboard
 	LLInventoryClipboard::instance().reset();

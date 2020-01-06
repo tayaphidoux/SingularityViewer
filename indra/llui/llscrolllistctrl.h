@@ -322,7 +322,7 @@ public:
 	virtual void		scrollToShowSelected();
 
 	// LLEditMenuHandler functions
-	virtual void	copy();
+	void			copy() const override final;
 	virtual BOOL	canCopy() const;
 	virtual void	cut();
 	virtual BOOL	canCut() const;

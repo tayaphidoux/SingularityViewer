@@ -2874,7 +2874,7 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 // LLEditMenuHandler functions
 
 // virtual
-void	LLScrollListCtrl::copy()
+void	LLScrollListCtrl::copy() const
 {
 	std::string buffer;
 	for (auto item : getAllSelected())

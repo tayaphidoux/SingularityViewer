@@ -3529,7 +3529,7 @@ LLViewerMediaImpl::canCut() const
 ////////////////////////////////////////////////////////////////////////////////
 // virtual
 void
-LLViewerMediaImpl::copy()
+LLViewerMediaImpl::copy() const
 {
 	LLPluginClassMedia* mMediaSource = getMediaPlugin();
 	if (mMediaSource)

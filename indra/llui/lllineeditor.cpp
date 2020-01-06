@@ -1119,7 +1119,7 @@ BOOL LLLineEditor::canCopy() const
 
 
 // copy selection to clipboard
-void LLLineEditor::copy()
+void LLLineEditor::copy() const
 {
 	if( canCopy() )
 	{

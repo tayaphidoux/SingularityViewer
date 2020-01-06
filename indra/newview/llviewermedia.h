@@ -339,7 +339,7 @@ public:
 	/*virtual*/ void	cut() override;
 	/*virtual*/ BOOL	canCut() const override;
 
-	/*virtual*/ void	copy() override;
+	/*virtual*/ void	copy() const override final;
 	/*virtual*/ BOOL	canCopy() const override;
 
 	/*virtual*/ void	paste() override;

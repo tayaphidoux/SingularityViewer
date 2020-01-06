@@ -129,9 +129,9 @@ public:
 	virtual BOOL	canRedo() const;
 	virtual void	cut();
 	virtual BOOL	canCut() const;
-	void			copy(bool raw);
-	void			copyRaw() { copy(true); }
-	virtual void	copy() { copy(false); }
+	void			copy(bool raw) const;
+	void			copyRaw() const { copy(true); }
+	void			copy() const override final { copy(false); }
 	virtual BOOL	canCopy() const;
 	virtual void	paste();
 	virtual BOOL	canPaste() const;

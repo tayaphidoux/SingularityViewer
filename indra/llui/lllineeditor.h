@@ -107,7 +107,7 @@ public:
 	virtual void	cut();
 	virtual BOOL	canCut() const;
 
-	virtual void	copy();
+	void			copy() const override final;
 	virtual BOOL	canCopy() const;
 
 	virtual void	paste();

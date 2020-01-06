@@ -2216,7 +2216,7 @@ BOOL LLTextEditor::canCopy() const
 }
 
 // copy selection to clipboard
-void LLTextEditor::copy(bool raw)
+void LLTextEditor::copy(bool raw) const
 {
 	if( !canCopy() )
 	{
