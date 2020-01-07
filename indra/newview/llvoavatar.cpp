@@ -4153,10 +4153,7 @@ void LLVOAvatar::clearNameTag()
 //static
 void LLVOAvatar::invalidateNameTag(const LLUUID& agent_id)
 {
-	LLViewerObject* obj = gObjectList.findObject(agent_id);
-	if (!obj) return;
-
-	LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(obj);
+	LLVOAvatar* avatar = gObjectList.findAvatar(agent_id);
 	if (!avatar) return;
 
 	avatar->clearNameTag();
