@@ -1726,6 +1726,7 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 			mAutoPilotFinishedCallback = NULL;
 		}
 		mLeaderID = LLUUID::null;
+		mAutoPilotNoProgressFrameCount = 0;
 
 		setControlFlags(AGENT_CONTROL_STOP);
 
