@@ -9357,7 +9357,8 @@ class ListTeleportTo : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		gAgent.teleportViaLocation(get_av_pos(LFIDBearer::getActiveSelectedID()));
+		const auto&& id = LFIDBearer::getActiveSelectedID();
+		gAgent.teleportViaLocation(LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? gObjectList.findObject(id)->getPositionGlobal() : get_av_pos(id));
 		return true;
 	}
 };
@@ -9394,7 +9395,8 @@ class ListIsNearby : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(is_nearby(LFIDBearer::getActiveSelectedID()));
+		const auto&& id = LFIDBearer::getActiveSelectedID();
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? gObjectList.findObject(id) : is_nearby(id));
 		return true;
 	}
 };
