@@ -45,6 +45,11 @@
       <on_click function="List.InviteToGroup"/>
       <on_visible function="List.EnableAnySelected"/>
     </menu_item_call>
+    <menu_item_call label="Follow" name="Follow">
+      <on_click function="List.Follow"/>
+      <on_enable function="List.EnableSingleSelected"/>
+      <on_visible function="List.IsNearby"/>
+    </menu_item_call>
     <menu_item_call label="Move To" name="Move To">
       <on_click function="List.GoTo"/>
       <on_enable function="List.EnableSingleSelected"/>

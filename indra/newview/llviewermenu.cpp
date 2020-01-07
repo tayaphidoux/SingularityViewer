@@ -2505,15 +2505,22 @@ BOOL enable_has_attachments(void*)
 //---------------------------------------------------------------------------
 // Avatar pie menu
 //---------------------------------------------------------------------------
-//void handle_follow(void *userdata)
-//{
-//	// follow a given avatar by ID
-//	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-//	if (objectp)
-//	{
-//		gAgent.startFollowPilot(objectp->getID());
-//	}
-//}
+
+class LLObjectFollow : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		// follow a given avatar by ID
+		LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		if (objectp)
+		{
+			if (auto av = objectp->getAvatarAncestor()) // Follow the avatar, not a control avatar or an attachment, if possible
+				objectp = av;
+			gAgent.startFollowPilot(objectp->getID(), true, 1.0f);
+		}
+		return true;
+	}
+};
 
 bool enable_object_mute()
 {
@@ -9401,6 +9408,15 @@ class ListIsNearby : public view_listener_t
 	}
 };
 
+class ListFollow : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		gAgent.startFollowPilot(LFIDBearer::getActiveSelectedID(), true, 1.0f);
+		return true;
+	}
+};
+
 class ListGoTo : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9813,6 +9829,7 @@ void initialize_menus()
 	addMenu(new LLOHGOD(), "Object.EnableExplode");
 	add_wave_listeners();
 	add_dae_listeners();
+	addMenu(new LLObjectFollow(), "Object.Follow");
 	// </edit>
 	addMenu(new LLObjectMute(), "Object.Mute");
 	addMenu(new LLObjectBuy(), "Object.Buy");
@@ -9945,6 +9962,7 @@ void initialize_menus()
 	addMenu(new ListTeleportTo, "List.TeleportTo");
 	addMenu(new ListAbuseReport(), "List.AbuseReport");
 	addMenu(new ListIsNearby, "List.IsNearby");
+	addMenu(new ListFollow, "List.Follow");
 	addMenu(new ListGoTo, "List.GoTo");
 	addMenu(new ListTrack, "List.Track");
 	addMenu(new ListEject(), "List.ParcelEject");
