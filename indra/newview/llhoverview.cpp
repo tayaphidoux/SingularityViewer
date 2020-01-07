@@ -306,6 +306,8 @@ void LLHoverView::updateText()
 				line.append(LLTrans::getString("TooltipPerson"));
 			}
 			mText.push_back(line);
+
+			mText.push_back(llformat("ARC: %d", hit_object->asAvatar()->getVisualComplexity()));
 		}
 		else
 		{
