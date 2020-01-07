@@ -9352,6 +9352,16 @@ class ListStartIM : public view_listener_t
 	}
 };
 
+const LLVector3d& get_av_pos(const LLUUID& id);
+class ListTeleportTo : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		gAgent.teleportViaLocation(get_av_pos(LFIDBearer::getActiveSelectedID()));
+		return true;
+	}
+};
+
 class ListAbuseReport : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9389,7 +9399,6 @@ class ListIsNearby : public view_listener_t
 	}
 };
 
-const LLVector3d& get_av_pos(const LLUUID& id);
 class ListGoTo : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9931,6 +9940,7 @@ void initialize_menus()
 	addMenu(new ListStartCall(), "List.StartCall");
 	addMenu(new ListStartConference(), "List.StartConference");
 	addMenu(new ListStartIM(), "List.StartIM");
+	addMenu(new ListTeleportTo, "List.TeleportTo");
 	addMenu(new ListAbuseReport(), "List.AbuseReport");
 	addMenu(new ListIsNearby, "List.IsNearby");
 	addMenu(new ListGoTo, "List.GoTo");

@@ -400,15 +400,6 @@ namespace
 		}
 	};
 
-	class RadarTeleportTo : public view_listener_t
-	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-		{
-			gAgent.teleportViaLocation(get_av_pos(LFIDBearer::getActiveSelectedID()));
-			return true;
-		}
-	};
-
 	class RadarAnnounceKeys : public view_listener_t
 	{
 		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -428,7 +419,6 @@ void add_radar_listeners()
 	addMenu(new RadarFocus, "Radar.Focus");
 	addMenu(new RadarFocusPrev, "Radar.FocusPrev");
 	addMenu(new RadarFocusNext, "Radar.FocusNext");
-	addMenu(new RadarTeleportTo, "Radar.TeleportTo");
 	addMenu(new RadarAnnounceKeys, "Radar.AnnounceKeys");
 }
 
