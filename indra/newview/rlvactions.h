@@ -36,8 +36,6 @@ public:
 	static bool canReceiveIM(const LLUUID& idSender);
 
 	/*
-
-	/*
 	 * Returns true if the user is allowed to chat on the specified channel
 	 */
 	static bool canSendChannel(int nChannel);
