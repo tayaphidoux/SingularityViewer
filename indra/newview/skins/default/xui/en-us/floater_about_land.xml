@@ -78,7 +78,7 @@
 			<name_box type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom="-162" drop_shadow_visible="true" enabled="false" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="16" left="96"
-			     mouse_opaque="true" name="GroupText" v_pad="0" type="1"/>
+			     mouse_opaque="true" name="GroupText" v_pad="0" id_type="1"/>
 			<button bottom="-160" enabled="true" follows="left|top" font="SansSerifSmall"
 			     halign="center" height="16" label="Set..." label_selected="Set..."
 			     left="350" mouse_opaque="true" name="Set..." scale_image="true" width="90" />

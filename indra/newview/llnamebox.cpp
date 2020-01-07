@@ -105,7 +105,7 @@ LLXMLNodePtr LLNameBox::getXML(bool save_children) const
 LLView* LLNameBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
 	S8 type = AVATAR;
-	node->getAttributeS8("type", type);
+	node->getAttributeS8("id_type", type);
 	LLUUID id;
 	node->getAttributeUUID("id", id);
 	std::string loading;

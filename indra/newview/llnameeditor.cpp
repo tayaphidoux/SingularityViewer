@@ -137,7 +137,7 @@ LLView* LLNameEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	S32 max_text_length = 1024;
 	node->getAttributeS32("max_length", max_text_length);
 	S8 type = AVATAR;
-	node->getAttributeS8("type", type);
+	node->getAttributeS8("id_type", type);
 	LLUUID id;
 	node->getAttributeUUID("id", id);
 	std::string loading;

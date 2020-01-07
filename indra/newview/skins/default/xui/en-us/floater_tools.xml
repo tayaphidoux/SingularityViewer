@@ -497,7 +497,7 @@
 			    bottom="-126" 
 			    left_delta="78"
 			    name="Group Name Proxy"
-			    width="142" type="1"/>
+			    width="142" id_type="1"/>
 			<button bottom="-126" follows="top|right" font="SansSerifSmall" halign="center"
 			    height="16" label="Set" label_selected="Set..." left_delta="142"
 			    mouse_opaque="true" name="button set group" scale_image="TRUE" width="30" />
