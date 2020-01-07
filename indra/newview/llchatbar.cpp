@@ -217,7 +217,7 @@ BOOL LLChatBar::handleKeyHere( KEY key, MASK mask )
 
 void LLChatBar::onFocusLost()
 {
-	stopChat();
+	//stopChat();
 }
 
 void LLChatBar::refresh()
