@@ -2516,7 +2516,7 @@ class LLObjectFollow : public view_listener_t
 		{
 			if (auto av = objectp->getAvatarAncestor()) // Follow the avatar, not a control avatar or an attachment, if possible
 				objectp = av;
-			gAgent.startFollowPilot(objectp->getID(), true, 1.0f);
+			gAgent.startFollowPilot(objectp->getID(), true, gSavedSettings.getF32("SinguFollowDistance"));
 		}
 		return true;
 	}
@@ -9412,7 +9412,7 @@ class ListFollow : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		gAgent.startFollowPilot(LFIDBearer::getActiveSelectedID(), true, 1.0f);
+		gAgent.startFollowPilot(LFIDBearer::getActiveSelectedID(), true, gSavedSettings.getF32("SinguFollowDistance"));
 		return true;
 	}
 };

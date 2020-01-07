@@ -917,6 +917,17 @@
 			<key>Value</key>
 			<real>0</real>
 		</map>
+		<key>SinguFollowDistance</key>
+		<map>
+			<key>Comment</key>
+			<string>Distance at which to follow objects and avatars at, from menus that offer follow (minimum 0.5)</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>F32</string>
+			<key>Value</key>
+			<string>1.0</string>
+		</map>
 		<key>SinguLastKnownReleaseBuild</key>
 		<map>
 			<key>Comment</key>
