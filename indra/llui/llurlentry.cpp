@@ -673,12 +673,9 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		if (cb)
-		{
-			auto connection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2));
-			mAvatarNameCacheConnections.emplace(agent_id, connection);
-			addObserver(agent_id_string, url, cb);
-		}
+		auto connection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2));
+		mAvatarNameCacheConnections.emplace(agent_id, connection);
+		addObserver(agent_id_string, url, cb);
 		return name_wait_str;
 	}
 }
@@ -789,12 +786,9 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 	}
 	else
 	{
-		if (cb)
-		{
-			auto connection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2));
-			mAvatarNameCacheConnections.emplace(agent_id, connection);
-			addObserver(agent_id_string, url, cb);
-		}
+		auto connection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2));
+		mAvatarNameCacheConnections.emplace(agent_id, connection);
+		addObserver(agent_id_string, url, cb);
 		return name_wait_str;
 	}
 }
@@ -928,13 +922,10 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		if (cb)
-		{
-			gCacheName->getGroup(group_id,
-				boost::bind(&LLUrlEntryGroup::onGroupNameReceived,
-					this, _1, _2, _3));
-			addObserver(group_id_string, url, cb);
-		}
+		gCacheName->getGroup(group_id,
+			boost::bind(&LLUrlEntryGroup::onGroupNameReceived,
+				this, _1, _2, _3));
+		addObserver(group_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}
 }
@@ -1038,7 +1029,7 @@ std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelC
 	std::string parcel_id_string = unescapeUrl(path_array[2]); // parcel id
 
 	// Add an observer to call LLUrlLabelCallback when we have parcel name.
-	if (cb) addObserver(parcel_id_string, url, cb);
+	addObserver(parcel_id_string, url, cb);
 
 	LLUUID parcel_id(parcel_id_string);
 

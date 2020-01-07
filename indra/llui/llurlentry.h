@@ -42,7 +42,7 @@ class LLAvatarName;
 typedef boost::signals2::signal<void (const std::string& url,
 									  const std::string& label,
 									  const std::string& icon)> LLUrlLabelSignal;
-typedef LLUrlLabelSignal::slot_function_type LLUrlLabelCallback;
+typedef LLUrlLabelSignal::slot_type LLUrlLabelCallback;
 
 ///
 /// LLUrlEntryBase is the base class of all Url types registered in the 
