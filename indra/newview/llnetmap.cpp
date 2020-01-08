@@ -1508,8 +1508,13 @@ bool LLScaleMap::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 //moymod - minimap color shit
 void markMassAgents(const LLColor4& color)
 {
+	auto radar = LLFloaterAvatarList::getInstance();
 	for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+	{
 		mm_setcolor(id, color);
+		if (auto entry = radar ? radar->getAvatarEntry(id) : nullptr)
+			entry->setMarked(true);
+	}
 }
 
 bool mmsetred::handleEvent(LLPointer<LLEvent>, const LLSD&)
@@ -1539,8 +1544,13 @@ bool mmsetcustom::handleEvent(LLPointer<LLEvent>, const LLSD&)
 }
 bool mmsetunmark::handleEvent(LLPointer<LLEvent>, const LLSD&)
 {
+	auto radar = LLFloaterAvatarList::getInstance();
 	for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+	{
 		mm_clearMark(id);
+		if (auto entry = radar ? radar->getAvatarEntry(id) : nullptr)
+			entry->setMarked(false);
+	}
 	return true;
 }
 bool mmenableunmark::handleEvent(LLPointer<LLEvent>, const LLSD& userdata)

@@ -210,10 +210,6 @@
     </menu_item_call>
   </menu>
   <menu label="Hide Columns" name="Hide Columns" create_jump_keys="true">
-    <menu_item_check label="Mark" name="Mark">
-      <on_click function="ToggleControl" userdata="RadarColumnMarkHidden"/>
-      <on_check control="RadarColumnMarkHidden"/>
-    </menu_item_check>
     <menu_item_check label="Position" name="Position">
       <on_click function="ToggleControl" userdata="RadarColumnPositionHidden"/>
       <on_check control="RadarColumnPositionHidden"/>

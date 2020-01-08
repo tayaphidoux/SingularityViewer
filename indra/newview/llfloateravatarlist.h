@@ -124,7 +124,7 @@ enum ACTIVITY_TYPE
 
 	bool isInList() const { return mIsInList; }
 
-	void toggleMark() { mMarked = !mMarked; }
+	void setMarked(bool marked) { mMarked = marked; }
 
 	struct uuidMatch
 	{
