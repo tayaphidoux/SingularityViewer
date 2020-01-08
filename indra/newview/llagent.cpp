@@ -1757,16 +1757,25 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		bool follow = !mLeaderID.isNull(); //mAutoPilotBehaviorName == "Follow";
 		if (follow)
 		{
-			LLViewerObject* object = gObjectList.findObject(mLeaderID);
-			if (!object)
+			if (auto object = gObjectList.findObject(mLeaderID))
 			{
-				mAutoPilotBehaviorName.clear(); // Nothing left to follow pilot
-				stopAutoPilot();
-				return;
+				mAutoPilotTargetGlobal = object->getPositionGlobal();
+				if (const auto& av = object->asAvatar()) // Fly if avatar target is flying
+					setFlying(av->mInAir);
 			}
-			mAutoPilotTargetGlobal = object->getPositionGlobal();
-			if (const auto& av = object->asAvatar()) // Fly if avatar target is flying
-				setFlying(av->mInAir);
+			else // We might still have a valid avatar pos
+			{
+				const LLVector3d& get_av_pos(const LLUUID & id);
+				auto pos = get_av_pos(mLeaderID);
+				if (pos.isExactlyZero()) // Default constructed or invalid from server
+				{
+					mAutoPilotBehaviorName.clear(); // Nothing left to follow pilot
+					stopAutoPilot();
+					return;
+				}
+				mAutoPilotTargetGlobal = pos;
+				// Should we fly if the height difference is great enough here? Altitude is often invalid...
+			}
 		}
 		
 		if (!isAgentAvatarValid()) return;
