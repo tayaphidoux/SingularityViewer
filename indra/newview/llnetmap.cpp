@@ -1005,7 +1005,7 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& tool_tip, LLRect* stick
 						LLVector3d delta = targetPosition - myPosition;
 						F32 distance = (F32)delta.magVec();
 						if (single_agent)
-							tool_tip.append( llformat("\n\n(Distance: %.02fm)\n",distance) );
+							tool_tip.append( llformat("\n(Distance: %.02fm)\n",distance) );
 						else
 							tool_tip.append(llformat(" (%.02fm)\n", distance));
 					}
