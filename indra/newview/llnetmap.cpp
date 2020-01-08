@@ -296,15 +296,25 @@ std::size_t hash_value(const LLUUID& uuid)
 	return (std::size_t)uuid.getCRC32();
 }
 boost::unordered_map<const LLUUID,LLColor4> mm_MarkerColors;
-bool mm_getMarkerColor(const LLUUID& id, LLColor4& color)
+const LLColor4* mm_getMarkerColor(const LLUUID& id)
 {
-	boost::unordered_map<const LLUUID,LLColor4>::const_iterator it = mm_MarkerColors.find(id);
-	if (it == mm_MarkerColors.end()) return false;
-	color = it->second;
-	return true;
+	auto it = mm_MarkerColors.find(id);
+	return it == mm_MarkerColors.end() ? nullptr : &it->second;
 }
 
-void LLNetMap::mm_setcolor(LLUUID key,LLColor4 col)
+bool mm_getMarkerColor(const LLUUID& id, LLColor4& color)
+{
+	auto c = mm_getMarkerColor(id);
+	if (c) color = *c;
+	return c;
+}
+
+void mm_clearMark(const LLUUID& id)
+{
+	mm_MarkerColors.erase(id);
+}
+
+void mm_setcolor(LLUUID key,LLColor4 col)
 {
 	mm_MarkerColors[key] = col;
 }
@@ -1499,7 +1509,7 @@ bool LLScaleMap::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 void markMassAgents(const LLColor4& color)
 {
 	for (const auto& id : LFIDBearer::getActiveSelectedIDs())
-		LLNetMap::mm_setcolor(id, color);
+		mm_setcolor(id, color);
 }
 
 bool mmsetred::handleEvent(LLPointer<LLEvent>, const LLSD&)
@@ -1530,7 +1540,7 @@ bool mmsetcustom::handleEvent(LLPointer<LLEvent>, const LLSD&)
 bool mmsetunmark::handleEvent(LLPointer<LLEvent>, const LLSD&)
 {
 	for (const auto& id : LFIDBearer::getActiveSelectedIDs())
-		mm_MarkerColors.erase(id);
+		mm_clearMark(id);
 	return true;
 }
 bool mmenableunmark::handleEvent(LLPointer<LLEvent>, const LLSD& userdata)

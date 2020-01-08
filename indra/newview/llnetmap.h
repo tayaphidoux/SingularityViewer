@@ -72,9 +72,6 @@ public:
 	uuid_vec_t getSelectedIDs() const override final { return mClosestAgentsAtLastClick; }
 	S32 getNumSelected() const override final { return mClosestAgentsAtLastClick.size(); }
 
-	static void mm_setcolor(LLUUID key,LLColor4 col); //moymod
-
-
 // [SL:KB] - Patch: World-MinimapOverlay | Checked: 2012-06-20 (Catznip-3.3.0)
 	void			refreshParcelOverlay() { mUpdateParcelImage = true; }
 // [/SL:KB]
@@ -157,7 +154,7 @@ private:
 	LLUUID			mClosestAgentToCursor;
 	LLUUID			mClosestAgentAtLastRightClick;
 
-	BOOL isAgentUnderCursor() { return mClosestAgentToCursor.notNull(); }
+	BOOL isAgentUnderCursor() const { return mClosestAgentToCursor.notNull(); }
 	LLMenuGL*		mPopupMenu;
 };
 
