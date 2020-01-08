@@ -9403,7 +9403,7 @@ class ListIsNearby : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		const auto&& id = LFIDBearer::getActiveSelectedID();
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? gObjectList.findObject(id) : is_nearby(id));
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? !!gObjectList.findObject(id) : is_nearby(id));
 		return true;
 	}
 };
