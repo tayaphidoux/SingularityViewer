@@ -545,7 +545,7 @@ void LLHoverView::updateText()
 					}
 					mText.push_back(line);
 
-					auto& objects = LLSelectMgr::getInstance()->getHoverObjects();
+					auto objects = LLSelectMgr::getInstance()->getHoverObjects();
 
 					line.clear();
 					S32 prim_count = objects->getObjectCount();
