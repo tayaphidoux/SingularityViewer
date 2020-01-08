@@ -87,7 +87,6 @@
 		<on_click function="StopTracking" />
 		<on_visible function="IsTracking" />
 	</menu_item_call>
-  <menu name="avs_menu" label="Selected Avatars" filename="menu_local_avs.xml">
 	<menu name="Mark" label="Mark">
 		<menu_item_call label="Red" name="Red">
 			<on_click function="MiniMap.setred" />
@@ -109,7 +108,7 @@
       <on_click function="MiniMap.setunmark" />
       <on_enable function="MiniMap.enableunmark" />
     </menu_item_call>
-  </menu>
+  <menu name="avs_menu" label="Selected Avatars" filename="menu_local_avs.xml"/>
   <menu_item_check label="World Map Textures" name="World Map Textures">
     <on_check control="MiniMapWorldMapTextures" />
     <on_click function="ToggleControl" userdata="MiniMapWorldMapTextures" />
