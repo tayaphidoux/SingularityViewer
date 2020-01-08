@@ -1613,12 +1613,14 @@ void LLAgent::startAutoPilotGlobal(
 		mAutoPilotFlyOnStop = FALSE;
 	}
 
-	if (distance > 30.0 && mAutoPilotAllowFlying)
+	bool follow = mAutoPilotBehaviorName == "Follow";
+
+	if (!follow && distance > 30.0 && mAutoPilotAllowFlying)
 	{
 		setFlying(TRUE);
 	}
 
-	if ( distance > 1.f &&
+	if (!follow && distance > 1.f &&
 		mAutoPilotAllowFlying &&
 		heightDelta > (sqrtf(mAutoPilotStopDistance) + 1.f))
 	{
