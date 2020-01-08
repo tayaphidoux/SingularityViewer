@@ -1498,9 +1498,8 @@ bool LLScaleMap::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 //moymod - minimap color shit
 void markMassAgents(const LLColor4& color)
 {
-	auto self = LFIDBearer::getActive<LLNetMap>();
-	for (const auto& id : self->getSelectedIDs())
-		self->mm_setcolor(id, color);
+	for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+		LLNetMap::mm_setcolor(id, color);
 }
 
 bool mmsetred::handleEvent(LLPointer<LLEvent>, const LLSD&)
