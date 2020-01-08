@@ -375,7 +375,7 @@ LLTextEditor::~LLTextEditor()
 const std::string& LLTextEditor::getMenuSegmentUrl() const
 {
 	auto segment = getSegmentAtLocalPos(mLastContextMenuX, mLastContextMenuY);
-	auto style = segment->getStyle();
+	auto style = segment ? segment->getStyle() : nullptr;
 	return style ? style->getLinkHREF() : LLStringUtil::null;
 }
 
