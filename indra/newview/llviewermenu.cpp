@@ -9583,6 +9583,15 @@ class ListActivate : public view_listener_t
 	}
 };
 
+class ListObjectCamTo : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		gAgentCamera.lookAtObject(LFIDBearer::getActiveSelectedID(), false);
+		return true;
+	}
+};
+
 class MediaCtrlCopyURL : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -9975,6 +9984,7 @@ void initialize_menus()
 	addMenu(new ListLeave, "List.Leave");
 	addMenu(new ListJoin, "List.Join");
 	addMenu(new ListActivate, "List.Activate");
+	addMenu(new ListObjectCamTo, "List.Object.CamTo");
 
 	add_radar_listeners();
 

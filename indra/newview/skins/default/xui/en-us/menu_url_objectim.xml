@@ -40,6 +40,10 @@
         <menu_item_call.on_click
          function="Text.Url" userdata="Teleport" />
     </menu_item_call>
+    <menu_item_call label="Cam To" name="Cam To">
+      <on_click function="List.Object.CamTo"/>
+      <on_visible function="List.IsNearby"/>
+    </menu_item_call>
     <menu_item_call label="Follow" name="Follow">
       <on_click function="List.Follow"/>
       <on_visible function="List.IsNearby"/>
