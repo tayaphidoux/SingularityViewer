@@ -9333,6 +9333,7 @@ class ListShowProfile : public view_listener_t
 		{
 		case LFIDBearer::AVATAR: LLAvatarActions::showProfiles(LFIDBearer::getActiveSelectedIDs()); break;
 		case LFIDBearer::GROUP: LLGroupActions::showProfiles(LFIDBearer::getActiveSelectedIDs()); break;
+		case LFIDBearer::OBJECT: for (const auto& id : LFIDBearer::getActiveSelectedIDs()) LLUrlAction::openURL(get_slurl_for(id, LFIDBearer::OBJECT)); break;
 		default: break;
 		}
 		return true;
