@@ -9287,13 +9287,13 @@ bool can_show_web_profile()
 	return !gSavedSettings.getString("WebProfileURL").empty();
 }
 
-void show_log_browser(const LLUUID& id);
+void show_log_browser(const LLUUID& id, const LFIDBearer::Type& type);
 class ListShowLog : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		for (const LLUUID& id : LFIDBearer::getActiveSelectedIDs())
-			show_log_browser(id);
+			show_log_browser(id, LFIDBearer::getActiveType());
 		return true;
 	}
 };

@@ -19,6 +19,11 @@
     <on_enable function="List.EnableSingleSelected"/>
     <on_visible function="List.IsInGroup"/>
   </menu_item_call>
+  <menu_item_call label="Chat History" name="Chat History">
+    <on_click function="List.ShowLog"/>
+    <on_enable function="List.EnableAnySelected"/>
+    <on_visible function="List.IsInGroup"/>
+  </menu_item_call>
   <menu_item_call label="Join Group" name="join_group">
     <on_click function="List.Join"/>
     <on_visible function="List.NotInGroup"/>

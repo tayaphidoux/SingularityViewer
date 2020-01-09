@@ -337,12 +337,21 @@ void LLPanelAvatarFirstLife::enableControls(BOOL self)
 void show_picture(const LLUUID& id, const std::string& name);
 static std::string profile_picture_title(const std::string& str) { return "Profile Picture: " + str; }
 static void show_partner_help() { LLNotificationsUtil::add("ClickPartnerHelpAvatar", LLSD(), LLSD(), boost::bind(LLPanelAvatarSecondLife::onClickPartnerHelpLoadURL, _1, _2)); }
-void show_log_browser(const LLUUID& id)
+void show_log_browser(const LLUUID& id, const LFIDBearer::Type& type)
 {
 	void show_log_browser(const std::string& name, const std::string& id);
-	LLAvatarName av_name;
-	LLAvatarNameCache::get(id, &av_name);
-	show_log_browser(av_name.getLegacyName(), id.asString());
+	std::string name;
+	if (type == LFIDBearer::AVATAR)
+	{
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(id, &av_name);
+		name = av_name.getLegacyName();
+	}
+	else // GROUP
+	{
+		gCacheName->getGroupName(id, name);
+	}
+	show_log_browser(name, id.asString());
 }
 BOOL LLPanelAvatarSecondLife::postBuild()
 {
@@ -368,7 +377,7 @@ BOOL LLPanelAvatarSecondLife::postBuild()
 	getChild<LLUICtrl>("GroupInvite_Button")->setCommitCallback(boost::bind(static_cast<void(*)(const LLUUID&)>(LLAvatarActions::inviteToGroup), boost::bind(&LLPanelAvatar::getAvatarID, pa)));
 
 	getChild<LLUICtrl>("Add Friend...")->setCommitCallback(boost::bind(LLAvatarActions::requestFriendshipDialog, boost::bind(&LLPanelAvatar::getAvatarID, pa)));
-	getChild<LLUICtrl>("Log")->setCommitCallback(boost::bind(show_log_browser, boost::bind(&LLPanelAvatar::getAvatarID, pa)));
+	getChild<LLUICtrl>("Log")->setCommitCallback(boost::bind(show_log_browser, boost::bind(&LLPanelAvatar::getAvatarID, pa), LFIDBearer::AVATAR));
 	getChild<LLUICtrl>("Pay...")->setCommitCallback(boost::bind(LLAvatarActions::pay, boost::bind(&LLPanelAvatar::getAvatarID, pa)));
 	if (LLUICtrl* ctrl = findChild<LLUICtrl>("Mute"))
 	{
