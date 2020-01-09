@@ -2845,9 +2845,8 @@ class LLObjectPFLinksetsSelected : public view_listener_t
 
 // </edit>
 
-void handle_go_to(const LLVector3d& pos)
+void simulator_autopilot(const LLVector3d& pos)
 {
-	// try simulator autopilot
 	std::vector<std::string> strings;
 	std::string val;
 	val = llformat("%.9g", pos.mdV[VX]);
@@ -2857,6 +2856,12 @@ void handle_go_to(const LLVector3d& pos)
 	val = llformat("%.9g", pos.mdV[VZ]);
 	strings.push_back(val);
 	send_generic_message("autopilot", strings);
+}
+
+void handle_go_to(const LLVector3d& pos)
+{
+	// try simulator autopilot
+	simulator_autopilot(pos);
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
 
