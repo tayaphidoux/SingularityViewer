@@ -80,13 +80,21 @@ BOOL JCFloaterAreaSearch::postBuild()
 	mResultList = getChild<LLScrollListCtrl>("result_list");
 	mResultList->setDoubleClickCallback(boost::bind(&JCFloaterAreaSearch::onDoubleClick,this));
 	mResultList->sortByColumn("Name", TRUE);
+	auto tp = getChild<LLButton>("TP");
+	auto look = getChild<LLButton>("Look");
+	mResultList->setCommitOnSelectionChange(true);
+	mResultList->setCommitCallback([=](LLUICtrl* ctrl, const LLSD& param){
+		bool enabled = mResultList->getNumSelected() == 1;
+		tp->setEnabled(enabled);
+		look->setEnabled(enabled);
+	});
 
 	mCounterText = getChild<LLTextBox>("counter");
 
 	getChild<LLButton>("Refresh")->setClickedCallback(boost::bind(&JCFloaterAreaSearch::onRefresh,this));
 	getChild<LLButton>("Stop")->setClickedCallback(boost::bind(&JCFloaterAreaSearch::onStop,this));
-	getChild<LLButton>("TP")->setClickedCallback(boost::bind(&JCFloaterAreaSearch::teleportToSelected, this));
-	getChild<LLButton>("Look")->setClickedCallback(boost::bind(&JCFloaterAreaSearch::lookAtSelected, this));
+	tp->setClickedCallback(boost::bind(&JCFloaterAreaSearch::teleportToSelected, this));
+	look->setClickedCallback(boost::bind(&JCFloaterAreaSearch::lookAtSelected, this));
 
 	getChild<LLFilterEditor>("Name query chunk")->setCommitCallback(boost::bind(&JCFloaterAreaSearch::onCommitLine,this,_1,_2,LIST_OBJECT_NAME));
 	getChild<LLFilterEditor>("Description query chunk")->setCommitCallback(boost::bind(&JCFloaterAreaSearch::onCommitLine,this,_1,_2,LIST_OBJECT_DESC));
