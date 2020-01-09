@@ -9223,10 +9223,19 @@ class ListCopyNames : public view_listener_t
 		return ret;
 	}
 
+	static std::string getObjectName(const LLUUID& id)
+	{
+		const auto& obj_data = get_obj_data(id);
+		return obj_data ? obj_data->name : LLStringUtil::null;
+	}
+
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		LLWString str;
-		copy_from_ids(LFIDBearer::getActiveSelectedIDs(), LFIDBearer::getActiveType() == LFIDBearer::GROUP ? getGroupName : getAvatarName);
+		const auto& type = LFIDBearer::getActiveType();
+		copy_from_ids(LFIDBearer::getActiveSelectedIDs(), type == LFIDBearer::GROUP ? getGroupName :
+			type == LFIDBearer::OBJECT ? getObjectName :
+			getAvatarName);
 		if (!str.empty()) LLView::getWindow()->copyTextToClipboard(str);
 		return true;
 	}
