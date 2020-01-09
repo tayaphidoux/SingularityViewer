@@ -135,6 +135,7 @@
 #include "llfloaternotificationsconsole.h"
 
 // <edit>
+#include "jcfloaterareasearch.h"
 #include "lltexteditor.h" // Initialize the text editor menu listeners in here
 #include "llfloatermessagelog.h"
 #include "shfloatermediaticker.h"
@@ -9047,6 +9048,27 @@ const std::string get_slurl_for(const LLUUID& id, const LFIDBearer::Type& type)
 	{
 	case LFIDBearer::GROUP: return LLGroupActions::getSLURL(id);
 	case LFIDBearer::AVATAR: return LLAvatarActions::getSLURL(id);
+	case LFIDBearer::OBJECT:
+	{
+		auto areasearch = JCFloaterAreaSearch::findInstance();
+		if (!areasearch) return LLStringUtil::null;
+
+		const auto& obj_data = areasearch->getObjectData(id);
+		if (!obj_data) return LLStringUtil::null;
+
+		LLSD sdQuery;
+		sdQuery["name"] = obj_data->name;
+		sdQuery["owner"] = obj_data->owner_id;
+
+		if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) && (obj_data->owner_id != gAgentID))
+			sdQuery["rlv_shownames"] = true;
+
+		if (const auto obj = gObjectList.findObject(id))
+			if (const auto region = obj->getRegion())
+				sdQuery["slurl"] = LLSLURL(region->getName(), obj->getPositionAgent()).getLocationString();
+
+		return LLSLURL("objectim", id, LLURI::mapToQueryString(sdQuery)).getSLURLString();
+	}
 	default: return LLStringUtil::null;
 	}
 }
