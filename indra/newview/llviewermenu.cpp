@@ -9042,6 +9042,12 @@ template<typename T> T* get_focused()
 	return t;
 }
 
+const JCFloaterAreaSearch::ObjectData* get_obj_data(const LLUUID& id)
+{
+	auto areasearch = JCFloaterAreaSearch::findInstance();
+	return areasearch ? areasearch->getObjectData(id) : nullptr;
+}
+
 const std::string get_slurl_for(const LLUUID& id, const LFIDBearer::Type& type)
 {
 	switch (type)
@@ -9050,10 +9056,7 @@ const std::string get_slurl_for(const LLUUID& id, const LFIDBearer::Type& type)
 	case LFIDBearer::AVATAR: return LLAvatarActions::getSLURL(id);
 	case LFIDBearer::OBJECT:
 	{
-		auto areasearch = JCFloaterAreaSearch::findInstance();
-		if (!areasearch) return LLStringUtil::null;
-
-		const auto& obj_data = areasearch->getObjectData(id);
+		const auto& obj_data = get_obj_data(id);
 		if (!obj_data) return LLStringUtil::null;
 
 		LLSD sdQuery;
