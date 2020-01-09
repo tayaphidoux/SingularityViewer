@@ -2860,6 +2860,8 @@ void simulator_autopilot(const LLVector3d& pos)
 
 void handle_go_to(const LLVector3d& pos)
 {
+	gAgent.stopAutoPilot(true); // Go To cancels viewer autopilot
+
 	// try simulator autopilot
 	simulator_autopilot(pos);
 
