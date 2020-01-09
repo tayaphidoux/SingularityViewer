@@ -9043,7 +9043,12 @@ template<typename T> T* get_focused()
 
 const std::string get_slurl_for(const LLUUID& id, const LFIDBearer::Type& type)
 {
-	return type == LFIDBearer::GROUP ? LLGroupActions::getSLURL(id) : LLAvatarActions::getSLURL(id);
+	switch (type)
+	{
+	case LFIDBearer::GROUP: return LLGroupActions::getSLURL(id);
+	case LFIDBearer::AVATAR: return LLAvatarActions::getSLURL(id);
+	default: return LLStringUtil::null;
+	}
 }
 
 const LLWString get_wslurl_for(const LLUUID& id, const LFIDBearer::Type& type)
