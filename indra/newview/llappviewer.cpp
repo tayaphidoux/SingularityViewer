@@ -2287,7 +2287,9 @@ bool LLAppViewer::initConfiguration()
 	LL_INFOS() << "Loading settings file list" << settings_file_list << LL_ENDL;
 	if (0 == settings_control.loadFromFile(settings_file_list))
 	{
-		LL_ERRS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
+		OSMessageBox("Cannot load default configuration file " + settings_file_list + " The installation may be corrupted.",
+			LLStringUtil::null,OSMB_OK);
+		return false;
 	}
 
 	mSettingsLocationList = settings_control.getLLSD("Locations");
