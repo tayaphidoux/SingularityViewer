@@ -265,6 +265,7 @@ public:
 	
 	//queue of completed skin info requests
 	std::queue<LLMeshSkinInfo> mSkinInfoQ;
+	LLMutex* mSkinInfoQMutex;
 
 	//set of requested decompositions
 	uuid_set_t mDecompositionRequests;
@@ -274,6 +275,7 @@ public:
 
 	//queue of completed Decomposition info requests
 	std::queue<LLModel::Decomposition*> mDecompositionQ;
+	LLMutex* mDecompositionQMutex;
 
 	//queue of requested headers
 	std::deque<std::pair<std::shared_ptr<MeshRequest>, F32> > mHeaderReqQ;
