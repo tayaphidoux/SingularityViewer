@@ -569,7 +569,7 @@ void LLToolPie::selectionPropertiesReceived()
 			case CLICK_ACTION_PAY:
 				if ( LLToolPie::getInstance()->mClickActionPayEnabled )
 				{
-					handle_give_money_dialog();
+					handle_give_money_dialog(selected_object);
 				}
 				break;
 			case CLICK_ACTION_OPEN:

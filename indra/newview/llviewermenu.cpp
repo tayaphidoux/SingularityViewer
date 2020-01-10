@@ -6125,15 +6125,13 @@ class LLAvatarResetSkeletonAndAnimations : public view_listener_t
 
 };
 
-bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection)
+bool complete_give_money(const LLSD& notification, const LLSD& response, LLViewerObject* objectp)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		gAgent.setDoNotDisturb(false);
 	}
-
-	LLViewerObject* objectp = selection->getPrimaryObject();
 
 	// Show avatar's name if paying attachment
 	if (objectp && objectp->isAttachment())
@@ -6161,10 +6159,10 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 	return false;
 }
 
-void handle_give_money_dialog()
+void handle_give_money_dialog(LLViewerObject* obj)
 {
 	LLNotification::Params params("BusyModePay");
-	params.functor(boost::bind(complete_give_money, _1, _2, LLSelectMgr::getInstance()->getSelection()));
+	params.functor(boost::bind(complete_give_money, _1, _2, obj));
 
 	if (gAgent.isDoNotDisturb())
 	{
@@ -6181,7 +6179,7 @@ class LLPayObject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		handle_give_money_dialog();
+		handle_give_money_dialog(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
 		return true;
 	}
 };
@@ -6196,9 +6194,8 @@ bool enable_pay_avatar()
 // [/RLVa:KB]
 }
 
-bool enable_pay_object()
+bool enable_pay_object(LLViewerObject* object)
 {
-	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	if( object )
 	{
 		LLViewerObject *parent = (LLViewerObject *)object->getParent();
@@ -6304,7 +6301,7 @@ class LLEnablePayObject : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(enable_pay_avatar() || enable_pay_object());
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(enable_pay_avatar() || enable_pay_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()));
 		return true;
 	}
 };
@@ -9654,6 +9651,25 @@ class ListObjectSit : public view_listener_t
 	}
 };
 
+class ListObjectPay : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		handle_give_money_dialog(gObjectList.findObject(LFIDBearer::getActiveSelectedID()));
+		return true;
+	}
+};
+
+class ListObjectEnablePay : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		const auto& ids = LFIDBearer::getActiveSelectedIDs();
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(ids.size() == 1 && enable_pay_object(gObjectList.findObject(ids[0])));
+		return true;
+	}
+};
+
 class MediaCtrlCopyURL : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -10048,6 +10064,8 @@ void initialize_menus()
 	addMenu(new ListActivate, "List.Activate");
 	addMenu(new ListObjectCamTo, "List.Object.CamTo");
 	addMenu(new ListObjectSit, "List.Object.Sit");
+	addMenu(new ListObjectPay, "List.Object.Pay");
+	addMenu(new ListObjectEnablePay, "List.Object.EnablePay");
 
 	add_radar_listeners();
 

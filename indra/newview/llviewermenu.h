@@ -133,8 +133,8 @@ void handle_toggle_flycam();
 void handle_fake_away_status(void*);
 
 void handle_object_sit_or_stand();
-void handle_give_money_dialog();
-bool enable_pay_object();
+void handle_give_money_dialog(class LLViewerObject*);
+bool enable_pay_object(LLViewerObject*);
 bool enable_buy_object();
 void handle_go_to(const LLVector3d& pos);
 
