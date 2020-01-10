@@ -6531,6 +6531,13 @@ Cancelled Attach
 
   <notification
    icon="notifytip.tga"
+   name="CancelledFollow"
+   type="notifytip">
+Cancelled Follow
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
    name="ReplacedMissingWearable"
    type="notifytip">
 Replaced missing clothing/body part with default.

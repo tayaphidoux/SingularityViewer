@@ -1741,6 +1741,8 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 				LLNotificationsUtil::add("CancelledSit");
 			else if (mAutoPilotBehaviorName == "Attach")
 				LLNotificationsUtil::add("CancelledAttach");
+			else if (mAutoPilotBehaviorName == "Follow")
+				LLNotificationsUtil::add("CancelledFollow");
 			else
 				LLNotificationsUtil::add("Cancelled");
 		}
