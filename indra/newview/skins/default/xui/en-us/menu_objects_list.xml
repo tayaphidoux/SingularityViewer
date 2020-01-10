@@ -16,6 +16,10 @@
     <on_click function="List.TeleportTo"/>
     <on_visible function="List.EnableSingleSelected"/>
   </menu_item_call>
+  <menu_item_call label="Sit On" name="Sit On">
+    <on_click function="List.Object.Sit"/>
+    <on_visible function="List.EnableSingleSelected"/>
+  </menu_item_call>
   <menu_item_separator/>
   <menu_item_call label="Copy Key" name="Copy Key">
     <on_click function="List.CopyUUIDs"/>

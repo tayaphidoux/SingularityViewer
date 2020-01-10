@@ -3874,28 +3874,14 @@ bool is_object_sittable()
 }
 
 
-// only works on pie menu
-void handle_object_sit_or_stand()
+void handle_object_sit(LLViewerObject* object, const LLVector3& offset = LLVector3::zero)
 {
-	LLPickInfo pick = LLToolPie::getInstance()->getPick();
-	LLViewerObject *object = pick.getObject();;
-	if (!object || pick.mPickType == LLPickInfo::PICK_FLORA)
-	{
-		return;
-	}
-
-	if (sitting_on_selection())
-	{
-		gAgent.standUp();
-		return;
-	}
-
 	// get object selection offset 
 
 //	if (object && object->getPCode() == LL_PCODE_VOLUME)
 // [RLVa:KB] - Checked: 2010-03-06 (RLVa-1.2.0c) | Modified: RLVa-1.2.0c
 	if ( (object && object->getPCode() == LL_PCODE_VOLUME) &&
-		 ((!rlv_handler_t::isEnabled()) || (gRlvHandler.canSit(object, pick.mObjectOffset))) )
+		 ((!rlv_handler_t::isEnabled()) || (gRlvHandler.canSit(object, offset))) )
 // [/RLVa:KB]
 	{
 // [RLVa:KB] - Checked: 2010-08-29 (RLVa-1.2.1c) | Added: RLVa-1.2.1c
@@ -3916,10 +3902,29 @@ void handle_object_sit_or_stand()
 		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
 		gMessageSystem->addUUIDFast(_PREHASH_TargetID, object->mID);
-		gMessageSystem->addVector3Fast(_PREHASH_Offset, pick.mObjectOffset);
+		gMessageSystem->addVector3Fast(_PREHASH_Offset, offset);
 
 		object->getRegion()->sendReliableMessage();
 	}
+}
+
+// only works on pie menu
+void handle_object_sit_or_stand()
+{
+	LLPickInfo pick = LLToolPie::getInstance()->getPick();
+	LLViewerObject *object = pick.getObject();;
+	if (!object || pick.mPickType == LLPickInfo::PICK_FLORA)
+	{
+		return;
+	}
+
+	if (sitting_on_selection())
+	{
+		gAgent.standUp();
+		return;
+	}
+
+	handle_object_sit(object, pick.mObjectOffset);
 }
 
 class LLObjectSitOrStand : public view_listener_t
@@ -9639,6 +9644,15 @@ class ListObjectCamTo : public view_listener_t
 	}
 };
 
+class ListObjectSit : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		handle_object_sit(gObjectList.findObject(LFIDBearer::getActiveSelectedID()));
+		return true;
+	}
+};
+
 class MediaCtrlCopyURL : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -10032,6 +10046,7 @@ void initialize_menus()
 	addMenu(new ListJoin, "List.Join");
 	addMenu(new ListActivate, "List.Activate");
 	addMenu(new ListObjectCamTo, "List.Object.CamTo");
+	addMenu(new ListObjectSit, "List.Object.Sit");
 
 	add_radar_listeners();
 
