@@ -1754,7 +1754,7 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 //-----------------------------------------------------------------------------
 void LLAgent::autoPilot(F32 *delta_yaw)
 {
-	if (mAutoPilot)
+	if (mAutoPilot && isAgentAvatarValid())
 	{
 		bool follow = !mLeaderID.isNull(); //mAutoPilotBehaviorName == "Follow";
 		if (follow)
@@ -1779,8 +1779,6 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 				// Should we fly if the height difference is great enough here? Altitude is often invalid...
 			}
 		}
-		
-		if (!isAgentAvatarValid()) return;
 
 		if (!follow && gAgentAvatarp->mInAir && mAutoPilotAllowFlying)
 		{
