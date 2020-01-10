@@ -3299,7 +3299,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				LLSD args;
 				// *TODO: Translate -> [FIRST] [LAST] (maybe)
-				args["NAME"] = name;
+				args["NAME"] = LLAvatarActions::getSLURL(from_id);
 				args["MESSAGE"] = message;
 				args["MATURITY_STR"] = region_access_str;
 				args["MATURITY_ICON"] = region_access_icn;
@@ -7984,7 +7984,7 @@ void send_lures(const LLSD& notification, const LLSD& response)
 				target_name = RlvStrings::getAnonym(target_name);
 			else
 // [/RLVa:KB]
-				LLAvatarNameCache::getNSName(target_id, target_name);
+				target_name = LLAvatarActions::getSLURL(target_id);
 			args["TO_NAME"] = target_name;
 
 			LLSD payload;
