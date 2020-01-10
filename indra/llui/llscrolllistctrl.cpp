@@ -2712,20 +2712,14 @@ void LLScrollListCtrl::setScrollListParameters(LLXMLNodePtr node)
 		node->getAttributeString("menu_file", menu);
 		if (!menu.empty()) setContextMenu(menu);
 	}
-}
 
-// static
-LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	LLRect rect;
-	createRect(node, rect, parent, LLRect());
+	if (node->hasAttribute("heading_height"))
+	{
+		S32 heading_height;
+		node->getAttributeS32("heading_height", heading_height);
+		setHeadingHeight(heading_height);
+	}
 
-	BOOL multi_select = false;
-	node->getAttributeBOOL("multi_select", multi_select);
-	BOOL draw_border = true;
-	node->getAttributeBOOL("draw_border", draw_border);
-	BOOL draw_heading = false;
-	node->getAttributeBOOL("draw_heading", draw_heading);
 	S32 search_column = 0;
 	node->getAttributeS32("search_column", search_column);
 	S32 sort_column = -1;
@@ -2733,18 +2727,7 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 	BOOL sort_ascending = true;
 	node->getAttributeBOOL("sort_ascending", sort_ascending);
 
-	LLScrollListCtrl* scroll_list = new LLScrollListCtrl("scroll_list", rect, NULL, multi_select, draw_border, draw_heading);
-
-	if (node->hasAttribute("heading_height"))
-	{
-		S32 heading_height;
-		node->getAttributeS32("heading_height", heading_height);
-		scroll_list->setHeadingHeight(heading_height);
-	}
-
-	scroll_list->setScrollListParameters(node);
-	scroll_list->initFromXML(node, parent);
-	scroll_list->setSearchColumn(search_column);
+	setSearchColumn(search_column);
 
 	LLSD columns;
 	S32 index = 0;
@@ -2806,11 +2789,11 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 			++index;
 		}
 	}
-	scroll_list->setColumnHeadings(columns);
+	setColumnHeadings(columns);
 
 	if (sort_column >= 0)
 	{
-		scroll_list->sortByColumnIndex(sort_column, sort_ascending);
+		sortByColumnIndex(sort_column, sort_ascending);
 	}
 
 	const std::string kidrow(nodename + "row");
@@ -2856,18 +2839,39 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 				}
 			}
 			if(explicit_column)
-				scroll_list->addElement(row);
+				addElement(row);
 			else
 			{
 				LLSD entry_id;
 				if(id_found)
 					entry_id = id;
-				scroll_list->addSimpleElement(value,ADD_BOTTOM,entry_id);
+				addSimpleElement(value,ADD_BOTTOM,entry_id);
 			}
 		}
 	}
 
-	scroll_list->setCommentText(node->getTextContents());
+	setCommentText(node->getTextContents());
+}
+
+// static
+LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
+{
+	LLRect rect;
+	createRect(node, rect, parent, LLRect());
+
+	BOOL multi_select = false;
+	node->getAttributeBOOL("multi_select", multi_select);
+
+	BOOL draw_border = true;
+	node->getAttributeBOOL("draw_border", draw_border);
+
+	BOOL draw_heading = false;
+	node->getAttributeBOOL("draw_heading", draw_heading);
+
+	LLScrollListCtrl* scroll_list = new LLScrollListCtrl("scroll_list", rect, NULL, multi_select, draw_border, draw_heading);
+
+	scroll_list->setScrollListParameters(node);
+	scroll_list->initFromXML(node, parent);
 	return scroll_list;
 }
 
