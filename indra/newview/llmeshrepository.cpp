@@ -569,6 +569,8 @@ LLMeshRepoThread::LLMeshRepoThread()
 	mMutex = new LLMutex();
 	mHeaderMutex = new LLMutex();
 	mSignal = new LLCondition();
+	mSkinInfoQMutex = new LLMutex();
+	mDecompositionQMutex = new LLMutex();
 }
 
 LLMeshRepoThread::~LLMeshRepoThread()
@@ -579,6 +581,10 @@ LLMeshRepoThread::~LLMeshRepoThread()
 	mHeaderMutex = NULL;
 	delete mSignal;
 	mSignal = NULL;
+	delete mSkinInfoQMutex;
+	mSkinInfoQMutex = NULL;
+	delete mDecompositionQMutex;
+	mDecompositionQMutex = NULL;
 }
 
 bool LLMeshRepoThread::HeaderRequest::fetch(U32& count)
@@ -1167,7 +1173,9 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 		info.mMeshID = mesh_id;
 
 		//LL_INFOS() <<"info pelvis offset"<<info.mPelvisOffset<<LL_ENDL;
+		mSkinInfoQMutex->lock();
 		mSkinInfoQ.push(info);
+		mSkinInfoQMutex->unlock();
 	}
 
 	return true;
@@ -1193,7 +1201,9 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 	{
 		LLModel::Decomposition* d = new LLModel::Decomposition(decomp);
 		d->mMeshID = mesh_id;
+		mDecompositionQMutex->lock();
 		mDecompositionQ.push(d);
+		mDecompositionQMutex->unlock();
 	}
 
 	return true;
@@ -1252,7 +1262,9 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 		}
 	}
 
+	mDecompositionQMutex->lock();
 	mDecompositionQ.push(d);
+	mDecompositionQMutex->unlock();
 	return true;
 }
 
@@ -1862,14 +1874,22 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 
 	while (!mSkinInfoQ.empty())
 	{
-		gMeshRepo.notifySkinInfoReceived(mSkinInfoQ.front());
+		mSkinInfoQMutex->lock();
+		auto req = mSkinInfoQ.front();
 		mSkinInfoQ.pop();
+		mSkinInfoQMutex->unlock();
+
+		gMeshRepo.notifySkinInfoReceived(req);
 	}
 
 	while (!mDecompositionQ.empty())
 	{
-		gMeshRepo.notifyDecompositionReceived(mDecompositionQ.front());
+		mDecompositionQMutex->lock();
+		auto req = mDecompositionQ.front();
 		mDecompositionQ.pop();
+		mDecompositionQMutex->unlock();
+
+		gMeshRepo.notifyDecompositionReceived(req);
 	}
 }
 
