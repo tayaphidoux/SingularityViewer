@@ -2759,9 +2759,9 @@ void LLScrollListCtrl::setScrollListParameters(LLXMLNodePtr node)
 			}
 			else // Singu Note: if a scroll list does not provide sort_direction, provide sort_ascending to sort as expected
 			{
-				bool sort_ascending = true;
-				child->getAttribute_bool("sort_ascending", sort_ascending);
-				columns[index]["sort_ascending"] = sort_ascending;
+				bool col_sort_ascending = sort_ascending;
+				child->getAttribute_bool("sort_ascending", col_sort_ascending);
+				columns[index]["sort_ascending"] = col_sort_ascending;
 			}
 
 			S32 columnwidth = -1;
