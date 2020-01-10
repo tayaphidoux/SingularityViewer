@@ -40,19 +40,19 @@ struct LFIDBearer
 	virtual ~LFIDBearer() { if (sActive == this) sActive = nullptr; }
 	virtual LLUUID getStringUUIDSelectedItem() const = 0;
 	virtual uuid_vec_t getSelectedIDs() const { return { getStringUUIDSelectedItem() }; }
-	virtual S32 getNumSelected() const { return getStringUUIDSelectedItem().notNull(); }
 	virtual Type getSelectedType() const { return AVATAR; }
 
 	template<typename T> static const T* getActive() { return static_cast<const T*>(sActive); }
-	static LLUUID getActiveSelectedID() { return sActive->getStringUUIDSelectedItem(); }
-	static uuid_vec_t getActiveSelectedIDs() { return sActive->getSelectedIDs(); }
-	static S32 getActiveNumSelected() { return sActive->getNumSelected(); }
+	static const LLUUID& getActiveSelectedID() { return sActiveIDs.empty() ? LLUUID::null : sActiveIDs[0]; }
+	static const uuid_vec_t& getActiveSelectedIDs() { return sActiveIDs; }
+	static size_t getActiveNumSelected() { return sActiveIDs.size(); }
 	static const Type& getActiveType() { return sActiveType; }
 
 	void setActive() const
 	{
 		sActive = this;
 		sActiveType = getSelectedType();
+		sActiveIDs = getSelectedIDs();
 		//sActiveIDs or even some kinda hybrid map, if Type is MULTIPLE fill the vals? and remove a buncha virtual functions?
 	}
 
@@ -68,4 +68,5 @@ protected:
 private:
 	static const LFIDBearer* sActive;
 	static Type sActiveType;
+	static uuid_vec_t sActiveIDs;
 };

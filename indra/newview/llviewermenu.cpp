@@ -9100,7 +9100,7 @@ class ListEnableAnySelected : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(LFIDBearer::getActiveNumSelected());
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(LFIDBearer::getActiveNumSelected() != 0);
 		return true;
 	}
 };
@@ -9414,7 +9414,7 @@ class ListTeleportTo : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const auto&& id = LFIDBearer::getActiveSelectedID();
+		const auto& id = LFIDBearer::getActiveSelectedID();
 		gAgent.teleportViaLocation(LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? gObjectList.findObject(id)->getPositionGlobal() : get_av_pos(id));
 		return true;
 	}
@@ -9452,7 +9452,7 @@ class ListIsNearby : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const auto&& id = LFIDBearer::getActiveSelectedID();
+		const auto& id = LFIDBearer::getActiveSelectedID();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? !!gObjectList.findObject(id) : is_nearby(id));
 		return true;
 	}

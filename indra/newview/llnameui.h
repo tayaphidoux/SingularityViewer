@@ -47,7 +47,6 @@ struct LLNameUI : public LFIDBearer
 	}
 
 	LLUUID getStringUUIDSelectedItem() const override final { return mNameID; }
-	S32 getNumSelected() const override final { return 1; }
 	Type getSelectedType() const override final { return mType; }
 
 	void setType(const Type& type);
