@@ -3897,8 +3897,6 @@ void handle_object_sit(LLViewerObject* object, const LLVector3& offset = LLVecto
 		}
 // [/RLVa:KB]
 
-		gAgent.stopAutoPilot(true);
-
 		gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
 		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
 		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -3921,9 +3919,10 @@ void handle_object_sit_or_stand()
 		return;
 	}
 
+	gAgent.stopAutoPilot(true);
+
 	if (sitting_on_selection())
 	{
-		gAgent.stopAutoPilot(true);
 		gAgent.standUp();
 		return;
 	}
@@ -9649,6 +9648,7 @@ class ListObjectSit : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
+		gAgent.stopAutoPilot(true);
 		handle_object_sit(gObjectList.findObject(LFIDBearer::getActiveSelectedID()));
 		return true;
 	}
