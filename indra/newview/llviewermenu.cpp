@@ -3920,6 +3920,7 @@ void handle_object_sit_or_stand()
 
 	if (sitting_on_selection())
 	{
+		LLAgent::stopAutoPilot(true);
 		gAgent.standUp();
 		return;
 	}
