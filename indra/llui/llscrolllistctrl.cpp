@@ -2722,8 +2722,6 @@ void LLScrollListCtrl::setScrollListParameters(LLXMLNodePtr node)
 
 	S32 search_column = 0;
 	node->getAttributeS32("search_column", search_column);
-	S32 sort_column = -1;
-	node->getAttributeS32("sort_column", sort_column);
 	BOOL sort_ascending = true;
 	node->getAttributeBOOL("sort_ascending", sort_ascending);
 
@@ -2738,7 +2736,7 @@ void LLScrollListCtrl::setScrollListParameters(LLXMLNodePtr node)
 	{
 		if (child->hasName("column")  || child->hasName("columns") || child->hasName(kidcolumn) || child->hasName(kidcolumns))
 		{
-			std::string labelname("");
+			std::string labelname;
 			if (child->getAttributeString("label", labelname))
 				columns[index]["label"] = labelname;
 			else if (child->getAttributeString("image", labelname))
@@ -2790,11 +2788,6 @@ void LLScrollListCtrl::setScrollListParameters(LLXMLNodePtr node)
 		}
 	}
 	setColumnHeadings(columns);
-
-	if (sort_column >= 0)
-	{
-		sortByColumnIndex(sort_column, sort_ascending);
-	}
 
 	const std::string kidrow(nodename + "row");
 	const std::string kidrows(nodename + "rows");
@@ -2848,6 +2841,13 @@ void LLScrollListCtrl::setScrollListParameters(LLXMLNodePtr node)
 				addSimpleElement(value,ADD_BOTTOM,entry_id);
 			}
 		}
+	}
+
+	S32 sort_column = -1;
+	node->getAttributeS32("sort_column", sort_column);
+	if (sort_column >= 0)
+	{
+		sortByColumnIndex(sort_column, sort_ascending);
 	}
 
 	setCommentText(node->getTextContents());
