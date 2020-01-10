@@ -3572,6 +3572,7 @@ class LLSelfSitOrStand : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
+		gAgent.stopAutoPilot(true);
 		if (gAgentAvatarp && gAgentAvatarp->isSitting())
 		{
 			gAgent.standUp();
@@ -3895,6 +3896,8 @@ void handle_object_sit(LLViewerObject* object, const LLVector3& offset = LLVecto
 			gRlvHandler.setSitSource(gAgent.getPositionGlobal());
 		}
 // [/RLVa:KB]
+
+		gAgent.stopAutoPilot(true);
 
 		gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
 		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
