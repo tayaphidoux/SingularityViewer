@@ -2081,8 +2081,6 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	adjust_rect_top_right("FloaterMiniMapRect", window);
 
-	adjust_rect_top_right("FloaterLagMeter", window);
-
 	adjust_rect_top_left("FloaterBuildOptionsRect", window);
 
 	adjust_rect_bottom_left("FloaterActiveSpeakersRect", window);
