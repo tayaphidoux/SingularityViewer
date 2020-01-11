@@ -237,6 +237,10 @@ LLPanelLogin::LLPanelLogin(const LLRect& rect)
 
 	reshape(rect.getWidth(), rect.getHeight());
 
+#ifndef LL_FMODSTUDIO
+	getChildView("fmod_logo")->setVisible(false);
+#endif
+
 	LLComboBox* username_combo(getChild<LLComboBox>("username_combo"));
 	username_combo->setCommitCallback(boost::bind(LLPanelLogin::onSelectLoginEntry, _2));
 	username_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLoginComboLostFocus, this, username_combo));
