@@ -144,7 +144,7 @@ void LLNameUI::showProfile()
 {
 	if (!mAllowInteract) return;
 
-	switch (LFIDBearer::getActiveType())
+	switch (mType)
 	{
 	case LFIDBearer::GROUP: LLGroupActions::show(mNameID); break;
 	case LFIDBearer::AVATAR: LLAvatarActions::showProfile(mNameID); break;
