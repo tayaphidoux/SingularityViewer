@@ -82,22 +82,23 @@ void ScriptCounter::requestInventories()
 		LLVOAvatar* av = static_cast<LLVOAvatar*>(foo);
 
 		// Iterate through all the attachment points
-		for (LLVOAvatar::attachment_map_t::iterator i = av->mAttachmentPoints.begin(); i != av->mAttachmentPoints.end(); ++i)
+		for (const auto& i : av->mAttachmentPoints)
 		{
-			if (LLViewerJointAttachment* attachment = i->second)
+			if (LLViewerJointAttachment* attachment = i.second)
 			{
 				if (!attachment->getValid()) continue;
 
 				// Iterate through all the attachments on this point
-				for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator j = attachment->mAttachedObjects.begin(); j != attachment->mAttachedObjects.end(); ++j)
-					if (LLViewerObject* object = *j)
+				for (const auto& object : attachment->mAttachedObjects)
+					if (object)
 						requestInventoriesFor(object);
 			}
 		}
 	}
 	else // Iterate through all the selected objects
 	{
-		for (LLObjectSelection::valid_root_iterator i = LLSelectMgr::getInstance()->getSelection()->valid_root_begin(); i != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); ++i)
+		auto selection = LLSelectMgr::getInstance()->getSelection();
+		for (auto i = selection->valid_root_begin(), end = selection->valid_root_end(); i != end; ++i)
 			if (LLSelectNode* selectNode = *i)
 				if (LLViewerObject* object = selectNode->getObject())
 					requestInventoriesFor(object);
@@ -111,10 +112,8 @@ void ScriptCounter::requestInventoriesFor(LLViewerObject* object)
 {
 	++objectCount;
 	requestInventoryFor(object);
-	LLViewerObject::child_list_t child_list = object->getChildren();
-	for (LLViewerObject::child_list_t::iterator i = child_list.begin(); i != child_list.end(); ++i)
+	for (auto child : object->getChildren())
 	{
-		LLViewerObject* child = *i;
 		if (child->isAvatar()) continue;
 		requestInventoryFor(child);
 	}
@@ -140,15 +139,14 @@ void ScriptCounter::inventoryChanged(LLViewerObject* obj, LLInventoryObject::obj
 
 	if (inv)
 	{
-		LLInventoryObject::object_list_t::const_iterator end = inv->end();
-		for (LLInventoryObject::object_list_t::const_iterator i = inv->begin(); i != end; ++i)
-			if (LLInventoryObject* asset = (*i))
+		for (auto i = inv->begin(), end = inv->end(); i != end; ++i)
+			if (LLInventoryObject* asset = *i)
 				if (asset->getType() == LLAssetType::AT_LSL_TEXT)
 				{
+					const LLUUID& id = asset->getUUID();
 					++scriptcount;
 					if (doDelete)
 					{
-						const LLUUID& id = asset->getUUID();
 						if (id.notNull())
 						{
 							//LL_INFOS() << "Deleting script " << id << " in " << objid << LL_ENDL;
@@ -159,7 +157,6 @@ void ScriptCounter::inventoryChanged(LLViewerObject* obj, LLInventoryObject::obj
 					}
 					else
 					{
-						const LLUUID& id = asset->getUUID();
 						LLMessageSystem* msg = gMessageSystem;
 						msg->newMessageFast(_PREHASH_GetScriptRunning);
 						msg->nextBlockFast(_PREHASH_Script);
