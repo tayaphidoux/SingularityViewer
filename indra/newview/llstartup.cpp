@@ -3019,17 +3019,7 @@ void pass_processObjectPropertiesFamily(LLMessageSystem *msg, void**)
 void process_script_running_reply(LLMessageSystem* msg, void** v)
 {
 	LLLiveLSLEditor::processScriptRunningReply(msg, v);
-	if (ScriptCounter::sCheckMap.size())
-	{
-		LLUUID item_id;
-		msg->getUUIDFast(_PREHASH_Script, _PREHASH_ItemID, item_id);
-		std::map<LLUUID,ScriptCounter*>::iterator it = ScriptCounter::sCheckMap.find(item_id);
-		if (it != ScriptCounter::sCheckMap.end())
-		{
-			it->second->processRunningReply(msg);
-			ScriptCounter::sCheckMap.erase(it);
-		}
-	}
+	ScriptCounter::processScriptRunningReply(msg);
 }
 
 void register_viewer_callbacks(LLMessageSystem* msg)

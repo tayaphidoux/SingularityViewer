@@ -165,6 +165,21 @@ void ScriptCounter::inventoryChanged(LLViewerObject* obj, LLInventoryObject::obj
 	summarize();
 }
 
+void ScriptCounter::processScriptRunningReply(LLMessageSystem* msg)
+{
+	if (!sCheckMap.empty())
+	{
+		LLUUID item_id;
+		msg->getUUIDFast(_PREHASH_Script, _PREHASH_ItemID, item_id);
+		auto it = sCheckMap.find(item_id);
+		if (it != sCheckMap.end())
+		{
+			it->second->processRunningReply(msg);
+			sCheckMap.erase(it);
+		}
+	}
+}
+
 void ScriptCounter::processRunningReply(LLMessageSystem* msg)
 {
 	BOOL is;
