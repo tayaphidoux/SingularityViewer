@@ -33,6 +33,7 @@
 
 #include "scriptcounter.h"
 
+#include "llavataractions.h"
 #include "llavatarnamecache.h"
 #include "llviewerregion.h"
 #include "llselectmgr.h"
@@ -43,15 +44,6 @@
 void cmdline_printchat(const std::string& message);
 
 LLVOAvatar* find_avatar_from_object( LLViewerObject* object );
-
-namespace
-{
-	void countedScriptsOnAvatar(LLStringUtil::format_map_t args, const LLAvatarName& av_name)
-	{
-		args["NAME"] = av_name.getNSName();
-		cmdline_printchat(LLTrans::getString("ScriptCountAvatar", args));
-	}
-}
 
 std::map<LLUUID, ScriptCounter*> ScriptCounter::sCheckMap;
 
@@ -197,7 +189,10 @@ void ScriptCounter::summarize()
 		args["RUNNING"] = stringize(mRunningCount);
 		args["MONO"] = stringize(mMonoCount);
 		if (foo->isAvatar())
-			LLAvatarNameCache::get(foo->getID(), boost::bind(countedScriptsOnAvatar, args, _2));
+		{
+			args["NAME"] = LLAvatarActions::getSLURL(foo->getID());
+			cmdline_printchat(LLTrans::getString("ScriptCountAvatar", args));
+		}
 		else
 			cmdline_printchat(LLTrans::getString(doDelete ? "ScriptDeleteObject" : "ScriptCountObject", args));
 
