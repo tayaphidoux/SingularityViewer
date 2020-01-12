@@ -193,10 +193,10 @@ void LLPanelPermissions::disableAll()
 	}
 
 	getChildView("Group:")->setEnabled(FALSE);
-	if (auto view = getChildView("Group Name Proxy"))
+	if (mLabelGroupName)
 	{
-		view->setValue(LLUUID::null);
-		view->setEnabled(FALSE);
+		mLabelGroupName->setNameID(LLUUID::null, LFIDBearer::GROUP);
+		mLabelGroupName->setEnabled(FALSE);
 	}
 	getChildView("button set group")->setEnabled(FALSE);
 
@@ -454,7 +454,7 @@ void LLPanelPermissions::refresh()
 		if(mLabelGroupName)
 		{
 			mLabelGroupName->setNameID(LLUUID::null, LFIDBearer::GROUP);
-			mLabelGroupName->refresh(LLUUID::null, std::string());
+			mLabelGroupName->setNameText();
 			mLabelGroupName->setEnabled(FALSE);
 		}
 	}
