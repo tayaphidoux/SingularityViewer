@@ -139,34 +139,35 @@ void ScriptCounter::inventoryChanged(LLViewerObject* obj, LLInventoryObject::obj
 
 	if (inv)
 	{
-		for (auto i = inv->begin(), end = inv->end(); i != end; ++i)
-			if (LLInventoryObject* asset = *i)
-				if (asset->getType() == LLAssetType::AT_LSL_TEXT)
+		uuid_vec_t ids;
+
+		for (auto asset : *inv)
+		{
+			const LLUUID& id = asset->getUUID();
+			if (asset->getType() == LLAssetType::AT_LSL_TEXT && id.notNull())
+			{
+				++scriptcount;
+				if (doDelete)
+					ids.push_back(id);
+				else
 				{
-					const LLUUID& id = asset->getUUID();
-					++scriptcount;
-					if (doDelete)
-					{
-						if (id.notNull())
-						{
-							//LL_INFOS() << "Deleting script " << id << " in " << objid << LL_ENDL;
-							obj->removeInventory(id);
-							--i; // Avoid iteration when removing, everything has shifted
-							end = inv->end();
-						}
-					}
-					else
-					{
-						LLMessageSystem* msg = gMessageSystem;
-						msg->newMessageFast(_PREHASH_GetScriptRunning);
-						msg->nextBlockFast(_PREHASH_Script);
-						msg->addUUIDFast(_PREHASH_ObjectID, obj->getID());
-						msg->addUUIDFast(_PREHASH_ItemID, id);
-						msg->sendReliable(obj->getRegion()->getHost());
-						sCheckMap[id] = this;
-						++checking;
-					}
+					LLMessageSystem* msg = gMessageSystem;
+					msg->newMessageFast(_PREHASH_GetScriptRunning);
+					msg->nextBlockFast(_PREHASH_Script);
+					msg->addUUIDFast(_PREHASH_ObjectID, obj->getID());
+					msg->addUUIDFast(_PREHASH_ItemID, id);
+					msg->sendReliable(obj->getRegion()->getHost());
+					sCheckMap[id] = this;
+					++checking;
 				}
+			}
+		}
+
+		for (const auto& id : ids)
+		{
+			//LL_INFOS() << "Deleting script " << id << " in " << objid << LL_ENDL;
+			obj->removeInventory(id);
+		}
 	}
 
 	summarize();
