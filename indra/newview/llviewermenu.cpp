@@ -1792,21 +1792,18 @@ class LLObjectTouch : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		handle_object_touch();
+		handle_object_touch(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject(), LLToolPie::getInstance()->getPick());
 		return true;
 	}
 };
 
-void handle_object_touch()
+void handle_object_touch(LLViewerObject* object, const LLPick const* pick);
 {
-	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	if (!object) return;
-
-	LLPickInfo pick = LLToolPie::getInstance()->getPick();
 
 // [RLVa:KB] - Checked: 2010-04-11 (RLVa-1.2.0e) | Modified: RLVa-1.1.0l
 		// NOTE: fallback code since we really shouldn't be getting an active selection if we can't touch this
-		if ( (rlv_handler_t::isEnabled()) && (!gRlvHandler.canTouch(object, pick.mObjectOffset)) )
+		if ( (rlv_handler_t::isEnabled()) && (!gRlvHandler.canTouch(object, pick ? pick->mObjectOffset : LLVector3::zero)) )
 		{
 			RLV_ASSERT(false);
 			return;
@@ -1816,23 +1813,26 @@ void handle_object_touch()
 	// *NOTE: Hope the packets arrive safely and in order or else
 	// there will be some problems.
 	// *TODO: Just fix this bad assumption.
-	send_ObjectGrab_message(object, pick, LLVector3::zero);
-	send_ObjectDeGrab_message(object, pick);
+	send_ObjectGrab_message(object, true, pick);
+	send_ObjectGrab_message(object, false, pick);
 }
 
+bool enable_object_touch(LLViewerObject* obj, const LLVector3& offset)
+{
+	bool new_value = obj && obj->flagHandleTouch();
+// [RLVa:KB] - Checked: 2010-11-12 (RLVa-1.2.1g) | Added: RLVa-1.2.1g
+	if (new_value && rlv_handler_t::isEnabled())
+	{
+		// RELEASE-RLVa: [RLVa-1.2.1] Make sure this stays in sync with handle_object_touch()
+		new_value = gRlvHandler.canTouch(obj, offset);
+	}
+// [/RLVa:KB]
+	return new_value;
+}
 
 bool enable_object_touch(const LLSD& userdata)
 {
 	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-
-	bool new_value = obj && obj->flagHandleTouch();
-// [RLVa:KB] - Checked: 2010-11-12 (RLVa-1.2.1g) | Added: RLVa-1.2.1g
-	if ( (rlv_handler_t::isEnabled()) && (new_value) )
-	{
-		// RELEASE-RLVa: [RLVa-1.2.1] Make sure this stays in sync with handle_object_touch()
-		new_value = gRlvHandler.canTouch(obj, LLToolPie::getInstance()->getPick().mObjectOffset);
-	}
-// [/RLVa:KB]
 
 	std::string touch_text;
 
@@ -1849,7 +1849,8 @@ bool enable_object_touch(const LLSD& userdata)
 
 	gMenuHolder->childSetText("Object Touch", touch_text);
 	gMenuHolder->childSetText("Attachment Object Touch", touch_text);
-	return new_value;
+
+	return enable_object_touch(obj, LLToolPie::getInstance()->getPick().mObjectOffset);
 };
 
 // One object must have touch sensor
