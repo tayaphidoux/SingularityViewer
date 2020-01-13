@@ -1822,8 +1822,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 				auto pos = get_av_pos(mLeaderID);
 				if (pos.isExactlyZero()) // Default constructed or invalid from server
 				{
-					mAutoPilotBehaviorName.clear(); // Nothing left to follow pilot
-					stopAutoPilot();
+					// Wait for them for more follow pilot
 					return;
 				}
 				standUp(); // Leader not rendered, we mustn't be sitting
