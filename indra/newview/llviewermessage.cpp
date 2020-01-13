@@ -3211,13 +3211,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				  ((IM_TELEPORT_REQUEST == dialog) && (RlvActions::autoAcceptTeleportRequest(from_id))) );
 // [/RLVa:KB]
 
-			if (is_muted)
+			bool following = gAgent.getAutoPilotLeaderID() == from_id;
+
+			if (!following && is_muted)
 			{ 
 				return;
 			}
-//			else if (is_do_not_disturb)
+//			else if (!following && is_do_not_disturb)
 // [RLVa:KB] - Checked: 2013-11-08 (RLVa-1.4.9)
-			else if ( (is_do_not_disturb) && (!fRlvAutoAccept) )
+			else if (!following && is_do_not_disturb && !fRlvAutoAccept )
 // [/RLVa:KB]
 			{
 				send_do_not_disturb_message(msg, from_id);
@@ -3344,10 +3346,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					}
 					*/
 					LLNotification::Params params(IM_LURE_USER == dialog ? "TeleportOffered" : "TeleportRequest");
-
 					params.substitutions = args;
 					params.payload = payload;
 
+					if (following)
+					{
+						LLNotifications::instance().forceResponse(LLNotification::Params(params.name).payload(payload), 0);
+					}
+					else
 // [RLVa:KB] - Checked: 20103-11-08 (RLVa-1.4.9)
 					if ( (rlv_handler_t::isEnabled()) && (fRlvAutoAccept) )
 					{
