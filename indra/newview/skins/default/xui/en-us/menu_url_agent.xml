@@ -52,6 +52,10 @@
     <menu_item_call label="Request Teleport" name="Request Teleport">
       <on_click function="List.RequestTeleport"/>
     </menu_item_call>
+    <menu_item_call label="Find on Map" name="Find on Map">
+      <on_click function="List.Stalk"/>
+      <on_visible function="List.Stalkable"/>
+    </menu_item_call>
     <menu_item_call label="Share" name="Share">
       <on_click function="List.Share"/>
     </menu_item_call>

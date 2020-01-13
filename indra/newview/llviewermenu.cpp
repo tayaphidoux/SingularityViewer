@@ -9422,6 +9422,26 @@ class ListTeleportTo : public view_listener_t
 	}
 };
 
+class ListStalk : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLAvatarActions::showOnMap(LFIDBearer::getActiveSelectedID());
+		return true;
+	}
+};
+
+class ListStalkable : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		BOOL is_agent_mappable(const LLUUID& agent_id);
+		const auto& ids = LFIDBearer::getActiveSelectedIDs();
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(ids.size() == 1 && is_agent_mappable(ids[0]));
+		return true;
+	}
+};
+
 class ListAbuseReport : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -10049,6 +10069,8 @@ void initialize_menus()
 	addMenu(new ListStartCall(), "List.StartCall");
 	addMenu(new ListStartConference(), "List.StartConference");
 	addMenu(new ListStartIM(), "List.StartIM");
+	addMenu(new ListStalk, "List.Stalk");
+	addMenu(new ListStalkable, "List.Stalkable");
 	addMenu(new ListTeleportTo, "List.TeleportTo");
 	addMenu(new ListAbuseReport(), "List.AbuseReport");
 	addMenu(new ListIsNearby, "List.IsNearby");
