@@ -289,11 +289,6 @@ LLAgentCamera::~LLAgentCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::resetView(BOOL reset_camera, BOOL change_camera)
 {
-	if (gAgent.getAutoPilot())
-	{
-		gAgent.stopAutoPilot(TRUE);
-	}
-
 	LLSelectMgr::getInstance()->unhighlightAll();
 
 	// By popular request, keep land selection while walking around. JC

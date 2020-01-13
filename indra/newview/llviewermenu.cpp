@@ -4084,6 +4084,11 @@ void handle_reset_view()
 	}
 	else
 	{
+		if (gAgent.getAutoPilot())
+		{
+			gAgent.stopAutoPilot(true);
+		}
+
 		reset_view_final( true );
 	}
 }
