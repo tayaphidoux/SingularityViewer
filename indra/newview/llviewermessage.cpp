@@ -5269,6 +5269,9 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 {
 	LL_RECORD_BLOCK_TIME(FTM_PROCESS_OBJECTS);
 
+	auto agent_region = gAgent.getRegion();
+	if (!agent_region) return;
+
 	LLUUID		id;
 	U32			local_id;
 	S32			i;
@@ -5276,7 +5279,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 
 	num_objects = mesgsys->getNumberOfBlocksFast(_PREHASH_ObjectData);
 
-	bool different_region = mesgsys->getSender().getIPandPort() != gAgent.getRegion()->getHost().getIPandPort();
+	bool different_region = mesgsys->getSender().getIPandPort() != agent_region->getHost().getIPandPort();
 
 	for (i = 0; i < num_objects; i++)
 	{
