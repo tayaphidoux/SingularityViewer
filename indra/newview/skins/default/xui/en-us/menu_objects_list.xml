@@ -24,6 +24,10 @@
     <on_click function="List.Object.Pay"/>
     <on_visible function="List.Object.EnablePay"/>
   </menu_item_call>
+  <menu_item_call label="Touch" name="Touch">
+    <on_click function="List.Object.Touch"/>
+    <on_visible function="List.Object.EnableTouch"/>
+  </menu_item_call>
   <menu_item_separator/>
   <menu_item_call label="Copy Key" name="Copy Key">
     <on_click function="List.CopyUUIDs"/>

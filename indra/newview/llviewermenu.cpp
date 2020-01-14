@@ -1792,12 +1792,12 @@ class LLObjectTouch : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		handle_object_touch(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject(), LLToolPie::getInstance()->getPick());
+		handle_object_touch(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject(), &LLToolPie::getInstance()->getPick());
 		return true;
 	}
 };
 
-void handle_object_touch(LLViewerObject* object, const LLPick const* pick);
+void handle_object_touch(LLViewerObject* object, const LLPickInfo* const pick)
 {
 	if (!object) return;
 
@@ -1817,7 +1817,7 @@ void handle_object_touch(LLViewerObject* object, const LLPick const* pick);
 	send_ObjectGrab_message(object, false, pick);
 }
 
-bool enable_object_touch(LLViewerObject* obj, const LLVector3& offset)
+bool enable_object_touch(LLViewerObject* obj, const LLVector3& offset = LLVector3::zero)
 {
 	bool new_value = obj && obj->flagHandleTouch();
 // [RLVa:KB] - Checked: 2010-11-12 (RLVa-1.2.1g) | Added: RLVa-1.2.1g
@@ -1832,12 +1832,11 @@ bool enable_object_touch(LLViewerObject* obj, const LLVector3& offset)
 
 bool enable_object_touch(const LLSD& userdata)
 {
-	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-
 	std::string touch_text;
 
 	// Update label based on the node touch name if available.
-	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
+	auto selection = LLSelectMgr::getInstance()->getSelection();
+	LLSelectNode* node = selection->getFirstRootNode();
 	if (node && node->mValid && !node->mTouchName.empty())
 	{
 		touch_text = node->mTouchName;
@@ -1850,7 +1849,7 @@ bool enable_object_touch(const LLSD& userdata)
 	gMenuHolder->childSetText("Object Touch", touch_text);
 	gMenuHolder->childSetText("Attachment Object Touch", touch_text);
 
-	return enable_object_touch(obj, LLToolPie::getInstance()->getPick().mObjectOffset);
+	return enable_object_touch(selection->getPrimaryObject(), LLToolPie::getInstance()->getPick().mObjectOffset);
 };
 
 // One object must have touch sensor
@@ -9699,6 +9698,26 @@ class ListObjectEnablePay : public view_listener_t
 	}
 };
 
+class ListObjectTouch : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		handle_object_touch(gObjectList.findObject(LFIDBearer::getActiveSelectedID()));
+		return true;
+	}
+};
+
+// One object must have touch sensor
+class ListObjectEnableTouch : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		const auto& ids = LFIDBearer::getActiveSelectedIDs();
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(ids.size() == 1 && enable_object_touch(gObjectList.findObject(ids[0])));
+		return true;
+	}
+};
+
 class MediaCtrlCopyURL : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -10097,6 +10116,8 @@ void initialize_menus()
 	addMenu(new ListObjectSit, "List.Object.Sit");
 	addMenu(new ListObjectPay, "List.Object.Pay");
 	addMenu(new ListObjectEnablePay, "List.Object.EnablePay");
+	addMenu(new ListObjectTouch, "List.Object.Touch");
+	addMenu(new ListObjectEnableTouch, "List.Object.EnableTouch");
 
 	add_radar_listeners();
 
