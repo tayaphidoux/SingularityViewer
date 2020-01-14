@@ -339,10 +339,10 @@ void LLFloaterSettingsDebug::updateControl()
 		mValSpinner2->setMaxValue(F32_MAX);
 		mValSpinner3->setMaxValue(F32_MAX);
 		mValSpinner4->setMaxValue(F32_MAX);
-		mValSpinner1->setMinValue(F32_MIN);
-		mValSpinner2->setMinValue(F32_MIN);
-		mValSpinner3->setMinValue(F32_MIN);
-		mValSpinner4->setMinValue(F32_MIN);
+		mValSpinner1->setMinValue(-F32_MAX);
+		mValSpinner2->setMinValue(-F32_MAX);
+		mValSpinner3->setMinValue(-F32_MAX);
+		mValSpinner4->setMinValue(-F32_MAX);
 		if (!mValSpinner1->hasFocus())
 		{
 			mValSpinner1->setIncrement(0.1f);
