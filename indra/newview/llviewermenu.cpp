@@ -9702,7 +9702,10 @@ class ListObjectTouch : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		handle_object_touch(gObjectList.findObject(LFIDBearer::getActiveSelectedID()));
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+			if (auto obj = gObjectList.findObject(id))
+				if (enable_object_touch(obj))
+					handle_object_touch(obj);
 		return true;
 	}
 };
@@ -9712,8 +9715,16 @@ class ListObjectEnableTouch : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const auto& ids = LFIDBearer::getActiveSelectedIDs();
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(ids.size() == 1 && enable_object_touch(gObjectList.findObject(ids[0])));
+		bool value = false;
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+		{
+			if (enable_object_touch(gObjectList.findObject(id)))
+			{
+				value = true;
+				break; // First touchable is fine enough, we'll touch all we can
+			}
+		}
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(value);
 		return true;
 	}
 };
