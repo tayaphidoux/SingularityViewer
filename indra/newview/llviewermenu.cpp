@@ -9698,33 +9698,36 @@ class ListObjectEnablePay : public view_listener_t
 	}
 };
 
+void list_for_each_object(std::function<void(LLViewerObject*)> func)
+{
+	for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+		if (auto obj = gObjectList.findObject(id))
+			func(obj);
+}
+
 class ListObjectTouch : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
-			if (auto obj = gObjectList.findObject(id))
-				if (enable_object_touch(obj))
-					handle_object_touch(obj);
+		list_for_each_object([](LLViewerObject* obj) { if (enable_object_touch(obj)) handle_object_touch(obj); });
 		return true;
 	}
 };
+
+bool list_has_valid_object(std::function<bool(LLViewerObject*)> func)
+{
+	for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+		if (func(gObjectList.findObject(id)))
+			return true; // First is fine enough, we'll use all we can
+	return false;
+}
 
 // One object must have touch sensor
 class ListObjectEnableTouch : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool value = false;
-		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
-		{
-			if (enable_object_touch(gObjectList.findObject(id)))
-			{
-				value = true;
-				break; // First touchable is fine enough, we'll touch all we can
-			}
-		}
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(value);
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(list_has_valid_object([](LLViewerObject* obj){ return enable_object_touch(obj); }));
 		return true;
 	}
 };
