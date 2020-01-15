@@ -1872,10 +1872,13 @@ BOOL LLPanelLandOptions::postBuild()
 	mMatureCtrl = getChild<LLCheckBoxCtrl>( "MatureCheck");
 	childSetCommitCallback("MatureCheck", onCommitAny, this);
 
-	mGamingCtrl = getChild<LLCheckBoxCtrl>( "GamingCheck");
-	childSetCommitCallback("GamingCheck", onCommitAny, this);
-	mGamingCtrl->setVisible((gAgent.getRegion()->getGamingFlags() & REGION_GAMING_PRESENT) && !(gAgent.getRegion()->getGamingFlags() & REGION_GAMING_HIDE_PARCEL));
-	mGamingCtrl->setEnabled(false);
+	if (mGamingCtrl = getChild<LLCheckBoxCtrl>( "GamingCheck"))
+	{
+		auto region = gAgent.getRegion();
+		mGamingCtrl->setCommitCallback(boost::bind(&LLPanelLandOptions::onCommitAny, _1, this));
+		mGamingCtrl->setVisible(region && (region->getGamingFlags() & REGION_GAMING_PRESENT) && !(region->getGamingFlags() & REGION_GAMING_HIDE_PARCEL));
+		mGamingCtrl->setEnabled(false);
+	}
 	
 	mPublishHelpButton = getChild<LLButton>("?");
 	mPublishHelpButton->setClickedCallback(onClickPublishHelp, this);
