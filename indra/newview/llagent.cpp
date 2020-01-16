@@ -1809,10 +1809,18 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 							}
 						}
 					}
-					else if (gAgentAvatarp->isSitting()) // Leader isn't sitting, standUp if needed
+					else
 					{
-						standUp();
-						mAutoPilotNoProgressFrameCount = 0; // Ground Sit may have incremented this, reset it
+						if (dist_vec(av->getPositionAgent(), getPositionAgent()) <= mAutoPilotStopDistance)
+						{
+							follow = 3; // We're close enough, indicate no walking
+						}
+
+						if (gAgentAvatarp->isSitting()) // Leader isn't sitting, standUp if needed
+						{
+							standUp();
+							mAutoPilotNoProgressFrameCount = 0; // Ground Sit may have incremented this, reset it
+						}
 					}
 				}
 			}
@@ -1829,11 +1837,11 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 				mAutoPilotNoProgressFrameCount = 0; // Ground Sit may have incremented this, reset it
 				mAutoPilotTargetGlobal = pos;
 				setFlying(true); // Should we fly here? Altitude is often invalid...
-			}
 
-			if (dist_vec(mAutoPilotTargetGlobal, getPositionGlobal()) <= mAutoPilotStopDistance)
-			{
-				follow = 3; // We're close enough, indicate no walking
+				if (dist_vec(mAutoPilotTargetGlobal, getPositionGlobal()) <= mAutoPilotStopDistance)
+				{
+					follow = 3; // We're close enough, indicate no walking
+				}
 			}
 		}
 
