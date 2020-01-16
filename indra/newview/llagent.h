@@ -600,6 +600,7 @@ public:
 	LLVector3		getAutoPilotTargetFacing() const	{ return mAutoPilotTargetFacing; }
 	F32				getAutoPilotRotationThreshold() const	{ return mAutoPilotRotationThreshold; }
 	const std::string&	getAutoPilotBehaviorName() const	{ return mAutoPilotBehaviorName; }
+	bool			getAutoPilotNoProgress() const;
 
 	void			startAutoPilotGlobal(const LLVector3d &pos_global, 
 										 const std::string& behavior_name = std::string(), 

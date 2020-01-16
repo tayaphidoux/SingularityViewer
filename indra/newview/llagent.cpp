@@ -1759,6 +1759,11 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 }
 
 
+bool LLAgent::getAutoPilotNoProgress() const
+{
+	return mAutoPilotNoProgressFrameCount > AUTOPILOT_MAX_TIME_NO_PROGRESS * gFPSClamped;
+}
+
 // Returns necessary agent pitch and yaw changes, radians.
 //-----------------------------------------------------------------------------
 // autoPilot()
@@ -1800,7 +1805,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 							else // We're not close enough yet
 							{
 								if (/*!gAgentAvatarp->isSitting() && */ // RLV takes care of sitting check for us inside standUp
-									mAutoPilotNoProgressFrameCount <= AUTOPILOT_MAX_TIME_NO_PROGRESS * gFPSClamped) // Only stand up if we haven't exhausted our no progress frames
+									getAutoPilotNoProgress()) // Only stand up if we haven't exhausted our no progress frames
 									standUp(); // Unsit if need be, so we can move
 								follow = 2; // Indicate we want to groundsit
 							}
@@ -1857,7 +1862,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		if (follow % 2 == 0 && target_dist >= mAutoPilotTargetDist)
 		{
 			mAutoPilotNoProgressFrameCount++;
-			if (mAutoPilotNoProgressFrameCount > AUTOPILOT_MAX_TIME_NO_PROGRESS * gFPSClamped)
+			if (getAutoPilotNoProgress())
 			{
 				if (follow) // Well, we tried to reach them, let's just ground sit for now.
 					setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
