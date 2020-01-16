@@ -1776,36 +1776,33 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 				if (const auto& av = object->asAvatar()) // Fly if avatar target is flying
 				{
 					setFlying(av->mInAir);
-					if (av->isSitting())
+					if (av->isSitting() && (!rlv_handler_t::isEnabled() || !gRlvHandler.hasBehaviour(RLV_BHVR_SIT)))
 					{
-						if (!rlv_handler_t::isEnabled() || !gRlvHandler.hasBehaviour(RLV_BHVR_SIT))
+						if (auto seat = av->getParent())
 						{
-							if (auto seat = av->getParent())
+							mAutoPilotNoProgressFrameCount = 0; // Ground Sit may have incremented this, reset it
+							if (gAgentAvatarp->getParent() != seat)
 							{
-								mAutoPilotNoProgressFrameCount = 0; // Ground Sit may have incremented this, reset it
-								if (gAgentAvatarp->getParent() != seat)
-								{
-									void handle_object_sit(LLViewerObject*, const LLVector3&);
-									handle_object_sit(static_cast<LLViewerObject*>(seat), LLVector3::zero);
-								}
-								return; // If sitting, we won't be moving, exit here
+								void handle_object_sit(LLViewerObject*, const LLVector3&);
+								handle_object_sit(static_cast<LLViewerObject*>(seat), LLVector3::zero);
 							}
-							else // Ground sit, but only if near enough
+							return; // If sitting, we won't be moving, exit here
+						}
+						else // Ground sit, but only if near enough
+						{
+							if (dist_vec(av->getPositionAgent(), getPositionAgent()) <= mAutoPilotStopDistance) // We're close enough, sit.
 							{
-								if (dist_vec(av->getPositionAgent(), getPositionAgent()) <= mAutoPilotStopDistance) // We're close enough, sit.
-								{
-									if (!gAgentAvatarp->isSittingAvatarOnGround())
-										setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
-									mAutoPilotNoProgressFrameCount = 0; // Ground Sit may have incremented this, reset it now
-									return; // We're already sitting on the ground, we have nothing to do
-								}
-								else // We're not close enough yet
-								{
-									if (/*!gAgentAvatarp->isSitting() && */ // RLV takes care of sitting check for us inside standUp
-									  mAutoPilotNoProgressFrameCount <= AUTOPILOT_MAX_TIME_NO_PROGRESS * gFPSClamped) // Only stand up if we haven't exhausted our no progress frames
-										standUp(); // Unsit if need be, so we can move
-									follow = 2; // Indicate we want to groundsit
-								}
+								if (!gAgentAvatarp->isSittingAvatarOnGround())
+									setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
+								mAutoPilotNoProgressFrameCount = 0; // Ground Sit may have incremented this, reset it now
+								return; // We're already sitting on the ground, we have nothing to do
+							}
+							else // We're not close enough yet
+							{
+								if (/*!gAgentAvatarp->isSitting() && */ // RLV takes care of sitting check for us inside standUp
+									mAutoPilotNoProgressFrameCount <= AUTOPILOT_MAX_TIME_NO_PROGRESS * gFPSClamped) // Only stand up if we haven't exhausted our no progress frames
+									standUp(); // Unsit if need be, so we can move
+								follow = 2; // Indicate we want to groundsit
 							}
 						}
 					}
