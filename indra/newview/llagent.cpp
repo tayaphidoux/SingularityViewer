@@ -1828,7 +1828,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 				standUp(); // Leader not rendered, we mustn't be sitting
 				mAutoPilotNoProgressFrameCount = 0; // Ground Sit may have incremented this, reset it
 				mAutoPilotTargetGlobal = pos;
-				// Should we fly if the height difference is great enough here? Altitude is often invalid...
+				setFlying(true); // Should we fly here? Altitude is often invalid...
 			}
 
 			if (dist_vec(mAutoPilotTargetGlobal, getPositionGlobal()) <= mAutoPilotStopDistance)
