@@ -1265,7 +1265,7 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
 	}
 
 	log_SLM_infos("LLHTTPClient::get", url, LLStringUtil::null);
-	LLHTTPClient::get(url, LLSD(), new LLSLMGetMerchantResponder);
+	LLHTTPClient::get(url, new LLSLMGetMerchantResponder);
 }
 
 void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot_type& cb)

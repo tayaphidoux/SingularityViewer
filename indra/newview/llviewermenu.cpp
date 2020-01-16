@@ -600,21 +600,26 @@ void set_merchant_SLM_menu()
 	gToolBar->getChild<LLView>("marketplace_listings_btn")->setEnabled(true);
 }
 
-void check_merchant_status()
+void check_merchant_status(bool force)
 {
 	if (!gSavedSettings.getBOOL("InventoryOutboxDisplayBoth"))
 	{
-		// Reset the SLM status: we actually want to check again, that's the point of calling check_merchant_status()
-		LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED);
-
+		if (force)
+		{
+			// Reset the SLM status: we actually want to check again, that's the point of calling check_merchant_status()
+			LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED);
+		}
 		// Hide SLM related menu item
 		gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(FALSE);
 
 		// Also disable the toolbar button for Marketplace Listings
 		gToolBar->getChild<LLView>("marketplace_listings_btn")->setEnabled(false);
 
-		// Launch an SLM test connection to get the merchant status
-		LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_SLM_menu));
+		if (!gAgent.getRegionCapability("DirectDelivery").empty())
+		{
+			// Launch an SLM test connection to get the merchant status
+			LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_SLM_menu));
+		}
 	}
 }
 
