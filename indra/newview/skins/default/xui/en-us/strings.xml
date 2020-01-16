@@ -3559,6 +3559,8 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="Bottom">Bottom</string>
 	<string name="Bottom Right">Bottom Right</string>
 
+  <string name="Complexity">Complexity: [NUM]</string>
+
 	<!-- compile queue-->
 	<string name="CompileQueueDownloadedCompiling">Downloaded, now compiling</string>
 	<string name="CompileQueueServiceUnavailable">Script compilation service not available</string>

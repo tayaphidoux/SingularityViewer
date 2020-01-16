@@ -307,7 +307,7 @@ void LLHoverView::updateText()
 			}
 			mText.push_back(line);
 
-			mText.push_back(llformat("ARC: %d", hit_object->asAvatar()->getVisualComplexity()));
+			mText.push_back(LLTrans::getString("Complexity", LLSD().with("NUM", static_cast<LLSD::Integer>(hit_object->asAvatar()->getVisualComplexity()))));
 		}
 		else
 		{
