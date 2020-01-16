@@ -9732,6 +9732,48 @@ class ListObjectEnableTouch : public view_listener_t
 	}
 };
 
+class ListObjectEdit : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		std::vector<LLViewerObject*> objs;
+		auto func = rlv_handler_t::isEnabled() ? static_cast<std::function<void(LLViewerObject* obj)>>([&objs](LLViewerObject* obj) { if (gRlvHandler.canEdit(obj)) objs.push_back(obj); }) : [&objs](LLViewerObject* obj) { if (obj) objs.push_back(obj); };
+		list_for_each_object(func);
+
+		if (objs.empty()) return true;
+
+		bool new_selection = userdata.asBoolean();
+
+		auto& selmgr = LLSelectMgr::instance();
+		if (new_selection) selmgr.deselectAll();
+
+		auto selection = new_selection ? nullptr : selmgr.getSelection();
+		auto old_primary = selection ? selection->getPrimaryObject() : nullptr;
+		for (const auto& obj : objs)
+			selmgr.selectObjectAndFamily(obj, true);
+
+		if (old_primary) selmgr.selectObjectAndFamily(old_primary);
+
+		if (new_selection) handle_object_edit();
+		return true;
+	}
+};
+
+class ListObjectCanEdit : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		bool new_selection = userdata["data"].asBoolean();
+		auto& selmgr = LLSelectMgr::instance();
+		auto selection = new_selection ? nullptr : selmgr.getSelection();
+		bool has_old_selection = selection && !selection->isEmpty() && !selection->isAttachment();
+		auto func = rlv_handler_t::isEnabled() ? static_cast<std::function<bool(LLViewerObject* obj)>>([](LLViewerObject* obj) { return !!gRlvHandler.canEdit(obj); }) : [](LLViewerObject* obj) { return !!obj; };
+		gMenuHolder->findControl(userdata["control"].asString())
+			->setValue((new_selection || has_old_selection) && list_has_valid_object(func));
+		return true;
+	}
+};
+
 class MediaCtrlCopyURL : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -10132,6 +10174,8 @@ void initialize_menus()
 	addMenu(new ListObjectEnablePay, "List.Object.EnablePay");
 	addMenu(new ListObjectTouch, "List.Object.Touch");
 	addMenu(new ListObjectEnableTouch, "List.Object.EnableTouch");
+	addMenu(new ListObjectEdit, "List.Object.Edit");
+	addMenu(new ListObjectCanEdit, "List.Object.CanEdit");
 
 	add_radar_listeners();
 
