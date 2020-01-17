@@ -1785,13 +1785,18 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 					{
 						if (auto seat = av->getParent())
 						{
-							mAutoPilotNoProgressFrameCount = 0; // Ground Sit may have incremented this, reset it
-							if (gAgentAvatarp->getParent() != seat)
+							if (gAgentAvatarp->getParent() == seat)
+							{
+								mAutoPilotNoProgressFrameCount = 0; // We may have incremented this before making it here, reset it
+								return; // We're seated with them, nothing more to do
+							}
+							else if (!getAutoPilotNoProgress())
 							{
 								void handle_object_sit(LLViewerObject*, const LLVector3&);
 								handle_object_sit(static_cast<LLViewerObject*>(seat), LLVector3::zero);
+								follow = 2; // Indicate ground sitting is okay if we can't make it
 							}
-							return; // If sitting, we won't be moving, exit here
+							else return; // If the server just wouldn't let us sit there, we won't be moving, exit here
 						}
 						else // Ground sit, but only if near enough
 						{
