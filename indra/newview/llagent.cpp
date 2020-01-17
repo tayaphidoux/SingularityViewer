@@ -1772,9 +1772,10 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 {
 	if (mAutoPilot && isAgentAvatarValid())
 	{
-		U8 follow = mLeaderID.notNull(); //mAutoPilotBehaviorName == "Follow";
+		U8 follow = mAutoPilotBehaviorName == "Follow";
 		if (follow)
 		{
+			llassert(mLeaderID.notNull());
 			if (auto object = gObjectList.findObject(mLeaderID))
 			{
 				mAutoPilotTargetGlobal = object->getPositionGlobal();
