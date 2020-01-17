@@ -1734,8 +1734,7 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		// Sit response during follow pilot, now complete, resume follow
 		if (!user_cancel && mAutoPilotBehaviorName == "Sit" && mLeaderID.notNull())
 		{
-			mAutoPilotBehaviorName = "Follow";
-			mAutoPilot = true;
+			startFollowPilot(mLeaderID, true, gSavedSettings.getF32("SinguFollowDistance"));
 			return;
 		}
 
