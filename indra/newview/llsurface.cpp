@@ -730,6 +730,7 @@ void LLSurface::disconnectNeighbor(LLSurface *surfacep)
 	}
 
 	// Iterate through surface patches, removing any connectivity to removed surface.
+	if (mPatchList) // Don't crash if removed before
 	for (i = 0; i < mNumberOfPatches; i++)
 	{
 		(mPatchList + i)->disconnectNeighbor(surfacep);
