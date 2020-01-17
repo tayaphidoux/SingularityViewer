@@ -1775,6 +1775,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		if (follow)
 		{
 			llassert(mLeaderID.notNull());
+			const auto old_pos = mAutoPilotTargetGlobal;
 			if (auto object = gObjectList.findObject(mLeaderID))
 			{
 				mAutoPilotTargetGlobal = object->getPositionGlobal();
@@ -1850,6 +1851,8 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 					follow = 3; // We're close enough, indicate no walking
 				}
 			}
+			if (old_pos != mAutoPilotTargetGlobal)
+				mAutoPilotNoProgressFrameCount = 0;
 		}
 
 		if (follow % 2 == 0 && gAgentAvatarp->mInAir && mAutoPilotAllowFlying)
