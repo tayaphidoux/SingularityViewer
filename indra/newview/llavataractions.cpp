@@ -1197,7 +1197,7 @@ void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::stri
 					 calling_card_folder_id);
 
 	LLSD args;
-	args["TO_NAME"] = target_name;
+	args["TO_NAME"] = getSLURL(target_id);
 
 	LLSD payload;
 	payload["from_id"] = target_id;
