@@ -94,14 +94,13 @@ BOOL LLPanelMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL
 					   std::string& tooltip_msg)
 {
 	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-	BOOL handled = (handled_view != NULL);
-	// Special case the drop zone
-	if (handled && (handled_view->getName() == "marketplace_drop_zone"))
+	// Special case the drop zone, also we're a giant drop zone
+	if (!handled_view || (handled_view->getName() == "marketplace_drop_zone"))
 	{
 		LLFolderView* root_folder = getRootFolder();
-		handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		return root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	}
-	return handled;
+	return false;
 }
 
 void LLPanelMarketplaceListings::buildAllPanels()
