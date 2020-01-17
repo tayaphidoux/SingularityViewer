@@ -1851,7 +1851,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 					follow = 3; // We're close enough, indicate no walking
 				}
 			}
-			if (old_pos != mAutoPilotTargetGlobal)
+			if (old_pos != mAutoPilotTargetGlobal) // Reset if position changes
 				mAutoPilotNoProgressFrameCount = 0;
 		}
 
