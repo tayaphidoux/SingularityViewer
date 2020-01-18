@@ -7438,27 +7438,6 @@ An object named [OBJECTFROMNAME] owned by [NAME] has given you a [OBJECTTYPE] na
 
   <notification
    icon="notify.tga"
-   name="ObjectGiveItemUnknownUser"
-   type="notify">
-An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJECTTYPE] named [OBJECTNAME].
-    <form name="form">
-      <button
-       index="0"
-       name="Keep"
-       text="Keep"/>
-      <button
-       index="1"
-       name="Discard"
-       text="Discard"/>
-      <button
-       index="2"
-       name="Mute"
-       text="Mute"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="notify.tga"
    name="UserGiveItem"
    log_to_im ="true"
    type="notify">

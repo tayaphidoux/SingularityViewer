@@ -1894,34 +1894,24 @@ void inventory_offer_handler(LLOfferInfo* info, bool is_friend, bool is_owned_by
 
 	// Name cache callbacks don't store userdata, so can't save
 	// off the LLOfferInfo.  Argh.
-	BOOL name_found = FALSE;
 	payload["from_id"] = info->mFromID;
 	args["OBJECTFROMNAME"] = info->mFromName;
 	args["NAME"] = info->mFromName;
 	if (info->mFromGroup)
 	{
-		std::string group_name;
-		if (gCacheName->getGroupName(info->mFromID, group_name))
-		{
-			args["NAME"] = group_name;
-			name_found = TRUE;
-		}
+		args["NAME"] = LLGroupActions::getSLURL(info->mFromID);
 	}
 	else
 	{
-		std::string full_name;
-		if (gCacheName->getFullName(info->mFromID, full_name))
-		{
+		std::string full_name = LLAvatarActions::getSLURL(info->mFromID);
 // [RLVa:KB] - Checked: 2010-11-02 (RLVa-1.2.2a) | Modified: RLVa-1.2.2a
 		// Only filter if the object owner is a nearby agent
-			if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) && (RlvUtil::isNearbyAgent(info->mFromID)) )
-			{
-				full_name = RlvStrings::getAnonym(full_name);
-			}
-// [/RLVa:KB]
-			args["NAME"] = full_name;
-			name_found = TRUE;
+		if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) && (RlvUtil::isNearbyAgent(info->mFromID)) )
+		{
+			full_name = RlvStrings::getAnonym(full_name);
 		}
+// [/RLVa:KB]
+		args["NAME"] = full_name;
 	}
 
 
@@ -1931,7 +1921,7 @@ void inventory_offer_handler(LLOfferInfo* info, bool is_friend, bool is_owned_by
 	// Object -> Agent Inventory Offer
 	if (info->mFromObject)
 	{
-		p.name = name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser";
+		p.name = "ObjectGiveItem";
 	}
 	else // Agent -> Agent Inventory Offer
 	{
