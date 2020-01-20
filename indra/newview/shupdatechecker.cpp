@@ -140,7 +140,7 @@ void check_for_updates()
 		{
 			type = "release";
 		}
-		else if (channel == std::string("Singularity Test") || channel == std::string("Singularity Alpha"))
+		else if (channel == std::string("Singularity Test") || channel == std::string("Singularity Alpha") || channel == "Singularity Beta")
 		{
 			type = "alpha";
 		}
