@@ -1,20 +1,12 @@
 #include "llviewerprecompiledheaders.h"
 
-#include "llviewerwindow.h"
-#include "llwindow.h"
-#include "llpanelgeneral.h"
-#include "llappviewer.h"
-#include "llbutton.h"
-#include "llviewercontrol.h"
-#include "llnotificationsutil.h"
-#include "llstartup.h"
-#include "llviewerwindow.h"			// to link into child list
-#include "llnotify.h"
-#include "lluictrlfactory.h"
-#include "llhttpclient.h"
-#include "llversioninfo.h"
 #include "llbufferstream.h"
+#include "llhttpclient.h"
+#include "llnotificationsutil.h"
+#include "llversioninfo.h"
+#include "llviewerwindow.h"
 #include "llweb.h"
+#include "llwindow.h"
 
 #include <nlohmann/json.hpp>
 
