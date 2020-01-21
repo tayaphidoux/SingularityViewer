@@ -72,7 +72,7 @@ private:
 	static std::string getInvCap();
 	static std::string getLibCap();
 	
-	static void InvokeAISCommandCoro( LLHTTPClient::ResponderWithResult* responder, 
+	static void InvokeAISCommandCoro(AISCommand* responder,
         std::string url, LLUUID targetId, LLSD body, 
         completion_t callback, COMMAND_TYPE type);
 };
@@ -84,7 +84,10 @@ public:
 	void parseUpdate(const LLSD& update);
 	void parseMeta(const LLSD& update);
 	void parseContent(const LLSD& update);
-	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
+// [SL:KB] - Patch: Appearance-SyncAttach | Checked: Catznip-3.7
+	static void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
+// [/SL:KB]
+//	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
 	void parseLink(const LLSD& link_map);
 	void parseItem(const LLSD& link_map);
 	void parseCategory(const LLSD& link_map);
