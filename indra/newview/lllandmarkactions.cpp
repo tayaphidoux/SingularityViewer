@@ -289,6 +289,7 @@ LLVector3d getRegionPosFromGlobalPos(const LLVector3d& global_pos, const LLSimIn
     LLVector3d local_pos;
     local_pos[0] = fmod(global_pos[0], siminfo ? siminfo->getSizeX() : 256);
     local_pos[1] = fmod(global_pos[1], siminfo ? siminfo->getSizeY() : 256);
+    local_pos[2] = global_pos[2];
     return local_pos;
 }
 
