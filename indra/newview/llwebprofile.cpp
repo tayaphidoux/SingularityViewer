@@ -82,7 +82,13 @@ public:
 			return;
 		}
 
-		auto root = LlsdFromJson(nlohmann::json::parse(body));
+		auto root = LlsdFromJsonString(body);
+		if (root.isUndefined())
+		{
+			LL_WARNS() << "Failed to get valid json body" << LL_ENDL;
+			LLWebProfile::reportImageUploadStatus(false);
+			return;
+		}
 
 		// *TODO: 404 = not supported by the grid
 		// *TODO: increase timeout or handle HTTP_INTERNAL_ERROR_* time errors.

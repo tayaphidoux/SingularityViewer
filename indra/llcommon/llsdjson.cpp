@@ -79,6 +79,17 @@ LLSD LlsdFromJson(const nlohmann::json &val)
     return result;
 }
 
+LLSD LlsdFromJsonString(const std::string& str)
+{
+	auto json = nlohmann::json::parse(str, nullptr, false);
+	if (json.is_discarded())
+	{
+		LL_WARNS() << "Cannot parse invalid json string:\n" << str << LL_ENDL;
+		return LLSD();
+	}
+	return LlsdFromJson(json);
+}
+
 //=========================================================================
 nlohmann::json LlsdToJson(const LLSD &val)
 {

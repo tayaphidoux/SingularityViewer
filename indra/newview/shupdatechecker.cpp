@@ -48,7 +48,12 @@ public:
 			return;
 		}
 
-		auto root = nlohmann::json::parse(body);
+		auto root = nlohmann::json::parse(body, nullptr, false);
+		if (root.is_discarded())
+		{
+			LL_WARNS() << "Failed to parse json string from body:\n" << body << LL_ENDL;
+			return; // TODO: Should we say something here for the user?
+		}
 
 		std::string viewer_version = llformat("%s (%i)", LLVersionInfo::getShortVersion().c_str(), LLVersionInfo::getBuild());
 
