@@ -192,14 +192,14 @@ private:
  **/
 
 	//--------------------------------------------------------------------
-	// Descendents
+	// Descendants
 	//--------------------------------------------------------------------
 public:
-	// Make sure we have the descendents in the structure.  Returns true
+	// Make sure we have the descendants in the structure.  Returns true
 	// if a fetch was performed.
 	bool fetchDescendentsOf(const LLUUID& folder_id) const;
 
-	// Return the direct descendents of the id provided.Set passed
+	// Return the direct descendants of the id provided.Set passed
 	// in values to NULL if the call fails.
 	//    NOTE: The array provided points straight into the guts of
 	//    this object, and should only be used for read operations, since
@@ -211,10 +211,10 @@ public:
 	void getDirectDescendentsOf(const LLUUID& cat_id,
 								cat_array_t*& categories) const;
 	
-	// Compute a hash of direct descendent names (for detecting child name changes)
+	// Compute a hash of direct descendant names (for detecting child name changes)
 	LLMD5 hashDirectDescendentNames(const LLUUID& cat_id) const;
 
-	// Starting with the object specified, add its descendents to the
+	// Starting with the object specified, add its descendants to the
 	// array provided, but do not add the inventory object specified
 	// by id. There is no guaranteed order. 
 	//    NOTE: Neither array will be erased before adding objects to it. 
@@ -340,7 +340,7 @@ public:
 	U32 updateItem(const LLViewerInventoryItem* item, U32 mask = 0);
 
 	// Change an existing item with the matching id or add
-	// the category. No notifcation will be sent to observers. This
+	// the category. No notification will be sent to observers. This
 	// method will only generate network traffic if the item had to be
 	// reparented.
 	//    NOTE: In usage, you will want to perform cache accounting
@@ -378,7 +378,7 @@ public:
 								   bool update_parent_version = true,
 								   bool do_notify_observers = true);
 
-	// Update model after all descendents removed from server.
+	// Update model after all descendants removed from server.
 	void onDescendentsPurgedFromServer(const LLUUID& object_id, bool fix_broken_links = true);
 
 	// Update model after an existing item gets updated on server.
@@ -499,10 +499,12 @@ public:
 
 	// Call to explicitly update everyone on a new state.
 	void notifyObservers();
+
 	// Allows outsiders to tell the inventory if something has
 	// been changed 'under the hood', but outside the control of the
 	// inventory. The next notify will include that notification.
 	void addChangedMask(U32 mask, const LLUUID& referent);
+
 	const changed_items_t& getChangedIDs() const { return mChangedItemIDs; }
 	const changed_items_t& getAddedIDs() const { return mAddedItemIDs; }
 protected:
@@ -556,6 +558,7 @@ protected:
 	static bool loadFromFile(const std::string& filename,
 							 cat_array_t& categories,
 							 item_array_t& items,
+							 changed_items_t& cats_to_update,
 							 bool& is_cache_obsolete); 
 	static bool saveToFile(const std::string& filename,
 						   const cat_array_t& categories,

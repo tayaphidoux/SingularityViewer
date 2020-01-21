@@ -4184,7 +4184,7 @@ LLUUID LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, L
 // 2) Stuff with requests via makeLink and makeCopy
 // 3) Call dispatch()
 // 4) Let the LLPointer go out of scope.
-class LLCreateLegacyOutfit : public LLBoostFuncInventoryCallbackFireOnce
+class LLCreateLegacyOutfit final : public LLBoostFuncInventoryCallbackFireOnce
 {
 public:
 	LLCreateLegacyOutfit(const LLUUID& folder_id, inventory_func_type fire_func, nullary_func_type destroy_func = no_op) : 
