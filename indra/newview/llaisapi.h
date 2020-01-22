@@ -72,7 +72,7 @@ private:
 	static std::string getInvCap();
 	static std::string getLibCap();
 	
-	static void InvokeAISCommandCoro(AISCommand* responder,
+	static void InvokeAISCommandCoro(class AISCommand* responder,
         std::string url, LLUUID targetId, LLSD body, 
         completion_t callback, COMMAND_TYPE type);
 };
