@@ -38,7 +38,7 @@
 
 struct LLNameUI : public LFIDBearer
 {
-	LLNameUI(const std::string& loading = LLStringUtil::null, bool rlv_sensitive = false, const LLUUID& id = LLUUID::null, const Type& type = AVATAR, const std::string& name_system = LLStringUtil::null);
+	LLNameUI(const std::string& loading = LLStringUtil::null, bool rlv_sensitive = false, const LLUUID& id = LLUUID::null, const Type& type = AVATAR, const std::string& name_system = LLStringUtil::null, bool click_for_profile = true);
 	virtual ~LLNameUI()
 	{
 		if (mType == GROUP)	sInstances.erase(this);
@@ -82,4 +82,5 @@ protected:
 	bool mAllowInteract;
 	std::string mInitialValue;
 	std::string mNameSystem;
+	bool mClickForProfile;
 };

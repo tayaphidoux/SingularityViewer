@@ -42,8 +42,9 @@ LLNameBox::LLNameBox(const std::string& name,
 	const Type& type,
 	const std::string& loading,
 	bool rlv_sensitive,
-	const std::string& name_system)
-: LLNameUI(loading, rlv_sensitive, name_id, type, name_system)
+	const std::string& name_system,
+	bool click_for_profile)
+: LLNameUI(loading, rlv_sensitive, name_id, type, name_system, click_for_profile)
 , LLTextBox(name, LLRect(), LLStringUtil::null, nullptr, TRUE)
 {
 	setClickedCallback(boost::bind(&LLNameUI::showProfile, this));
@@ -80,7 +81,7 @@ BOOL LLNameBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLNameBox::handleHover(S32 x, S32 y, MASK mask)
 {
 	auto handled = LLTextBox::handleHover(x, y, mask);
-	if (mAllowInteract)
+	if (mClickForProfile && mAllowInteract)
 	{
 		getWindow()->setCursor(UI_CURSOR_HAND);
 		handled = true;
@@ -96,6 +97,7 @@ LLXMLNodePtr LLNameBox::getXML(bool save_children) const
 	node->setName("name_box");
 	node->createChild("initial_value", TRUE)->setStringValue(mInitialValue);
 	node->createChild("rlv_sensitive", TRUE)->setBoolValue(mRLVSensitive);
+	node->createChild("click_for_profile", TRUE)->setBoolValue(mClickForProfile);
 	node->createChild("name_system", TRUE)->setStringValue(mNameSystem);
 
 	return node;
@@ -114,7 +116,9 @@ LLView* LLNameBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 	node->getAttribute_bool("rlv_sensitive", rlv_sensitive);
 	std::string name_system;
 	node->getAttributeString("name_system", name_system);
-	LLNameBox* name_box = new LLNameBox("name_box", id, (Type)type, loading, rlv_sensitive, name_system);
+	bool click_for_profile = true;
+	node->getAttribute_bool("click_for_profile", click_for_profile);
+	LLNameBox* name_box = new LLNameBox("name_box", id, (Type)type, loading, rlv_sensitive, name_system, click_for_profile);
 	name_box->initFromXML(node,parent);
 
 	return name_box;

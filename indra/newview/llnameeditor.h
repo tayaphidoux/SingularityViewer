@@ -40,7 +40,6 @@ class LLNameEditor final
 :	public LLLineEditor
 ,	public LLNameUI
 {
-	bool mClickForProfile;
 public:
 	LLNameEditor(const std::string& name, const LLRect& rect,
 		const LLUUID& name_id = LLUUID::null,

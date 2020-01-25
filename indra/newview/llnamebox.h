@@ -49,6 +49,8 @@ public:
 	void setValue(const LLSD& value) override final { LLNameUI::setValue(value); }
 	LLSD getValue() const override final { return LLNameUI::getValue(); }
 
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override final { return mClickForProfile && mAllowInteract && LLTextBox::handleMouseDown(x, y, mask); }
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask) override final { return mClickForProfile && mAllowInteract && LLTextBox::handleMouseUp(x, y, mask); }
 	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override final;
 	BOOL handleHover(S32 x, S32 y, MASK mask) override final;
 
@@ -57,7 +59,8 @@ public:
 		const Type& type = AVATAR,
 		const std::string& loading = LLStringUtil::null,
 		bool rlv_sensitive = false,
-		const std::string& name_system = LLStringUtil::null);
+		const std::string& name_system = LLStringUtil::null,
+		bool click_for_profile = false);
 };
 
 #endif

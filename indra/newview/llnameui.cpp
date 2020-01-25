@@ -46,9 +46,10 @@
 // statics
 std::set<LLNameUI*> LLNameUI::sInstances;
 
-LLNameUI::LLNameUI(const std::string& loading, bool rlv_sensitive, const LLUUID& id, const Type& type, const std::string& name_system)
+LLNameUI::LLNameUI(const std::string& loading, bool rlv_sensitive, const LLUUID& id, const Type& type, const std::string& name_system, bool click_for_profile)
 : mNameID(id), mRLVSensitive(rlv_sensitive), mType(NONE), mAllowInteract(false)
 , mNameSystem(name_system.empty() ? "PhoenixNameSystem" : name_system), mInitialValue(!loading.empty() ? loading : LLTrans::getString("LoadingData"))
+, mClickForProfile(click_for_profile)
 {
 	setType(type);
 }
