@@ -5,10 +5,9 @@
 #include "llnotificationsutil.h"
 #include "llversioninfo.h"
 #include "llviewerwindow.h"
+#include "llsdjson.h"
 #include "llweb.h"
 #include "llwindow.h"
-
-#include <nlohmann/json.hpp>
 
 
 void onNotifyButtonPress(const LLSD& notification, const LLSD& response, std::string name, std::string url)
@@ -93,7 +92,7 @@ public:
 			LL_WARNS() << "Failed to parse json string from body." << LL_ENDL;
 			// TODO: Should we say something here for the user?
 		}
-		else onCompleted(data[mType], mType == "release")
+		else onCompleted(data[mType], mType == "release");
 	}
 
 protected:

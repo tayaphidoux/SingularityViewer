@@ -1406,8 +1406,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		//don't spam them if they are getting flooded
 		if (check_offer_throttle(mFromName, true))
 		{
-			log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
+			log_message = chatHistory_string + ' ' + LLTrans::getString("InvOfferGaveYou") + ' ' + mDesc + LLTrans::getString(".");
 			chat.mText = log_message;
+			chat.mURL = LLAvatarActions::getSLURL(mFromID);
+			chat.mFromName = mFromName;
 			LLFloaterChat::addChatHistory(chat);
 		}
 
