@@ -192,25 +192,12 @@ BOOL LLFloaterExperienceProfile::postBuild()
 
     childSetCommitCallback(EDIT IMG_LOGO, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), nullptr);
 
-	const LLColor4& link_color = gSavedSettings.getColor4("HTMLLinkColor");
-    if (auto market = getChild<LLTextBox>(TF_MRKT))
+    if (auto logo = findChild<LLTextureCtrl>(IMG_LOGO))
     {
-		market->setClickedCallback([market] { LLUrlAction::clickAction(market->getValue().asStringRef(), true); });
-		market->setColor(link_color);
-		market->setFontStyle(LLFontGL::UNDERLINE);
-    }
-
-    if (auto location = getChild<LLTextBox>(TF_SLURL))
-    {
-		location->setClickedCallback([=] { LLUrlAction::clickAction(mLocationSLURL, true); });
-		location->setColor(link_color);
-		location->setFontStyle(LLFontGL::UNDERLINE);
-    }
-
-    if (auto logo = findChild<LLTexturePicker>(IMG_LOGO))
-    {
-		void show_picture(const LLUUID& id, const std::string& name);
-        logo->setCommitCallback(boost::bind(show_picture, boost::bind(&LLTexturePicker::getImageAssetID, logo), "Experience Picture"));
+        void show_picture(const LLUUID& id, const std::string& name);
+        LLTextBox* name = getChild<LLTextBox>(TF_NAME);
+        std::function<void()> cb = [logo, name]() { show_picture(logo->getImageAssetID(), "Experience Picture: " + name->getText()); };
+        logo->setMouseUpCallback(boost::bind(cb));
     }
 
 	getChild<LLTextEditor>(EDIT TF_DESC)->setCommitOnFocusLost(TRUE);
@@ -286,32 +273,24 @@ void LLFloaterExperienceProfile::onClickForget()
 
 bool LLFloaterExperienceProfile::setMaturityString( U8 maturity, LLTextBox* child, LLComboBox* combo )
 {
-	/* Singu Note: Nope.
-	LLStyle::Params style;
+	//LLStyle::Params style; // Singu Note: Nope.
 	std::string access;
-	*/
 	if (maturity <= SIM_ACCESS_PG)
 	{
-		/* Singu Note: Nope.
-		style.image(LLUI::getUIImage(getString("maturity_icon_general")));
+		//style.image(LLUI::getUIImage(getString("maturity_icon_general"))); // Singu Note: Nope.
 		access = LLTrans::getString("SIM_ACCESS_PG");
-		*/
 		combo->setCurrentByIndex(2);
 	}
 	else if (maturity <= SIM_ACCESS_MATURE)
 	{
-		/* Singu Note: Nope.
-		style.image(LLUI::getUIImage(getString("maturity_icon_moderate")));
+		//style.image(LLUI::getUIImage(getString("maturity_icon_moderate"))); // Singu Note: Nope.
 		access = LLTrans::getString("SIM_ACCESS_MATURE");
-		*/
 		combo->setCurrentByIndex(1);
 	}
 	else if (maturity <= SIM_ACCESS_ADULT)
 	{
-		/* Singu Note: Nope.
-		style.image(LLUI::getUIImage(getString("maturity_icon_adult")));
+		//style.image(LLUI::getUIImage(getString("maturity_icon_adult"))); // Singu Note: Nope.
 		access = LLTrans::getString("SIM_ACCESS_ADULT");
-		*/
 		combo->setCurrentByIndex(0);
 	}
 	else
@@ -323,9 +302,8 @@ bool LLFloaterExperienceProfile::setMaturityString( U8 maturity, LLTextBox* chil
 	child->setText(LLStringUtil::null);
 
 	child->appendImageSegment(style);
-
-	child->appendText(access, false);
 	*/
+	child->setText(access);
 
 	return true;
 }
@@ -367,21 +345,21 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 	edit_child->setText(value);
 
 	mLocationSLURL = experience[LLExperienceCache::SLURL].asString();
-	child = getChild<LLTextBox>(TF_SLURL);
+	edit_child = getChild<LLTextEditor>(TF_SLURL);
 	bool has_slurl = !mLocationSLURL.empty() && mLocationSLURL != "last";
 	locationPanel->setVisible(has_slurl);
 	if (has_slurl) mLocationSLURL = LLSLURL(mLocationSLURL).getSLURLString();
-	child->setText(mLocationSLURL);
+	edit_child->setText(mLocationSLURL);
 
 
-	child = getChild<LLTextBox>(EDIT TF_SLURL);
+	edit_child = getChild<LLTextEditor>(EDIT TF_SLURL);
 	if (has_slurl)
 	{
-		child->setText(mLocationSLURL);
+		edit_child->setText(mLocationSLURL);
 	}
 	else
 	{
-		child->setText(getString("empty_slurl"));
+		edit_child->setText(getString("empty_slurl"));
 	}
 
 	setMaturityString((U8)(experience[LLExperienceCache::MATURITY].asInteger()), getChild<LLTextBox>(TF_MATURITY), getChild<LLComboBox>(EDIT TF_MATURITY));
@@ -457,8 +435,8 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 		{
 			value=data[TF_MRKT].asString();
 
-			child = getChild<LLTextBox>(TF_MRKT);
-			child->setText(value);
+			edit_child = getChild<LLTextEditor>(TF_MRKT);
+			edit_child->setText(value);
             if(!value.empty())
 			{
 				marketplacePanel->setVisible(TRUE);
@@ -719,7 +697,7 @@ void LLFloaterExperienceProfile::onClickLocation()
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-		LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
+		auto child = getChild<LLTextEditor>(EDIT TF_SLURL);
 		mLocationSLURL = LLSLURL(region->getName(), gAgent.getPositionGlobal()).getSLURLString();
 		child->setText(mLocationSLURL);
 		onFieldChanged();
@@ -728,7 +706,7 @@ void LLFloaterExperienceProfile::onClickLocation()
 
 void LLFloaterExperienceProfile::onClickClear()
 {
-	LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
+	auto child = getChild<LLTextEditor>(EDIT TF_SLURL);
 	mLocationSLURL.clear();
 	child->setText(getString("empty_slurl"));
 	onFieldChanged();
@@ -877,8 +855,7 @@ void LLFloaterExperienceProfile::onPickGroup()
 void LLFloaterExperienceProfile::setEditGroup( LLUUID group_id )
 {
 	LLTextBox* child = getChild<LLTextBox>(EDIT TF_GROUP);
-	std::string value = LLSLURL("group", group_id, "inspect").getSLURLString();
-	child->setText(value);
+	child->setValue(group_id);
 	mPackage[LLExperienceCache::GROUP_ID] = group_id;
 	onFieldChanged();
 }

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-  bottom="48"
+  top="18"
   mouse_opaque="false"
   left="0"
   width="350"
-  top="24"
+  height="330"
   label="Search"
   follows="all">
 
@@ -40,11 +40,10 @@
     follows="all"
     left="5"
     right="-3"
-    top="-20"
-    bottom="-28"
+    bottom="0"
+    height="330"
     name="search_panel">
     <text
-      bottom="20"
       left="0"
       follows="top|left|right"
       right="-1">
@@ -75,7 +74,7 @@
       height="20"
       label="Mature"
       name="maturity"
-      bottom_delta="-6"
+      bottom_delta="-7"
       width="180"
       right="-1">
       <combo_box.item
@@ -98,22 +97,22 @@
       draw_heading="true"
       left="-4"
       right="-1"
-      top="-40"
-      bottom="70"
+      top="-62"
+      bottom="42"
       follows="all"
       menu_num="3"
       multi_select="true"
       name="search_results">
-      <column
+      <columns
         halign="center"
         width="24"
         name="maturity"
         label=""/>
-      <column
+      <columns
         user_resize="true"
         name="experience_name"
         label="Name"/>
-      <column
+      <columns
         user_resize="true"
         name="owner"
         label="Owner"/>

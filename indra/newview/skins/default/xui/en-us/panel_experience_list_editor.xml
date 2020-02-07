@@ -5,8 +5,7 @@
   width="300"
   height="100"
   min_height="100"
-  follows="top|bottom|right|left"
-  border="true">
+  follows="all">
   <panel.string
     name="loading">
     loading...
@@ -43,20 +42,21 @@
       bottom_delta="0"
       follows="top|left">
    </text>
-  <scroll_list
+  <name_list
     draw_heading="false"
-    bottom_delta="-108"
+    top="-24"
     left="3"
     width="225"
-    height="100"
-    follows="top|left|right"
+    bottom="10"
+    follows="all"
+    menu_num="3"
     name="experience_list">
     <columns
       width="225"
       user_resize="false"
       name="experience_name"
       label="Name"/>
-  </scroll_list>
+  </name_list>
   <button
     follows="top|right"
     bottom="58"

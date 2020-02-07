@@ -59,15 +59,14 @@
   <check_box bottom_delta="-20" label="Map" name="map_btn" follows="left|right" control_name="ToolbarVisibleWorldMap"/>
   <check_box bottom_delta="-20" label="Mini-Map" name="minimap_btn" follows="left|right" control_name="ToolbarVisibleMiniMap"/>
   <check_box bottom_delta="-20" label="Experiences" name="experiences_btn" follows="left|right" control_name="ToolbarVisibleExperiences"/>
-  <check_box bottom_delta="-20" label="Experience Search" name="experience_search_btn" follows="left|right" control_name="ToolbarVisibleExperiencePicker"/>
   <!-- [RLVa:LF] -->
   <check_box bottom_delta="-20" label="RLVa Restrictions" name="rlv_restrictions_btn" follows="left|right" control_name="ToolbarVisibleRLVRestrictions"/>
   <check_box bottom_delta="-20" label="RLVa Locks" name="rlv_locks_btn" follows="left|right" control_name="ToolbarVisibleRLVLocks"/>
   <check_box bottom_delta="-20" label="RLVa Strings" name="rlv_strings_btn" follows="left|right" control_name="ToolbarVisibleRLVStrings"/>
   <!-- [/RLVa:LF] -->
   <check_box bottom_delta="-20" label="Memory Leak" name="memleak_btn" follows="left|right" control_name="ToolbarVisibleMemLeak" visibility_control="QAMode"/>
-  <check_box bottom="-38" label="Message Log" name="message_log_btn" follows="left|right" control_name="ToolbarVisibleMessageLog" left_delta="160"/>
-  <check_box bottom_delta="-20" label="Statistics" name="stats_btn" follows="left|right" control_name="ToolbarVisibleStatBar"/>
+  <check_box bottom_delta="-20" label="Message Log" name="message_log_btn" follows="left|right" control_name="ToolbarVisibleMessageLog"/>
+  <check_box bottom="-38" label="Statistics" name="stats_btn" follows="left|right" control_name="ToolbarVisibleStatBar" left_delta="160"/>
   <check_box bottom_delta="-20" label="Notifications Console" name="notifications_console_btn" follows="left|right" control_name="ToolbarVisibleNotificationsConsole"/>
   <check_box bottom_delta="-20" label="Debug Console" name="debug_console_btn" follows="left|right" control_name="ToolbarVisibleDebugConsole"/>
   <check_box bottom_delta="-20" label="Region Console" name="region_console_btn" follows="left|right" control_name="ToolbarVisibleRegionDebugConsole"/>
@@ -82,8 +81,8 @@
   <check_box bottom_delta="-20" label="Make Outfit" name="make_outfit_btn" follows="left|right" control_name="ToolbarVisibleOutfit"/>
   <check_box bottom_delta="-20" label="Outfits" name="outfits_btn" follows="left|right" control_name="ToolbarVisibleInventoryOutfits"/>
   <check_box bottom_delta="-20" label="Favorites" name="favs_btn" follows="left|right" control_name="ToolbarVisibleInventoryFavs"/>
-  <check_box bottom="-38" label="Received Items" name="received_items_btn" follows="left|right" control_name="ToolbarVisibleInventoryReceivedItems" left_delta="160"/>
-  <check_box bottom_delta="-20" label="Marketplace Listings" name="marketplace_listings_btn" follows="left|right" control_name="ToolbarVisibleMarketplaceListings"/>
+  <check_box bottom_delta="-20" label="Received Items" name="received_items_btn" follows="left|right" control_name="ToolbarVisibleInventoryReceivedItems"/>
+  <check_box bottom="-38" label="Marketplace Listings" name="marketplace_listings_btn" follows="left|right" control_name="ToolbarVisibleMarketplaceListings" left_delta="160"/>
   <check_box bottom_delta="-20" label="Marketplace" name="marketplace_btn" follows="left|right" control_name="ToolbarVisibleMarketplace"/>
   <check_box bottom_delta="-20" label="Preferences" name="preferences_btn" follows="left|right" control_name="ToolbarVisiblePreferences"/>
   <check_box bottom_delta="-20" label="Joystick Config" name="joystick_btn" follows="left|right" control_name="ToolbarVisibleJoystick"/>

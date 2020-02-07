@@ -68,6 +68,7 @@ void addExperienceToList(const LLSD& experience, LLNameListCtrl* list)
 		return;
 
 	const auto& id = experience[LLExperienceCache::EXPERIENCE_ID];
+	list->removeNameItem(id); // Don't add the same item twice, this can happen
 	auto item = LLNameListCtrl::NameItem()
 		.name(experience[LLExperienceCache::NAME].asString())
 		.target(LLNameListItem::EXPERIENCE);

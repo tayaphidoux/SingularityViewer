@@ -52,7 +52,6 @@
     width="348"
     name="tab_container">
     <panel
-      background_visible="true"
       follows="all"
       height="540"
       left="0"
@@ -106,13 +105,13 @@
                 name="grid_wide"/>
               <button
                 follows="top|right"
-                height="23"
+                height="20"
                 label="Edit"
                 name="edit_btn"
+                left="-99"
                 width="100"
                 visible="false"
-                bottom_delta="-46"
-                right="-14"/>
+                bottom_delta="-1"/>
             </layout_panel>
             <layout_panel
               follows="all"
@@ -145,10 +144,11 @@
               <text_editor
                 follows="left|top|right"
                 font="SansSerif"
-                enabled="false"
                 height="50"
                 left="10"
                 name="experience_description"
+                hide_scrollbar="true"
+                enabled="false"
                 bottom="-50"
                 value=""
                 width="305"
@@ -177,11 +177,11 @@
                 type="string"
                 length="1"
                 follows="left|top|right"
-                height="18"
+                height="16"
                 left_delta="77"
                 valign="center"
                 name="ContentRatingText"
-                bottom_delta="3"
+                bottom_delta="0"
                 width="188">
               </text>
             </layout_panel>
@@ -204,17 +204,22 @@
                 width="290">
                 Location:
               </text>
-              <text
+              <text_editor
                 type="string"
                 length="1"
                 follows="left|top|right"
-                height="18"
+                height="24"
+                bottom_delta="-20"
+                bg_readonly_color="clear"
+                hide_scrollbar="true"
+                hide_border="true"
+                enabled="false"
                 left="10"
                 valign="center"
                 use_ellipses="true"
                 name="LocationTextText"
                 width="288">
-              </text>
+              </text_editor>
             </layout_panel>
             <layout_panel
               follows="all"
@@ -234,17 +239,22 @@
                 width="290">
                 Marketplace store:
               </text>
-              <text
+              <text_editor
                 type="string"
                 length="1"
                 follows="left|top|right"
-                height="18"
+                bottom_delta="-20"
+                height="24"
+                bg_readonly_color="clear"
+                hide_scrollbar="true"
+                hide_border="true"
+                enabled="false"
                 left="10"
                 valign="center"
                 use_ellipses="true"
                 name="marketplace"
                 width="288">
-              </text>
+              </text_editor>
             </layout_panel>
             <layout_panel
               follows="left|top|right"
@@ -289,7 +299,7 @@
                 type="string"
                 length="1"
                 follows="left|top"
-                height="16"
+                height="18"
                 left="10"
                 name="Group"
                 width="75">
@@ -351,6 +361,7 @@
                 length="1"
                 follows="left|top|right"
                 height="16"
+                bottom_delta="-18"
                 left="10"
                 name="privileged"
                 visible="false"
@@ -363,7 +374,7 @@
                 label="Report Abuse"
                 name="report_btn"
                 width="94"
-                bottom_delta="-5"
+                bottom_delta="-22"
                 left="104"
                 enabled="true"/>
             </layout_panel>
@@ -372,28 +383,29 @@
       </scroll_container>
     </panel>
     <panel
-      background_visible="true"
       follows="all"
       height="540"
+      min_height="250"
       left="0"
-      top="0"
+      bottom="-540"
       width="348"
+      mouse_opaque="false"
       name="edit_panel_experience_info">
       <scroll_container
         follows="all"
-        height="520"
-        left="9"
+        height="530"
+        left="0"
         name="edit_xp_scroll"
-        opaque="true"
-        bottom_delta="-530"
-        width="330">
+        bottom="0"
+        width="348">
         <panel
           follows="top|left|right"
-          height="590"
+          height="550"
           left="0"
           name="edit_scrolling_panel"
-          top="0"
-          width="310">
+          bottom="-550"
+          width="315"
+          min_width="315">
           <texture_picker
             enabled="true"
             fallback_image="default_land_picture.j2c"
@@ -401,23 +413,24 @@
             height="197"
             left="10"
             name="edit_logo"
-            top="10"
+            bottom="-207"
             width="290" />
           <text
             follows="left|top|right"
             height="14"
+            bottom_delta="-4"
             left="10"
             name="edit_experience_title_label"
             use_ellipses="true"
             value="Name:"
-            right="-10"/>
+            width="305"/>
           <line_editor
             follows="left|top|right"
             height="19"
             left="10"
             name="edit_experience_title"
             max_length_bytes="63"
-            right="-10"/>
+            width="305"/>
           <text
             follows="left|top|right"
             height="14"
@@ -426,33 +439,37 @@
             name="edit_experience_desc_label"
             use_ellipses="true"
             value="Description:"
-            right="-10"/>
+            width="305"/>
           <text_editor
             follows="left|top|right"
             height="57"
-            left="11"
+            bottom_delta="-57"
+            left="10"
             name="edit_experience_description"
+            spellcheck="true"
             max_length="2048"
-            right="-11"
+            width="305"
+            hide_scrollbar="true"
             word_wrap="true"/>
           <button
             bottom_delta="-33"
-            left="10"
+            left="9"
             width="125"
             height="23"
             name="Group_btn"
-            label="Group"
+            label="Set Group"
             />
-          <text
+          <name_box
             type="string"
             length="1"
             follows="left|top|right"
             height="14"
             left_delta="135"
-            bottom_delta="-32"
+            bottom_delta="4"
             use_ellipses="true"
+            id_type="1"
             name="edit_GroupText"
-            right="-10" />
+            right="-1" />
           <text
             bottom_delta="-26"
             type="string"
@@ -465,14 +482,14 @@
             Rating:
           </text>
           <combo_box
-            follows="right|top"
+            follows="left|right|top"
             height="20"
             label="Moderate"
-            right="-10"
+            right="-1"
             bottom_delta="-1"
             tool_tip="Increasing the maturity rating on an experience will reset permission for all residents which have allowed the experience."
             name="edit_ContentRatingText"
-            width="105">
+            width="139">
             <combo_item
               label="Adult"
               name="Adult"
@@ -492,18 +509,22 @@
             follows="left|top"
             height="14"
             left="10"
-            bottom_delta="-24"
+            bottom_delta="-20"
             name="edit_Location"
             right="90">
             Location:
           </text>
-          <text
+          <text_editor
             type="string"
             length="1"
             follows="left|top|right"
-            height="14"
-            left_delta="85"
-            bottom_delta="-28"
+            height="24"
+            bg_readonly_color="clear"
+            hide_scrollbar="true"
+            hide_border="true"
+            enabled="false"
+            left_delta="80"
+            bottom_delta="-4"
             use_ellipses="true"
             name="edit_LocationTextText"
             right="-10" />
@@ -511,6 +532,7 @@
             left="10"
             width="125"
             height="23"
+            bottom_delta="-23"
             name="location_btn"
             label="Set to Current"
             />
@@ -518,7 +540,7 @@
             bottom_delta="0"
             height="23"
             follows="top|right"
-            right="-10"
+            right="-1"
             width="125"
             name="clear_btn"
             label="Clear Location"/>
@@ -527,7 +549,7 @@
             length="1"
             follows="left|top|right"
             height="14"
-            bottom_delta="-33"
+            bottom_delta="-18"
             left="10"
             right="-10">
             Marketplace store:
@@ -537,21 +559,23 @@
             length="1"
             follows="left|top|right"
             height="19"
+            bottom_delta="-20"
             left="10"
             max_length_bytes="255"
             valign="center"
             name="edit_marketplace"
-            right="-10"/>
+            right="-1"/>
           <check_box width="140"
                      height="21"
-                     left="10"
+                     bottom_delta="-26"
+                     left="8"
                      follows="top|left"
                      tool_tip=""
                      label="Enable Experience"
                      name="edit_enable_btn"/>
-          <check_box width="125"
+          <check_box width="140"
                      height="21"
-                     bottom_delta="-42"
+                     bottom_delta="0"
                      right="-10"
                      visible="false"
                      follows="top|left|right"
@@ -561,7 +585,7 @@
             follows="left|top|right"
             height="25"
             left="10"
-            bottom_delta="35"
+            bottom_delta="-25"
             name="changes"
             use_ellipses="true"
             word_wrap="true"
@@ -573,7 +597,7 @@
             label="Back"
             name="cancel_btn"
             width="125"
-            botttom_delta="38"
+            botttom_delta="-38"
             left="10"
             visible="true"/>
           <button
@@ -581,9 +605,9 @@
             height="23"
             label="Save"
             name="save_btn"
-            bottom_delta="-46"
+            bottom_delta="0"
             width="125"
-            right="-10"
+            right="-1"
             visible="true"/>
         </panel>
       </scroll_container>
