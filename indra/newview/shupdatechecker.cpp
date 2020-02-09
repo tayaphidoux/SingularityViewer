@@ -47,7 +47,6 @@ void onCompleted(const LLSD& data, bool release)
 	args["RECOMMENDED_VER"] = recommended_version;
 	args["MINIMUM_VER"] = minimum_version;
 	args["URL"] = data["url"].asString();
-	args["TYPE"] = release ? "Viewer" : "Alpha";
 
 	static LLCachedControl<S32> lastver(release ? "SinguLastKnownReleaseBuild" : "SinguLastKnownAlphaBuild", 0);
 

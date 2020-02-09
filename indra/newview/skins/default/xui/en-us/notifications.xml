@@ -11842,7 +11842,7 @@ You have just entered a [SHORT_APP_NAME] support group chat. To help provide sup
     label="Update Available"
     name="RecommendedUpdate"
     type="notify">
-A newer version, [RECOMMENDED_VER], is available for Singularity[TYPE].
+A newer version, [RECOMMENDED_VER], is available for [SHORT_APP_NAME].
 
 Click [Visit Page] to open
 [URL]
@@ -11860,7 +11860,7 @@ for information and download links for this new version.
    name="UrgentUpdate"
    priority="high"
    type="notify">
-Your version of Singularity[TYPE] is critically out of date!
+Your version of [SHORT_APP_NAME] is critically out of date!
 
 It is STRONGLY recommended to download a newer version of this viewer due to grid compatibility and/or security concerns.
 
@@ -11881,7 +11881,7 @@ for information and download links for newer versions.
    name="UrgentUpdateModal"
    priority="high"
    type="alertmodal">
-Your version of Singularity[TYPE] is critically out of date!
+Your version of [SHORT_APP_NAME] is critically out of date!
 
 It is STRONGLY recommended to download a newer version of this viewer due to grid compatibility and/or security concerns.
 
