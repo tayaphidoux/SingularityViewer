@@ -3388,12 +3388,13 @@ void send_do_not_disturb_message(LLMessageSystem* msg, const LLUUID& from_id, co
 		gAgent.sendReliableMessage();
 		LLAvatarName av_name;
 		std::string ns_name = LLAvatarNameCache::get(from_id, &av_name) ? av_name.getNSName() : name;
-		if (gSavedPerAccountSettings.getBOOL("BusyModeResponseShow")) gIMMgr->addMessage(session_id, from_id, name, LLTrans::getString("IM_autoresponded_to") + ' ' + ns_name);
+		const auto show = gSavedPerAccountSettings.getBOOL("BusyModeResponseShow");
+		if (show) gIMMgr->addMessage(session_id, from_id, name, LLTrans::getString("IM_autoresponded_to") + ' ' + ns_name);
 		if (!gSavedPerAccountSettings.getBOOL("BusyModeResponseItem")) return; // Not sending an item, finished
 		if (LLViewerInventoryItem* item = gInventory.getItem(static_cast<LLUUID>(gSavedPerAccountSettings.getString("BusyModeResponseItemID"))))
 		{
 			LLGiveInventory::doGiveInventoryItem(from_id, item, session_id);
-			if (gSavedPerAccountSettings.getBOOL("BusyModeResponseShow"))
+			if (show)
 				gIMMgr->addMessage(session_id, from_id, name, llformat("%s %s \"%s\"", ns_name.c_str(), LLTrans::getString("IM_autoresponse_sent_item").c_str(), item->getName().c_str()));
 		}
 	}
