@@ -8139,11 +8139,9 @@ Scripts associated with this experience will be able to do the following on regi
 
 [QUESTIONS]
 Is this OK?
-
   <unique combine="combine_with_new">
     <context>experience</context>
   </unique>
-  <tag>confirm</tag>
     <form name="form">
       <button
        index="3"
@@ -8175,13 +8173,12 @@ Warning: The object &apos;[OBJECTNAME]&apos; wants total access to your inworld 
 [FOOTERTEXT]
 
 Do not allow access if you do not fully understand why it wants access to your account.
-
   <tag>confirm</tag>
     <form name="form">
       <button
        index="0"
        name="Grant"
-       text="Allow total access"/>
+       text="Allow"/>
       <button
        default="true"
        index="1"

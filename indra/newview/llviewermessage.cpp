@@ -7518,7 +7518,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 // [/RLVa:KB]
 			if (caution && gSavedSettings.getBOOL("PermissionsCautionEnabled"))
 			{
-					args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
+				args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + '\n' + script_question : LLStringUtil::null;
 				notification = "ScriptQuestionCaution";
 			}
 			else if (experienceid.notNull())
