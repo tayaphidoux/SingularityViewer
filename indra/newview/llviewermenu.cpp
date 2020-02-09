@@ -9074,30 +9074,53 @@ const JCFloaterAreaSearch::ObjectData* get_obj_data(const LLUUID& id)
 	return areasearch ? areasearch->getObjectData(id) : nullptr;
 }
 
+const LLUUID& get_obj_owner(const LLUUID& id, const JCFloaterAreaSearch::ObjectData* obj_data = nullptr, const LLViewerObject* objp = nullptr)
+{
+	if (const auto& obj = objp ? objp : gObjectList.findObject(id)) // Viewer Object is more likely to be up to date
+		return obj->mOwnerID;
+	if (const auto& obj = obj_data ? obj_data : get_obj_data(id)) // Fall back on Object Data
+		return obj->owner_id;
+	return LLUUID::null;
+}
+
+const std::string get_obj_owner_slurl(const LLUUID& obj_id, const std::string& name = LLStringUtil::null)
+{
+	const auto owner = get_obj_owner(obj_id);
+	if (owner.isNull()) return name;
+	return LLAvatarActions::getSLURL(obj_id);
+}
+
+const std::string get_obj_slurl(const LLUUID& id, const std::string& name = LLStringUtil::null)
+{
+	const auto& obj_data = get_obj_data(id); // Needed for object name
+	const auto& obj = gObjectList.findObject(id); // Has all the other object data
+	if (!obj_data && !obj && name.empty())
+		return name; // Not enough data to show, empty string to show failure, if we had a name we could pair it with the ID at least
+
+	LLSD sdQuery;
+
+	sdQuery["name"] = !name.empty() ? name :
+		obj_data ? obj_data->name : LLTrans::getString("unknown_land_type");
+
+	const auto& owner = get_obj_owner(id, obj_data, obj);
+	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) && (owner != gAgentID))
+		sdQuery["rlv_shownames"] = true;
+
+	sdQuery["owner"] = owner;
+
+	if (const auto region = obj ? obj->getRegion() : nullptr)
+		sdQuery["slurl"] = LLSLURL(region->getName(), obj->getPositionAgent()).getLocationString();
+
+	return LLSLURL("objectim", id, LLURI::mapToQueryString(sdQuery)).getSLURLString();
+}
+
 const std::string get_slurl_for(const LLUUID& id, const LFIDBearer::Type& type)
 {
 	switch (type)
 	{
 	case LFIDBearer::GROUP: return LLGroupActions::getSLURL(id);
 	case LFIDBearer::AVATAR: return LLAvatarActions::getSLURL(id);
-	case LFIDBearer::OBJECT:
-	{
-		const auto& obj_data = get_obj_data(id);
-		if (!obj_data) return LLStringUtil::null;
-
-		LLSD sdQuery;
-		sdQuery["name"] = obj_data->name;
-		sdQuery["owner"] = obj_data->owner_id;
-
-		if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) && (obj_data->owner_id != gAgentID))
-			sdQuery["rlv_shownames"] = true;
-
-		if (const auto obj = gObjectList.findObject(id))
-			if (const auto region = obj->getRegion())
-				sdQuery["slurl"] = LLSLURL(region->getName(), obj->getPositionAgent()).getLocationString();
-
-		return LLSLURL("objectim", id, LLURI::mapToQueryString(sdQuery)).getSLURLString();
-	}
+	case LFIDBearer::OBJECT: return get_obj_slurl(id);
 	case LFIDBearer::EXPERIENCE: return LLSLURL("experience", id, "profile").getSLURLString();
 	default: return LLStringUtil::null;
 	}
