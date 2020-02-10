@@ -1088,27 +1088,12 @@ bool idle_startup()
 		}
 
 		//Get these logs out of my newview root directory, PLEASE.
-		if (gHippoGridManager->getCurrentGrid()->isSecondLife())
-		{
-			gDirUtilp->setPerAccountChatLogsDir(LLStringUtil::null, 
-				gSavedSettings.getString("FirstName"), gSavedSettings.getString("LastName") );
-		}
-		else
-		{
-			gDirUtilp->setPerAccountChatLogsDir(gHippoGridManager->getConnectedGrid()->getGridNick(), 
-				gSavedSettings.getString("FirstName"), gSavedSettings.getString("LastName") );
-		}
+		gDirUtilp->setPerAccountChatLogsDir(gHippoGridManager->getCurrentGrid()->isSecondLife() ? LLStringUtil::null : gHippoGridManager->getConnectedGrid()->getGridNick(), 
+			gSavedSettings.getString("FirstName"), gSavedSettings.getString("LastName"));
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-        // NaCl - Antispam
-        U32 antispam_time = gSavedSettings.getU32("_NACL_AntiSpamTime");
-        U32 antispam_amount = gSavedSettings.getU32("_NACL_AntiSpamAmount");
-        NACLAntiSpamRegistry::registerQueues(antispam_time, antispam_amount);
-		gSavedSettings.getControl("_NACL_AntiSpamGlobalQueue")->getSignal()->connect(boost::bind(&NACLAntiSpamRegistry::handleNaclAntiSpamGlobalQueueChanged, _2));
-		gSavedSettings.getControl("_NACL_AntiSpamTime")->getSignal()->connect(boost::bind(&NACLAntiSpamRegistry::handleNaclAntiSpamTimeChanged, _2));
-		gSavedSettings.getControl("_NACL_AntiSpamAmount")->getSignal()->connect(boost::bind(&NACLAntiSpamRegistry::handleNaclAntiSpamAmountChanged, _2));
-        // NaCl End
+		NACLAntiSpamRegistry::startup(); // NaCl - Antispam
 
 		//good a place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));

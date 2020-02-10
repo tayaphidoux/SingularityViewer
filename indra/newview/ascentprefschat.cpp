@@ -70,7 +70,10 @@ LLPrefsAscentChat::LLPrefsAscentChat()
 	}
 
 	childSetEnabled("reset_antispam", started);
-	getChild<LLUICtrl>("reset_antispam")->setCommitCallback(boost::bind(NACLAntiSpamRegistry::purgeAllQueues));
+	getChild<LLUICtrl>("reset_antispam")->setCommitCallback([](LLUICtrl* ctrl, const LLSD& param) {
+		if (auto inst = NACLAntiSpamRegistry::getIfExists())
+			inst->resetQueues();
+	});
 
 	getChild<LLUICtrl>("autoreplace")->setCommitCallback(boost::bind(LLFloaterAutoReplaceSettings::showInstance, LLSD()));
 	getChild<LLUICtrl>("KeywordsOn")->setCommitCallback(boost::bind(&LLPrefsAscentChat::onCommitKeywords, this, _1));

@@ -9083,11 +9083,31 @@ const LLUUID& get_obj_owner(const LLUUID& id, const JCFloaterAreaSearch::ObjectD
 	return LLUUID::null;
 }
 
-const std::string get_obj_owner_slurl(const LLUUID& obj_id, const std::string& name = LLStringUtil::null)
+const std::string get_obj_owner_slurl(const LLUUID& obj_id, const std::string& name = LLStringUtil::null, bool* group_ownedp = nullptr)
 {
-	const auto owner = get_obj_owner(obj_id);
-	if (owner.isNull()) return name;
-	return LLAvatarActions::getSLURL(obj_id);
+	bool group_owned;
+	LLUUID owner;
+	if (!group_ownedp)
+	{
+		if (const auto& obj = gObjectList.findObject(obj_id)) // Viewer Object is more likely to be up to date
+		{
+			owner = obj->mOwnerID;
+			group_owned = obj->flagObjectGroupOwned();
+		}
+		else if (const auto& obj = get_obj_data(obj_id)) // Fall back on Object Data
+		{
+			owner = obj->owner_id;
+			group_owned = owner == obj->group_id;
+		}
+	}
+	else
+	{
+		owner = get_obj_owner(obj_id);
+		group_owned = *group_ownedp;
+	}
+	return owner.isNull() ? name
+		: group_owned ? LLGroupActions::getSLURL(owner)
+		: LLAvatarActions::getSLURL(owner);
 }
 
 const std::string get_obj_slurl(const LLUUID& id, const std::string& name = LLStringUtil::null)
@@ -9100,13 +9120,14 @@ const std::string get_obj_slurl(const LLUUID& id, const std::string& name = LLSt
 	LLSD sdQuery;
 
 	sdQuery["name"] = !name.empty() ? name :
-		obj_data ? obj_data->name : LLTrans::getString("unknown_land_type");
+		obj_data ? obj_data->name : LLTrans::getString("land_type_unknown");
 
 	const auto& owner = get_obj_owner(id, obj_data, obj);
 	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) && (owner != gAgentID))
 		sdQuery["rlv_shownames"] = true;
 
 	sdQuery["owner"] = owner;
+	sdQuery["group_owned"] = obj ? obj->flagObjectGroupOwned() : obj_data && obj_data->group_id == owner;
 
 	if (const auto region = obj ? obj->getRegion() : nullptr)
 		sdQuery["slurl"] = LLSLURL(region->getName(), obj->getPositionAgent()).getLocationString();

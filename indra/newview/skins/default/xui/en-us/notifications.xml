@@ -11407,7 +11407,7 @@ AntiSpam: Blocked [SOURCE] for spamming [TYPE]s [AMOUNT] times in [TIME] seconds
    icon="notifytip.tga"
    name="AntiSpamNewlineFlood"
    type="notifytip">
-AntiSpam: Blocked newline flood from [SOURCE] (over [AMOUNT] newlines).
+AntiSpam: Blocked newline flood from secondlife:///app/agent/[SOURCE]/about (over [AMOUNT] newlines).
   </notification>
 
   <notification

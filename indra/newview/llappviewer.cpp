@@ -190,6 +190,7 @@
 #include "llviewerthrottle.h"
 #include "llparcel.h"
 #include "llviewerassetstats.h"
+#include "NACLantispam.h"
 
 #include "llmainlooprepeater.h"
 
@@ -4209,6 +4210,7 @@ void LLAppViewer::idle()
 
 		gIdleCallbacks.callFunctions();
 		gInventory.idleNotifyObservers();
+		if (auto antispam = NACLAntiSpamRegistry::getIfExists()) antispam->idle();
 	}
 
 	// Metrics logging (LLViewerAssetStats, etc.)
