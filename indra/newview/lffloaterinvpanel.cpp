@@ -69,6 +69,7 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 	mPanel->setEnabled(true);
 	mPanel->removeBorder();
 	addChild(mPanel);
+	sendChildToBack(mPanel);
 	removeChild(panel);
 }
 
