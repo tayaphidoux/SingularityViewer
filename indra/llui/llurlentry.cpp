@@ -1551,7 +1551,7 @@ void LLUrlEntryExperienceProfile::onExperienceDetails(const LLSD& experience_det
 //
 LLUrlEntryJira::LLUrlEntryJira()
 {
-	mPattern = boost::regex("((?:ALCH|SV|BUG|CHOP|FIRE|MAINT|OPEN|SCR|STORM|SVC|VWR|WEB)-\\d+)",
+	mPattern = boost::regex("(\\b(?:ALCH|SV|BUG|CHOP|FIRE|MAINT|OPEN|SCR|STORM|SVC|VWR|WEB)-\\d+)",
 							boost::regex::perl);
 	mMenuName = "menu_url_http.xml";
 	mTooltip = LLTrans::getString("TooltipHttpUrl");
