@@ -1408,7 +1408,8 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		{
 			log_message = chatHistory_string + ' ' + LLTrans::getString("InvOfferGaveYou") + ' ' + mDesc + LLTrans::getString(".");
 			chat.mText = log_message;
-			chat.mURL = LLAvatarActions::getSLURL(mFromID);
+			if (mFromObject || !mFromGroup)
+				chat.mURL = mFromGroup ? LLGroupActions::getSLURL(mFromID) : LLAvatarActions::getSLURL(mFromID);
 			chat.mFromName = mFromName;
 			LLFloaterChat::addChatHistory(chat);
 		}
@@ -2617,7 +2618,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				
 				info->mIM = IM_GROUP_NOTICE;
 				info->mFromID = from_id;
-				info->mFromGroup = from_group;
+				info->mFromGroup = true;
+				info->mFromObject = false;
 				info->mTransactionID = session_id;
 				info->mType = (LLAssetType::EType) asset_type;
 				info->mFolderID = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(info->mType));
