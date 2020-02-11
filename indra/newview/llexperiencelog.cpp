@@ -231,7 +231,7 @@ void LLExperienceLog::eraseExpired()
 	{
 		const std::string& date = event_pair.first;
 		if (isExpired(date))
-	{
+		{
             expired.push_back(date);
 		}
 	});

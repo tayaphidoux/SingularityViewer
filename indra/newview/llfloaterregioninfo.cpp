@@ -102,38 +102,38 @@ const U32 MAX_LISTED_NAMES = 100;
 /// Local class declaration
 ///----------------------------------------------------------------------------
 
-class LLDispatchEstateUpdateInfo : public LLDispatchHandler
+class LLDispatchEstateUpdateInfo final : public LLDispatchHandler
 {
 public:
 	LLDispatchEstateUpdateInfo() {}
 	virtual ~LLDispatchEstateUpdateInfo() {}
-	virtual bool operator()(
+	bool operator()(
 		const LLDispatcher* dispatcher,
 		const std::string& key,
 		const LLUUID& invoice,
-		const sparam_t& strings);
+		const sparam_t& strings) override;
 };
 
-class LLDispatchSetEstateAccess : public LLDispatchHandler
+class LLDispatchSetEstateAccess final : public LLDispatchHandler
 {
 public:
 	LLDispatchSetEstateAccess() {}
 	virtual ~LLDispatchSetEstateAccess() {}
-	virtual bool operator()(
+	bool operator()(
 		const LLDispatcher* dispatcher,
 		const std::string& key,
 		const LLUUID& invoice,
-		const sparam_t& strings);
+		const sparam_t& strings) override;
 };
 
-class LLDispatchSetEstateExperience : public LLDispatchHandler
+class LLDispatchSetEstateExperience final : public LLDispatchHandler
 {
 public:
-	virtual bool operator()(
+	bool operator()(
 		const LLDispatcher* dispatcher,
 		const std::string& key,
 		const LLUUID& invoice,
-		const sparam_t& strings);
+		const sparam_t& strings) override;
 
 	LLSD getIDs(sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count);
 };
@@ -267,6 +267,11 @@ BOOL LLFloaterRegionInfo::postBuild()
 	mInfoPanels.push_back(panel);
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_debug.xml");
 	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+
+	if(gDisconnected)
+	{
+		return TRUE;
+	}
 
 	if (!gAgent.getRegion()->getCapability("RegionExperiences").empty())
 	{
@@ -507,7 +512,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 LLPanelEstateInfo* LLFloaterRegionInfo::getPanelEstate()
 {
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
-	if (!floater) return NULL;
+	if (!floater) return nullptr;
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)tab->getChild<LLPanel>("Estate");
 	return panel;
@@ -527,7 +532,7 @@ LLPanelEstateAccess* LLFloaterRegionInfo::getPanelAccess()
 LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 {
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
-	if (!floater) return NULL;
+	if (!floater) return nullptr;
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateCovenant* panel = (LLPanelEstateCovenant*)tab->getChild<LLPanel>("Covenant");
 	return panel;
@@ -540,7 +545,7 @@ LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
 	if (!floater)
 	{
 		llassert(floater);
-		return NULL;
+		return nullptr;
 	}
 
 	LLTabContainer* tab_container = floater->getChild<LLTabContainer>("region_panels");
@@ -553,12 +558,10 @@ LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
 LLPanelRegionExperiences* LLFloaterRegionInfo::getPanelExperiences()
 {
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
-	if (!floater) return NULL;
-	LLTabContainer* tab_container = floater->getChild<LLTabContainer>("region_panels");
-	return (LLPanelRegionExperiences*)tab_container->getChild<LLPanel>("Experiences");
+	if (!floater) return nullptr;
+	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
+	return (LLPanelRegionExperiences*)tab->getChild<LLPanel>("Experiences");
 }
-
-
 
 void LLFloaterRegionInfo::onTabSelected(const LLSD& param)
 {
@@ -691,7 +694,7 @@ void LLPanelRegionInfo::sendEstateOwnerMessage(
 	if(strings.empty())
 	{
 		msg->nextBlock("ParamList");
-		msg->addString("Parameter", NULL);
+		msg->addString("Parameter", nullptr);
 	}
 	else
 	{
@@ -1569,7 +1572,7 @@ void LLPanelEstateInfo::initDispatch(LLDispatcher& dispatch)
 
 
 	name.assign("setexperience");
-	static LLDispatchSetEstateAccess set_experience;
+	static LLDispatchSetEstateExperience set_experience;
 	dispatch.addHandler(name, &set_experience);
 
 	estate_dispatch_initialized = true;
@@ -1784,13 +1787,13 @@ BOOL LLPanelEstateInfo::postBuild()
 {
 	// set up the callbacks for the generic controls
 	initCtrl("externally_visible_check");
-	initCtrl("use_global_time_check");
-	initCtrl("fixed_sun_check");
-	initCtrl("sun_hour_slider");
 	initCtrl("allow_direct_teleport");
 	initCtrl("limit_payment");
 	initCtrl("limit_age_verified");
 	initCtrl("voice_chat_check");
+	initCtrl("use_global_time_check");
+	initCtrl("fixed_sun_check");
+	initCtrl("sun_hour_slider");
 	initHelpBtn("use_global_time_help",			"HelpEstateUseGlobalTime");
 	initHelpBtn("fixed_sun_help",				"HelpEstateFixedSun");
 	initHelpBtn("externally_visible_help",		"HelpEstateExternallyVisible");
@@ -2070,7 +2073,7 @@ BOOL LLPanelEstateCovenant::postBuild()
 	if (mEditor) mEditor->setHandleEditKeysDirectly(TRUE);
 	LLButton* reset_button = getChild<LLButton>("reset_covenant");
 	reset_button->setEnabled(gAgent.canManageEstate());
-	reset_button->setClickedCallback(LLPanelEstateCovenant::resetCovenantID, NULL);
+	reset_button->setClickedCallback(LLPanelEstateCovenant::resetCovenantID, nullptr);
 
 	return LLPanelRegionInfo::postBuild();
 }
@@ -2151,7 +2154,7 @@ bool LLPanelEstateCovenant::confirmResetCovenantCallback(const LLSD& notificatio
 	switch(option)
 	{
 	case 0:		
-		self->loadInvItem(NULL);
+		self->loadInvItem(nullptr);
 		break;
 	default:
 		break;
@@ -2379,11 +2382,11 @@ bool LLDispatchSetEstateAccess::operator()(
 	if (!panel) return true;
 
 	S32 index = 1;	// skip estate_id
-	U32 access_flags = strtoul(strings[index++].c_str(), NULL,10);
-	S32 num_allowed_agents = strtol(strings[index++].c_str(), NULL, 10);
-	S32 num_allowed_groups = strtol(strings[index++].c_str(), NULL, 10);
-	S32 num_banned_agents = strtol(strings[index++].c_str(), NULL, 10);
-	S32 num_estate_managers = strtol(strings[index++].c_str(), NULL, 10);
+	U32 access_flags = strtoul(strings[index++].c_str(), nullptr,10);
+	S32 num_allowed_agents = strtol(strings[index++].c_str(), nullptr, 10);
+	S32 num_allowed_groups = strtol(strings[index++].c_str(), nullptr, 10);
+	S32 num_banned_agents = strtol(strings[index++].c_str(), nullptr, 10);
+	S32 num_estate_managers = strtol(strings[index++].c_str(), nullptr, 10);
 
 	// sanity ckecks
 	if (num_allowed_agents > 0
@@ -2483,13 +2486,63 @@ bool LLDispatchSetEstateAccess::operator()(
 	return true;
 }
 
+LLSD LLDispatchSetEstateExperience::getIDs( sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count )
+{
+	LLSD idList = LLSD::emptyArray();
+	LLUUID id;
+	while(count--> 0)
+	{
+		memcpy(id.mData, (*(it++)).data(), UUID_BYTES);
+		idList.append(id);
+	}
+	return idList;
+}
+
+// key = "setexperience"
+// strings[0] = str(estate_id)
+// strings[1] = str(send_to_agent_only)
+// strings[2] = str(num blocked)
+// strings[3] = str(num trusted)
+// strings[4] = str(num allowed)
+// strings[8] = bin(uuid) ...
+// ...
+bool LLDispatchSetEstateExperience::operator()(
+	const LLDispatcher* dispatcher,
+	const std::string& key,
+	const LLUUID& invoice,
+	const sparam_t& strings)
+{
+	LLPanelRegionExperiences* panel = LLFloaterRegionInfo::getPanelExperiences();
+	if (!panel) return true;
+
+	sparam_t::const_iterator it = strings.begin();
+	++it; // U32 estate_id = strtol((*it).c_str(), NULL, 10);
+	++it; // U32 send_to_agent_only = strtoul((*(++it)).c_str(), NULL, 10);
+
+	LLUUID id;
+	S32 num_blocked = strtol((*(it++)).c_str(), nullptr, 10);
+	S32 num_trusted = strtol((*(it++)).c_str(), nullptr, 10);
+	S32 num_allowed = strtol((*(it++)).c_str(), nullptr, 10);
+
+	LLSD ids = LLSD::emptyMap()
+		.with("blocked", getIDs(it,								strings.end(), num_blocked))
+		.with("trusted", getIDs(it + (num_blocked),				strings.end(), num_trusted))
+		.with("allowed", getIDs(it + (num_blocked+num_trusted),	strings.end(), num_allowed));
+
+	panel->processResponse(ids);			
+
+	return true;
+}
+
+
+
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo()
 :	mEnableEditing(false),
-	mRegionSettingsRadioGroup(NULL),
-	mDayCycleSettingsRadioGroup(NULL),
-	mWaterPresetCombo(NULL),
-	mSkyPresetCombo(NULL),
-	mDayCyclePresetCombo(NULL)
+	mRegionSettingsRadioGroup(nullptr),
+ 	mDayCycleSettingsRadioGroup(nullptr),
+ 	mWaterPresetCombo(nullptr),
+ 	mSkyPresetCombo(nullptr),
+ 	mDayCyclePresetCombo(nullptr)
 {
 }
 
@@ -2512,9 +2565,9 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 	mDayCyclePresetCombo->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSelectDayCycle, this));
 
 	getChild<LLButton>("apply_btn")->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onBtnApply, this));
-	//getChild<LLButton>("apply_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, LLEnvManagerNew::getInstance()));
+	getChild<LLButton>("apply_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, LLEnvManagerNew::getInstance()));
 	getChild<LLButton>("cancel_btn")->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onBtnCancel, this));
-	//getChild<LLButton>("cancel_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpPresets, LLEnvManagerNew::getInstance()));
+	getChild<LLButton>("cancel_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpPresets, LLEnvManagerNew::getInstance()));
 
 	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingschange, this));
 	LLEnvManagerNew::instance().setRegionSettingsAppliedCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingsApplied, this, _1));
@@ -2560,6 +2613,11 @@ bool LLPanelEnvironmentInfo::refreshFromRegion(LLViewerRegion* region)
 
 void LLPanelEnvironmentInfo::refresh()
 {
+	if(gDisconnected)
+	{
+		return;
+	}
+
 	populateWaterPresetsList();
 	populateSkyPresetsList();
 	populateDayCyclesList();

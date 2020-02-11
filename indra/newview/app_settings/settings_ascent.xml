@@ -1643,6 +1643,8 @@ Changing this setting only affects new text.</string>
       <string>Boolean</string>
       <key>Value</key>
       <boolean>0</boolean>
+      <key>IsCOA</key>
+      <integer>1</integer>
     </map>
     <key>ToolbarVisibleFastTimers</key>
     <map>
