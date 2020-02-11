@@ -7439,8 +7439,10 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		bool caution = false;
 		S32 count = 0;
 		LLSD args;
-		args["OBJECTNAME"] = object_name;
-		args["NAME"] = LLCacheName::cleanFullName(owner_name);
+		const std::string get_obj_slurl(const LLUUID& id, const std::string& name);
+		const std::string get_obj_owner_slurl(const LLUUID& obj_id, const std::string& name, bool* group_ownedp = nullptr);
+		args["OBJECTNAME"] = get_obj_slurl(taskid, object_name);
+		args["NAME"] = get_obj_owner_slurl(taskid, owner_name);
 		S32 known_questions = 0;
 		bool has_not_only_debit = questions ^ LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_DEBIT];
 		// check the received permission flags against each permission
