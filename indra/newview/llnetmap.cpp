@@ -296,11 +296,17 @@ std::size_t hash_value(const LLUUID& uuid)
 	return (std::size_t)uuid.getCRC32();
 }
 boost::unordered_map<const LLUUID,LLColor4> mm_MarkerColors;
-const LLColor4* mm_getMarkerColor(const LLUUID& id)
+const LLColor4* mm_getMarkerColor(const LLUUID& id, bool mark_only)
 {
+	if (!mark_only) // They're trying to get the color and they're not the minimap or the radar mark
+	{
+		static const LLCachedControl<bool> use_marked_color("LiruUseMarkedColor");
+		if (!use_marked_color) return nullptr;
+	}
 	auto it = mm_MarkerColors.find(id);
 	return it == mm_MarkerColors.end() ? nullptr : &it->second;
 }
+const LLColor4* mm_getMarkerColor(const LLUUID& id) { return mm_getMarkerColor(id, false); }
 
 bool mm_getMarkerColor(const LLUUID& id, LLColor4& color)
 {
@@ -668,10 +674,14 @@ void LLNetMap::draw()
 				static const LLCachedControl<LLColor4> map_avatar_rollover_color(gSavedSettings, "ExodusMapRolloverColor", LLColor4::cyan);
 				color = map_avatar_rollover_color;
 			}
+			else if (auto mark_color = mm_getMarkerColor(uuid, true))
+			{
+				color = *mark_color;
+			}
 			else
 			{
-				bool getCustomColorRLV(const LLUUID&, LLColor4&, LLViewerRegion*, bool name_restricted);
-				getCustomColorRLV(uuid, color, LLWorld::getInstance()->getRegionFromPosGlobal(position), !show_friends);
+				bool getColorFor(const LLUUID & id, LLViewerRegion * parent_estate, LLColor4 & color, bool name_restricted = false);
+				getColorFor(uuid, LLWorld::getInstance()->getRegionFromPosGlobal(position), color, !show_friends);
 			}
 
 			LLWorldMapView::drawAvatar(

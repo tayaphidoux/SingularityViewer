@@ -1175,6 +1175,17 @@ Changing this setting only affects new text.</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>LiruUseMarkedColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to use the color of marks done on radar and minimap to color tags and chat from those individuals</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>OBJExportNotifyFailed</key>
     <map>
       <key>Comment</key>

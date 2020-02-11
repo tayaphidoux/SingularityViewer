@@ -134,7 +134,7 @@ namespace
 	}
 } //namespace
 
-const LLColor4* mm_getMarkerColor(const LLUUID& id);
+const LLColor4* mm_getMarkerColor(const LLUUID& id, bool mark_only = true);
 LLAvatarListEntry::LLAvatarListEntry(const LLUUID& id, const std::string& name, const LLVector3d& position) :
 		mID(id), mName(name), mPosition(position), mMarked(mm_getMarkerColor(id)), mFocused(false),
 		mStats(),
