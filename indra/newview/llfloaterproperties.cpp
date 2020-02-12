@@ -300,8 +300,11 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	{
 		getChildView("LabelItemExperienceTitle")->setVisible(TRUE);
 		LLTextBox* tb = getChild<LLTextBox>("LabelItemExperience");
-		tb->setText(getString("loading_experience"));
-		tb->setVisible(TRUE);
+		if (tb->getValue().asUUID().isNull())
+		{
+			tb->setText(getString("loading_experience"));
+			tb->setVisible(TRUE);
+		}
         std::string url = std::string();
         if(object && object->getRegion())
         {
@@ -592,14 +595,10 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 
 void LLFloaterProperties::setAssociatedExperience(LLHandle<LLFloaterProperties> hInfo, const LLSD& experience)
 {
-    LLFloaterProperties* info = hInfo.get();
-    if(info)
+	LLFloaterProperties* info = hInfo.get();
+	if (info && experience.has(LLExperienceCache::EXPERIENCE_ID))
 	{
-		LLUUID id;
-		if (experience.has(LLExperienceCache::EXPERIENCE_ID))
-		{
-			id = experience[LLExperienceCache::EXPERIENCE_ID].asUUID();
-		}
+		auto id = experience[LLExperienceCache::EXPERIENCE_ID].asUUID();
 		if (id.notNull())
 		{
 			//info->getChild<LLTextBox>("LabelItemExperience")->setText(LLSLURL("experience", id, "profile").getSLURLString();
