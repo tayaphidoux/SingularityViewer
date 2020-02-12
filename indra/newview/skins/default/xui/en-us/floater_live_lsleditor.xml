@@ -55,4 +55,7 @@
 	<string name="add_experiences">
 		Select to add an experience
 	</string>
+  <string name="show_experience_profile">
+    Click to view the experience profile
+  </string>
 </floater>
