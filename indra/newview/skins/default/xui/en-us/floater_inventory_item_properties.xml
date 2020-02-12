@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="true" can_drag_on_left="false" can_minimize="true"
-     can_resize="false" height="340" min_height="100" min_width="100"
+     can_resize="false" height="360" min_height="100" min_width="100"
      name="item properties" rect_control="PropertiesRect"
      title="Inventory Item Properties" width="350">
 	<icon bottom="-21" follows="top|right" height="16" image_name="icon_lock.tga"
@@ -100,7 +100,7 @@
         visible="true"
         />
 	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom_delta="-10" drop_shadow_visible="true" follows="left|top"
+	     bottom_delta="-16" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerifSmall" h_pad="0" halign="left" height="10" left="10"
 	     mouse_opaque="true" name="OwnerLabel" v_pad="0" width="78">
 		You can:
