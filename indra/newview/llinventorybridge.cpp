@@ -2964,6 +2964,12 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		LFFloaterInvPanel::show(LLSD().with("id", mUUID), cat->getName(), model);
 		return;
 	}
+	else if ("copy_folder_uuid" == action)
+	{
+		// Single folder only
+		gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(mUUID.asString()));
+		return;
+	}
 	else if ("paste" == action)
 	{
 		pasteFromClipboard();
@@ -3896,6 +3902,7 @@ void build_context_menu_folder_options(LLInventoryModel* model, const LLUUID& mU
 	if (listings_folder.notNull() && gInventory.isObjectDescendentOf(mUUID, listings_folder)) return;
 
 	items.push_back(std::string("Open Folder In New Window"));
+	items.push_back(std::string("Copy Folder UUID"));
 
 	LLFolderType::EType type = category->getPreferredType();
 	const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
