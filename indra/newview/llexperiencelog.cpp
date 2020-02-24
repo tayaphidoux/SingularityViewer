@@ -36,7 +36,7 @@
 #include "lldate.h"
 
 
-class LLExperienceLogDispatchHandler : public LLDispatchHandler
+class LLExperienceLogDispatchHandler final : public LLDispatchHandler
 {
 public:
 	bool operator()(
@@ -225,13 +225,14 @@ LLExperienceLog::~LLExperienceLog()
 
 void LLExperienceLog::eraseExpired()
 {
+	const auto& inst(*this); // Fixes Linux
     std::vector<std::string> expired;
 	std::for_each(mEvents.beginMap(), mEvents.endMap(),
 				  [&](const auto& event_pair)
 	{
 		const std::string& date = event_pair.first;
-		if (isExpired(date))
-	{
+		if (inst.isExpired(date))
+		{
             expired.push_back(date);
 		}
 	});
@@ -242,7 +243,7 @@ void LLExperienceLog::eraseExpired()
 	}
 }
 
-bool LLExperienceLog::isExpired(const std::string& date)
+bool LLExperienceLog::isExpired(const std::string& date) const
 {
 	S32 month, day, year = 0;
 	S32 matched = sscanf(date.c_str(), "%d-%d-%d", &year, &month, &day);
