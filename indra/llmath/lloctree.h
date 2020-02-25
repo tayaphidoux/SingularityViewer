@@ -537,7 +537,7 @@ public:
 					OctreeStats::getInstance()->realloc(old_cap,mData.capacity());
 #endif
 				
-				notifyAddition(data);
+				this->notifyAddition(data);
 				return true;
 			}
 			else
@@ -593,7 +593,7 @@ public:
 						OctreeStats::getInstance()->realloc(old_cap,mData.capacity());
 #endif
 					
-					notifyAddition(data);
+					this->notifyAddition(data);
 					return true;
 				}
 
@@ -704,7 +704,7 @@ public:
 #endif
 		}
 
-		notifyRemoval(data);
+		this->notifyRemoval(data);
 		checkAlive();
 	}
 

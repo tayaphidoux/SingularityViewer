@@ -68,7 +68,7 @@ private:
 	protected:
 		void reset() { updateTime(); mAmount = 1; mBlocked = false; }
 		const U32& getAmount() const { return mAmount; }
-		const U32& getTime() const { return mTime; }
+		const std::time_t& getTime() const { return mTime; }
 		void updateTime() { mTime = time(nullptr); }
 		void block() { mBlocked = true; }
 		bool withinBlockTime(const U32& time_limit) const { return (time(nullptr) - mTime) <= time_limit; }
@@ -146,7 +146,7 @@ bool is_collision_sound(const std::string& sound)
 }
 // NaClAntiSpamRegistry
 
-constexpr std::array<char*, NACLAntiSpamRegistry::QUEUE_MAX> QUEUE_NAME = {
+constexpr std::array<const char*, NACLAntiSpamRegistry::QUEUE_MAX> QUEUE_NAME = {
 	"Chat",
 	"Inventory",
 	"Instant Message",
@@ -178,7 +178,7 @@ void NACLAntiSpamRegistry::initializeQueues(bool global, const U32& time, const 
 		mGlobalQueue.reset(new NACLAntiSpamQueue(time, amount));
 	else
 	{
-		mQueues.reset(new std::array<NACLAntiSpamQueue, QUEUE_MAX>{
+		mQueues.reset(new std::array<NACLAntiSpamQueue, QUEUE_MAX>{{
 			NACLAntiSpamQueue(time, amount), // QUEUE_CHAT
 			NACLAntiSpamQueue(time, amount), // QUEUE_INVENTORY
 			NACLAntiSpamQueue(time, amount), // QUEUE_IM
@@ -187,7 +187,7 @@ void NACLAntiSpamRegistry::initializeQueues(bool global, const U32& time, const 
 			NACLAntiSpamQueue(time, amount), // QUEUE_SOUND_PRELOAD
 			NACLAntiSpamQueue(time, amount), // QUEUE_SCRIPT_DIALOG
 			NACLAntiSpamQueue(time, amount)  // QUEUE_TELEPORT
-		});
+		}});
 	}
 }
 
