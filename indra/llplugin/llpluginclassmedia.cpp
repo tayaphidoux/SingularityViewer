@@ -623,12 +623,14 @@ bool LLPluginClassMedia::keyEvent(EKeyEventType type, int key_code, MASK modifie
 	return result;
 }
 
-void LLPluginClassMedia::scrollEvent(int x, int y, MASK modifiers)
+void LLPluginClassMedia::scrollEvent(int x, int y, int clicks_x, int clicks_y, MASK modifiers)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "scroll_event");
 
 	message.setValueS32("x", x);
 	message.setValueS32("y", y);
+	message.setValueS32("clicks_x", clicks_x);
+	message.setValueS32("clicks_y", clicks_y);
 	message.setValue("modifiers", translateModifiers(modifiers));
 
 	sendMessage(message);
@@ -711,9 +713,9 @@ void LLPluginClassMedia::sendPickFileResponse(const std::vector<std::string> fil
 	}
 
 	LLSD file_list = LLSD::emptyArray();
-	for (std::vector<std::string>::const_iterator in_iter = files.begin(); in_iter != files.end(); ++in_iter)
+	for (const auto& file : files)
 	{
-		file_list.append(LLSD::String(*in_iter));
+		file_list.append(LLSD::String(file));
 	}
 	message.setValueLLSD("file_list", file_list);
 

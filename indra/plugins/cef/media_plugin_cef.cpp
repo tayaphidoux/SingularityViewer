@@ -547,7 +547,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.background_color = 0xff282828;
 				settings.cache_enabled = true;
 				settings.cache_path = mCachePath;
-				settings.cookie_store_path = mCookiePath;
+				//settings.cookie_store_path = mCookiePath;
 				settings.cookies_enabled = mCookiesEnabled;
 				settings.disable_gpu = mDisableGPU;
 				settings.flash_enabled = mPluginsEnabled;
@@ -708,10 +708,13 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			{
 				S32 x = message_in.getValueS32("x");
 				S32 y = message_in.getValueS32("y");
+				S32 delta_x = message_in.getValueS32("clicks_x");
+				S32 delta_y = message_in.getValueS32("clicks_y");
 				const int scaling_factor = 40;
-				y *= -scaling_factor;
+				delta_x *= -scaling_factor;
+				delta_y *= -scaling_factor;
 
-				mCEFLib->mouseWheel(x, y);
+				mCEFLib->mouseWheel(x, y, delta_x, delta_y);
 			}
 			else if (message_name == "text_event")
 			{

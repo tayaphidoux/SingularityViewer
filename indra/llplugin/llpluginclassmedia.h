@@ -75,7 +75,7 @@ public:
 	void setAutoScale(bool auto_scale);
 	void setZoomFactor(F64 zoom_factor) { mZoomFactor = zoom_factor; }
 	
-	void setBackgroundColor(LLColor4 color) { mBackgroundColor = color; };
+	void setBackgroundColor(const LLColor4& color) { mBackgroundColor = color; };
 	
 	void setOwner(LLPluginClassMediaOwner *owner) { mOwner = owner; };
 	
@@ -107,7 +107,7 @@ public:
 	
 	bool keyEvent(EKeyEventType type, int key_code, MASK modifiers, LLSD native_key_data);
 
-	void scrollEvent(int x, int y, MASK modifiers);
+	void scrollEvent(int x, int y, int clicks_x, int clicks_y, MASK modifiers);
 
 	// enable/disable media plugin debugging messages and info spam
 	void enableMediaPluginDebugging( bool enable );

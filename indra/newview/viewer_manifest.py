@@ -532,17 +532,6 @@ class WindowsManifest(ViewerManifest):
                     if self.path('libtcmalloc_minimal.dll') == 0:
                         print "Skipping libtcmalloc_minimal.dll"
 
-            # For msvc redist
-            try:
-                    self.path('api-ms*.dll')
-                    self.path('ucrt*.dll')
-                    self.path('concrt*.dll')
-                    self.path('msvc*.dll')
-                    self.path('vcruntime*.dll')
-                    self.path('vccor*.dll')
-            except:
-                print "Skipping msvc redist files"
-
         # For crashpad
         with self.prefix(src=pkgbindir):
             self.path("crashpad_handler.exe")

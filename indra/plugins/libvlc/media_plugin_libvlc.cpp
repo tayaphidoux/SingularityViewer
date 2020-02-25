@@ -1,5 +1,3 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
 * @file media_plugin_libvlc.cpp
 * @brief LibVLC plugin for LLMedia API plugin system
@@ -35,6 +33,8 @@
 #include "llpluginmessage.h"
 #include "llpluginmessageclasses.h"
 #include "media_plugin_base.h"
+
+#define ssize_t SSIZE_T
 
 #include "vlc/vlc.h"
 #include "vlc/libvlc_version.h"
@@ -320,7 +320,7 @@ void MediaPluginLibVLC::logCallback(void *data, int level, const libvlc_log_t *c
 //
 void MediaPluginLibVLC::playMedia()
 {
-	if (mURL.length() == 0)
+	if (mURL.length() == 0 || mWidth == 0 || mHeight == 0)
 	{
 		return;
 	}
