@@ -301,11 +301,8 @@ public:
 		log_SLM_infos("Get /listings", getStatus(), body);
 
 		// Extract the info from the results
-		for (LLSD::array_iterator it = result["listings"].beginArray();
-				it != result["listings"].endArray(); ++it)
+		for (auto const& listing : result["listings"].array())
 		{
-			LLSD listing = *it;
-
 			int listingId = listing["id"].asInteger();
 			bool isListed = listing["is_listed"].asBoolean();
 			std::string editUrl = listing["edit_url"].asString();
@@ -367,12 +364,8 @@ public:
 		log_SLM_infos("Post /listings", getStatus(), body);
 
 		// Extract the info from the Json string
-		auto it = result["listings"].beginArray();
-
-		while (it != result["listings"].endArray())
+		for (auto const& listing : result["listings"].array())
 		{
-			auto listing = *it;
-
 			int listing_id = listing["id"].asInteger();
 			bool is_listed = listing["is_listed"].asBoolean();
 			std::string edit_url = listing["edit_url"].asString();
@@ -385,7 +378,6 @@ public:
 			LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
 			update_marketplace_category(folder_id, false);
 			gInventory.notifyObservers();
-			it++;
 		}
 	}
 	virtual char const* getName() const { return "LLSLMCreateListingsResponder"; }
@@ -439,11 +431,8 @@ public:
 		log_SLM_infos("Get /listing", getStatus(), body);
 
 		// Extract the info from the results
-		for (LLSD::array_iterator it = result["listings"].beginArray();
-			it != result["listings"].endArray(); ++it)
+		for (auto const& listing : result["listings"].array())
 		{
-			LLSD listing = *it;
-
 			int resListingId = listing["id"].asInteger();
 			bool isListed = listing["is_listed"].asBoolean();
 			std::string editUrl = listing["edit_url"].asString();
@@ -510,11 +499,8 @@ public:
 		log_SLM_infos("Put /listing", getStatus(), body);
 
 		// Extract the info from the Json string
-		for (LLSD::array_iterator it = result["listings"].beginArray();
-			it != result["listings"].endArray(); ++it)
+		for (auto const& listing : result["listings"].array())
 		{
-			LLSD listing = *it;
-
 			int listing_id = listing["id"].asInteger();
 			bool is_listed = listing["is_listed"].asBoolean();
 			std::string edit_url = listing["edit_url"].asString();
@@ -591,11 +577,8 @@ public:
 
 		log_SLM_infos("Put /associate_inventory", getStatus(), body);
 
-		for (LLSD::array_iterator it = result["listings"].beginArray();
-				it != result["listings"].endArray(); ++it)
+		for (auto const& listing : result["listings"].array())
 		{
-			LLSD listing = *it;
-
 			int listing_id = listing["id"].asInteger();
 			bool is_listed = listing["is_listed"].asBoolean();
 			std::string edit_url = listing["edit_url"].asString();
@@ -666,11 +649,8 @@ public:
 
 		log_SLM_infos("Delete /listing", getStatus(), body);
 
-		for (LLSD::array_iterator it = result["listings"].beginArray();
-				it != result["listings"].endArray(); ++it)
+		for (auto const& listing : result["listings"].array())
 		{
-			LLSD listing = *it;
-
 			int listing_id = listing["id"].asInteger();
 			LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
 			LLMarketplaceData::instance().deleteListing(folder_id);

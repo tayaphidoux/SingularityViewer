@@ -38,7 +38,7 @@ class LLVolumeParams;
 class LLProfile;
 class LLPath;
 
-template <class T> class LLOctreeNode;
+template <class T> class LLOctreeRoot;
 
 class LLVolumeFace;
 class LLVolume;
@@ -964,7 +964,7 @@ public:
     // vertices per joint.
     LLJointRiggingInfoTab mJointRiggingInfoTab;
     
-	LLOctreeNode<LLVolumeTriangle>* mOctree;
+	LLOctreeRoot<LLVolumeTriangle>* mOctree;
 
 	//whether or not face has been cache optimized
 	BOOL mOptimized;

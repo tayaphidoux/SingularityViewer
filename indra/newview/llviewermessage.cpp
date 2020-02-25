@@ -1312,7 +1312,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		if (gSavedSettings.getBOOL("ShowInInventory") &&
 		   objects.size() == 1 && item != NULL &&
 		   asset_type != LLAssetType::AT_CALLINGCARD &&
-		   item->getInventoryType() != LLInventoryType::IT_ATTACHMENT &&
+		   item->getInventoryType() != LLInventoryType::EType::IT_ATTACHMENT &&
 		   !from_name.empty())
 		{
 			LLPanelMainInventory::showAgentInventory(TRUE);
@@ -6570,10 +6570,9 @@ void send_lures(const LLSD& notification, const LLSD& response)
 	if ( (RlvActions::hasBehaviour(RLV_BHVR_SENDIM)) || (RlvActions::hasBehaviour(RLV_BHVR_SENDIMTO)) )
 	{
 		// Filter the lure message if one of the recipients of the lure can't be sent an IM to
-		for (LLSD::array_const_iterator it = notification["payload"]["ids"].beginArray();
-				it != notification["payload"]["ids"].endArray(); ++it)
+		for (auto const& entry : notification["payload"]["ids"].array())
 		{
-			if (!RlvActions::canSendIM(it->asUUID()))
+			if (!RlvActions::canSendIM(entry.asUUID()))
 			{
 				text = rlv_hidden;
 				break;
@@ -6594,11 +6593,9 @@ void send_lures(const LLSD& notification, const LLSD& response)
 	bool fRlvHideName = gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES);
 	bool fRlvNoNearbyNames = gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMETAGS);
 // [/RLVa:KB]
-	for (LLSD::array_const_iterator it = notification["payload"]["ids"].beginArray();
-		it != notification["payload"]["ids"].endArray();
-		++it)
+	for (auto const& entry : notification["payload"]["ids"].array())
 	{
-		LLUUID target_id = it->asUUID();
+		LLUUID target_id = entry.asUUID();
 
 		msg->nextBlockFast(_PREHASH_TargetData);
 		msg->addUUIDFast(_PREHASH_TargetID, target_id);

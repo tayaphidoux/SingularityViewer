@@ -2273,8 +2273,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	BOOL to_texture =	LLPipeline::sUseOcclusion > 1 &&
 						!hasRenderType(LLPipeline::RENDER_TYPE_HUD) && 
 						LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD &&
-						LLGLSLShader::sNoFixedFunction &&
-						sRenderGlow;
+						LLGLSLShader::sNoFixedFunction;
 
 	if (to_texture)
 	{

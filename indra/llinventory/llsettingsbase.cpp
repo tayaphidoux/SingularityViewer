@@ -103,9 +103,9 @@ LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other) cons
             break;
         case LLSD::TypeArray:
             newSettings[key_name] = LLSD::emptyArray();
-            for (LLSD::array_const_iterator ita = value.beginArray(); ita != value.endArray(); ++ita)
+            for (auto const& entry : value.array())
             {
-                newSettings[key_name].append(*ita);
+                newSettings[key_name].append(entry);
             }
             break;
         //case LLSD::TypeInteger:
@@ -137,9 +137,9 @@ LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other) cons
                 break;
             case LLSD::TypeArray:
                 newSettings[key_name] = LLSD::emptyArray();
-                for (LLSD::array_const_iterator ita = value.beginArray(); ita != value.endArray(); ++ita)
+                for (auto const& entry : value.array())
                 {
-                    newSettings[key_name].append(*ita);
+                    newSettings[key_name].append(entry);
                 }
                 break;
             //case LLSD::TypeInteger:

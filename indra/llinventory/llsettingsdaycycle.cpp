@@ -240,16 +240,16 @@ bool LLSettingsDay::initialize(bool validate_frames)
     {
         mDayTracks[i].clear();
         LLSD curtrack = tracks[i];
-        for (LLSD::array_const_iterator it = curtrack.beginArray(); it != curtrack.endArray(); ++it)
+        for (const auto& entry : curtrack.array())
         {
-            LLSettingsBase::TrackPosition keyframe = LLSettingsBase::TrackPosition((*it)[SETTING_KEYKFRAME].asReal());
+            LLSettingsBase::TrackPosition keyframe = LLSettingsBase::TrackPosition(entry[SETTING_KEYKFRAME].asReal());
             keyframe = llclamp(keyframe, 0.0f, 1.0f);
             LLSettingsBase::ptr_t setting;
 
             
-            if ((*it).has(SETTING_KEYNAME))
+            if (entry.has(SETTING_KEYNAME))
             {
-                std::string key_name = (*it)[SETTING_KEYNAME];
+                std::string key_name = entry[SETTING_KEYNAME];
                 if (i == TRACK_WATER)
                 {
                     setting = used[key_name];
@@ -469,36 +469,36 @@ namespace
 
         S32 framecount(0);
 
-        for (LLSD::array_iterator track = value.beginArray(); track != value.endArray(); ++track)
+        for (auto& entry : value.array())
         {
             S32 index = 0;
-            while (index < (*track).size())
+            while (index < entry.size())
             {
-                LLSD& elem = (*track)[index];
+                LLSD& elem = entry[index];
 
                 ++framecount;
                 if (index >= LLSettingsDay::FRAME_MAX)
                 {
-                    (*track).erase(index);
+                    entry.erase(index);
                     continue;
                 }
 
                 if (!elem.has(LLSettingsDay::SETTING_KEYKFRAME))
                 {
-                    (*track).erase(index);
+                    entry.erase(index);
                     continue;
                 }
 
                 if (!elem[LLSettingsDay::SETTING_KEYKFRAME].isReal())
                 {
-                    (*track).erase(index);
+                    entry.erase(index);
                     continue;
                 }
 
                 if (!elem.has(LLSettingsDay::SETTING_KEYNAME) &&
                     !elem.has(LLSettingsDay::SETTING_KEYID))
                 {
-                    (*track).erase(index);
+                    entry.erase(index);
                     continue;
                 }
 

@@ -259,9 +259,9 @@ void LLFloaterExperiences::checkAndOpen(LLPanelExperiences* panel, const LLSD& c
     if (mPrepurchaseIds.size() + 1 == response_ids.size())
     {
         // we have a new element
-        for (LLSD::array_const_iterator it = response_ids.beginArray(); it != response_ids.endArray(); ++it)
+        for (const auto& it : response_ids.array())
         {
-            LLUUID experience_id = it->asUUID();
+            LLUUID experience_id = it.asUUID();
             if (std::find(mPrepurchaseIds.begin(), mPrepurchaseIds.end(), experience_id) == mPrepurchaseIds.end())
             {
                 // new element found, open it

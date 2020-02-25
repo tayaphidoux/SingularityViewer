@@ -1123,11 +1123,9 @@ void LLObjectBackup::importObject_continued(AIFilePicker* filepicker)
 	mRezCount = 0;
 	updateImportNumbers();
 
-	for (LLSD::array_const_iterator prim_arr_it = mLLSD["data"].beginArray(),
-									prim_arr_end = mLLSD["data"].endArray();
-		 prim_arr_it != prim_arr_end; ++prim_arr_it)
+	for (auto const& entry : mLLSD["data"].array())
 	{
-		LLSD llsd2 = (*prim_arr_it)["group_body"];
+		LLSD llsd2 = entry["group_body"];
 
 		for (LLSD::map_const_iterator prim_it = llsd2.beginMap(),
 									  prim_end = llsd2.endMap();

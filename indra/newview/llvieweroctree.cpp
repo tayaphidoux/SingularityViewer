@@ -467,6 +467,11 @@ LLViewerOctreeGroup::LLViewerOctreeGroup(OctreeNode* node) :
 	mBounds[1] = node->getSize();
 
 	mOctreeNode->addListener(this);
+
+	for (U32 i = 0; i < sizeof(mVisible) / sizeof(mVisible[0]); i++)
+	{
+		mVisible[i] = 0;
+	}
 }
 
 bool LLViewerOctreeGroup::hasElement(LLViewerOctreeEntryData* data) 
@@ -630,17 +635,6 @@ void LLViewerOctreeGroup::handleDestruction(const TreeNode* node)
 		}
 	}
 	mOctreeNode = NULL;
-}
-	
-//virtual 
-void LLViewerOctreeGroup::handleStateChange(const TreeNode* node)
-{
-	//drop bounding box upon state change
-	if (mOctreeNode != node)
-	{
-		mOctreeNode = (OctreeNode*) node;
-	}
-	unbound();
 }
 	
 //virtual 
@@ -813,7 +807,7 @@ U32 LLOcclusionCullingGroup::getNewOcclusionQueryObjectName()
 	return sQueryPool.allocate();
 }
 
-void LLOcclusionCullingGroup::releaseOcclusionQueryObjectName(GLuint name)
+void LLOcclusionCullingGroup::releaseOcclusionQueryObjectName(U32 name)
 {
 	sQueryPool.release(name);
 }

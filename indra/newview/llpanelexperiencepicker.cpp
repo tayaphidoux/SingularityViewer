@@ -326,11 +326,8 @@ void LLPanelExperiencePicker::filterContent()
 	search_results->deleteAllItems();
 
 	LLSD item;
-	LLSD::array_const_iterator it = experiences.beginArray();
-	for ( ; it != experiences.endArray(); ++it)
+	for (const auto& experience : experiences.array())
 	{
-		const LLSD& experience = *it;
-
 		if (isExperienceHidden(experience))
 			continue;
 

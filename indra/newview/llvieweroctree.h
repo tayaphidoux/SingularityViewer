@@ -222,12 +222,11 @@ public:
 	void clearState(U32 state)     {mState &= ~state;}	
 
 	//LISTENER FUNCTIONS
-	virtual void handleInsertion(const TreeNode* node, LLViewerOctreeEntry* obj);
-	virtual void handleRemoval(const TreeNode* node, LLViewerOctreeEntry* obj);
-	virtual void handleDestruction(const TreeNode* node);
-	virtual void handleStateChange(const TreeNode* node);
-	virtual void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
-	virtual void handleChildRemoval(const OctreeNode* parent, const OctreeNode* child);
+	void handleInsertion(const TreeNode* node, LLViewerOctreeEntry* obj) override;
+	void handleRemoval(const TreeNode* node, LLViewerOctreeEntry* obj) override;
+	void handleDestruction(const TreeNode* node) override;
+	void handleChildAddition(const OctreeNode* parent, OctreeNode* child) override;
+	void handleChildRemoval(const OctreeNode* parent, const OctreeNode* child) final override;
 
 	OctreeNode*          getOctreeNode() {return mOctreeNode;}
 	LLViewerOctreeGroup* getParent();
@@ -308,11 +307,11 @@ public:
 	U32  getLastOcclusionIssuedTime();
 
 	//virtual 
-	void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
+	void handleChildAddition(const OctreeNode* parent, OctreeNode* child) override;
 
 	//virtual
 	BOOL isRecentlyVisible() const;
-	LLViewerOctreePartition* getSpatialPartition()const {return mSpatialPartition;}
+	//LLViewerOctreePartition* getSpatialPartition()const {return mSpatialPartition;}
 	BOOL isAnyRecentlyVisible() const;
 
 	static U32 getNewOcclusionQueryObjectName();
@@ -350,7 +349,7 @@ public:
 public:	
 	U32              mPartitionType;
 	U32              mDrawableType;
-	OctreeNode*      mOctree;
+	OctreeRoot*      mOctree;
 	LLViewerRegion*  mRegionp; // the region this partition belongs to.
 	BOOL             mOcclusionEnabled; // if TRUE, occlusion culling is performed
 	U32              mLODSeed;

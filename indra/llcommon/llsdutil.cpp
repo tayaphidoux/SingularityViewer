@@ -891,9 +891,9 @@ LLSD llsd_clone(LLSD value, LLSD filter)
         break;
     case LLSD::TypeArray:
         clone = LLSD::emptyArray();
-        for (LLSD::array_const_iterator ita = value.beginArray(); ita != value.endArray(); ++ita)
+        for (auto const& entry : value.array())
         {
-            clone.append(llsd_clone(*ita, filter));
+            clone.append(llsd_clone(entry, filter));
         }
         break;
 
@@ -943,9 +943,9 @@ LLSD llsd_shallow(LLSD value, LLSD filter)
     else if (value.isArray())
     {
         shallow = LLSD::emptyArray();
-        for (LLSD::array_const_iterator ita = value.beginArray(); ita != value.endArray(); ++ita)
+        for (auto const& entry : value.array())
         {
-            shallow.append(*ita);
+            shallow.append(entry);
         }
     }
     else

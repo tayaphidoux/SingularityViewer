@@ -734,11 +734,9 @@ void AISUpdate::parseUUIDArray(const LLSD& content, const std::string& name, uui
 {
 	if (content.has(name))
 	{
-		for(LLSD::array_const_iterator it = content[name].beginArray(),
-				end = content[name].endArray();
-				it != end; ++it)
+		for (auto& id : content[name].array())
 		{
-			ids.insert((*it).asUUID());
+			ids.insert(id.asUUID());
 		}
 	}
 }

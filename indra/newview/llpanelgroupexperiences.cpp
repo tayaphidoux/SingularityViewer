@@ -106,10 +106,9 @@ void LLPanelGroupExperiences::setExperienceList(const LLSD& experiences)
 	mExperiencesList->clear();
 
     auto& cache = LLExperienceCache::instance();
-	LLSD::array_const_iterator it = experiences.beginArray();
-	for ( /**/ ; it != experiences.endArray(); ++it)
-	{
-		LLUUID public_key = it->asUUID();
+    for (const auto& exp : experiences.array())
+    {
+        LLUUID public_key = exp.asUUID();
         if (public_key.notNull())
             cache.get(public_key, boost::bind(addExperienceToList, _1, mExperiencesList));
     }

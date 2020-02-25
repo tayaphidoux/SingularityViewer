@@ -88,10 +88,9 @@ void LLPanelExperiences::setExperienceList( const LLSD& experiences )
 	mExperiencesList->clear();
 
 	auto& cache = LLExperienceCache::instance();
-	LLSD::array_const_iterator it = experiences.beginArray();
-	for( /**/ ; it != experiences.endArray(); ++it)
+	for(const auto& exp : experiences.array())
 	{
-		LLUUID public_key = it->asUUID();
+		LLUUID public_key = exp.asUUID();
 		if (public_key.notNull())
 			cache.get(public_key, boost::bind(addExperienceToList, _1, mExperiencesList));
 	}
@@ -113,10 +112,9 @@ LLPanelExperiences* LLPanelExperiences::create(const std::string& name)
 
 void LLPanelExperiences::removeExperiences( const LLSD& ids )
 {
-	LLSD::array_const_iterator it = ids.beginArray();
-	for( /**/ ; it != ids.endArray(); ++it)
+	for (const auto& id : ids.array())
 	{
-		removeExperience(it->asUUID());
+		removeExperience(id.asUUID());
 	}
 }
 

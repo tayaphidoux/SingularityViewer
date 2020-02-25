@@ -1274,7 +1274,7 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 	const S32 UNCOMPRESS_BUFFER_SIZE = 32768;
 	BOOL retval = FALSE;
 	gzFile src = NULL;
-	U8 buffer[UNCOMPRESS_BUFFER_SIZE];
+	std::array<U8, UNCOMPRESS_BUFFER_SIZE> buffer;
 	LLFILE *dst = NULL;
 	S32 bytes = 0;
 	tmpfile = dstfile + ".t";
@@ -1288,8 +1288,8 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 	if (! dst) goto err;
 	do
 	{
-		bytes = gzread(src, buffer, UNCOMPRESS_BUFFER_SIZE);
-		size_t nwrit = fwrite(buffer, sizeof(U8), bytes, dst);
+		bytes = gzread(src, buffer.data(), buffer.size());
+		size_t nwrit = fwrite(buffer.data(), sizeof(U8), bytes, dst);
 		if (nwrit < (size_t) bytes)
 		{
 			LL_WARNS() << "Short write on " << tmpfile << ": Wrote " << nwrit << " of " << bytes << " bytes." << LL_ENDL;
@@ -1311,7 +1311,7 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	const S32 COMPRESS_BUFFER_SIZE = 32768;
 	std::string tmpfile;
 	BOOL retval = FALSE;
-	U8 buffer[COMPRESS_BUFFER_SIZE];
+	std::array<U8, COMPRESS_BUFFER_SIZE> buffer;
 	gzFile dst = NULL;
 	LLFILE *src = NULL;
 	S32 bytes = 0;
@@ -1325,9 +1325,9 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	src = LLFile::fopen(srcfile, "rb");		/* Flawfinder: ignore */
 	if (! src) goto err;
 
-	while ((bytes = (S32)fread(buffer, sizeof(U8), COMPRESS_BUFFER_SIZE, src)) > 0)
+	while ((bytes = (S32)fread(buffer.data(), sizeof(U8), buffer.size(), src)) > 0)
 	{
-		if (gzwrite(dst, buffer, bytes) <= 0)
+		if (gzwrite(dst, buffer.data(), bytes) <= 0)
 		{
 			LL_WARNS() << "gzwrite failed: " << gzerror(dst, NULL) << LL_ENDL;
 			goto err;

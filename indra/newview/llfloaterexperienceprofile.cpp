@@ -491,18 +491,18 @@ void LLFloaterExperienceProfile::setPreferences( const LLSD& content )
 	const LLSD& blocked = content["blocked"];
 
 
-	for(LLSD::array_const_iterator it = experiences.beginArray(); it != experiences.endArray() ; ++it)
+	for(const auto& exp : experiences.array())
 	{
-		if (it->asUUID()==mExperienceId)
+		if (exp.asUUID()==mExperienceId)
 		{
 			experienceAllowed();
 			return;
 		}
 	}
 
-	for(LLSD::array_const_iterator it = blocked.beginArray(); it != blocked.endArray() ; ++it)
+	for(const auto& exp : blocked.array())
 	{
-		if (it->asUUID()==mExperienceId)
+		if (exp.asUUID()==mExperienceId)
 		{
 			experienceBlocked();
 			return;
@@ -520,19 +520,17 @@ void LLFloaterExperienceProfile::onFieldChanged()
 	{
 		return;
 	}
-	LLSD::map_const_iterator st = mExperienceDetails.beginMap();
-	LLSD::map_const_iterator dt = mPackage.beginMap();
 
-	mDirty = false;
-	while(!mDirty && st != mExperienceDetails.endMap() && dt != mPackage.endMap())
+	mDirty = mPackage.size() != mExperienceDetails.size();
+	if (!mDirty)
 	{
-		mDirty = st->first != dt->first || st->second.asString() != dt->second.asString();
-		++st;++dt;
-	}
-
-	if (!mDirty && (st != mExperienceDetails.endMap() || dt != mPackage.endMap()))
-	{
-		mDirty = true;
+		LLSD::map_const_iterator st = mExperienceDetails.beginMap();
+		LLSD::map_const_iterator dt = mPackage.beginMap();
+		LLSD::map_const_iterator ste = mExperienceDetails.endMap();
+		LLSD::map_const_iterator dte = mPackage.endMap();
+		for (; st != ste && dt != dte; ++st, ++dt)
+			if (mDirty = st->first != dt->first || st->second.asString() != dt->second.asString())
+				break;
 	}
 
 	getChild<LLButton>(BTN_SAVE)->setEnabled(mDirty);
@@ -607,16 +605,15 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
 	if (content.has("removed"))
 	{
 		const LLSD& removed = content["removed"];
-		LLSD::map_const_iterator it = removed.beginMap();
-		for(/**/; it != removed.endMap(); ++it)
+		for(const auto& it : removed.map())
 		{
-			const std::string& field = it->first;
+			const std::string& field = it.first;
 			if (field == LLExperienceCache::EXPERIENCE_ID)
 			{
 				//this message should be removed by the experience api
 				continue;
 			}
-			const LLSD& data = it->second;
+			const LLSD& data = it.second;
 			std::string error_tag = data["error_tag"].asString()+ "ExperienceProfileMessage";
 			LLSD fields;
 			if (LLNotificationTemplates::instance().templateExists(error_tag))
@@ -641,21 +638,21 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
 
 	const LLSD& experiences = content["experience_keys"];
 
-	LLSD::array_const_iterator it = experiences.beginArray();
-	if (it == experiences.endArray())
-	{
+    if (experiences.size() == 0)
+    {
         LL_WARNS() << "LLFloaterExperienceProfile::onSaveComplete called with empty content" << LL_ENDL;
-		return;
-	}
+        return;
+    }
 
-	if (!it->has(LLExperienceCache::EXPERIENCE_ID) || ((*it)[LLExperienceCache::EXPERIENCE_ID].asUUID() != id))
-	{
+    const auto& exp = experiences[0];
+    if (!exp.has(LLExperienceCache::EXPERIENCE_ID) || (exp[LLExperienceCache::EXPERIENCE_ID].asUUID() != id))
+    {
         LL_WARNS() << "LLFloaterExperienceProfile::onSaveComplete called with unexpected experience id" << LL_ENDL;
-		return;
-	}
+        return;
+    }
 
-	refreshExperience(*it);
-    LLExperienceCache::instance().insert(*it);
+    refreshExperience(exp);
+    LLExperienceCache::instance().insert(exp);
     LLExperienceCache::instance().fetch(id, true);
 
 	if (mSaveCompleteAction == VIEW)
@@ -872,14 +869,12 @@ bool LLFloaterExperienceProfile::hasPermission(const LLSD& content, const std::s
         return false;
 
     const LLSD& list = content[name];
-    LLSD::array_const_iterator it = list.beginArray();
-    while (it != list.endArray())
+    for (const auto& it : list.array())
     {
-        if (it->asUUID() == test)
+        if (it.asUUID() == test)
         {
             return true;
         }
-        ++it;
     }
     return false;
 }

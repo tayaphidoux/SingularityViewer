@@ -130,11 +130,10 @@ void LLExperienceCache::importFile(std::istream& istr)
     LLSD experiences = data["experiences"];
 
     LLUUID public_key;
-    LLSD::map_const_iterator it = experiences.beginMap();
-    for (; it != experiences.endMap(); ++it)
+    for (const auto& it : experiences.map())
     {
-        public_key.set(it->first);
-        mCache[public_key] = it->second;
+        public_key.set(it.first);
+        mCache[public_key] = it.second;
     }
 
     LL_DEBUGS("ExperienceCache") << "importFile() loaded " << mCache.size() << LL_ENDL;
@@ -164,10 +163,8 @@ void LLExperienceCache::exportFile(std::ostream& ostr) const
 void LLExperienceCache::bootstrap(const LLSD& legacyKeys, int initialExpiration)
 {
 	LLExperienceCacheImpl::mapKeys(legacyKeys);
-    LLSD::array_const_iterator it = legacyKeys.beginArray();
-    for (/**/; it != legacyKeys.endArray(); ++it)
+    for (auto experience : legacyKeys.array())
     {
-        LLSD experience = *it;
         if (experience.has(EXPERIENCE_ID))
         {
             if (!experience.has(EXPIRES))
@@ -272,10 +269,8 @@ void LLExperienceCache::requestExperiencesCoro(const LLCoroResponder& responder,
 
     LLSD experiences = result["experience_keys"];
     
-    for (LLSD::array_const_iterator it = experiences.beginArray(); 
-        it != experiences.endArray(); ++it)
+    for (const auto& row : experiences.array())
     {
-        const LLSD& row = *it;
         LLUUID public_key = row[EXPERIENCE_ID].asUUID();
 
         LL_DEBUGS("ExperienceCache") << "Received result for " << public_key
@@ -286,10 +281,9 @@ void LLExperienceCache::requestExperiencesCoro(const LLCoroResponder& responder,
 
     LLSD error_ids = result["error_ids"];
     
-    for (LLSD::array_const_iterator errIt = error_ids.beginArray(); 
-        errIt != error_ids.endArray(); ++errIt)
+    for (const auto& err : error_ids.array())
     {
-        LLUUID id = errIt->asUUID();
+        LLUUID id = err.asUUID();
         LLSD exp;
         exp[EXPIRES] = DEFAULT_EXPIRATION;
         exp[EXPERIENCE_ID] = id;
@@ -605,9 +599,9 @@ void LLExperienceCache::findExperienceByNameCoro(const LLCoroResponder& responde
     }
 
     const LLSD& experiences = result["experience_keys"];
-    for (LLSD::array_const_iterator it = experiences.beginArray(); it != experiences.endArray(); ++it)
+    for (const auto& it : experiences.array())
     {
-        insert(*it);
+        insert(it);
     }
 
     fn(result);
@@ -803,15 +797,14 @@ void LLExperienceCache::updateExperience(LLSD updateData, ExperienceGetFn_t fn)
 //=========================================================================
 void LLExperienceCacheImpl::mapKeys(const LLSD& legacyKeys)
 {
-	LLSD::array_const_iterator exp = legacyKeys.beginArray();
-	for (/**/; exp != legacyKeys.endArray(); ++exp)
-	{
-        if (exp->has(LLExperienceCacheImpl::EXPERIENCE_ID) && exp->has(LLExperienceCacheImpl::PRIVATE_KEY))
-		{
-            LLExperienceCacheImpl::privateToPublicKeyMap[(*exp)[LLExperienceCacheImpl::PRIVATE_KEY].asUUID()] = 
-                (*exp)[LLExperienceCacheImpl::EXPERIENCE_ID].asUUID();
-		}
-	}
+    for (const auto& exp : legacyKeys.array())
+    {
+        if (exp.has(LLExperienceCacheImpl::EXPERIENCE_ID) && exp.has(LLExperienceCacheImpl::PRIVATE_KEY))
+        {
+            LLExperienceCacheImpl::privateToPublicKeyMap[exp[LLExperienceCacheImpl::PRIVATE_KEY].asUUID()] = 
+                exp[LLExperienceCacheImpl::EXPERIENCE_ID].asUUID();
+        }
+    }
 }
 
 // Return time to retry a request that generated an error, based on

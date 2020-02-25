@@ -54,6 +54,7 @@ std::string LLFile::strerr(int errn)
 {
 	char buffer[256];
 	strerror_s(buffer, errn);       // infers sizeof(buffer) -- love it!
+	buffer[255] = 0;
 	return buffer;
 }
 

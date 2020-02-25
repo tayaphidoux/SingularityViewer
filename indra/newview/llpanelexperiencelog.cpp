@@ -41,6 +41,8 @@
 #include "llfloaterreporter.h"
 #include "llinventoryfunctions.h"
 
+#include <boost/range/adaptor/reversed.hpp>
+
 
 #define BTN_PROFILE_XP "btn_profile_xp"
 #define BTN_REPORT_XP "btn_report_xp"
@@ -120,16 +122,14 @@ void LLPanelExperienceLog::refresh()
 	
 	if (!events.emptyMap())
 	{
-		LLSD::map_const_iterator day = events.endMap();
-		do
+		for (const auto& day : boost::adaptors::reverse(events.map()))
 		{
-			--day;
-			const std::string& date = day->first;
+			const std::string& date = day.first;
 			if (LLExperienceLog::instance().isExpired(date))
 			{
 				continue;
 			}
-			const LLSD& dayArray = day->second;
+			const LLSD& dayArray = day.second;
 			U32 size = dayArray.size();
 			if(itemsToSkip > size)
 			{
@@ -161,7 +161,7 @@ void LLPanelExperienceLog::refresh()
 
 					LLSD& columns = item["columns"];
 					columns[0]["column"] = "time";
-					columns[0]["value"] = day->first+event["Time"].asString();
+					columns[0]["value"] = day.first+event["Time"].asString();
 					columns[1]["column"] = "event";
 					columns[1]["value"] = LLExperienceLog::getPermissionString(event, "ExperiencePermissionShort");
 					columns[2]["column"] = "experience_name";
@@ -172,7 +172,7 @@ void LLPanelExperienceLog::refresh()
 				}
 				++items;
 			}
-		} while (day != events.beginMap());
+		}
 	}
 	if (waiting)
 	{

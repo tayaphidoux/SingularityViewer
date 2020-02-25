@@ -225,22 +225,20 @@ LLExperienceLog::~LLExperienceLog()
 
 void LLExperienceLog::eraseExpired()
 {
-	const auto& inst(*this); // Fixes Linux
     std::vector<std::string> expired;
-	std::for_each(mEvents.beginMap(), mEvents.endMap(),
-				  [&](const auto& event_pair)
-	{
-		const std::string& date = event_pair.first;
-		if (inst.isExpired(date))
-		{
+    for (const auto& event_pair : mEvents.map())
+    {
+        const std::string& date = event_pair.first;
+        if (isExpired(date))
+        {
             expired.push_back(date);
-		}
-	});
+        }
+    }
     
     for (const auto& date : expired)
     {
         mEvents.erase(date);
-	}
+    }
 }
 
 bool LLExperienceLog::isExpired(const std::string& date) const

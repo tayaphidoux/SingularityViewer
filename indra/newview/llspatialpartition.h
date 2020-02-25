@@ -316,13 +316,13 @@ public:
 
 	void drawObjectBox(LLColor4 col);
 
-	LLSpatialPartition* getSpatialPartition() {return (LLSpatialPartition*)mSpatialPartition;}
+	LLSpatialPartition* getSpatialPartition() const {return (LLSpatialPartition*)mSpatialPartition;}
 
 	 //LISTENER FUNCTIONS
-	virtual void handleInsertion(const TreeNode* node, LLViewerOctreeEntry* face);
-	virtual void handleRemoval(const TreeNode* node, LLViewerOctreeEntry* face);
-	virtual void handleDestruction(const TreeNode* node);
-	virtual void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
+	void handleInsertion(const TreeNode* node, LLViewerOctreeEntry* face) final override;
+	void handleRemoval(const TreeNode* node, LLViewerOctreeEntry* face) final override;
+	void handleDestruction(const TreeNode* node) final override;
+	void handleChildAddition(const OctreeNode* parent, OctreeNode* child) final override;
 	
 
 	LL_ALIGN_16(LLVector4a mViewAngle);

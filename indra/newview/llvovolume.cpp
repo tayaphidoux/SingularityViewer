@@ -2533,12 +2533,10 @@ void LLVOVolume::updateObjectMediaData(const LLSD &media_data_array, const std::
 		mLastFetchedMediaVersion = fetched_version;
 		//LL_INFOS() << "updating:" << this->getID() << " " << ll_pretty_print_sd(media_data_array) << LL_ENDL;
 		
-		LLSD::array_const_iterator iter = media_data_array.beginArray();
-		LLSD::array_const_iterator end = media_data_array.endArray();
 		U8 texture_index = 0;
-		for (; iter != end; ++iter, ++texture_index)
+		for (auto const& entry : media_data_array.array())
 		{
-			syncMediaData(texture_index, *iter, false/*merge*/, false/*ignore_agent*/);
+			syncMediaData(texture_index++, entry, false/*merge*/, false/*ignore_agent*/);
 		}
 	}
 }
