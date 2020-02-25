@@ -32,10 +32,10 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 : LLInstanceTracker<LFFloaterInvPanel, LLSD>(cat)
 {
 	// Setup the floater first
-	mPanel = new LLInventoryPanel("inv_panel", LLInventoryPanel::DEFAULT_SORT_ORDER, cat, LLRect(), model ? model : &gInventory, true);
+	auto mPanel = new LLInventoryPanel("inv_panel", LLInventoryPanel::DEFAULT_SORT_ORDER, cat, LLRect(), model ? model : &gInventory, true);
 
 	// Load from XUI
-	mCommitCallbackRegistrar.add("InvPanel.Search", boost::bind(&LLInventoryPanel::setFilterSubString, boost::ref(mPanel), _2));
+	mCommitCallbackRegistrar.add("InvPanel.Search", boost::bind(&LLInventoryPanel::setFilterSubString, mPanel, _2));
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inv_panel.xml");
 
 	// Now set the title
@@ -58,18 +58,12 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 	// Now take care of the children
 	LLPanel* panel = getChild<LLPanel>("placeholder_panel");
 	mPanel->setRect(panel->getRect());
+	mPanel->setOrigin(0, 0);
 	mPanel->postBuild();
 	mPanel->setFollows(FOLLOWS_ALL);
 	mPanel->setEnabled(true);
 	mPanel->removeBorder();
-	addChild(mPanel);
-	sendChildToBack(mPanel);
-	removeChild(panel);
-}
-
-LFFloaterInvPanel::~LFFloaterInvPanel()
-{
-	delete mPanel;
+	panel->addChild(mPanel);
 }
 
 // static
@@ -96,15 +90,18 @@ void LFFloaterInvPanel::closeAll()
 	}
 }
 
-// virtual
 BOOL LFFloaterInvPanel::handleKeyHere(KEY key, MASK mask)
 {
-	if (!mPanel->hasFocus() && mask == MASK_NONE && (key == KEY_RETURN || key == KEY_DOWN))
+	if (mask == MASK_NONE && (key == KEY_RETURN || key == KEY_DOWN))
 	{
-		mPanel->setFocus(true);
-		if (LLFolderView* root = mPanel->getRootFolder())
-			root->scrollToShowSelection();
-		return true;
+		auto& mPanel = *getChild<LLInventoryPanel>("inv_panel");
+		if (!mPanel.hasFocus())
+		{
+			mPanel.setFocus(true);
+			if (LLFolderView* root = mPanel.getRootFolder())
+				root->scrollToShowSelection();
+			return true;
+		}
 	}
 
 	return LLFloater::handleKeyHere(key, mask);
