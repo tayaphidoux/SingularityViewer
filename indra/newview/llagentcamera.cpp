@@ -2512,13 +2512,13 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 			gAgent.sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
 			gAgent.setCustomAnim(TRUE);
 			gAgentAvatarp->startMotion(ANIM_AGENT_CUSTOMIZE);
-		}
-		LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
+			LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
 
-		if (turn_motion)
-		{
-			// delay camera animation long enough to play through turn animation
-			setAnimationDuration(turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP);
+			if (turn_motion)
+			{
+				// delay camera animation long enough to play through turn animation
+				setAnimationDuration(turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP);
+			}
 		}
 	}
 	// <edit>

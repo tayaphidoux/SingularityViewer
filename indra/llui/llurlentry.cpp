@@ -1575,7 +1575,7 @@ std::string LLUrlEntryJira::getUrl(const std::string &url) const
 		(url.find("SV") != std::string::npos) ?
 			"https://singularityviewer.atlassian.net/browse/%1%" :
 		(url.find("FIRE") != std::string::npos) ?
-			"http://jira.phoenixviewer.com/browse/%1%" :
+			"https://jira.firestormviewer.com/browse/%1%" :
 		"http://jira.secondlife.com/browse/%1%"
 	) % url).str();
 }

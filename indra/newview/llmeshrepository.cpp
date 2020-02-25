@@ -1913,7 +1913,7 @@ S32 LLMeshRepository::getActualMeshLOD(LLSD& header, S32 lod)
 {
 	lod = llclamp(lod, 0, 3);
 
-	S32 version = header["version"];
+	S32 version = header["version"].asInteger();
 
 	if (header.has("404") || version > MAX_MESH_VERSION)
 	{
