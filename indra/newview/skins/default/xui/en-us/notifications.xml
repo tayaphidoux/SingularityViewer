@@ -7164,7 +7164,7 @@ Event Notification:
       <button
        index="2"
        name="Cancel"
-       text="Cancel"/>
+       text="Dismiss"/>
     </form>
   </notification>
 
