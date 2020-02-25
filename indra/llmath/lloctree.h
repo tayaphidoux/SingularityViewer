@@ -425,7 +425,7 @@ public:
 	}
 
 	void accept(oct_traveler* visitor)				{ visitor->visit(this); }
-	virtual bool isLeaf() const						{ return mChildCount == 0; }
+	bool isLeaf() const								{ return mChildCount == 0; }
 	
 	U32 getElementCount() const						{ return mData.size(); }
 	bool isEmpty() const							{ return mData.size() == 0; }
@@ -498,7 +498,7 @@ public:
 		return node;
 	}
 	
-	virtual bool insert(T* data)
+	bool insert(T* data) override
 	{
 		OctreeGuard::checkGuarded(this);
 		if (data == NULL || data->getBinIndex() != -1)
@@ -537,7 +537,7 @@ public:
 					OctreeStats::getInstance()->realloc(old_cap,mData.capacity());
 #endif
 				
-				BaseType::insert(data);
+				notifyAddition(data);
 				return true;
 			}
 			else
@@ -593,7 +593,7 @@ public:
 						OctreeStats::getInstance()->realloc(old_cap,mData.capacity());
 #endif
 					
-					BaseType::insert(data);
+					notifyAddition(data);
 					return true;
 				}
 
@@ -704,11 +704,11 @@ public:
 #endif
 		}
 
-		this->notifyRemoval(data);
+		notifyRemoval(data);
 		checkAlive();
 	}
 
-	bool remove(T* data)
+	bool remove(T* data) final override
 	{
 		OctreeGuard::checkGuarded(this);
 		S32 i = data->getBinIndex();
@@ -849,10 +849,9 @@ public:
 
 		if (!silent)
 		{
-			for (U32 i = 0; i < this->getListenerCount(); i++)
+			for (auto& entry : this->mListeners)
 			{
-				oct_listener* listener = getOctListener(i);
-				listener->handleChildAddition(this, child);
+				((oct_listener*)entry.get())->handleChildAddition(this, child);
 			}
 		}
 	}
@@ -861,16 +860,17 @@ public:
 	{
 		OctreeGuard::checkGuarded(this);
 
-		for (U32 i = 0; i < this->getListenerCount(); i++)
+		oct_node* child = getChild(index);
+
+		for (auto& entry : this->mListeners)
 		{
-			oct_listener* listener = getOctListener(i);
-			listener->handleChildRemoval(this, getChild(index));
+			((oct_listener*)entry.get())->handleChildRemoval(this, child);
 		}
 
 		if (destroy)
 		{
-			mChild[index]->destroy();
-			delete mChild[index];
+			child->destroy();
+			delete child;
 		}
 
 		--mChildCount;
@@ -1012,7 +1012,7 @@ public:
 	}
 
 	// LLOctreeRoot::insert
-	bool insert(T* data)
+	bool insert(T* data) final override
 	{
 		if (data == NULL) 
 		{

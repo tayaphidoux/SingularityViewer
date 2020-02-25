@@ -267,12 +267,10 @@ void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd, LLI
 	}
 	else if (sd.isArray())
 	{
-		for (LLSD::array_const_iterator it = sd.beginArray();
-			it != sd.endArray();
-			++it)
+		for (auto const& entry : sd.array())
 		{
 			stack.push_back(make_pair(std::string(), true));
-			readSDValues(cb, *it, stack);
+			readSDValues(cb, entry, stack);
 			stack.pop_back();
 		}
 	}

@@ -474,7 +474,7 @@ class LLFileUploadBulk : public view_listener_t
 					asset_name,
 					0,
 					LLFolderType::FT_NONE,
-					LLInventoryType::IT_NONE,
+					LLInventoryType::EType::IT_NONE,
 					LLFloaterPerms::getNextOwnerPerms("Uploads"),
 					LLFloaterPerms::getGroupPerms("Uploads"),
 					LLFloaterPerms::getEveryonePerms("Uploads"),
@@ -963,10 +963,10 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 		// <edit> hack to create scripts and gestures
 		if(exten == "lsl" || exten == "gesture" || exten == "notecard") // added notecard Oct 15 2009
 		{
-			LLInventoryType::EType inv_type = LLInventoryType::IT_GESTURE;
-			if (exten == "lsl") inv_type = LLInventoryType::IT_LSL;
-			else if(exten == "gesture") inv_type = LLInventoryType::IT_GESTURE;
-			else if(exten == "notecard") inv_type = LLInventoryType::IT_NOTECARD;
+			LLInventoryType::EType inv_type = LLInventoryType::EType::IT_GESTURE;
+			if (exten == "lsl") inv_type = LLInventoryType::EType::IT_LSL;
+			else if(exten == "gesture") inv_type = LLInventoryType::EType::IT_GESTURE;
+			else if(exten == "notecard") inv_type = LLInventoryType::EType::IT_NOTECARD;
 			create_inventory_item(	gAgent.getID(),
 									gAgent.getSessionID(),
 									gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(asset_type)),
@@ -1354,7 +1354,7 @@ void assign_defaults_and_show_upload_message(LLAssetType::EType asset_type,
 											 const std::string& display_name,
 											 std::string& description)
 {
-	if (LLInventoryType::IT_NONE == inventory_type)
+	if (LLInventoryType::EType::IT_NONE == inventory_type)
 	{
 		inventory_type = LLInventoryType::defaultForAssetType(asset_type);
 	}
@@ -1412,9 +1412,9 @@ void NewResourceItemCallback::fire(const LLUUID& new_item_id)
 	std::string type("Uploads");
 	switch(new_item->getInventoryType())
 	{
-		case LLInventoryType::IT_LSL:      type = "Scripts"; break;
-		case LLInventoryType::IT_GESTURE:  type = "Gestures"; break;
-		case LLInventoryType::IT_NOTECARD: type = "Notecard"; break;
+		case LLInventoryType::EType::IT_LSL:      type = "Scripts"; break;
+		case LLInventoryType::EType::IT_GESTURE:  type = "Gestures"; break;
+		case LLInventoryType::EType::IT_NOTECARD: type = "Notecard"; break;
 		default: break;
 	}
 	LLPermissions perms = new_item->getPermissions();

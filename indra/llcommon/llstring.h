@@ -243,7 +243,7 @@ public:
 	bool operator<(const LLFormatMapString& rhs) const { return mString < rhs.mString; }
 	std::size_t length() const { return mString.length(); }
 	// The destructor may not throw.
-	~LLFormatMapString() throw() { }
+	~LLFormatMapString() noexcept { }
 
 private:
 	std::string mString;

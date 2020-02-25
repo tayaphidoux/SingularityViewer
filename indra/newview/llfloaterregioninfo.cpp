@@ -1644,12 +1644,9 @@ struct LLEstateAccessChangeInfo
 	{
 		mDialogName = sd["dialog_name"].asString();
 		mOperationFlag = (U32)sd["operation"].asInteger();
-		LLSD::array_const_iterator end_it = sd["allowed_ids"].endArray();
-		for (LLSD::array_const_iterator id_it = sd["allowed_ids"].beginArray();
-			id_it != end_it;
-			++id_it)
+		for (auto const& id : sd["allowed_ids"].array())
 		{
-			mAgentOrGroupIDs.push_back(id_it->asUUID());
+			mAgentOrGroupIDs.push_back(id.asUUID());
 		}
 	}
 
@@ -4156,9 +4153,9 @@ void LLPanelEstateAccess::onEstateAccessReceived(const LLSD& result)
 		const auto order = allowed_agent_name_list->getSortOrder();
 		allowed_agent_name_list->clearSortOrder();
 		allowed_agent_name_list->deleteAllItems();
-		for (LLSD::array_const_iterator it = result["AllowedAgents"].beginArray(); it != result["AllowedAgents"].endArray(); ++it)
+		for (auto const& entry : result["AllowedAgents"].array())
 		{ 
-			LLUUID id = (*it)["id"].asUUID(); 
+			LLUUID id = entry["id"].asUUID();
 			allowed_agent_name_list->addNameItem(id);
 		}
 		allowed_agent_name_list->setSortOrder(order);
@@ -4177,23 +4174,23 @@ void LLPanelEstateAccess::onEstateAccessReceived(const LLSD& result)
 		const auto order = banned_agent_name_list->getSortOrder();
 		banned_agent_name_list->clearSortOrder();
 		banned_agent_name_list->deleteAllItems();
-		for (LLSD::array_const_iterator it = result["BannedAgents"].beginArray(); it != result["BannedAgents"].endArray(); ++it)
+		for (auto const& entry : result["BannedAgents"].array())
 		{
 			LLSD item;
-			item["id"] = (*it)["id"].asUUID();
+			item["id"] = entry["id"].asUUID();
 			LLSD& columns = item["columns"];
 
 			columns[0]["column"] = "name"; // to be populated later
 
 			auto& col = columns[1];
 			col["column"] = "last_login_date";
-			handlePseudoISO8601((*it)["last_login_date"].asString(), col, format);
+			handlePseudoISO8601(entry["last_login_date"].asString(), col, format);
 
 			columns[2]["column"] = "ban_date";
-			handlePseudoISO8601((*it)["ban_date"].asString(), columns[2], format);
+			handlePseudoISO8601(entry["ban_date"].asString(), columns[2], format);
 
 			columns[3]["column"] = "bannedby";
-			LLUUID banning_id = (*it)["banning_id"].asUUID();
+			LLUUID banning_id = entry["banning_id"].asUUID();
 			LLAvatarName av_name;
 			if (banning_id.isNull())
 			{
@@ -4221,9 +4218,9 @@ void LLPanelEstateAccess::onEstateAccessReceived(const LLSD& result)
 		const auto order = allowed_group_name_list->getSortOrder();
 		allowed_group_name_list->clearSortOrder();
 		allowed_group_name_list->deleteAllItems();
-		for (LLSD::array_const_iterator it = result["AllowedGroups"].beginArray(); it != result["AllowedGroups"].endArray(); ++it)
+		for (auto const& entry : result["AllowedGroups"].array())
 		{
-			LLUUID id = (*it)["id"].asUUID();
+			LLUUID id = entry["id"].asUUID();
 			allowed_group_name_list->addGroupNameItem(id);
 		}
 		allowed_group_name_list->setSortOrder(order);
@@ -4241,9 +4238,9 @@ void LLPanelEstateAccess::onEstateAccessReceived(const LLSD& result)
 		const auto order = estate_manager_name_list->getSortOrder();
 		estate_manager_name_list->clearSortOrder();
 		estate_manager_name_list->deleteAllItems();
-		for (LLSD::array_const_iterator it = result["Managers"].beginArray(); it != result["Managers"].endArray(); ++it)
+		for (auto const& entry : result["Managers"].array())
 		{
-			LLUUID id = (*it)["agent_id"].asUUID();
+			LLUUID id = entry["agent_id"].asUUID();
 			estate_manager_name_list->addNameItem(id);
 		}
 		estate_manager_name_list->setSortOrder(order);

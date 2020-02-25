@@ -746,12 +746,9 @@ public:
 	void clear_object_list_pending_requests()
 	{
 		// TODO*: No more hard coding
-		for (
-			LLSD::array_iterator iter = mObjectIDs.beginArray();
-			iter != mObjectIDs.endArray();
-			++iter)
+		for (auto const& id : mObjectIDs.array())
 		{
-			gObjectList.onObjectCostFetchFailure(iter->asUUID());
+			gObjectList.onObjectCostFetchFailure(id.asUUID());
 		}
 	}
 
@@ -789,23 +786,20 @@ public:
 
 		// Success, grab the resource cost and linked set costs
 		// for an object if one was returned
-		for (
-			LLSD::array_iterator iter = mObjectIDs.beginArray();
-			iter != mObjectIDs.endArray();
-			++iter)
+		for (auto const& entry : mObjectIDs.array())
 		{
-			LLUUID object_id = iter->asUUID();
+			LLUUID object_id = entry.asUUID();
 
 			// Check to see if the request contains data for the object
-			if ( mContent.has(iter->asString()) )
+			if ( mContent.has(entry.asString()) )
 			{
 				F32 link_cost =
-					mContent[iter->asString()]["linked_set_resource_cost"].asReal();
+					mContent[entry.asString()]["linked_set_resource_cost"].asReal();
 				F32 object_cost =
-					mContent[iter->asString()]["resource_cost"].asReal();
+					mContent[entry.asString()]["resource_cost"].asReal();
 
-				F32 physics_cost = mContent[iter->asString()]["physics_cost"].asReal();
-				F32 link_physics_cost = mContent[iter->asString()]["linked_set_physics_cost"].asReal();
+				F32 physics_cost = mContent[entry.asString()]["physics_cost"].asReal();
+				F32 link_physics_cost = mContent[entry.asString()]["linked_set_physics_cost"].asReal();
 
 				gObjectList.updateObjectCost(object_id, object_cost, link_cost, physics_cost, link_physics_cost);
 			}
@@ -837,12 +831,9 @@ public:
 	void clear_object_list_pending_requests()
 	{
 		// TODO*: No more hard coding
-		for (
-			LLSD::array_iterator iter = mObjectIDs.beginArray();
-			iter != mObjectIDs.endArray();
-			++iter)
+		for (auto const& id : mObjectIDs.array())
 		{
-			gObjectList.onPhysicsFlagsFetchFailure(iter->asUUID());
+			gObjectList.onPhysicsFlagsFetchFailure(id.asUUID());
 		}
 	}
 
@@ -880,17 +871,14 @@ public:
 
 		// Success, grab the resource cost and linked set costs
 		// for an object if one was returned
-		for (
-			LLSD::array_iterator iter = mObjectIDs.beginArray();
-			iter != mObjectIDs.endArray();
-			++iter)
+		for (auto const& entry : mObjectIDs.array())
 		{
-			LLUUID object_id = iter->asUUID();
+			LLUUID object_id = entry.asUUID();
 
 			// Check to see if the request contains data for the object
-			if (mContent.has(iter->asString()))
+			if (mContent.has(entry.asString()))
 			{
-				const LLSD& data = mContent[iter->asString()];
+				const LLSD& data = mContent[entry.asString()];
 
 				S32 shape_type = data["PhysicsShapeType"].asInteger();
 

@@ -139,8 +139,8 @@ public:
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual BOOL isUpToDate() const { return TRUE; }
 	virtual bool hasChildren() const { return FALSE; }
-	virtual LLInventoryType::EType getInventoryType() const { return LLInventoryType::IT_NONE; }
-	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
+	virtual LLInventoryType::EType getInventoryType() const { return LLInventoryType::EType::IT_NONE; }
+	virtual LLWearableType::EType getWearableType() const { return LLWearableType::EType::WT_NONE; }
 
 	// LLDragAndDropBridge functionality
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
@@ -161,7 +161,7 @@ LLTaskInvFVBridge::LLTaskInvFVBridge(
 	mPanel(panel),
 	mFlags(flags),
 	mAssetType(LLAssetType::AT_NONE),
-	mInventoryType(LLInventoryType::IT_NONE)
+	mInventoryType(LLInventoryType::EType::IT_NONE)
 {
 	const LLInventoryItem *item = findItem();
 	if (item)
@@ -479,12 +479,9 @@ bool remove_task_inventory_callback(const LLSD& notification, const LLSD& respon
 	if(option == 0 && object)
 	{
 		// yes
-		LLSD::array_const_iterator list_end = notification["payload"]["inventory_ids"].endArray();
-		for (LLSD::array_const_iterator list_it = notification["payload"]["inventory_ids"].beginArray();
-			list_it != list_end; 
-			++list_it)
+		for (auto const& entry : notification["payload"]["inventory_ids"].array())
 		{
-			object->removeInventory(list_it->asUUID());
+			object->removeInventory(entry.asUUID());
 		}
 
 		// refresh the UI.
