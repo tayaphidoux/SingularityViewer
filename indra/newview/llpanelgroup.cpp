@@ -56,6 +56,8 @@
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupexperiences.h"
 
+#include "hippogridmanager.h"
+
 // static
 void* LLPanelGroupTab::createTab(void* data)
 {
@@ -212,6 +214,14 @@ BOOL LLPanelGroup::postBuild()
 
 	if (mTabContainer)
 	{
+		// Group Voting no longer exists on SecondLife, hide it
+		if (gHippoGridManager->getConnectedGrid()->isSecondLife())
+		{
+			auto panel = mTabContainer->getPanelByName("voting_tab");
+			mTabContainer->removeTabPanel(panel);
+			delete panel;
+		}
+
 		//our initial tab selection was invalid, just select the
 		//first tab then or default to selecting the initial
 		//selected tab specified in the layout file
