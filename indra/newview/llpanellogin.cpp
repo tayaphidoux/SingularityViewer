@@ -238,6 +238,7 @@ LLPanelLogin::LLPanelLogin(const LLRect& rect)
 	reshape(rect.getWidth(), rect.getHeight());
 
 #ifndef LL_FMODSTUDIO
+	getChildView("fmod_text")->setVisible(false);
 	getChildView("fmod_logo")->setVisible(false);
 #endif
 
