@@ -9479,12 +9479,27 @@ class ListStartIM : public view_listener_t
 };
 
 const LLVector3d& get_av_pos(const LLUUID& id);
+const LLVector3d get_obj_pos(const LLUUID& id)
+{
+	if (const auto& obj = gObjectList.findObject(id))
+		return obj->getPositionGlobal();
+	return LLVector3d::zero;
+}
+static const LLVector3d get_active_pos()
+{
+	const auto& id = LFIDBearer::getActiveSelectedID();
+	if (LFIDBearer::getActiveType() == LFIDBearer::OBJECT)
+		return get_obj_pos(id);
+	return get_av_pos(id);
+}
+
 class ListTeleportTo : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const auto& id = LFIDBearer::getActiveSelectedID();
-		gAgent.teleportViaLocation(LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? gObjectList.findObject(id)->getPositionGlobal() : get_av_pos(id));
+		const auto& pos = get_active_pos();
+		if (!pos.isExactlyZero())
+			gAgent.teleportViaLocation(pos);
 		return true;
 	}
 };
@@ -9601,8 +9616,9 @@ class ListGoTo : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		auto id = LFIDBearer::getActiveSelectedID();
-		handle_go_to(LFIDBearer::getActiveType() == LFIDBearer::AVATAR ? get_av_pos(id) : gObjectList.findObject(id)->getPositionGlobal());
+		const auto& pos = get_active_pos();
+		if (!pos.isExactlyZero())
+			handle_go_to(pos);
 		return true;
 	}
 };
