@@ -9099,6 +9099,7 @@ const std::string get_obj_owner_slurl(const LLUUID& obj_id, const std::string& n
 			owner = obj->owner_id;
 			group_owned = owner == obj->group_id;
 		}
+		else return name;
 	}
 	else
 	{
