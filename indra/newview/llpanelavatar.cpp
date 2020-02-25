@@ -1337,8 +1337,6 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id)
 	view->setEnabled(false);
 	getChildView("Log")->setVisible(!own_avatar);
 
-	getChild<LLNameEditor>("avatar_key")->setText(avatar_id.asString());
-
 	bool is_god = gAgent.isGodlike();
 	view = getChildView("Kick");
 	view->setVisible(is_god);
