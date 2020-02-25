@@ -28,15 +28,35 @@
 #include <functional>
 #include "llhttpclient.h"
 
-struct LLCoroResponder final : public LLHTTPClient::ResponderWithCompleted
+struct LLCoroResponderBase : public LLHTTPClient::ResponderWithCompleted
+{
+	const AIHTTPReceivedHeaders& getHeaders() const { return mReceivedHeaders; }
+	const LLSD& getContent() const { return mContent; }
+
+	char const* getName() const override final { return "LLCoroResponder"; }
+protected:
+    LLCoroResponderBase() {}
+};
+
+struct LLCoroResponder final : public LLCoroResponderBase
 {
 	typedef std::function<void(const LLCoroResponder&)> cb_t;
-    LLCoroResponder(const cb_t& cb) : mCB(cb) {}
+	LLCoroResponder(const cb_t& cb) : mCB(cb) {}
 	void httpCompleted() override { mCB(*this); }
-	const AIHTTPReceivedHeaders& getHeaders() const { return mReceivedHeaders; }
-    const LLSD& getContent() const { return mContent; }
+private:
+	const cb_t mCB;
+};
 
-	char const* getName() const override { return "LLCoroResponder"; }
+struct LLCoroResponderRaw final : public LLCoroResponderBase
+{
+	typedef std::function<void(const LLCoroResponderRaw&, const std::string&)> cb_t;
+	LLCoroResponderRaw(const cb_t& cb) : mCB(cb) {}
+	void completedRaw(const LLChannelDescriptors& channels, const buffer_ptr_t& buffer) override
+	{
+		std::string content;
+		decode_raw_body(channels, buffer, content);
+		mCB(*this, content);
+	}
 private:
 	const cb_t mCB;
 };

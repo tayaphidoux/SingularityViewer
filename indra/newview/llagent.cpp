@@ -38,11 +38,14 @@
 #include "llanimationstates.h"
 #include "llcallingcard.h"
 #include "llcapabilitylistener.h"
+#include "llcororesponder.h"
 #include "llconsole.h"
 #include "llenvmanager.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloatertools.h"
+#include "llfloaterpostcard.h"
+#include "llfloaterpreference.h"
 #include "llgroupactions.h"
 #include "llgroupmgr.h"
 #include "llhomelocationresponder.h"
@@ -184,10 +187,10 @@ public:
 	LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId);
 	virtual ~LLTeleportRequestViaLandmark();
 
-	virtual bool canRestartTeleport();
+	bool canRestartTeleport() override;
 
-	virtual void startTeleport();
-	virtual void restartTeleport();
+	void startTeleport() override;
+	void restartTeleport() override;
 
 protected:
 	inline const LLUUID &getLandmarkId() const {return mLandmarkId;};
@@ -196,15 +199,15 @@ private:
 	LLUUID mLandmarkId;
 };
 
-class LLTeleportRequestViaLure : public LLTeleportRequestViaLandmark
+class LLTeleportRequestViaLure final : public LLTeleportRequestViaLandmark
 {
 public:
 	LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL pIsLureGodLike);
 	virtual ~LLTeleportRequestViaLure();
 
-	virtual bool canRestartTeleport();
+	bool canRestartTeleport() override;
 
-	virtual void startTeleport();
+	void startTeleport() override;
 
 protected:
 	inline BOOL isLureGodLike() const {return mIsLureGodLike;};
@@ -219,10 +222,10 @@ public:
 	LLTeleportRequestViaLocation(const LLVector3d &pPosGlobal);
 	virtual ~LLTeleportRequestViaLocation();
 
-	virtual bool canRestartTeleport();
+	bool canRestartTeleport() override;
 
-	virtual void startTeleport();
-	virtual void restartTeleport();
+	void startTeleport() override;
+	void restartTeleport() override;
 
 protected:
 	inline const LLVector3d &getPosGlobal() const {return mPosGlobal;};
@@ -232,16 +235,16 @@ private:
 };
 
 
-class LLTeleportRequestViaLocationLookAt : public LLTeleportRequestViaLocation
+class LLTeleportRequestViaLocationLookAt final : public LLTeleportRequestViaLocation
 {
 public:
 	LLTeleportRequestViaLocationLookAt(const LLVector3d &pPosGlobal);
 	virtual ~LLTeleportRequestViaLocationLookAt();
 
-	virtual bool canRestartTeleport();
+	bool canRestartTeleport() override;
 
-	virtual void startTeleport();
-	virtual void restartTeleport();
+	void startTeleport() override;
+	void restartTeleport() override;
 
 protected:
 
@@ -258,12 +261,12 @@ const F32 LLAgent::TYPING_TIMEOUT_SECS = 5.f;
 std::map<std::string, std::string> LLAgent::sTeleportErrorMessages;
 std::map<std::string, std::string> LLAgent::sTeleportProgressMessages;
 
-class LLAgentFriendObserver : public LLFriendObserver
+class LLAgentFriendObserver final : public LLFriendObserver
 {
 public:
-	LLAgentFriendObserver() {}
-	virtual ~LLAgentFriendObserver() {}
-	virtual void changed(U32 mask);
+	LLAgentFriendObserver() = default;
+	virtual ~LLAgentFriendObserver() = default;
+	void changed(U32 mask) override;
 };
 
 void LLAgentFriendObserver::changed(U32 mask)
@@ -293,7 +296,7 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
 	{
 		bool allow_agent_voice = false;
 		LLVoiceChannel* channel = LLVoiceChannel::getCurrentVoiceChannel();
-		if (channel != NULL)
+        if (channel != nullptr)
 		{
 			if (channel->getSessionName().empty() && channel->getSessionID().isNull())
 			{
@@ -2589,15 +2592,11 @@ void LLAgent::onAnimStop(const LLUUID& id)
 	}
 	else if (id == ANIM_AGENT_AWAY)
 	{
-//		clearAFK();
 // [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g) | Added: RLVa-1.1.0g
-#ifdef RLV_EXTENSION_CMD_ALLOWIDLE
 		if (!gRlvHandler.hasBehaviour(RLV_BHVR_ALLOWIDLE))
 			clearAFK();
-#else
-		clearAFK();
-#endif // RLV_EXTENSION_CMD_ALLOWIDLE
 // [/RLVa:KB]
+//		clearAFK();
 	}
 	else if (id == ANIM_AGENT_STANDUP)
 	{
@@ -2668,7 +2667,7 @@ bool LLAgent::canAccessMaturityInRegion( U64 region_handle ) const
 	return true;
 }
 
-bool LLAgent::canAccessMaturityAtGlobal( LLVector3d pos_global ) const
+bool LLAgent::canAccessMaturityAtGlobal(const LLVector3d& pos_global ) const
 {
 	U64 region_handle = to_region_handle_global( pos_global.mdV[0], pos_global.mdV[1] );
 	return canAccessMaturityInRegion( region_handle );
@@ -2715,7 +2714,7 @@ int LLAgent::convertTextToMaturity(char text)
 	return LLAgentAccess::convertTextToMaturity(text);
 }
 
-class LLMaturityPreferencesResponder : public LLHTTPClient::ResponderWithResult
+class LLMaturityPreferencesResponder final : public LLHTTPClient::ResponderWithResult
 {
 	LOG_CLASS(LLMaturityPreferencesResponder);
 public:
@@ -2723,12 +2722,10 @@ public:
 	virtual ~LLMaturityPreferencesResponder();
 
 protected:
-	virtual void httpSuccess();
-	virtual void httpFailure();
+	void httpSuccess() override;
+	void httpFailure() override;
 
-	/*virtual*/ char const* getName(void) const { return "LLMaturityPreferencesResponder"; }
-protected:
-
+	char const* getName() const override { return "LLMaturityPreferencesResponder"; }
 private:
 	U8 parseMaturityFromServerResponse(const LLSD &pContent) const;
 
@@ -2929,7 +2926,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		boost::intrusive_ptr<LLHTTPClient::ResponderWithResult> responderPtr = boost::intrusive_ptr<LLHTTPClient::ResponderWithResult>(new LLMaturityPreferencesResponder(this, pPreferredMaturity, mLastKnownResponseMaturity));
 
 		// If we don't have a region, report it as an error
-		if (getRegion() == NULL)
+		if (getRegion() == nullptr)
 		{
 			responderPtr->failureResult(0U, "region is not defined", LLSD());
 		}
@@ -3206,24 +3203,27 @@ void LLAgent::sendAnimationRequests(const uuid_vec_t &anim_ids, EAnimRequest req
 	msg->addUUIDFast(_PREHASH_AgentID, getID());
 	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
 
-	for (U32 i = 0; i < anim_ids.size(); i++)
+	for (auto anim_id : anim_ids)
 	{
-		if (anim_ids[i].isNull())
+		if (anim_id.isNull())
 		{
 			continue;
 		}
 		msg->nextBlockFast(_PREHASH_AnimationList);
-		msg->addUUIDFast(_PREHASH_AnimID, (anim_ids[i]) );
+		msg->addUUIDFast(_PREHASH_AnimID, anim_id);
 		msg->addBOOLFast(_PREHASH_StartAnim, (request == ANIM_REQUEST_START) ? TRUE : FALSE);
 		num_valid_anims++;
 	}
+	if (!num_valid_anims)
+	{
+		msg->clearMessage();
+		return;
+	}
 
 	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
-	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
-	if (num_valid_anims)
-	{
-		sendReliableMessage();
-	}
+	msg->addBinaryDataFast(_PREHASH_TypeData, nullptr, 0);
+
+	sendReliableMessage();
 }
 
 void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
@@ -3244,7 +3244,7 @@ void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
 	msg->addBOOLFast(_PREHASH_StartAnim, (request == ANIM_REQUEST_START) ? TRUE : FALSE);
 
 	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
-	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
+	msg->addBinaryDataFast(_PREHASH_TypeData, nullptr, 0);
 	sendReliableMessage();
 }
 
@@ -3268,7 +3268,7 @@ void LLAgent::sendAnimationStateReset()
 	msg->addBOOLFast(_PREHASH_StartAnim, FALSE);
 
 	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
-	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
+	msg->addBinaryDataFast(_PREHASH_TypeData, nullptr, 0);
 	sendReliableMessage();
 }
 
@@ -3507,8 +3507,8 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 	// Remove the group if it already exists remove it and add the new data to pick up changes.
 	LLGroupData gd;
 	gd.mID = group_id;
-	std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), gd);
-	if (found_it != gAgent.mGroups.end())
+	auto found_it = std::find(gAgent.mGroups.cbegin(), gAgent.mGroups.cend(), gd);
+	if (found_it != gAgent.mGroups.cend())
 	{
 		gAgent.mGroups.erase(found_it);
 		if (gAgent.getGroupID() == group_id)
@@ -3534,12 +3534,12 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 	}
 }
 
-class LLAgentDropGroupViewerNode : public LLHTTPNode
+class LLAgentDropGroupViewerNode final : public LLHTTPNode
 {
-	virtual void post(
+	void post(
 		LLHTTPNode::ResponsePtr response,
 		const LLSD& context,
-		const LLSD& input) const
+		const LLSD& input) const override
 	{
 
 		if (
@@ -3566,11 +3566,8 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 
 			//there is only one set of data in the AgentData block
 			LLSD agent_data = body["AgentData"][0];
-			LLUUID agent_id;
-			LLUUID group_id;
-
-			agent_id = agent_data["AgentID"].asUUID();
-			group_id = agent_data["GroupID"].asUUID();
+			LLUUID agent_id = agent_data["AgentID"].asUUID();
+			LLUUID group_id = agent_data["GroupID"].asUUID();
 
 			if (agent_id != gAgentID)
 			{
@@ -3585,8 +3582,8 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			// and add the new data to pick up changes.
 			LLGroupData gd;
 			gd.mID = group_id;
-			std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), gd);
-			if (found_it != gAgent.mGroups.end())
+			auto found_it = std::find(gAgent.mGroups.cbegin(), gAgent.mGroups.cend(), gd);
+			if (found_it != gAgent.mGroups.cend())
 			{
 				gAgent.mGroups.erase(found_it);
 				if (gAgent.getGroupID() == group_id)
@@ -3657,8 +3654,8 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 		{
 			need_floater_update = true;
 			// Remove the group if it already exists remove it and add the new data to pick up changes.
-			std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), group);
-			if (found_it != gAgent.mGroups.end())
+			auto found_it = std::find(gAgent.mGroups.cbegin(), gAgent.mGroups.cend(), group);
+			if (found_it != gAgent.mGroups.cend())
 			{
 				gAgent.mGroups.erase(found_it);
 			}
@@ -3672,12 +3669,12 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 
 }
 
-class LLAgentGroupDataUpdateViewerNode : public LLHTTPNode
+class LLAgentGroupDataUpdateViewerNode final : public LLHTTPNode
 {
-	virtual void post(
+	void post(
 		LLHTTPNode::ResponsePtr response,
 		const LLSD& context,
-		const LLSD& input) const
+		const LLSD& input) const override
 	{
 		LLSD body = input["body"];
 		if(body.has("body"))
@@ -3717,8 +3714,8 @@ class LLAgentGroupDataUpdateViewerNode : public LLHTTPNode
 			{
 				need_floater_update = true;
 				// Remove the group if it already exists remove it and add the new data to pick up changes.
-				std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), group);
-				if (found_it != gAgent.mGroups.end())
+				auto found_it = std::find(gAgent.mGroups.cbegin(), gAgent.mGroups.cend(), group);
+				if (found_it != gAgent.mGroups.cend())
 				{
 					gAgent.mGroups.erase(found_it);
 				}
@@ -3919,7 +3916,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 		return;
 	}
 
-	if (gAgentAvatarp->isEditingAppearance())
+	if (isAgentAvatarValid() && gAgentAvatarp->isEditingAppearance())
 	{
 		// ignore baked textures when in customize mode
 		return;
@@ -4050,6 +4047,7 @@ void LLAgent::clearVisualParams(void *data)
 // protected
 bool LLAgent::teleportCore(bool is_local)
 {
+    LL_INFOS("Teleport") << "In teleport core!" << LL_ENDL;
 	if ((TELEPORT_NONE != mTeleportState) && (mTeleportState != TELEPORT_PENDING))
 	{
 		LL_WARNS() << "Attempt to teleport when already teleporting." << LL_ENDL;
@@ -4067,7 +4065,7 @@ bool LLAgent::teleportCore(bool is_local)
 	// Stop all animation before actual teleporting 
         if (isAgentAvatarValid())
 	{
-		for ( LLVOAvatar::AnimIterator anim_it= gAgentAvatarp->mPlayingAnimations.begin();
+		for ( auto anim_it= gAgentAvatarp->mPlayingAnimations.begin();
 		      anim_it != gAgentAvatarp->mPlayingAnimations.end();
 		      ++anim_it)
                {
@@ -4086,8 +4084,7 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterWorldMap::hide();
 
 	// hide land floater too - it'll be out of date
-	if (LLFloaterLand::findInstance())
-		LLFloaterLand::hideInstance();
+	if (LLFloaterLand::findInstance()) LLFloaterLand::hideInstance();
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
 	LLViewerMediaFocus::getInstance()->clearFocus();
@@ -4861,7 +4858,7 @@ void LLAgent::sendAgentSetAppearance()
 		// This means the baked texture IDs on the server will be untouched.
 		// Once all textures are baked, another AvatarAppearance message will be sent to update the TEs
 		msg->nextBlockFast(_PREHASH_ObjectData);
-		gMessageSystem->addBinaryDataFast(_PREHASH_TextureEntry, NULL, 0);
+		gMessageSystem->addBinaryDataFast(_PREHASH_TextureEntry, nullptr, 0);
 	}
 
 
@@ -4884,9 +4881,7 @@ void LLAgent::sendAgentSetAppearance()
 	}
 
 	LL_INFOS() << "Avatar XML num VisualParams transmitted = " << transmitted_params << LL_ENDL;
-	if(transmitted_params < 218) {
-		LLNotificationsUtil::add("SGIncompleteAppearance");
-	}
+	if (transmitted_params < 218) LLNotificationsUtil::add("SGIncompleteAppearance");
 	sendReliableMessage();
 }
 
@@ -4901,14 +4896,117 @@ void LLAgent::sendAgentDataUpdateRequest()
 
 void LLAgent::sendAgentUserInfoRequest()
 {
-	if(getID().isNull())
+    std::string cap;
+
+	if (getID().isNull())
 		return; // not logged in
+
+    if (mRegionp)
+        cap = mRegionp->getCapability("UserInfo");
+
+    if (!cap.empty())
+    {
+        LLHTTPClient::get(cap, new LLCoroResponder(
+            boost::bind(&LLAgent::requestAgentUserInfoCoro, this, _1)));
+    }
+    else
+    { 
+        sendAgentUserInfoRequestMessage();
+    }
+}
+
+void LLAgent::requestAgentUserInfoCoro(const LLCoroResponder& responder)
+{
+	const auto& result = responder.getContent();
+	const auto& status = responder.getStatus();
+
+    if (!responder.isGoodStatus(status))
+    {
+        LL_WARNS("UserInfo") << "Failed to get user information: " << result["message"] << "Status " << status << " Reason: " << responder.getReason() << LL_ENDL;
+        return;
+    }
+
+    bool im_via_email;
+    bool is_verified_email;
+    std::string email;
+    std::string dir_visibility;
+
+    im_via_email = result["im_via_email"].asBoolean();
+    is_verified_email = result["is_verified"].asBoolean();
+    email = result["email"].asString();
+    dir_visibility = result["directory_visibility"].asString();
+
+    // TODO: This should probably be changed.  I'm not entirely comfortable 
+    // having LLAgent interact directly with the UI in this way.
+	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, email, is_verified_email);
+	LLFloaterPostcard::updateUserInfo(email);
+}
+
+void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& directory_visibility)
+{
+    std::string cap;
+	
+    if (getID().isNull())
+        return; // not logged in
+
+    if (mRegionp)
+        cap = mRegionp->getCapability("UserInfo");
+
+    if (!cap.empty())
+    {
+        LLSD body(LLSDMap
+            ("dir_visibility",  LLSD::String(directory_visibility))
+            ("im_via_email",    LLSD::Boolean(im_via_email)));
+        LLHTTPClient::post(cap, body, new LLCoroResponder(
+            boost::bind(&LLAgent::updateAgentUserInfoCoro, this, _1)));
+    }
+    else
+    {
+        sendAgentUpdateUserInfoMessage(im_via_email, directory_visibility);
+    }
+}
+
+
+void LLAgent::updateAgentUserInfoCoro(const LLCoroResponder& responder)
+{
+	const auto& result = responder.getContent();
+	const auto& status = responder.getStatus();
+
+    if (!responder.isGoodStatus(status))
+    {
+        LL_WARNS("UserInfo") << "Failed to set user information." << LL_ENDL;
+    }
+    else if (!result["success"].asBoolean())
+    {
+        LL_WARNS("UserInfo") << "Failed to set user information: " << result["message"] << LL_ENDL;
+    }
+}
+
+// deprecated:
+// May be removed when UserInfo cap propagates to all simhosts in grid
+void LLAgent::sendAgentUserInfoRequestMessage()
+{
 	gMessageSystem->newMessageFast(_PREHASH_UserInfoRequest);
 	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
 	gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
 	gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
 	sendReliableMessage();
 }
+
+void LLAgent::sendAgentUpdateUserInfoMessage(bool im_via_email, const std::string& directory_visibility)
+{
+    gMessageSystem->newMessageFast(_PREHASH_UpdateUserInfo);
+    gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+    gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
+    gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
+    gMessageSystem->nextBlockFast(_PREHASH_UserData);
+    gMessageSystem->addBOOLFast(_PREHASH_IMViaEMail, im_via_email);
+    gMessageSystem->addString("DirectoryVisibility", directory_visibility);
+    gAgent.sendReliableMessage();
+
+}
+// end deprecated
+//------
 
 void LLAgent::observeFriends()
 {
@@ -4975,18 +5073,6 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 const void LLAgent::getTeleportSourceSLURL(LLSLURL& slurl) const
 {
 	slurl = *mTeleportSourceSLURL;
-}
-
-void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& directory_visibility )
-{
-	gMessageSystem->newMessageFast(_PREHASH_UpdateUserInfo);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
-	gMessageSystem->nextBlockFast(_PREHASH_UserData);
-	gMessageSystem->addBOOLFast(_PREHASH_IMViaEMail, im_via_email);
-	gMessageSystem->addString("DirectoryVisibility", directory_visibility);
-	gAgent.sendReliableMessage();
 }
 
 void LLAgent::dumpGroupInfo()
