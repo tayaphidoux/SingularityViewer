@@ -1823,7 +1823,7 @@ if (DARWIN)
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_webkit basic_plugin_filepicker)
+  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef basic_plugin_filepicker)
 
   if (PACKAGE)
       add_custom_target(llpackage ALL DEPENDS ${VIEWER_BINARY_NAME})

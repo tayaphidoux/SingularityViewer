@@ -59,7 +59,7 @@ if (LINUX)
   else (PULSEAUDIO_FOUND)
     list(APPEND media_plugin_cef_SOURCE_FILES dummy_volume_catcher.cpp)
   endif (PULSEAUDIO_FOUND)
-  list(APPEND media_plugin_webkit_LINK_LIBRARIES
+  list(APPEND media_plugin_cef_LINK_LIBRARIES
        ${UI_LIBRARIES}     # for glib/GTK
        )
 elseif (DARWIN)
