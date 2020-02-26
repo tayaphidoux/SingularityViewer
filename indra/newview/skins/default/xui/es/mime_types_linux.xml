@@ -200,8 +200,8 @@
 			Película (MP4)
 		</label>
 	</mimetype>
-	<mimetype menu="1" name="video/libvlc">
-		<label name="video/libvlc_label">
+	<mimetype menu="1" name="video/quicktime">
+		<label name="video/quicktime_label">
 			Película (QuickTime)
 		</label>
 	</mimetype>
