@@ -664,11 +664,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>06746b78827e9a0c6b666bd2528d36ad</string>
+              <string>695efb6fc548a56dc4ff34e8d9a37bfb</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1320_73.1.12%252Bgee4b49f%252Bchromium-73.0.3683.75-linux64-192030536.tar.bz2</string>
+              <string>https://bitbucket.org/router_gray/3p-dullahan/downloads/dullahan-1.3.202002250830_79.1.38_gecefb59_chromium-79.0.3945.130-linux64-200580406.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
