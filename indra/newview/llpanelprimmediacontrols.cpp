@@ -566,7 +566,7 @@ void LLPanelPrimMediaControls::updateShape()
 					//				media_impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 					break;
 				case SCROLL_NONE:
-		default:
+				default:
 					break;
 			}
 		}
