@@ -9893,6 +9893,21 @@ class ListObjectCanEdit : public view_listener_t
 	}
 };
 
+class ListObjectDerender final : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
+	{
+		const std::string& unknown = LLTrans::getString("land_type_unknown");
+		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+		{
+			const auto& obj_data = get_obj_data(id); // Needed for object name
+			add_object_to_blacklist(id, obj_data ? obj_data->name : unknown);
+		}
+
+		return true;
+	}
+};
+
 class MediaCtrlCopyURL : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -10295,6 +10310,7 @@ void initialize_menus()
 	addMenu(new ListObjectEnableTouch, "List.Object.EnableTouch");
 	addMenu(new ListObjectEdit, "List.Object.Edit");
 	addMenu(new ListObjectCanEdit, "List.Object.CanEdit");
+	addMenu(new ListObjectDerender, "List.Object.Derender");
 	addMenu(new ListExperienceAllow, "List.Experience.Allow");
 	addMenu(new ListExperienceForget, "List.Experience.Forget");
 	addMenu(new ListExperienceBlock, "List.Experience.Block");
