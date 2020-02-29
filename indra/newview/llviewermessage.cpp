@@ -6993,20 +6993,51 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		}
 	}
 
+	LLSD query_string;
+	query_string["owner"] = owner_id;
+	if (rlv_handler_t::isEnabled() && (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) || gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMETAGS)) && !is_group && RlvUtil::isNearbyAgent(owner_id))
+	{
+		query_string["rlv_shownames"] = true;
+	}
+
+	if (const auto& obj = chatter ? chatter : gObjectList.findObject(owner_id)) // Fallback on the owner, if the chatter isn't present
+	{
+		// Compute the object SLURL.
+		const auto& pos = obj ? obj->getPositionRegion() : LLVector3::zero;
+		S32 x = ll_round((F32)fmod((F64)pos.mV[VX], (F64)REGION_WIDTH_METERS));
+		S32 y = ll_round((F32)fmod((F64)pos.mV[VY], (F64)REGION_WIDTH_METERS));
+		S32 z = ll_round((F32)pos.mV[VZ]);
+		std::ostringstream location;
+		location << obj->getRegion() << '/' << x << '/' << y << '/' << z;
+		if (chatter != obj) location << "?owner_not_object";
+		auto loc = location.str();
+		if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
+		{
+			auto idxPos = loc.find('/');
+			if ((std::string::npos != idxPos) && (RlvUtil::isNearbyRegion(loc.substr(0, idxPos))))
+				loc = RlvStrings::getString(RLV_STRING_HIDDEN_REGION);
+		}
+		query_string["slurl"] = loc;
+	}
+	query_string["name"] = object_name;
+	query_string["groupowned"] = is_group;
+	object_name = LLSLURL("objectim", object_id, LLURI::mapToQueryString(query_string)).getSLURLString();
+
 	LLSD args;
 	args["TITLE"] = object_name;
 	args["MESSAGE"] = message;
 	args["CHANNEL"] = chat_channel;
 	LLNotificationPtr notification;
 	char const* name = (is_group && !is_text_box) ? "GROUPNAME" : "NAME";
-	args[name] = is_group ? last_name : LLCacheName::buildFullName(first_name, last_name);
+	args[name] = has_owner ? is_group ? LLGroupActions::getSLURL(owner_id) : LLAvatarActions::getSLURL(owner_id) :
+		is_group ? last_name : LLCacheName::buildFullName(first_name, last_name);
 	if (is_text_box)
 	{
 		args["DEFAULT"] = default_text;
 		payload["textbox"] = "true";
 		LLNotificationsUtil::add("ScriptTextBoxDialog", args, payload, callback_script_dialog);
 	}
-	else if (!first_name.empty())
+	else if (!is_group)
 	{
 		notification = LLNotifications::instance().add(
 			LLNotification::Params("ScriptDialog").substitutions(args).payload(payload).form_elements(form.asLLSD()));
