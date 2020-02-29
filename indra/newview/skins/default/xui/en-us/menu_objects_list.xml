@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <context_menu label="Objects" name="Objects">
+  <menu filename="menu_objects_list_owners.xml"/>
   <menu_item_call label="Cam To" name="Cam To">
     <on_click function="List.Object.CamTo"/>
     <on_visible function="List.EnableSingleSelected"/>

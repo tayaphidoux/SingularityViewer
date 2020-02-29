@@ -3,6 +3,7 @@
  layout="topleft"
  label="Object"
  name="Url Popup">
+  <menu filename="menu_url_object_owner.xml"/>
     <menu_item_call
      label="Object Profile..."
      layout="topleft"

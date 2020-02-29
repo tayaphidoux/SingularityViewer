@@ -9279,6 +9279,22 @@ class ListBanFromGroup final : public view_listener_t
 
 void copy_from_ids(const uuid_vec_t & ids, std::function<std::string(const LLUUID&)> func);
 
+uuid_vec_t get_active_owner_ids()
+{
+	uuid_vec_t ret;
+	for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+	{
+		const auto& owner_id = get_obj_owner(id);
+		if (owner_id.notNull()) ret.push_back(owner_id);
+	}
+	return ret;
+}
+
+const LLUUID& get_active_owner_id()
+{
+	return get_obj_owner(LFIDBearer::getActiveSelectedID());
+}
+
 class ListCopyNames final : public view_listener_t
 {
 	static std::string getGroupName(const LLUUID& id)
@@ -9310,8 +9326,9 @@ class ListCopyNames final : public view_listener_t
 	{
 		LLWString str;
 		const auto& type = LFIDBearer::getActiveType();
-		copy_from_ids(LFIDBearer::getActiveSelectedIDs(), type == LFIDBearer::GROUP ? getGroupName :
-			type == LFIDBearer::OBJECT ? getObjectName :
+		bool owner = !userdata.asBoolean();
+		copy_from_ids(owner ? get_active_owner_ids() : LFIDBearer::getActiveSelectedIDs(), type == LFIDBearer::GROUP ? getGroupName :
+			type == LFIDBearer::OBJECT ? owner ? getAvatarName : getObjectName :
 			type == LFIDBearer::EXPERIENCE ? getExperienceName :
 			getAvatarName);
 		if (!str.empty()) LLView::getWindow()->copyTextToClipboard(str);
@@ -9322,16 +9339,24 @@ class ListCopySLURL final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		copy_profile_uri(LFIDBearer::getActiveSelectedID(), LFIDBearer::getActiveType());
+		bool owner = !userdata.asBoolean();
+		copy_profile_uri(owner ? get_active_owner_id() : LFIDBearer::getActiveSelectedID(), owner ? LFIDBearer::AVATAR : LFIDBearer::getActiveType());
 		return true;
 	}
 };
+
+const LLUUID& active_owner_or_id(const LLSD& userdata)
+{
+	return !userdata.asBoolean() ? get_active_owner_id() : LFIDBearer::getActiveSelectedID();
+}
+
+#define active_owners_or_ids(userdata) !userdata.asBoolean() ? get_active_owner_ids() : LFIDBearer::getActiveSelectedIDs()
 
 class ListCopyUUIDs final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::copyUUIDs(LFIDBearer::getActiveSelectedIDs());
+		LLAvatarActions::copyUUIDs(active_owners_or_ids(userdata));
 		return true;
 	}
 };
@@ -9340,7 +9365,7 @@ class ListInviteToGroup final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::inviteToGroup(LFIDBearer::getActiveSelectedIDs());
+		LLAvatarActions::inviteToGroup(active_owners_or_ids(userdata));
 		return true;
 	}
 };
@@ -9349,7 +9374,7 @@ class ListOfferTeleport final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::offerTeleport(LFIDBearer::getActiveSelectedIDs());
+		LLAvatarActions::offerTeleport(active_owners_or_ids(userdata));
 		return true;
 	}
 };
@@ -9358,7 +9383,7 @@ class ListPay final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::pay(LFIDBearer::getActiveSelectedID());
+		LLAvatarActions::pay(active_owner_or_id(userdata));
 		return true;
 	}
 };
@@ -9367,7 +9392,7 @@ class ListRemoveFriend final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::removeFriendDialog(LFIDBearer::getActiveSelectedID());
+		LLAvatarActions::removeFriendDialog(active_owner_or_id(userdata));
 		return true;
 	}
 };
@@ -9376,7 +9401,7 @@ class ListRequestFriendship final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::requestFriendshipDialog(LFIDBearer::getActiveSelectedID());
+		LLAvatarActions::requestFriendshipDialog(active_owner_or_id(userdata));
 		return true;
 	}
 };
@@ -9385,7 +9410,7 @@ class ListRequestTeleport final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::teleportRequest(LFIDBearer::getActiveSelectedID());
+		LLAvatarActions::teleportRequest(active_owner_or_id(userdata));
 		return true;
 	}
 };
@@ -9394,7 +9419,7 @@ class ListShare final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::share(LFIDBearer::getActiveSelectedID());
+		LLAvatarActions::share(active_owner_or_id(userdata));
 		return true;
 	}
 };
@@ -9409,8 +9434,9 @@ class ListShowLog final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		for (const LLUUID& id : LFIDBearer::getActiveSelectedIDs())
-			show_log_browser(id, LFIDBearer::getActiveType());
+		const auto& type = userdata.asBoolean() ? LFIDBearer::getActiveType() : LFIDBearer::AVATAR;
+		for (const LLUUID& id : active_owners_or_ids(userdata))
+			show_log_browser(id, type);
 		return true;
 	}
 };
@@ -9423,7 +9449,12 @@ class ListShowProfile final : public view_listener_t
 		{
 		case LFIDBearer::AVATAR: LLAvatarActions::showProfiles(LFIDBearer::getActiveSelectedIDs()); break;
 		case LFIDBearer::GROUP: LLGroupActions::showProfiles(LFIDBearer::getActiveSelectedIDs()); break;
-		case LFIDBearer::OBJECT: for (const auto& id : LFIDBearer::getActiveSelectedIDs()) LLUrlAction::openURL(get_slurl_for(id, LFIDBearer::OBJECT)); break;
+		case LFIDBearer::OBJECT:
+			if (userdata.asBoolean())
+				for (const auto& id : LFIDBearer::getActiveSelectedIDs()) LLUrlAction::openURL(get_slurl_for(id, LFIDBearer::OBJECT));
+			else // Owners
+				LLAvatarActions::showProfiles(get_active_owner_ids());
+		break;
 		case LFIDBearer::EXPERIENCE: for (const auto& id : LFIDBearer::getActiveSelectedIDs()) LLFloaterExperienceProfile::showInstance(id); break;
 		default: break;
 		}
@@ -9435,7 +9466,7 @@ class ListShowWebProfile final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::showProfiles(LFIDBearer::getActiveSelectedIDs(), true);
+		LLAvatarActions::showProfiles(active_owners_or_ids(userdata), true);
 		return true;
 	}
 };
@@ -9444,7 +9475,7 @@ class ListStartAdhocCall final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::startAdhocCall(LFIDBearer::getActiveSelectedIDs());
+		LLAvatarActions::startAdhocCall(active_owners_or_ids(userdata));
 		return true;
 	}
 };
@@ -9453,7 +9484,7 @@ class ListStartCall final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		(LFIDBearer::getActiveType() == LFIDBearer::GROUP ? LLGroupActions::startCall : LLAvatarActions::startCall)(LFIDBearer::getActiveSelectedID());
+		(LFIDBearer::getActiveType() == LFIDBearer::GROUP ? LLGroupActions::startCall : LLAvatarActions::startCall)(active_owner_or_id(userdata));
 		return true;
 	}
 };
@@ -9462,7 +9493,7 @@ class ListStartConference final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::startConference(LFIDBearer::getActiveSelectedIDs());
+		LLAvatarActions::startConference(active_owners_or_ids(userdata));
 		return true;
 	}
 };
@@ -9472,7 +9503,7 @@ class ListStartIM final : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
 		const auto&& im = LFIDBearer::getActiveType() == LFIDBearer::GROUP ? [](const LLUUID& id) { LLGroupActions::startIM(id); } : LLAvatarActions::startIM;
-		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+		for (const auto& id : active_owners_or_ids(userdata))
 			im(id);
 		return true;
 	}
@@ -9485,10 +9516,10 @@ const LLVector3d get_obj_pos(const LLUUID& id)
 		return obj->getPositionGlobal();
 	return LLVector3d::zero;
 }
-static const LLVector3d get_active_pos()
+static const LLVector3d get_active_pos(const LLSD& userdata)
 {
-	const auto& id = LFIDBearer::getActiveSelectedID();
-	if (LFIDBearer::getActiveType() == LFIDBearer::OBJECT)
+	const auto& id = active_owner_or_id(userdata);
+	if (userdata.asBoolean() && LFIDBearer::getActiveType() == LFIDBearer::OBJECT)
 		return get_obj_pos(id);
 	return get_av_pos(id);
 }
@@ -9497,7 +9528,7 @@ class ListTeleportTo final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		const auto& pos = get_active_pos();
+		const auto& pos = get_active_pos(userdata);
 		if (!pos.isExactlyZero())
 			gAgent.teleportViaLocation(pos);
 		return true;
@@ -9508,7 +9539,7 @@ class ListStalk final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		LLAvatarActions::showOnMap(LFIDBearer::getActiveSelectedID());
+		LLAvatarActions::showOnMap(active_owner_or_id(userdata));
 		return true;
 	}
 };
@@ -9518,7 +9549,7 @@ class ListStalkable final : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
 		BOOL is_agent_mappable(const LLUUID& agent_id);
-		const auto& ids = LFIDBearer::getActiveSelectedIDs();
+		const auto& ids = active_owners_or_ids(userdata["data"]);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(ids.size() == 1 && is_agent_mappable(ids[0]));
 		return true;
 	}
@@ -9531,7 +9562,7 @@ class ListAbuseReport final : public view_listener_t
 		if (LFIDBearer::getActiveType() == LFIDBearer::EXPERIENCE)
 			LLFloaterReporter::showFromExperience(LFIDBearer::getActiveSelectedID());
 		else
-			LLFloaterReporter::showFromObject(LFIDBearer::getActiveSelectedID());
+			LLFloaterReporter::showFromObject(active_owner_or_id(userdata));
 		return true;
 	}
 };
@@ -9597,8 +9628,9 @@ class ListIsNearby final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		const auto& id = LFIDBearer::getActiveSelectedID();
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? !!gObjectList.findObject(id) : is_nearby(id));
+		const auto& data = userdata["data"];
+		const auto& id = active_owner_or_id(data);
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(!data.asBoolean() && LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? !!gObjectList.findObject(id) : is_nearby(id));
 		return true;
 	}
 };
@@ -9607,7 +9639,7 @@ class ListFollow final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		gAgent.startFollowPilot(LFIDBearer::getActiveSelectedID(), true, gSavedSettings.getF32("SinguFollowDistance"));
+		gAgent.startFollowPilot(active_owner_or_id(userdata), true, gSavedSettings.getF32("SinguFollowDistance"));
 		return true;
 	}
 };
@@ -9616,7 +9648,7 @@ class ListGoTo final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		const auto& pos = get_active_pos();
+		const auto& pos = get_active_pos(userdata);
 		if (!pos.isExactlyZero())
 			handle_go_to(pos);
 		return true;
@@ -9628,7 +9660,7 @@ class ListTrack final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		track_av(LFIDBearer::getActiveSelectedID());
+		track_av(active_owner_or_id(userdata));
 		return true;
 	}
 };
@@ -9642,7 +9674,7 @@ class ListEject final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		confirm_eject(LFIDBearer::getActiveSelectedIDs());
+		confirm_eject(active_owners_or_ids(userdata));
 		return true;
 	}
 };
@@ -9656,7 +9688,7 @@ class ListFreeze final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		confirm_freeze(LFIDBearer::getActiveSelectedIDs());
+		confirm_freeze(active_owners_or_ids(userdata));
 		return true;
 	}
 };
@@ -9695,7 +9727,7 @@ class ListEstateBan final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		confirm_estate_ban(LFIDBearer::getActiveSelectedIDs());
+		confirm_estate_ban(active_owners_or_ids(userdata));
 		return true;
 	}
 };
@@ -9708,7 +9740,7 @@ class ListEstateEject final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		confirm_estate_kick(LFIDBearer::getActiveSelectedIDs());
+		confirm_estate_kick(active_owners_or_ids(userdata));
 		return true;
 	}
 };
@@ -9717,7 +9749,7 @@ class ListToggleMute final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 	{
-		for (const auto& id : LFIDBearer::getActiveSelectedIDs())
+		for (const auto& id : active_owners_or_ids(userdata))
 			LLAvatarActions::toggleBlock(id);
 		return true;
 	}
