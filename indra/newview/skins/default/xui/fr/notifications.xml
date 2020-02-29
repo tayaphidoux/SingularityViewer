@@ -3360,7 +3360,7 @@ L'objet [OBJECTFROMNAME] appartenant à un utilisateur inconnu vous a donné un(
 	</notification>
 
 	<notification name="OfferFriendship">
-[NAME] vous demande de devenir son ami(e).
+[NAME_SLURL] vous demande de devenir son ami(e).
 
 [MESSAGE]
 
@@ -3376,7 +3376,7 @@ L'objet [OBJECTFROMNAME] appartenant à un utilisateur inconnu vous a donné un(
 	</notification>
 
 	<notification name="OfferFriendshipNoMessage">
-[NAME] vous demande de devenir son ami.
+[NAME_SLURL] vous demande de devenir son ami.
 
 (Par défaut, vous pourrez voir quand vous êtes les deux connecté(e)s).
 		<form name="form">
@@ -3386,11 +3386,11 @@ L'objet [OBJECTFROMNAME] appartenant à un utilisateur inconnu vous a donné un(
 	</notification>
 
 	<notification name="FriendshipAccepted">
-[NAME] a accepté votre amitié.
+[NAME_SLURL] a accepté votre amitié. [MESSAGE]
 	</notification>
 
 	<notification name="FriendshipDeclined">
-[NAME] a refusé votre amitié.
+[NAME_SLURL] a refusé votre amitié. [MESSAGE]
 	</notification>
 
 	<notification name="OfferCallingCard">
