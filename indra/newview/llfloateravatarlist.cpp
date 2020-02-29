@@ -363,45 +363,45 @@ static void cmd_teleport(const LLAvatarListEntry* entry);
 namespace
 {
 	typedef LLMemberListener<LLView> view_listener_t;
-	class RadarTrack : public view_listener_t
+	class RadarTrack final : public view_listener_t
 	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
 			LLFloaterAvatarList::instance().onClickTrack();
 			return true;
 		}
 	};
 
-	class RadarFocus : public view_listener_t
+	class RadarFocus final : public view_listener_t
 	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
 			LLFloaterAvatarList::setFocusAvatar(LFIDBearer::getActiveSelectedID());
 			return true;
 		}
 	};
 
-	class RadarFocusPrev : public view_listener_t
+	class RadarFocusPrev final : public view_listener_t
 	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
 			LLFloaterAvatarList::instance().focusOnPrev(userdata.asInteger());
 			return true;
 		}
 	};
 
-	class RadarFocusNext : public view_listener_t
+	class RadarFocusNext final : public view_listener_t
 	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
 			LLFloaterAvatarList::instance().focusOnNext(userdata.asInteger());
 			return true;
 		}
 	};
 
-	class RadarAnnounceKeys : public view_listener_t
+	class RadarAnnounceKeys final : public view_listener_t
 	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
 			LLFloaterAvatarList::instance().sendKeys();
 			return true;
