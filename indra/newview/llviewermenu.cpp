@@ -2617,7 +2617,7 @@ class LLObjectMute final : public view_listener_t
 		else
 		{
 			LLMuteList::getInstance()->add(mute);
-			LLFloaterMute::showInstance();
+			LLFloaterMute::showInstance()->selectMute(mute.mID);;
 		}
 		
 		return true;
