@@ -514,22 +514,22 @@ bool group_vote_callback(const LLSD& notification, const LLSD& response)
 }
 static LLNotificationFunctorRegistration group_vote_callback_reg("GroupVote", group_vote_callback);
 
-void LLIMProcessing::processNewMessage(LLUUID from_id,
+void LLIMProcessing::processNewMessage(const LLUUID& from_id,
     BOOL from_group,
-    LLUUID to_id,
+    const LLUUID& to_id,
     U8 offline,
     EInstantMessage dialog, // U8
-    LLUUID session_id,
+    const LLUUID& session_id,
     U32 timestamp,
-    std::string name,
-    std::string message,
+    std::string& name,
+    std::string& message,
     U32 parent_estate_id,
-    LLUUID region_id,
+    const LLUUID& region_id,
     LLVector3 position,
     U8 *binary_bucket,
     S32 binary_bucket_size,
     LLHost &sender,
-    LLUUID aux_id)
+    const LLUUID& aux_id)
 {
 	LLChat chat;
 	std::string buffer;
