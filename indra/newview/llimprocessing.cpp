@@ -566,6 +566,10 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
 		// object IMs contain sender object id in session_id (STORM-1209)
 		|| (chat.mSourceType == CHAT_SOURCE_OBJECT && LLMuteList::getInstance()->isMuted(session_id));
 
+	// Singu Note: Try to get Owner whenever possible, here owner is the from id
+	if (chat.mSourceType == CHAT_SOURCE_OBJECT && session_id.notNull())
+		if (auto obj = gObjectList.findObject(session_id)) obj->mOwnerID = from_id;
+
 	bool is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
             LLMuteList::getInstance()->isLinden(name);
 	chat.mMuted = is_muted && !is_linden;

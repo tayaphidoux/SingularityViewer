@@ -299,6 +299,7 @@ void JCFloaterAreaSearch::processObjectPropertiesFamily(LLMessageSystem* msg, vo
 	// We cache unknown objects (to avoid having to request them later)
 	// and requested objects.
 	msg->getUUIDFast(_PREHASH_ObjectData, _PREHASH_OwnerID, data->owner_id);
+	if (auto obj = gObjectList.findObject(object_id)) obj->mOwnerID = data->owner_id; // Singu Note: Try to get Owner whenever possible
 	msg->getUUIDFast(_PREHASH_ObjectData, _PREHASH_GroupID, data->group_id);
 	msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Name, data->name);
 	msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Description, data->desc);

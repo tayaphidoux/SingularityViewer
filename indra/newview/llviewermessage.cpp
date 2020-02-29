@@ -2241,6 +2241,8 @@ void process_chat_from_simulator(LLMessageSystem* msg, void** user_data)
 
 	// Object owner for objects
 	msg->getUUID("ChatData", "OwnerID", owner_id);
+	bool has_owner = owner_id.notNull();
+	if (chatter && has_owner) chatter->mOwnerID = owner_id; // Singu Note: Try to get Owner whenever possible
 
 	msg->getU8Fast(_PREHASH_ChatData, _PREHASH_SourceType, source_temp);
 	chat.mSourceType = (EChatSourceType)source_temp;
@@ -2251,8 +2253,8 @@ void process_chat_from_simulator(LLMessageSystem* msg, void** user_data)
 	// NaCL - Antispam Registry
 	auto antispam = NACLAntiSpamRegistry::getIfExists();
 	if (antispam && chat.mChatType != CHAT_TYPE_START && chat.mChatType != CHAT_TYPE_STOP	//Chat type isn't typing
-	&& (antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_CHAT, from_id, owner_id.isNull() ? LFIDBearer::AVATAR : LFIDBearer::OBJECT)	// Spam from an object or avatar?
-	|| (owner_id.notNull() && (antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_CHAT, owner_id)))))	// Spam from a resident?
+	&& (antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_CHAT, from_id, !has_owner ? LFIDBearer::AVATAR : LFIDBearer::OBJECT)	// Spam from an object or avatar?
+	|| (has_owner && (antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_CHAT, owner_id)))))	// Spam from a resident?
 		return;
 	// NaCl End
 
@@ -6923,15 +6925,21 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	// NaCl End
 	}
 
+	bool has_owner = owner_id.notNull();
+
 	// NaCl - Antispam
-	if (owner_id.isNull() ? is_spam_filtered(IM_COUNT, LLAvatarActions::isFriend(object_id), object_id == gAgentID)
-		: is_spam_filtered(IM_COUNT, LLAvatarActions::isFriend(owner_id), owner_id == gAgentID)) return;
+	if (!has_owner ? is_spam_filtered(IM_COUNT, LLAvatarActions::isFriend(object_id), object_id == gAgentID)
+		: is_spam_filtered(IM_COUNT, LLAvatarActions::isFriend(owner_id), !is_group && owner_id == gAgentID)) return;
 	// NaCl End
 
 	if (LLMuteList::getInstance()->isMuted(object_id) || LLMuteList::getInstance()->isMuted(owner_id))
 	{
 		return;
 	}
+
+	auto chatter = gObjectList.findObject(object_id);
+	// Singu Note: Try to get Owner whenever possible
+	if (chatter && has_owner) chatter->mOwnerID = owner_id;
 
 	std::string message; 
 	std::string last_name;

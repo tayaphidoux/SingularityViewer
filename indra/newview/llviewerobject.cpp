@@ -1258,6 +1258,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_Sound, audio_uuid, block_num );
 				// HACK: Owner id only valid if non-null sound id or particle system
 				mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_OwnerID, owner_id, block_num );
+				if (owner_id.notNull()) mOwnerID = owner_id; // Singu Note: Try to get Owner whenever possible
 				mesgsys->getF32Fast( _PREHASH_ObjectData, _PREHASH_Gain, gain, block_num );
 				mesgsys->getU8Fast(  _PREHASH_ObjectData, _PREHASH_Flags, sound_flags, block_num );
 				mesgsys->getU8Fast(  _PREHASH_ObjectData, _PREHASH_Material, material, block_num );
