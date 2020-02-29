@@ -7002,22 +7002,21 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 
 	if (const auto& obj = chatter ? chatter : gObjectList.findObject(owner_id)) // Fallback on the owner, if the chatter isn't present
 	{
-		// Compute the object SLURL.
-		const auto& pos = obj ? obj->getPositionRegion() : LLVector3::zero;
-		S32 x = ll_round((F32)fmod((F64)pos.mV[VX], (F64)REGION_WIDTH_METERS));
-		S32 y = ll_round((F32)fmod((F64)pos.mV[VY], (F64)REGION_WIDTH_METERS));
-		S32 z = ll_round((F32)pos.mV[VZ]);
-		std::ostringstream location;
-		location << obj->getRegion() << '/' << x << '/' << y << '/' << z;
-		if (chatter != obj) location << "?owner_not_object";
-		auto loc = location.str();
-		if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
+		auto& slurl = query_string["slurl"];
+		const auto& region = obj->getRegion();
+		if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC) && LLWorld::instance().isRegionListed(region))
+			slurl = RlvStrings::getString(RLV_STRING_HIDDEN_REGION);
+		else
 		{
-			auto idxPos = loc.find('/');
-			if ((std::string::npos != idxPos) && (RlvUtil::isNearbyRegion(loc.substr(0, idxPos))))
-				loc = RlvStrings::getString(RLV_STRING_HIDDEN_REGION);
+			const auto& pos = obj->getPositionRegion();
+			S32 x = ll_round((F32)fmod((F64)pos.mV[VX], (F64)REGION_WIDTH_METERS));
+			S32 y = ll_round((F32)fmod((F64)pos.mV[VY], (F64)REGION_WIDTH_METERS));
+			S32 z = ll_round((F32)pos.mV[VZ]);
+			std::ostringstream location;
+			location << region->getName() << '/' << x << '/' << y << '/' << z;
+			if (chatter != obj) location << "?owner_not_object";
+			slurl = location.str();
 		}
-		query_string["slurl"] = loc;
 	}
 	query_string["name"] = object_name;
 	query_string["groupowned"] = is_group;
