@@ -537,7 +537,7 @@ public:
 					OctreeStats::getInstance()->realloc(old_cap,mData.capacity());
 #endif
 				
-				notifyAddition(data);
+				LLOctreeNode<T>::notifyAddition(data);
 				return true;
 			}
 			else
@@ -593,7 +593,7 @@ public:
 						OctreeStats::getInstance()->realloc(old_cap,mData.capacity());
 #endif
 					
-					notifyAddition(data);
+					LLOctreeNode<T>::notifyAddition(data);
 					return true;
 				}
 
