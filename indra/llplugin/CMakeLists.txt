@@ -19,7 +19,7 @@ include_directories(
 set(llplugin_SOURCE_FILES
     llpluginclassbasic.cpp
     llpluginclassmedia.cpp
-    llplugincookiestore.cpp
+    #llplugincookiestore.cpp
     llplugininstance.cpp
     llpluginmessage.cpp
     llpluginmessagepipe.cpp
@@ -34,7 +34,7 @@ set(llplugin_HEADER_FILES
     llpluginclassbasic.h
     llpluginclassmedia.h
     llpluginclassmediaowner.h
-    llplugincookiestore.h
+    #llplugincookiestore.h
     llplugininstance.h
     llpluginmessage.h
     llpluginmessageclasses.h
