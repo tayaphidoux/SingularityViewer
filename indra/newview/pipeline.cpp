@@ -2667,6 +2667,9 @@ void LLPipeline::clearRebuildGroups()
 		 iter != mGroupQ2.end(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
+		if (group == nullptr) {
+			LL_WARNS() << "Null spatial group in Pipeline::mGroupQ2." << LL_ENDL;
+		}
 
 		// If the group contains HUD objects, save the group
 		if (group->isHUDGroup())

@@ -2241,6 +2241,8 @@ void process_chat_from_simulator(LLMessageSystem* msg, void** user_data)
 
 	// Object owner for objects
 	msg->getUUID("ChatData", "OwnerID", owner_id);
+	bool has_owner = owner_id.notNull();
+	if (chatter && has_owner) chatter->mOwnerID = owner_id; // Singu Note: Try to get Owner whenever possible
 
 	msg->getU8Fast(_PREHASH_ChatData, _PREHASH_SourceType, source_temp);
 	chat.mSourceType = (EChatSourceType)source_temp;
@@ -2251,8 +2253,8 @@ void process_chat_from_simulator(LLMessageSystem* msg, void** user_data)
 	// NaCL - Antispam Registry
 	auto antispam = NACLAntiSpamRegistry::getIfExists();
 	if (antispam && chat.mChatType != CHAT_TYPE_START && chat.mChatType != CHAT_TYPE_STOP	//Chat type isn't typing
-	&& (antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_CHAT, from_id, owner_id.isNull() ? LFIDBearer::AVATAR : LFIDBearer::OBJECT)	// Spam from an object or avatar?
-	|| (owner_id.notNull() && (antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_CHAT, owner_id)))))	// Spam from a resident?
+	&& (antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_CHAT, from_id, !has_owner ? LFIDBearer::AVATAR : LFIDBearer::OBJECT)	// Spam from an object or avatar?
+	|| (has_owner && (antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_CHAT, owner_id)))))	// Spam from a resident?
 		return;
 	// NaCl End
 
@@ -6923,15 +6925,21 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	// NaCl End
 	}
 
+	bool has_owner = owner_id.notNull();
+
 	// NaCl - Antispam
-	if (owner_id.isNull() ? is_spam_filtered(IM_COUNT, LLAvatarActions::isFriend(object_id), object_id == gAgentID)
-		: is_spam_filtered(IM_COUNT, LLAvatarActions::isFriend(owner_id), owner_id == gAgentID)) return;
+	if (!has_owner ? is_spam_filtered(IM_COUNT, LLAvatarActions::isFriend(object_id), object_id == gAgentID)
+		: is_spam_filtered(IM_COUNT, LLAvatarActions::isFriend(owner_id), !is_group && owner_id == gAgentID)) return;
 	// NaCl End
 
 	if (LLMuteList::getInstance()->isMuted(object_id) || LLMuteList::getInstance()->isMuted(owner_id))
 	{
 		return;
 	}
+
+	auto chatter = gObjectList.findObject(object_id);
+	// Singu Note: Try to get Owner whenever possible
+	if (chatter && has_owner) chatter->mOwnerID = owner_id;
 
 	std::string message; 
 	std::string last_name;
@@ -6985,20 +6993,50 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		}
 	}
 
+	LLSD query_string;
+	query_string["owner"] = owner_id;
+	if (rlv_handler_t::isEnabled() && (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) || gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMETAGS)) && !is_group && RlvUtil::isNearbyAgent(owner_id))
+	{
+		query_string["rlv_shownames"] = true;
+	}
+
+	if (const auto& obj = chatter ? chatter : gObjectList.findObject(owner_id)) // Fallback on the owner, if the chatter isn't present
+	{
+		auto& slurl = query_string["slurl"];
+		const auto& region = obj->getRegion();
+		if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC) && LLWorld::instance().isRegionListed(region))
+			slurl = RlvStrings::getString(RLV_STRING_HIDDEN_REGION);
+		else
+		{
+			const auto& pos = obj->getPositionRegion();
+			S32 x = ll_round((F32)fmod((F64)pos.mV[VX], (F64)REGION_WIDTH_METERS));
+			S32 y = ll_round((F32)fmod((F64)pos.mV[VY], (F64)REGION_WIDTH_METERS));
+			S32 z = ll_round((F32)pos.mV[VZ]);
+			std::ostringstream location;
+			location << region->getName() << '/' << x << '/' << y << '/' << z;
+			if (chatter != obj) location << "?owner_not_object";
+			slurl = location.str();
+		}
+	}
+	query_string["name"] = object_name;
+	query_string["groupowned"] = is_group;
+	object_name = LLSLURL("objectim", object_id, LLURI::mapToQueryString(query_string)).getSLURLString();
+
 	LLSD args;
 	args["TITLE"] = object_name;
 	args["MESSAGE"] = message;
 	args["CHANNEL"] = chat_channel;
 	LLNotificationPtr notification;
 	char const* name = (is_group && !is_text_box) ? "GROUPNAME" : "NAME";
-	args[name] = is_group ? last_name : LLCacheName::buildFullName(first_name, last_name);
+	args[name] = has_owner ? is_group ? LLGroupActions::getSLURL(owner_id) : LLAvatarActions::getSLURL(owner_id) :
+		is_group ? last_name : LLCacheName::buildFullName(first_name, last_name);
 	if (is_text_box)
 	{
 		args["DEFAULT"] = default_text;
 		payload["textbox"] = "true";
 		LLNotificationsUtil::add("ScriptTextBoxDialog", args, payload, callback_script_dialog);
 	}
-	else if (!first_name.empty())
+	else if (!is_group)
 	{
 		notification = LLNotifications::instance().add(
 			LLNotification::Params("ScriptDialog").substitutions(args).payload(payload).form_elements(form.asLLSD()));

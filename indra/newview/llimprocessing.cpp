@@ -514,22 +514,22 @@ bool group_vote_callback(const LLSD& notification, const LLSD& response)
 }
 static LLNotificationFunctorRegistration group_vote_callback_reg("GroupVote", group_vote_callback);
 
-void LLIMProcessing::processNewMessage(LLUUID from_id,
+void LLIMProcessing::processNewMessage(const LLUUID& from_id,
     BOOL from_group,
-    LLUUID to_id,
+    const LLUUID& to_id,
     U8 offline,
     EInstantMessage dialog, // U8
-    LLUUID session_id,
+    const LLUUID& session_id,
     U32 timestamp,
-    std::string name,
-    std::string message,
+    std::string& name,
+    std::string& message,
     U32 parent_estate_id,
-    LLUUID region_id,
+    const LLUUID& region_id,
     LLVector3 position,
     U8 *binary_bucket,
     S32 binary_bucket_size,
     LLHost &sender,
-    LLUUID aux_id)
+    const LLUUID& aux_id)
 {
 	LLChat chat;
 	std::string buffer;
@@ -565,6 +565,10 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
 	bool is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat)
 		// object IMs contain sender object id in session_id (STORM-1209)
 		|| (chat.mSourceType == CHAT_SOURCE_OBJECT && LLMuteList::getInstance()->isMuted(session_id));
+
+	// Singu Note: Try to get Owner whenever possible, here owner is the from id
+	if (chat.mSourceType == CHAT_SOURCE_OBJECT && session_id.notNull())
+		if (auto obj = gObjectList.findObject(session_id)) obj->mOwnerID = from_id;
 
 	bool is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
             LLMuteList::getInstance()->isLinden(name);
@@ -1967,6 +1971,8 @@ void LLIMProcessing::requestOfflineMessagesCoro(const LLCoroResponder& responder
             from_group = message_data["from_group"].asString() == "Y";
         }
 
+        auto agentName = message_data["from_agent_name"].asString();
+        auto message = message_data["message"].asString();
         LLIMProcessing::processNewMessage(message_data["from_agent_id"].asUUID(),
             from_group,
             message_data["to_agent_id"].asUUID(),
@@ -1974,8 +1980,8 @@ void LLIMProcessing::requestOfflineMessagesCoro(const LLCoroResponder& responder
             (EInstantMessage)message_data["dialog"].asInteger(),
             LLUUID::null, // session id, since there is none we can only use frienship/group invite caps
             message_data["timestamp"].asInteger(),
-            message_data["from_agent_name"].asString(),
-            message_data["message"].asString(),
+            agentName,
+            message,
             parent_estate_id,
             message_data["region_id"].asUUID(),
             position,

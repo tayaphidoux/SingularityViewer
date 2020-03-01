@@ -673,7 +673,7 @@ LLSurfacePatch * LLWorld::resolveLandPatchGlobal(const LLVector3d &pos_global)
 		return NULL;
 	}
 
-	return regionp->getLand().resolvePatchGlobal(pos_global);
+	return regionp->getLand().resolvePatchGlobal(pos_global).get();
 }
 
 
