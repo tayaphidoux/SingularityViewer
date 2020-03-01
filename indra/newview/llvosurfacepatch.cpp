@@ -267,18 +267,19 @@ BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
 
 	length = patch_width / render_stride;
 
-	if (mPatchp->getNeighborPatch(NORTH))
+	LLSurfacePatch* neighborPatch;
+	if (neighborPatch = mPatchp->getNeighborPatch(NORTH))
 	{
-		north_stride = mPatchp->getNeighborPatch(NORTH)->getRenderStride();
+		north_stride = neighborPatch->getRenderStride();
 	}
 	else
 	{
 		north_stride = render_stride;
 	}
 
-	if (mPatchp->getNeighborPatch(EAST))
+	if (neighborPatch = mPatchp->getNeighborPatch(EAST))
 	{
-		east_stride = mPatchp->getNeighborPatch(EAST)->getRenderStride();
+		east_stride = neighborPatch->getRenderStride();
 	}
 	else
 	{
