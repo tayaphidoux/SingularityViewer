@@ -1149,6 +1149,7 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 		//must be an active volume
 		if (!mSpatialBridge)
 		{
+			// Spatial bridge ctors self-register...
 			if (mVObjp->isHUDAttachment())
 			{
 				setSpatialBridge(new LLHUDBridge(this, getRegion()));
@@ -1615,9 +1616,9 @@ void LLSpatialBridge::cleanupReferences()
 			}
 		}*/
 
-		LLDrawable* drawablep = mDrawable;
-		mDrawable = NULL;
-		drawablep->setSpatialBridge(NULL);
+		LLPointer<LLDrawable> drawablep = mDrawable;
+		mDrawable = nullptr;
+		drawablep->setSpatialBridge(nullptr);
 	}
 }
 
