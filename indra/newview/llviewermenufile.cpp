@@ -575,6 +575,7 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
+		raw->enableOverSize();
 
 		S32 width = gViewerWindow->getWindowDisplayWidth();
 		S32 height = gViewerWindow->getWindowDisplayHeight();
