@@ -23,7 +23,7 @@
 	<check_box bottom_delta="0" follows="top" height="16" initial_value="false" label="Hide All Group Titles" left="101" name="show_all_title_checkbox"/>
 	<check_box bottom_delta="-18" follows="top" height="16" initial_value="false" label="Hide My Group Title" left="101" name="show_my_title_checkbox"/>
 	<text bottom="-180" height="12" left="10" name="UI Size:">UI Size:</text>
-	<slider bottom="-180" can_edit_text="true" height="16" increment="0.025" initial_val="1" left="98" max_val="2.4" min_val="0.75" name="ui_scale_slider" value="1" width="227" />
+	<slider bottom="-180" can_edit_text="true" height="16" increment="0.025" initial_val="1" left="98" max_val="2.4" min_val="0.5" name="ui_scale_slider" value="1" width="227" />
 	<check_box bottom="-195" height="16" initial_value="false" label="Use resolution independent scale" left="101" name="ui_auto_scale"/>
 	<check_box bottom="-219" height="16" left="10" label="Go away when idle" name="away_when_idle_checkbox"/>
 	<spinner bottom="-220" decimal_digits="0" height="16" increment="1" initial_val="300" label="Away Timeout:" label_width="91" left="136" max_val="600" min_val="0" name="afk_timeout_spinner" width="137"/>
