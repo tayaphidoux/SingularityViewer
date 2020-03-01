@@ -1,10 +1,8 @@
 # -*- cmake -*-
-include(Prebuilt)
 include(FreeType)
 
 if (LINUX)
   include(FindPkgConfig)
-  include(FindX11)
 
     set(PKGCONFIG_PACKAGES
         atk
@@ -21,6 +19,7 @@ if (LINUX)
         pangox
         pangoxft
         sdl
+        x11
         )
 
   foreach(pkg ${PKGCONFIG_PACKAGES})
