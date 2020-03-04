@@ -146,7 +146,7 @@ struct CommWrapper
 	static void toggleInstance(const LLSD& key) { only_comm() ? LLFloaterChatterBox::toggleInstance(key) : LLFloaterMyFriends::toggleInstance(key); }
 };
 
-struct MenuFloaterDict : public LLSingleton<MenuFloaterDict>
+struct MenuFloaterDict final : public LLSingleton<MenuFloaterDict>
 {
 	typedef std::map<const std::string, std::pair<std::function<void ()>, std::function<bool ()> > > menu_floater_map_t;
 	menu_floater_map_t mEntries;
