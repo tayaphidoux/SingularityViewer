@@ -376,7 +376,8 @@ namespace
 	{
 		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
-			LLFloaterAvatarList::setFocusAvatar(LFIDBearer::getActiveSelectedID());
+			const LLUUID& active_owner_or_id(const LLSD& userdata);
+			LLFloaterAvatarList::setFocusAvatar(active_owner_or_id(userdata));
 			return true;
 		}
 	};
