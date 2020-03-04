@@ -78,6 +78,7 @@
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
+#include "lllslconstants.h"
 #include "llmarketplacefunctions.h"
 #include "llmutelist.h"
 #include "llnotify.h"
@@ -6855,23 +6856,43 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 //---------------------------------------------------------------------------
 
 const S32 SCRIPT_DIALOG_MAX_BUTTONS = 12;
-const S32 SCRIPT_DIALOG_BUTTON_STR_SIZE = 24;
-const S32 SCRIPT_DIALOG_MAX_MESSAGE_SIZE = 512;
 const char* SCRIPT_DIALOG_HEADER = "Script Dialog:\n";
 
 bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 {
 	LLNotificationForm form(notification["form"]);
 
-	std::string button = LLNotification::getSelectedOptionName(response);
+	std::string rtn_text;
 	S32 button_idx = LLNotification::getSelectedOption(notification, response);
-	// Didn't click "Ignore" or "Block"
-	if (button_idx > -1)
+
+	if (notification["payload"].has("textbox"))
 	{
-		if (notification["payload"].has("textbox"))
+		rtn_text = response["message"].asString();
+	}
+	else
+	{
+		rtn_text = LLNotification::getSelectedOptionName(response);
+	}
+
+	// Button -2 = Mute
+	// Button -1 = Ignore - no processing needed for this button
+	// Buttons 0 and above = dialog choices
+
+	if (-2 == button_idx)
+	{
+		std::string object_name = notification["payload"]["object_name"].asString();
+		LLUUID object_id = notification["payload"]["object_id"].asUUID();
+		LLMute mute(object_id, object_name, LLMute::OBJECT);
+		if (LLMuteList::getInstance()->add(mute))
 		{
-			button = response["message"].asString();
+			// This call opens the sidebar, displays the block list, and highlights the newly blocked
+			// object in the list so the user can see that their block click has taken effect.
+			LLFloaterMute::showInstance()->selectMute(object_id);
 		}
+	}
+
+	if (0 <= button_idx)
+	{
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessage("ScriptDialogReply");
 		msg->nextBlock("AgentData");
@@ -6881,12 +6902,8 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 		msg->addUUID("ObjectID", notification["payload"]["object_id"].asUUID());
 		msg->addS32("ChatChannel", notification["payload"]["chat_channel"].asInteger());
 		msg->addS32("ButtonIndex", button_idx);
-		msg->addString("ButtonLabel", button);
+		msg->addString("ButtonLabel", rtn_text);
 		msg->sendReliable(LLHost(notification["payload"]["sender"].asString()));
-	}
-	else if (button_idx == -2) // Block
-	{
-		LLMuteList::getInstance()->add(LLMute(notification["payload"]["object_id"].asUUID(), notification["substitutions"]["TITLE"].asString(), LLMute::OBJECT));
 	}
 
 	return false;
@@ -6913,7 +6930,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	msg->getString("Data", "FirstName", first_name);
 	bool const is_group = first_name.empty();
 
-//	For compability with OS grids first check for presence of extended packet before fetching data.
+	//	For compability with OS grids first check for presence of extended packet before fetching data.
     LLUUID owner_id;
 	if (gMessageSystem->getNumberOfBlocks("OwnerData") > 0)
 	{
@@ -6957,6 +6974,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 
 	payload["sender"] = msg->getSender().getIPandPort();
 	payload["object_id"] = object_id;
+	payload["object_name"] = object_name;
 	payload["chat_channel"] = chat_channel;
 
 	// build up custom form
@@ -6967,30 +6985,15 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		button_count = SCRIPT_DIALOG_MAX_BUTTONS;
 	}
 
-	LLNotificationForm form;
-	std::string firstbutton;
-	msg->getString("Buttons", "ButtonLabel", firstbutton, 0);
-	form.addElement("button", std::string(firstbutton));
 	bool is_text_box = false;
-	std::string default_text;
-	if (firstbutton == "!!llTextBox!!")
+	LLNotificationForm form;
+	for (i = 0; i < button_count; i++)
 	{
-		is_text_box = true;
-		for (i = 1; i < button_count; i++)
-		{
-			std::string tdesc;
-			msg->getString("Buttons", "ButtonLabel", tdesc, i);
-			default_text += tdesc;
-		}
-	}
-	else
-	{
-		for (i = 1; i < button_count; i++)
-		{
-			std::string tdesc;
-			msg->getString("Buttons", "ButtonLabel", tdesc, i);
-			form.addElement("button", std::string(tdesc));
-		}
+		std::string tdesc;
+		msg->getString("Buttons", "ButtonLabel", tdesc, i);
+		if (is_text_box = tdesc == TEXTBOX_MAGIC_TOKEN)
+			break;
+		form.addElement("button", std::string(tdesc));
 	}
 
 	LLSD query_string;
@@ -7032,8 +7035,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		is_group ? last_name : LLCacheName::buildFullName(first_name, last_name);
 	if (is_text_box)
 	{
-		args["DEFAULT"] = default_text;
-		payload["textbox"] = "true";
+		payload["textbox"] = true;
 		LLNotificationsUtil::add("ScriptTextBoxDialog", args, payload, callback_script_dialog);
 	}
 	else if (!is_group)
@@ -7067,12 +7069,12 @@ bool callback_load_url(const LLSD& notification, const LLSD& response)
 
 static LLNotificationFunctorRegistration callback_load_url_reg("LoadWebPage", callback_load_url);
 
-// We've got the name of the person who owns the object hurling the url.
+// We've got the name of the person or group that owns the object hurling the url.
 // Display confirmation dialog.
 void callback_load_url_name(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	std::vector<LLSD>::iterator it;
-	for (it = gLoadUrlList.begin(); it != gLoadUrlList.end(); )
+	for (it = gLoadUrlList.begin(); it != gLoadUrlList.end();)
 	{
 		LLSD load_url_info = *it;
 		if (load_url_info["owner_id"].asUUID() == id)
