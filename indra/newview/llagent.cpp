@@ -1782,7 +1782,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 			if (auto object = gObjectList.findObject(mLeaderID))
 			{
 				mAutoPilotTargetGlobal = object->getPositionGlobal();
-				if (const auto& av = object->asAvatar()) // Fly if avatar target is flying
+				if (const auto& av = object->asAvatar()) // Fly/sit if avatar target is flying
 				{
 					const auto& our_pos_global = getPositionGlobal();
 					setFlying(av->mInAir);
