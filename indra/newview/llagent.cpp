@@ -1785,7 +1785,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 				if (const auto& av = object->asAvatar()) // Fly/sit if avatar target is flying
 				{
 					const auto& our_pos_global = getPositionGlobal();
-					setFlying(av->mInAir);
+					setFlying(av->mInAir && (getFlying() || mAutoPilotTargetGlobal[VZ] > our_pos_global[VZ])); // If they're in air, fly if they're higher or we were already (follow) flying
 					if (av->isSitting() && (!rlv_handler_t::isEnabled() || !gRlvHandler.hasBehaviour(RLV_BHVR_SIT)))
 					{
 						if (auto seat = av->getParent())
