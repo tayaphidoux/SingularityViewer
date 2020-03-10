@@ -399,6 +399,7 @@ LLButton* LLNotifyBox::addButton(const std::string& name, const std::string& lab
 
 	LLButton* btn = new LLButton(name, btn_rect, "", boost::bind(&LLNotifyBox::onClickButton, this, is_option ? name : ""));
 	btn->setLabel(label);
+	btn->setToolTip(label);
 	btn->setFont(font);
 
 	if (mIsCaution)
