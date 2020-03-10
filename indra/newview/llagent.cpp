@@ -1784,6 +1784,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 				mAutoPilotTargetGlobal = object->getPositionGlobal();
 				if (const auto& av = object->asAvatar()) // Fly if avatar target is flying
 				{
+					const auto& our_pos_global = getPositionGlobal();
 					setFlying(av->mInAir);
 					if (av->isSitting() && (!rlv_handler_t::isEnabled() || !gRlvHandler.hasBehaviour(RLV_BHVR_SIT)))
 					{
@@ -1804,7 +1805,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 						}
 						else // Ground sit, but only if near enough
 						{
-							if (dist_vec(av->getPositionAgent(), getPositionAgent()) <= mAutoPilotStopDistance) // We're close enough, sit.
+							if (dist_vec(mAutoPilotTargetGlobal, our_pos_global) <= mAutoPilotStopDistance) // We're close enough, sit.
 							{
 								if (!gAgentAvatarp->isSittingAvatarOnGround())
 									setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
@@ -1822,7 +1823,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 					}
 					else
 					{
-						if (dist_vec(av->getPositionAgent(), getPositionAgent()) <= mAutoPilotStopDistance)
+						if (dist_vec(mAutoPilotTargetGlobal, our_pos_global) <= mAutoPilotStopDistance)
 						{
 							follow = 3; // We're close enough, indicate no walking
 						}
