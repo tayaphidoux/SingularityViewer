@@ -4266,7 +4266,8 @@ void LLVOAvatar::idleUpdateBelowWater()
 	BOOL old_below = mBelowWater;
 	mBelowWater =  avatar_height < water_height;
 	if (old_below != mBelowWater)
-		LLFloaterAO::toggleSwim(mBelowWater);
+		if (auto ao = AOSystem::getIfExists())
+			ao->toggleSwim(mBelowWater);
 }
 
 void LLVOAvatar::slamPosition()
@@ -6301,7 +6302,7 @@ void LLVOAvatar::processAnimationStateChanges()
 	}
 	
 	// clear all current animations
-	const bool AOEnabled(gSavedSettings.getBOOL("AOEnabled")); // <singu/>
+	auto ao = isSelf() ? AOSystem::getIfExists() : nullptr; // AO is only for ME
 	AnimIterator anim_it;
 	for (anim_it = mPlayingAnimations.begin(); anim_it != mPlayingAnimations.end();)
 	{
@@ -6310,8 +6311,7 @@ void LLVOAvatar::processAnimationStateChanges()
 		// playing, but not signaled, so stop
 		if (found_anim == mSignaledAnimations.end())
 		{
-			if (AOEnabled && isSelf())
-				LLFloaterAO::stopMotion(anim_it->first, FALSE); // if the AO replaced this anim serverside then stop it serverside
+			if (ao) ao->stopMotion(anim_it->first); // if the AO replaced this anim serverside then stop it serverside
 
 			processSingleAnimationStateChange(anim_it->first, FALSE);
 			// <edit>
@@ -6337,10 +6337,7 @@ void LLVOAvatar::processAnimationStateChanges()
 			// </edit>
 			if (processSingleAnimationStateChange(anim_it->first, TRUE))
 			{
-				if (AOEnabled && isSelf()) // AO is only for ME
-				{
-					LLFloaterAO::startMotion(anim_it->first, false); // AO overrides the anim if needed
-				}
+				if (ao) ao->startMotion(anim_it->first); // AO overrides the anim if needed
 
 				mPlayingAnimations[anim_it->first] = anim_it->second;
 				++anim_it;
@@ -8040,8 +8037,6 @@ void LLVOAvatar::sitDown(BOOL bSitting)
 	mIsSitting = bSitting;
 	if (isSelf())
 	{
-		LLFloaterAO::ChangeStand();	
-
 // [RLVa:KB] - Checked: 2010-08-29 (RLVa-1.2.1c) | Modified: RLVa-1.2.1c
 		if (rlv_handler_t::isEnabled())
 		{

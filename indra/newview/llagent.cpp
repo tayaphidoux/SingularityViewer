@@ -2116,7 +2116,7 @@ void LLAgent::startTyping()
 		}
 	}
 
-	LLFloaterAO::typing(true); // Singu Note: Typing anims handled by AO/settings.
+	AOSystem::typing(true); // Singu Note: Typing anims handled by AO/settings.
 	gChatBar->
 			sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
@@ -2129,7 +2129,7 @@ void LLAgent::stopTyping()
 	if (mRenderState & AGENT_STATE_TYPING)
 	{
 		clearRenderState(AGENT_STATE_TYPING);
-		LLFloaterAO::typing(false); // Singu Note: Typing anims handled by AO/settings.
+		AOSystem::typing(false); // Singu Note: Typing anims handled by AO/settings.
 		gChatBar->
 				sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}

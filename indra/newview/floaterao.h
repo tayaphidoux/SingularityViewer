@@ -2,54 +2,51 @@
 #ifndef LL_LLFLOATERAO_H
 #define LL_LLFLOATERAO_H
 
-#include "llfloater.h"
-#include "llviewercontrol.h"
 #include "llagent.h"
+#include "llcontrol.h"
 #include "lleventtimer.h"
+#include "llfloater.h"
 
 
-enum AOState
+enum AOState : U8
 {
-	STATE_AGENT_IDLE = 0,
-	STATE_AGENT_WALK = 1,
-	STATE_AGENT_RUN = 2,
-	STATE_AGENT_STAND = 3,
+	STATE_AGENT_IDLE ,
+	STATE_AGENT_WALK,
+	STATE_AGENT_RUN,
 
-	STATE_AGENT_PRE_JUMP = 4,
-	STATE_AGENT_JUMP = 5,
-	STATE_AGENT_TURNLEFT = 6,
-	STATE_AGENT_TURNRIGHT = 7,
+	STATE_AGENT_PRE_JUMP,
+	STATE_AGENT_JUMP,
+	STATE_AGENT_TURNLEFT,
+	STATE_AGENT_TURNRIGHT,
 
-	STATE_AGENT_SIT = 8,
-	STATE_AGENT_GROUNDSIT = 9,
+	STATE_AGENT_SIT,
+	STATE_AGENT_SIT_GROUND,
 
-	STATE_AGENT_HOVER = 10,
-	STATE_AGENT_HOVER_DOWN = 11,
-	STATE_AGENT_HOVER_UP = 12,
+	STATE_AGENT_HOVER,
+	STATE_AGENT_HOVER_DOWN,
+	STATE_AGENT_HOVER_UP,
 
-	STATE_AGENT_CROUCH = 13,
-	STATE_AGENT_CROUCHWALK = 14,
-	STATE_AGENT_FALLDOWN = 15,
-	STATE_AGENT_STANDUP = 16,
-	STATE_AGENT_LAND = 17,
+	STATE_AGENT_CROUCH,
+	STATE_AGENT_CROUCHWALK,
+	STATE_AGENT_FALLDOWN,
+	STATE_AGENT_STANDUP,
+	STATE_AGENT_LAND,
 
-	STATE_AGENT_FLY = 18,
-	STATE_AGENT_FLYSLOW = 19,
+	STATE_AGENT_FLY,
+	STATE_AGENT_FLYSLOW,
 
-	STATE_AGENT_TYPING = 20,
+	STATE_AGENT_TYPE,
 
-	STATE_AGENT_SWIM_DOWN = 21,
-	STATE_AGENT_SWIM_UP = 22,
-	STATE_AGENT_SWIM = 23,
-	STATE_AGENT_FLOAT = 24,
+	STATE_AGENT_SWIM_DOWN,
+	STATE_AGENT_SWIM_UP,
+	STATE_AGENT_SWIM,
+	STATE_AGENT_FLOAT,
 	STATE_AGENT_END
 };
 
-
-
-
-class AOStandTimer : public LLEventTimer
+class AOStandTimer final : public LLEventTimer
 {
+	friend class AOSystem;
 public:
     AOStandTimer();
     ~AOStandTimer();
@@ -57,78 +54,146 @@ public:
 	void reset();
 };
 
-class AOInvTimer : public LLEventTimer
+class AOInvTimer final : public LLEventTimer, public LLSingleton<AOInvTimer>
 {
-public:
+	friend class LLSingleton<AOInvTimer>;
+	friend class AOSystem;
 	AOInvTimer();
 	~AOInvTimer();
+	static void createIfNeeded();
+public:
+	static bool needed();
 	BOOL tick() override;
 };
 
-class LLFloaterAO : public LLFloater, public LLFloaterSingleton<LLFloaterAO>
+class LLFloaterAO final : public LLFloater, public LLFloaterSingleton<LLFloaterAO>
 {
+	friend class AOSystem;
 public:
 
-    LLFloaterAO(const LLSD&);
+	LLFloaterAO(const LLSD&);
 	BOOL postBuild() override;
 	void onOpen() override;
-    virtual ~LLFloaterAO();
-
-	static void init();
-
-	static void run();
+	virtual ~LLFloaterAO();
 	void updateLayout(bool advanced);
 
-	//static bool loadAnims();
+	void onClickCycleStand(bool next) const;
+	void onClickReloadCard() const;
+	void onClickOpenCard() const;
+	void onClickNewCard() const;
 
-	static void typing(bool start);
-	static AOState flyToSwimState(const AOState& state);
-	static AOState swimToFlyState(const AOState& state);
-	static AOState getAnimationState();
-	static void setAnimationState(const AOState& state);
-
-	static LLUUID getCurrentStandId();
-	static void setCurrentStandId(const LLUUID& id);
-	static int stand_iterator;
-	static void ChangeStand();
-	static void toggleSwim(bool underwater);
-
-	static void doMotion(const LLUUID& id, bool start, bool stand = false);
-	static void startMotion(const LLUUID& id, bool stand = false) { doMotion(id, true, stand); }
-	static void stopMotion(const LLUUID& id, bool stand = false) { doMotion(id, false, stand); }
-
-	static bool swimCheck(const AOState& state);
-	static LLUUID GetAnimID(const LLUUID& id);
-
-	static AOState GetStateFromAnimID(const LLUUID& id);
-	static LLUUID GetAnimIDFromState(const AOState& state);
-	static AOState GetStateFromToken(std::string strtoken);
-
-	static void onClickCycleStand(bool next);
-	static void onClickReloadCard();
-	static void onClickOpenCard();
-	static void onClickNewCard();
-
-	static LLUUID invfolderid;
-	static const LLUUID& getAssetIDByName(const std::string& name);
-	
 private:
-
-	static AOState mAnimationState;
-	static LLUUID mCurrentStandId;
-
-	static void onSpinnerCommit();
-	static void onComboBoxCommit(LLUICtrl* ctrl);
+	void onSpinnerCommit() const;
+	void onComboBoxCommit(LLUICtrl* ctrl) const;
+	std::array<class LLComboBox*, STATE_AGENT_END> mCombos;
 
 protected:
 
-	static AOState getStateFromCombo(const class LLComboBox* combo);
-	static LLComboBox* getComboFromState(const AOState& state);
-
-	static void onNotecardLoadComplete(LLVFS *vfs,const LLUUID& asset_uuid,LLAssetType::EType type,void* user_data, S32 status, LLExtStat ext_status);
-
+	AOState getStateFromCombo(const class LLComboBox* combo) const;
+	LLComboBox* getComboFromState(const U8& state) const { return mCombos[state]; }
 };
 
-extern AOInvTimer* gAOInvTimer;
+class AOSystem final : public LLSingleton<AOSystem>
+{
+	friend class LLSingleton<AOSystem>;
+	friend class AOInvTimer;
+	friend class LLFloaterAO;
+	AOSystem();
+	~AOSystem();
+public:
+	static void start(); // Runs the necessary actions to get the AOSystem ready, then initializes it.
+	void initSingleton() override;
+
+	static void typing(bool start);
+
+	int stand_iterator;
+	bool isStanding() const { return stand().playing; }
+	void updateStand();
+	int cycleStand(bool next = true, bool random = true);
+	void toggleSwim(bool underwater);
+
+	void doMotion(const LLUUID& id, bool start);
+	void startMotion(const LLUUID& id) { doMotion(id, true); }
+	void stopMotion(const LLUUID& id) { doMotion(id, false); }
+	void stopCurrentStand() const { stand().play(false); }
+	void stopAllOverrides() const;
+
+protected:
+	struct struct_stands
+	{
+		LLUUID ao_id;
+		std::string anim_name;
+	};
+	typedef std::vector<struct_stands> stands_vec;
+	stands_vec mAOStands;
+
+	struct overrides
+	{
+		virtual bool overrideAnim(bool swimming, const LLUUID& anim) const = 0;
+		virtual const LLUUID& getOverride() const { return ao_id; }
+		virtual bool play_condition() const; // True if prevented from playing
+		virtual bool isLowPriority() const { return false; }
+		void play(bool start = true);
+		LLUUID ao_id;
+		LLPointer<LLControlVariable> setting;
+		bool playing;
+		virtual ~overrides() {}
+	protected:
+		overrides(const char* setting_name);
+	};
+	struct override_low_priority final : public overrides
+	{
+		override_low_priority(const LLUUID& id, const char* setting_name = nullptr)
+			: overrides(setting_name), orig_id(id) {}
+		bool overrideAnim(bool swimming, const LLUUID & anim) const override { return orig_id == anim; }
+		bool play_condition() const override { return false; }
+		bool isLowPriority() const override { return true; }
+	private:
+		const LLUUID orig_id;
+	};
+	struct override_single final : public overrides
+	{
+		override_single(const LLUUID& id, const char* setting_name = nullptr, U8 swim = 2)
+			: overrides(setting_name), orig_id(id), swim(swim) {}
+		bool overrideAnim(bool swimming, const LLUUID& anim) const override { return (swim == 2 || !!swim == swimming) && orig_id == anim; }
+	private:
+		const LLUUID orig_id;
+		const U8 swim; // 2 = irrelevant, 0 = flying, 1 = swimming
+	};
+	struct override_stand final : public overrides
+	{
+		override_stand() : overrides(nullptr) {}
+		bool overrideAnim(bool swimming, const LLUUID& anim) const override;
+		bool play_condition() const override;
+		bool isLowPriority() const override { return true; }
+		void update(const stands_vec& stands, const int& iter)
+		{
+			if (stands.empty()) ao_id.setNull();
+			else ao_id = stands[iter].ao_id;
+		}
+	};
+	struct override_sit final : public overrides
+	{
+		override_sit(const uuid_set_t& ids, const char* setting_name = nullptr)
+			: overrides(setting_name)
+			, orig_ids(ids)
+		{}
+		bool overrideAnim(bool swimming, const LLUUID& anim) const override { return orig_ids.find(anim) != orig_ids.end(); }
+		bool play_condition() const override;
+	private:
+		const uuid_set_t orig_ids;
+	};
+	std::array<overrides*, STATE_AGENT_END> mAOOverrides;
+
+	override_stand& stand() const { return static_cast<override_stand&>(*mAOOverrides[STATE_AGENT_IDLE]); }
+
+private:
+	std::array<boost::signals2::scoped_connection, 3> mConnections;
+
+	AOStandTimer mAOStandTimer;
+
+	static void requestConfigNotecard(bool reload = true);
+	static void parseNotecard(LLVFS* vfs, const LLUUID& asset_uuid, LLAssetType::EType type, S32 status, bool reload);
+};
 
 #endif

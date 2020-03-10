@@ -2687,10 +2687,7 @@ bool idle_startup()
 		}
 
 		// Start the AO now that settings have loaded and login successful -- MC
-		if (!gAOInvTimer)
-		{
-			gAOInvTimer = new AOInvTimer();
-		}
+		AOSystem::start();
 
 		gViewerWindow->showCursor();
 		gViewerWindow->getWindow()->resetBusyCount();
