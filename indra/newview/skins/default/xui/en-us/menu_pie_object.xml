@@ -74,8 +74,12 @@
 				<menu_item_call enabled="true" hidden="false" label="Data" mouse_opaque="true" name="Data">
 					<on_click function="Object.Data" />
 				</menu_item_call>
-				<menu_item_separator />
-				<menu_item_separator />
+        <menu_item_call label="Go To" name="Go To">
+	  <on_click function="GoToObject" />
+        </menu_item_call>
+        <menu_item_call label="Follow" name="Follow">
+          <on_click function="Object.Follow"/>
+        </menu_item_call>
 				<menu_item_separator />
         <menu_item_call enabled="true" label="Reload" mouse_opaque="true" name="Reload Textures">
           <on_click function="Object.ReloadTextures" />

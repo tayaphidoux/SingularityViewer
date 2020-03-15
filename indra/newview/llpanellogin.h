@@ -114,7 +114,7 @@ private:
 	static void onClickNewAccount();
 	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);
 	static void onClickGrids();
-	static void onSelectGrid(LLUICtrl *ctrl);
+	void onSelectGrid(LLUICtrl *ctrl);
 	static void onClickForgotPassword();
 	static void onPassKey();
 	static void onSelectLoginEntry(const LLSD& selected_entry);

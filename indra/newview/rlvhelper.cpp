@@ -210,6 +210,10 @@ RlvCommandOptionGeneric::RlvCommandOptionGeneric(const std::string& strOption): 
 	m_fValid = true;
 }
 
+// ============================================================================
+// RlvCommandOption structures
+//
+
 // Checked: 2012-07-28 (RLVa-1.4.7)
 class RlvCommandOptionGetPathCallback
 {
@@ -268,6 +272,14 @@ RlvCommandOptionGetPath::RlvCommandOptionGetPath(const RlvCommand& rlvCmd, getpa
 	else if (rlvCmdOption.isAttachmentPoint())	// ... or it can specify an attachment point
 	{
 		getItemIDs(rlvCmdOption.getAttachmentPoint(), m_idItems);
+	}
+	else if (rlvCmdOption.isUUID())				// ... or it can specify a specific attachment
+	{
+		const LLViewerObject* pAttachObj = gObjectList.findObject(rlvCmdOption.getUUID());
+		if ( (pAttachObj) && (pAttachObj->isAttachment()) && (pAttachObj->permYouOwner()) )
+			m_idItems.push_back(pAttachObj->getAttachmentItemID());
+		else
+			m_fValid = false;
 	}
 	else if (rlvCmdOption.isEmpty())			// ... or it can be empty (in which case we act on the object that issued the command)
 	{
@@ -434,9 +446,19 @@ bool RlvObject::hasBehaviour(ERlvBehaviour eBehaviour, bool fStrictOnly) const
 
 bool RlvObject::hasBehaviour(ERlvBehaviour eBehaviour, const std::string& strOption, bool fStrictOnly) const
 {
-	for (rlv_command_list_t::const_iterator itCmd = m_Commands.begin(); itCmd != m_Commands.end(); ++itCmd)
-		if ( (itCmd->getBehaviourType() == eBehaviour) && (itCmd->getOption() == strOption) && ((!fStrictOnly) || (itCmd->isStrict())) )
+	for (const RlvCommand& rlvCmd : m_Commands)
+	{
+		// The specified behaviour is contained within the current object if:
+		//   - the (parsed) behaviour matches
+		//   - the option matches (or we're checking for an empty option and the command was reference counted)
+		//   - we're not matching on strict (or it is a strict command)
+		if ( (rlvCmd.getBehaviourType() == eBehaviour) &&
+			 ( (rlvCmd.getOption() == strOption) /*|| ((strOption.empty()) && (rlvCmd.isRefCounted()))*/ ) &&
+			 ( (!fStrictOnly) ||(rlvCmd.isStrict()) ) )
+		{
 			return true;
+		}
+	}
 	return false;
 }
 

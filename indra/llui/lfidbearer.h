@@ -1,6 +1,7 @@
 /* Copyright (C) 2019 Liru Færs
  *
  * LFIDBearer is a class that holds an ID or IDs that menus can use
+ * This class also bears the type of ID/IDs that it is holding
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,20 +27,47 @@ class LLView;
 
 struct LFIDBearer
 {
+	enum Type : S8
+	{
+		MULTIPLE = -2,
+		NONE = -1,
+		AVATAR = 0,
+		GROUP,
+		OBJECT,
+		EXPERIENCE,
+		COUNT
+	};
+
 	virtual ~LFIDBearer() { if (sActive == this) sActive = nullptr; }
 	virtual LLUUID getStringUUIDSelectedItem() const = 0;
-	virtual uuid_vec_t getSelectedIDs() const = 0;
-	virtual S32 getNumSelected() const = 0;
+	virtual uuid_vec_t getSelectedIDs() const { return { getStringUUIDSelectedItem() }; }
+	virtual Type getSelectedType() const { return AVATAR; }
 
-	template<typename T> static T* getActive() { return static_cast<T*>(sActive); }
-	static LLUUID getActiveSelectedID() { return sActive->getStringUUIDSelectedItem(); }
-	static uuid_vec_t getActiveSelectedIDs() { return sActive->getSelectedIDs(); }
-	static S32 getActiveNumSelected() { return sActive->getNumSelected(); }
+	template<typename T> static const T* getActive() { return static_cast<const T*>(sActive); }
+	static const LLUUID& getActiveSelectedID() { return sActiveIDs.empty() ? LLUUID::null : sActiveIDs[0]; }
+	static const uuid_vec_t& getActiveSelectedIDs() { return sActiveIDs; }
+	static size_t getActiveNumSelected() { return sActiveIDs.size(); }
+	static const Type& getActiveType() { return sActiveType; }
 
+	void setActive() const
+	{
+		sActive = this;
+		sActiveType = getSelectedType();
+		sActiveIDs = getSelectedIDs();
+		//sActiveIDs or even some kinda hybrid map, if Type is MULTIPLE fill the vals? and remove a buncha virtual functions?
+	}
+
+	static void buildMenus();
+	LLMenuGL* showMenu(LLView* self, const std::string& menu_name, S32 x, S32 y, std::function<void(LLMenuGL*)> on_menu_built = nullptr);
 	void showMenu(LLView* self, LLMenuGL* menu, S32 x, S32 y);
-	static void addCommonMenu(LLMenuGL* menu) { sMenus.push_back(menu); }
 
 protected:
-	static std::vector<LLMenuGL*> sMenus; // Menus that recur, such as general avatars or groups menus
-	static LFIDBearer* sActive;
+	// Menus that recur, such as general avatars or groups menus
+	static const std::array<const std::string, COUNT> sMenuStrings;
+	static std::array<LLMenuGL*, COUNT> sMenus;
+
+private:
+	static const LFIDBearer* sActive;
+	static Type sActiveType;
+	static uuid_vec_t sActiveIDs;
 };

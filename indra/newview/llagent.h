@@ -33,8 +33,6 @@
 #ifndef LL_LLAGENT_H
 #define LL_LLAGENT_H
 
-#include <set>
-
 #include "indra_constants.h"
 #include "llevent.h" 				// LLObservable base class
 #include "llagentconstants.h"
@@ -46,7 +44,6 @@
 #include "llinventorymodel.h"
 #include "v3dmath.h"
 
-#include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2.hpp>
 
@@ -70,6 +67,7 @@ class LLAgentAccess;
 class LLSLURL;
 class LLSimInfo;
 class LLTeleportRequest;
+struct LLCoroResponder;
 
 typedef boost::shared_ptr<LLTeleportRequest> LLTeleportRequestPtr;
 
@@ -100,7 +98,7 @@ struct LLGroupData
 //------------------------------------------------------------------------
 // LLAgent
 //------------------------------------------------------------------------
-class LLAgent : public LLOldEvents::LLObservable
+class LLAgent final : public LLOldEvents::LLObservable
 {
 	LOG_CLASS(LLAgent);
 
@@ -248,7 +246,7 @@ public:
 	void changeParcels(); // called by LLViewerParcelMgr when we cross a parcel boundary
 
 	// Register a boost callback to be called when the agent changes parcels
-	typedef boost::function<void()> parcel_changed_callback_t;
+	typedef std::function<void()> parcel_changed_callback_t;
 	boost::signals2::connection     addParcelChangedCallback(parcel_changed_callback_t);
 
 private:
@@ -593,13 +591,14 @@ public:
 public:
 	BOOL			getAutoPilot() const				{ return mAutoPilot; }
 	LLVector3d		getAutoPilotTargetGlobal() const 	{ return mAutoPilotTargetGlobal; }
-	LLUUID			getAutoPilotLeaderID() const		{ return mLeaderID; }
+	const LLUUID&	getAutoPilotLeaderID() const		{ return mLeaderID; }
 	F32				getAutoPilotStopDistance() const	{ return mAutoPilotStopDistance; }
 	F32				getAutoPilotTargetDist() const		{ return mAutoPilotTargetDist; }
 	BOOL			getAutoPilotUseRotation() const		{ return mAutoPilotUseRotation; }
 	LLVector3		getAutoPilotTargetFacing() const	{ return mAutoPilotTargetFacing; }
 	F32				getAutoPilotRotationThreshold() const	{ return mAutoPilotRotationThreshold; }
-	std::string		getAutoPilotBehaviorName() const	{ return mAutoPilotBehaviorName; }
+	const std::string&	getAutoPilotBehaviorName() const	{ return mAutoPilotBehaviorName; }
+	bool			getAutoPilotNoProgress() const;
 
 	void			startAutoPilotGlobal(const LLVector3d &pos_global, 
 										 const std::string& behavior_name = std::string(), 
@@ -739,6 +738,13 @@ private:
  **                                                                            **
  *******************************************************************************/
 
+	// Attachments getting lost on TP
+public:
+	void setIsCrossingRegion(bool is_crossing) { mIsCrossingRegion = is_crossing; }
+	bool isCrossingRegion() const { return mIsCrossingRegion; }
+private:
+	bool mIsCrossingRegion;
+
 	// Build
 public:
 	bool			canEditParcel() const { return mCanEditParcel; }
@@ -778,7 +784,7 @@ public:
 	void			requestEnterGodMode();
 	void			requestLeaveGodMode();
 
-	typedef boost::function<void (U8)>         god_level_change_callback_t;
+	typedef std::function<void (U8)>         god_level_change_callback_t;
 	typedef boost::signals2::signal<void (U8)> god_level_change_signal_t;
 	typedef boost::signals2::connection        god_level_change_slot_t;
 
@@ -800,7 +806,7 @@ public:
 	bool 			canAccessMature() const;
 	bool 			canAccessAdult() const;
 	bool 			canAccessMaturityInRegion( U64 region_handle ) const;
-	bool 			canAccessMaturityAtGlobal( LLVector3d pos_global ) const;
+	bool 			canAccessMaturityAtGlobal( const LLVector3d& pos_global ) const;
 	bool 			prefersPG() const;
 	bool 			prefersMature() const;
 	bool 			prefersAdult() const;
@@ -957,8 +963,16 @@ public:
 	void			sendAgentSetAppearance();
 	void 			sendAgentDataUpdateRequest();
 	void 			sendAgentUserInfoRequest();
-	// IM to Email and Online visibility
+
+// IM to Email and Online visibility
 	void			sendAgentUpdateUserInfo(bool im_to_email, const std::string& directory_visibility);
+
+private:
+    void            requestAgentUserInfoCoro(const LLCoroResponder& responder);
+    void            updateAgentUserInfoCoro(const LLCoroResponder& responder);
+    // DEPRECATED: may be removed when User Info cap propagates 
+    void 			sendAgentUserInfoRequestMessage();
+    void            sendAgentUpdateUserInfoMessage(bool im_via_email, const std::string& directory_visibility);
 
 	//--------------------------------------------------------------------
 	// Receive

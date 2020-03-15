@@ -1972,6 +1972,9 @@ void LLViewerRegion::unpackRegionHandshake()
 
 void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
+	capabilityNames.append("AbuseCategories");
+	capabilityNames.append("AcceptFriendship");
+	capabilityNames.append("AcceptGroupInvite"); // ReadOfflineMsgs recieved messages only!!!
 	capabilityNames.append("AgentPreferences");
 	capabilityNames.append("AgentState");
 	capabilityNames.append("AttachmentResources");
@@ -1982,6 +1985,8 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("CreateInventoryCategory");
 	capabilityNames.append("CustomMenuAction");
+	capabilityNames.append("DeclineFriendship");
+	capabilityNames.append("DeclineGroupInvite"); // ReadOfflineMsgs recieved messages only!!!
 	capabilityNames.append("DispatchRegionInfo");
 	capabilityNames.append("DirectDelivery");
 	capabilityNames.append("EnvironmentSettings");
@@ -1996,9 +2001,23 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("IncrementCOFVersion");
 	capabilityNames.append("GamingData"); //Used by certain grids.
 	AISAPI::getCapNames(capabilityNames);
+
 	capabilityNames.append("GetDisplayNames");
+	capabilityNames.append("GetExperiences");
+	capabilityNames.append("AgentExperiences");
+	capabilityNames.append("FindExperienceByName");
+	capabilityNames.append("GetExperienceInfo");
+	capabilityNames.append("GetAdminExperiences");
+	capabilityNames.append("GetCreatorExperiences");
+	capabilityNames.append("ExperiencePreferences");
+	capabilityNames.append("GroupExperiences");
+	capabilityNames.append("UpdateExperience");
+	capabilityNames.append("IsExperienceAdmin");
+	capabilityNames.append("IsExperienceContributor");
+	capabilityNames.append("RegionExperiences");
 	capabilityNames.append("GetMesh");
-	capabilityNames.append("GetMesh2");		// Used on SecondLife(tm) sim versions 280647 and higher (13.09.17).
+	capabilityNames.append("GetMesh2");
+	capabilityNames.append("GetMetadata");
 	capabilityNames.append("GetObjectCost");
 	capabilityNames.append("GetObjectPhysicsData");
 	capabilityNames.append("GetTexture");
@@ -2051,6 +2070,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("UpdateScriptAgent");
 	capabilityNames.append("UpdateScriptTask");
 	capabilityNames.append("UploadBakedTexture");
+    capabilityNames.append("UserInfo");
 	capabilityNames.append("ViewerAsset");
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");

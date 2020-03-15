@@ -54,6 +54,7 @@
 /// For maps and arrays child entries will be converted and added to the structure.
 /// Order is preserved for an array but not for objects.
 LLSD LlsdFromJson(const nlohmann::json &val);
+LLSD LlsdFromJsonString(const std::string& body);
 
 /// Convert an LLSD object into Parsed JSON object maintaining member names and 
 /// array indexs.

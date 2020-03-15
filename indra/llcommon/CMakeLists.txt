@@ -269,12 +269,6 @@ list(APPEND llcommon_SOURCE_FILES ${cwdebug_SOURCE_FILES})
 
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
-if(NOT WORD_SIZE EQUAL 32)
-  if(NOT WINDOWS)
-    add_definitions(-fPIC)
-  endif(NOT WINDOWS)
-endif(NOT WORD_SIZE EQUAL 32)
-
 if(LLCOMMON_LINK_SHARED)
   add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
   if(WINDOWS)
@@ -285,6 +279,8 @@ if(LLCOMMON_LINK_SHARED)
 else(LLCOMMON_LINK_SHARED)
     add_library (llcommon ${llcommon_SOURCE_FILES})
 endif(LLCOMMON_LINK_SHARED)
+
+set_target_properties(llcommon PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_link_libraries(
     llcommon
@@ -304,6 +300,7 @@ target_link_libraries(
     ${Boost_SYSTEM_LIBRARY}
     ${CORESERVICES_LIBRARY}
     ${URIPARSER_LIBRARY}
+    ${RT_LIBRARY}
     )
 
 if (DARWIN)

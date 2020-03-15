@@ -44,8 +44,7 @@
 #include "llviewermedia_streamingaudio.h"
 #include "llaudioengine.h"
 
-
-#if LL_FMODSTUDIO
+#ifdef LL_FMODSTUDIO
 # include "llaudioengine_fmodstudio.h"
 #endif
 
@@ -61,6 +60,7 @@
 
 #include "llares.h"
 #include "llavatarnamecache.h"
+#include "llexperiencecache.h"
 #include "lllandmark.h"
 #include "llcachename.h"
 #include "lldir.h"
@@ -230,7 +230,6 @@
 // </edit>
 
 #include "llpathfindingmanager.h"
-#include "llevents.h"
 
 #include "lgghunspell_wrapper.h"
 
@@ -238,6 +237,8 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
+#include "llevents.h"
+#include "llexperiencelog.h"
 #if LL_WINDOWS
 #include "llwindebug.h"
 #include "lldxhardware.h"
@@ -319,7 +320,7 @@ void transition_back_to_login_panel(const std::string& emsg);
 
 void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is_group)
 {
-	LLNameUI::refreshAll(id, full_name, is_group);
+	LLNameUI::refreshAll(id, full_name);
 
 	// TODO: Actually be intelligent about the refresh.
 	// For now, just brute force refresh the dialogs.
@@ -1087,27 +1088,12 @@ bool idle_startup()
 		}
 
 		//Get these logs out of my newview root directory, PLEASE.
-		if (gHippoGridManager->getCurrentGrid()->isSecondLife())
-		{
-			gDirUtilp->setPerAccountChatLogsDir(LLStringUtil::null, 
-				gSavedSettings.getString("FirstName"), gSavedSettings.getString("LastName") );
-		}
-		else
-		{
-			gDirUtilp->setPerAccountChatLogsDir(gHippoGridManager->getConnectedGrid()->getGridNick(), 
-				gSavedSettings.getString("FirstName"), gSavedSettings.getString("LastName") );
-		}
+		gDirUtilp->setPerAccountChatLogsDir(gHippoGridManager->getCurrentGrid()->isSecondLife() ? LLStringUtil::null : gHippoGridManager->getConnectedGrid()->getGridNick(), 
+			gSavedSettings.getString("FirstName"), gSavedSettings.getString("LastName"));
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-        // NaCl - Antispam
-        U32 antispam_time = gSavedSettings.getU32("_NACL_AntiSpamTime");
-        U32 antispam_amount = gSavedSettings.getU32("_NACL_AntiSpamAmount");
-        NACLAntiSpamRegistry::registerQueues(antispam_time, antispam_amount);
-		gSavedSettings.getControl("_NACL_AntiSpamGlobalQueue")->getSignal()->connect(boost::bind(&NACLAntiSpamRegistry::handleNaclAntiSpamGlobalQueueChanged, _2));
-		gSavedSettings.getControl("_NACL_AntiSpamTime")->getSignal()->connect(boost::bind(&NACLAntiSpamRegistry::handleNaclAntiSpamTimeChanged, _2));
-		gSavedSettings.getControl("_NACL_AntiSpamAmount")->getSignal()->connect(boost::bind(&NACLAntiSpamRegistry::handleNaclAntiSpamAmountChanged, _2));
-        // NaCl End
+		NACLAntiSpamRegistry::startup(); // NaCl - Antispam
 
 		//good a place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
@@ -1724,6 +1710,9 @@ bool idle_startup()
 		// Set agent's initial position, which will be read by LLVOAvatar when the avatar
 		// object is created.  I think this must be done after setting the region.  JC
 		gAgent.setPositionAgent(agent_start_position_region);
+
+		display_startup();
+		LLStartUp::initExperiences();
 
 		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
@@ -3019,17 +3008,7 @@ void pass_processObjectPropertiesFamily(LLMessageSystem *msg, void**)
 void process_script_running_reply(LLMessageSystem* msg, void** v)
 {
 	LLLiveLSLEditor::processScriptRunningReply(msg, v);
-	if (ScriptCounter::sCheckMap.size())
-	{
-		LLUUID item_id;
-		msg->getUUIDFast(_PREHASH_Script, _PREHASH_ItemID, item_id);
-		std::map<LLUUID,ScriptCounter*>::iterator it = ScriptCounter::sCheckMap.find(item_id);
-		if (it != ScriptCounter::sCheckMap.end())
-		{
-			it->second->processRunningReply(msg);
-			ScriptCounter::sCheckMap.erase(it);
-		}
-	}
+	ScriptCounter::processScriptRunningReply(msg);
 }
 
 void register_viewer_callbacks(LLMessageSystem* msg)
@@ -3551,12 +3530,22 @@ void LLStartUp::initNameCache()
 	LLAvatarNameCache::setUseUsernames(!phoenix_name_system || phoenix_name_system == 1 || phoenix_name_system == 3);
 }
 
+
+void LLStartUp::initExperiences()
+{
+    // Should trigger loading the cache.
+    LLExperienceCache::instance().setCapabilityQuery(
+        boost::bind(&LLAgent::getRegionCapability, &gAgent, _1));
+
+	LLExperienceLog::instance().initialize();
+}
+
 void LLStartUp::cleanupNameCache()
 {
 	LLAvatarNameCache::cleanupClass();
 
 	delete gCacheName;
-	gCacheName = NULL;
+	gCacheName = nullptr;
 }
 
 bool LLStartUp::dispatchURL()
@@ -4288,3 +4277,4 @@ void transition_back_to_login_panel(const std::string& emsg)
 	reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 	gSavedSettings.setBOOL("AutoLogin", FALSE);
 }
+

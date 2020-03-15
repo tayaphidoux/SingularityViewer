@@ -410,11 +410,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>849f515d4d77162c15614ebff8599c13</string>
+              <string>4614b29cc98021cf1770a8290171602b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/crashpad/windows/crashpad-365c520b.6-windows-6.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/crashpad/windows/crashpad-ce32d093.7-windows-7.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -424,18 +424,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7ea820b6a2cfa172f47d673c07dfa62c</string>
+              <string>d801461b7a6a40fffab828aa1e01e3e6</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/crashpad/windows64/crashpad-365c520b.6-windows64-6.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/crashpad/windows64/crashpad-ce32d093.7-windows64-7.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>365c520b.6</string>
+        <string>ce32d093.7</string>
       </map>
       <key>curl</key>
       <map>
@@ -664,11 +664,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>06746b78827e9a0c6b666bd2528d36ad</string>
+              <string>695efb6fc548a56dc4ff34e8d9a37bfb</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1320_73.1.12%252Bgee4b49f%252Bchromium-73.0.3683.75-linux64-192030536.tar.bz2</string>
+              <string>https://bitbucket.org/router_gray/3p-dullahan/downloads/dullahan-1.3.202002250830_79.1.38_gecefb59_chromium-79.0.3945.130-linux64-200580406.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -678,9 +678,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e19b664ad8cf9e7f4a7bf649d28faa76</string>
+              <string>1b278ff2535f428ea6536683d096fdd0</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/SingularityViewer/libraries/downloads/dullahan-1.1.1320_73.1.12+gee4b49f+chromium-73.0.3683.75-windows-191102212.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/dullahan/windows/dullahan-1.3.201911222116_78.3.7_gea7ef34_chromium-78.0.3904.108-windows-2.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -690,18 +692,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>414190fd1ce3876ee3efc682b06ae65c</string>
+              <string>b9346fea7643b10308c7bd9a769ef5f7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/packages/windows64/msvc-1920/dullahan-1.1.1320_73.1.12-gee4b49f-chromium-73.0.3683.75-windows64-190871757.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/dullahan/windows64/dullahan-1.3.201911222103_78.3.7_gea7ef34_chromium-78.0.3904.108-windows64-2.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.1320_73.1.12+gee4b49f+chromium-73.0.3683.75</string>
+        <string>1.3.201911222103_78.3.7_gea7ef34_chromium-78.0.3904.108</string>
       </map>
       <key>elfio</key>
       <map>
@@ -816,7 +818,7 @@
       <key>fmodstudio</key>
       <map>
         <key>copyright</key>
-        <string>FMOD Studio, copyright (c) Firelight Technologies Pty, Ltd., 2012-2019.</string>
+        <string>FMOD Studio, Copyright (c) Firelight Technologies Pty Ltd.</string>
         <key>description</key>
         <string>FMOD Studio audio system library</string>
         <key>license</key>
@@ -874,11 +876,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>54dbd41322a08a1fc333ca6d96af5502</string>
+              <string>ccd495598894c8e2e541a348015ee3f0</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>/opt/devel/secondlife/pkg/fmodstudio-2.00.02.191991250-linux64-191991250.tar.bz2</string>
+              <string>/opt/devel/fmodstudio-2.00.07.200182252-linux64-200182252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -888,11 +890,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e0e87e0423fa42e4d2997b47b92eac6e</string>
+              <string>d32efb193ffcd73bcba4875ddfd17bf0</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/windows/fmodstudio-2.00.03.192211030-windows-192211030.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/windows/fmodstudio-2.00.07.4-windows-4.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -902,18 +904,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c2e55e1bfef7e066a0e40867a64b4cce</string>
+              <string>0604fd6b53ceaf14ce04d0de1bea51b8</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/windows64/fmodstudio-2.00.03.192211029-windows64-192211029.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-internal/fmodstudio/windows64/fmodstudio-2.00.07.4-windows64-4.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.00.03.192211300</string>
+        <string>2.00.07.4</string>
       </map>
       <key>fonts</key>
       <map>
@@ -996,7 +998,7 @@
       <key>freetype</key>
       <map>
         <key>copyright</key>
-        <string>Copyright 2006-2017 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
+        <string>Copyright 2006-2018 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
         <key>description</key>
         <string>Font rendering library</string>
         <key>license</key>
@@ -2506,7 +2508,7 @@
       <key>vlc-bin</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (C) 1998-2016 VLC authors and VideoLAN</string>
+        <string>Copyright (C) 1998-2020 VLC authors and VideoLAN</string>
         <key>license</key>
         <string>GPL2</string>
         <key>license_file</key>
@@ -2544,9 +2546,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>add560654a53cb1c554044a4fac3c718</string>
+              <string>3ff1d097e4f9b8f864a639aff974a506</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12144/71458/vlc_bin-2.2.8.511703-windows-511703.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/vlc-bin/windows/vlc_bin-3.0.8.189-windows-189.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2556,16 +2558,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>94bf04b49acc1e1bf2c06e2232f8a083</string>
+              <string>b890b109b526cc6ad211eadefed83316</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12145/71463/vlc_bin-2.2.8.511703-windows64-511703.tar.bz2</string>
+              <string>https://pkg.alchemyviewer.org/repository/autobuild-external/vlc-bin/windows64/vlc_bin-3.0.8.189-windows64-189.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.2.8.511703</string>
+        <string>3.0.8.189</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
@@ -2771,7 +2773,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
-                  <string>-DWORD_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Singularity</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -2792,7 +2794,7 @@
                 <key>options</key>
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DWORD_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
+                  <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Singularity</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
@@ -2943,7 +2945,7 @@
                 <array>
                   <string>-G</string>
                   <string>Ninja</string>
-                  <string>-DWORD_SIZE:STRING=64</string>
+                  <string>-DADDRESS_SIZE:STRING=64</string>
                 </array>
               </map>
               <key>default</key>
@@ -2968,7 +2970,7 @@
                 <array>
                   <string>-G</string>
                   <string>Ninja</string>
-                  <string>-DWORD_SIZE:STRING=64</string>
+                  <string>-DADDRESS_SIZE:STRING=64</string>
                 </array>
               </map>
               <key>name</key>
@@ -2981,7 +2983,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc${AUTOBUILD_WIN_VSVER|161}-$AUTOBUILD_ADDRSIZE</string>
+          <string>build-vc-$AUTOBUILD_ADDRSIZE</string>
           <key>configurations</key>
           <map>
             <key>RelWithDebInfo</key>
@@ -3040,6 +3042,7 @@
                   <string>/p:Configuration=Release</string>
                   <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                   <string>/t:Build</string>
+                  <string>/p:PreferredToolArchitecture=x64</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
                   <string>/m</string>
@@ -3067,7 +3070,7 @@
             </map>
           </map>
           <key>name</key>
-          <string>windows64</string>
+          <string>windows</string>
         </map>
       </map>
       <key>version_file</key>

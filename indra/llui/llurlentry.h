@@ -42,7 +42,7 @@ class LLAvatarName;
 typedef boost::signals2::signal<void (const std::string& url,
 									  const std::string& label,
 									  const std::string& icon)> LLUrlLabelSignal;
-typedef LLUrlLabelSignal::slot_function_type LLUrlLabelCallback;
+typedef LLUrlLabelSignal::slot_type LLUrlLabelCallback;
 
 ///
 /// LLUrlEntryBase is the base class of all Url types registered in the 
@@ -132,7 +132,7 @@ protected:
 ///
 /// LLUrlEntryHTTP Describes generic http: and https: Urls
 ///
-class LLUrlEntryHTTP : public LLUrlEntryBase
+class LLUrlEntryHTTP final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryHTTP();
@@ -144,7 +144,7 @@ public:
 ///
 /// LLUrlEntryHTTPLabel Describes generic http: and https: Urls with custom labels
 ///
-class LLUrlEntryHTTPLabel : public LLUrlEntryBase
+class LLUrlEntryHTTPLabel final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryHTTPLabel();
@@ -156,7 +156,7 @@ public:
 ///
 /// LLUrlEntryHTTPNoProtocol Describes generic Urls like www.google.com
 ///
-class LLUrlEntryHTTPNoProtocol : public LLUrlEntryBase
+class LLUrlEntryHTTPNoProtocol final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryHTTPNoProtocol();
@@ -166,7 +166,7 @@ public:
 	std::string getTooltip(const std::string &url) const override;
 };
 
-class LLUrlEntryInvalidSLURL : public LLUrlEntryBase
+class LLUrlEntryInvalidSLURL final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryInvalidSLURL();
@@ -180,7 +180,7 @@ public:
 ///
 /// LLUrlEntrySLURL Describes http://slurl.com/... Urls
 ///
-class LLUrlEntrySLURL : public LLUrlEntryBase
+class LLUrlEntrySLURL final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntrySLURL();
@@ -205,7 +205,7 @@ public:
 ///
 /// LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com Urls
 ///
-class LLUrlEntrySimpleSecondlifeURL : public LLUrlEntrySecondlifeURL
+class LLUrlEntrySimpleSecondlifeURL final : public LLUrlEntrySecondlifeURL
 {
 public:
 	LLUrlEntrySimpleSecondlifeURL();
@@ -281,7 +281,7 @@ private:
 /// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/completename
 /// that displays the full display name + user name for an avatar
 /// such as "James Linden (james.linden)"
-class LLUrlEntryAgentCompleteName : public LLUrlEntryAgentName
+class LLUrlEntryAgentCompleteName final : public LLUrlEntryAgentName
 {
 public:
 	LLUrlEntryAgentCompleteName();
@@ -289,7 +289,7 @@ private:
 	/*virtual*/ std::string getName(const LLAvatarName& avatar_name) override;
 };
 
-class LLUrlEntryAgentLegacyName : public LLUrlEntryAgentName
+class LLUrlEntryAgentLegacyName final : public LLUrlEntryAgentName
 {
 public:
 	LLUrlEntryAgentLegacyName();
@@ -302,7 +302,7 @@ private:
 /// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/displayname
 /// that displays the just the display name for an avatar
 /// such as "James Linden"
-class LLUrlEntryAgentDisplayName : public LLUrlEntryAgentName
+class LLUrlEntryAgentDisplayName final : public LLUrlEntryAgentName
 {
 public:
 	LLUrlEntryAgentDisplayName();
@@ -315,7 +315,7 @@ private:
 /// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/username
 /// that displays the just the display name for an avatar
 /// such as "james.linden"
-class LLUrlEntryAgentUserName : public LLUrlEntryAgentName
+class LLUrlEntryAgentUserName final : public LLUrlEntryAgentName
 {
 public:
 	LLUrlEntryAgentUserName();
@@ -324,10 +324,24 @@ private:
 };
 
 ///
+/// LLUrlEntryExperienceProfile Describes a Second Life experience profile Url, e.g.,
+/// secondlife:///app/experience/0e346d8b-4433-4d66-a6b0-fd37083abc4c/profile
+/// that displays the experience name
+class LLUrlEntryExperienceProfile final : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryExperienceProfile();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) override;
+private:
+	void onExperienceDetails(const LLSD& experience_details);
+};
+
+
+///
 /// LLUrlEntryGroup Describes a Second Life group Url, e.g.,
 /// secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about
 ///
-class LLUrlEntryGroup : public LLUrlEntryBase
+class LLUrlEntryGroup final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryGroup();
@@ -342,7 +356,7 @@ private:
 /// LLUrlEntryInventory Describes a Second Life inventory Url, e.g.,
 /// secondlife:///app/inventory/0e346d8b-4433-4d66-a6b0-fd37083abc4c/select
 ///
-class LLUrlEntryInventory : public LLUrlEntryBase
+class LLUrlEntryInventory final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryInventory();
@@ -354,7 +368,7 @@ private:
 /// LLUrlEntryObjectIM Describes a Second Life inspector for the object Url, e.g.,
 /// secondlife:///app/objectim/7bcd7864-da6b-e43f-4486-91d28a28d95b?name=Object&owner=3de548e1-57be-cfea-2b78-83ae3ad95998&slurl=Danger!%20Danger!/200/200/30/&groupowned=1
 ///
-class LLUrlEntryObjectIM : public LLUrlEntryBase
+class LLUrlEntryObjectIM final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryObjectIM();
@@ -367,7 +381,7 @@ private:
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
 ///
-class LLUrlEntryParcel : public LLUrlEntryBase
+class LLUrlEntryParcel final : public LLUrlEntryBase
 {
 public:
 	struct LLParcelData
@@ -414,7 +428,7 @@ private:
 /// LLUrlEntryPlace Describes a Second Life location Url, e.g.,
 /// secondlife://Ahern/50/50/50
 ///
-class LLUrlEntryPlace : public LLUrlEntryBase
+class LLUrlEntryPlace final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryPlace();
@@ -426,7 +440,7 @@ public:
 /// LLUrlEntryRegion Describes a Second Life location Url, e.g.,
 /// secondlife:///app/region/Ahern/128/128/0
 ///
-class LLUrlEntryRegion : public LLUrlEntryBase
+class LLUrlEntryRegion final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryRegion();
@@ -438,7 +452,7 @@ public:
 /// LLUrlEntryTeleport Describes a Second Life teleport Url, e.g.,
 /// secondlife:///app/teleport/Ahern/50/50/50/
 ///
-class LLUrlEntryTeleport : public LLUrlEntryBase
+class LLUrlEntryTeleport final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryTeleport();
@@ -450,7 +464,7 @@ public:
 /// LLUrlEntrySL Describes a generic SLURL, e.g., a Url that starts
 /// with secondlife:// (used as a catch-all for cases not matched above)
 ///
-class LLUrlEntrySL : public LLUrlEntryBase
+class LLUrlEntrySL final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntrySL();
@@ -461,7 +475,7 @@ public:
 /// LLUrlEntrySLLabel Describes a generic SLURL, e.g., a Url that starts
 /// with secondlife:// with the ability to specify a custom label.
 ///
-class LLUrlEntrySLLabel : public LLUrlEntryBase
+class LLUrlEntrySLLabel final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntrySLLabel();
@@ -475,7 +489,7 @@ public:
 /// LLUrlEntryWorldMap Describes a Second Life worldmap Url, e.g.,
 /// secondlife:///app/worldmap/Ahern/50/50/50
 ///
-class LLUrlEntryWorldMap : public LLUrlEntryBase
+class LLUrlEntryWorldMap final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryWorldMap();
@@ -486,7 +500,7 @@ public:
 ///
 /// LLUrlEntryNoLink lets us turn of URL detection with <nolink>...</nolink> tags
 ///
-class LLUrlEntryNoLink : public LLUrlEntryBase
+class LLUrlEntryNoLink final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryNoLink();
@@ -498,7 +512,7 @@ public:
 ///
 /// LLUrlEntryIcon describes an icon with <icon>...</icon> tags
 ///
-class LLUrlEntryIcon : public LLUrlEntryBase
+class LLUrlEntryIcon final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryIcon();
@@ -510,7 +524,7 @@ public:
 ///
 /// LLUrlEntryEmail Describes a generic mailto: Urls
 ///
-class LLUrlEntryEmail : public LLUrlEntryBase
+class LLUrlEntryEmail final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryEmail();
@@ -522,7 +536,7 @@ public:
 ///
 /// LLUrlEntryJira describes a Jira Issue
 ///
-class LLUrlEntryJira : public LLUrlEntryBase
+class LLUrlEntryJira final : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryJira();

@@ -2079,6 +2079,24 @@ This should be as low as possible, but too low may break functionality</string>
 	  <key>IsCOA</key>
 	  <integer>1</integer>
     </map>
+    <key>LogChatColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of chat messages loaded from your log</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.5</real>
+        <real>0.5</real>
+        <real>0.5</real>
+        <real>1.0</real>
+      </array>
+	  <key>IsCOA</key>
+	  <integer>1</integer>
+    </map>
     <key>UISndAlert</key>
     <map>
       <key>Comment</key>
@@ -2538,6 +2556,17 @@ This should be as low as possible, but too low may break functionality</string>
 		<integer>1</integer>
     </map>
     <!-- Standard SL options (To my knowledge) -->
+	<key>CrashHostUrl</key>
+    <map>
+      <key>Comment</key>
+      <string>A URL pointing to a crash report handler; overrides cluster negotiation to locate crash handler.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
     <key>AFKTimeout</key>
     <map>
       <key>Comment</key>
@@ -7482,6 +7511,54 @@ This should be as low as possible, but too low may break functionality</string>
         <integer>0</integer>
       </array>
     </map>
+    <key>FloaterExperiencePickerRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Rectangle for experience picker floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>300</integer>
+        <integer>600</integer>
+        <integer>800</integer>
+        <integer>700</integer>
+      </array>
+    </map>
+    <key>FloaterExperienceProfileRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Rectangle for experience profile floaters</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>377</integer>
+        <integer>650</integer>
+        <integer>345</integer>
+        <integer>128</integer>
+      </array>
+    </map>
+    <key>FloaterExperiencesRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Rectangle for experiences floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>300</integer>
+        <integer>600</integer>
+        <integer>700</integer>
+        <integer>700</integer>
+      </array>
+    </map>
     <key>FloaterFindRect2</key>
     <map>
       <key>Comment</key>
@@ -8239,7 +8316,7 @@ This should be as low as possible, but too low may break functionality</string>
       <array>
         <integer>0</integer>
         <integer>512</integer>
-        <integer>480</integer>
+        <integer>500</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -11659,17 +11736,6 @@ This should be as low as possible, but too low may break functionality</string>
       <key>Value</key>
       <integer>344</integer>
     </map>
-    <key>RevokePermsOnStandUp</key>
-    <map>
-      <key>Comment</key>
-      <string>When enabled, revokes any permission granted to an object you don't own and from which your avatar is standing up</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>PickerContextOpacity</key>
     <map>
       <key>Comment</key>
@@ -14560,6 +14626,17 @@ This should be as low as possible, but too low may break functionality</string>
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>RevokePermsOnStandUp</key>
+    <map>
+      <key>Comment</key>
+      <string>When enabled, revokes any permission granted to an object you don't own and from which your avatar is standing up</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>RevokePermsOnStopAnimation</key>
     <map>

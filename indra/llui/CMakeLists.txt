@@ -37,6 +37,7 @@ set(llui_SOURCE_FILES
     lldraghandle.cpp
     lleditmenuhandler.cpp
     llfiltereditor.cpp
+    llflatlistview.cpp
     llfloater.cpp
     llflyoutbutton.cpp
     llfocusmgr.cpp
@@ -116,6 +117,7 @@ set(llui_HEADER_FILES
     lldraghandle.h
     lleditmenuhandler.h
     llfiltereditor.h 
+    llflatlistview.h
     llfloater.h
     llflyoutbutton.h
     llfocusmgr.h

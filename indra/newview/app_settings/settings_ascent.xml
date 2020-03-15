@@ -91,6 +91,17 @@
 		  <key>Value</key>
 		  <integer>1</integer>
 		</map>
+		<key>ProfileNameSystem</key>
+		<map>
+		  <key>Comment</key>
+		  <string>For a name displayed on its profile. 0 = Old Style, 1 = Display Names and Username, 2 = Displayname only, 3 = Old Style (Display Name)</string>
+		  <key>Persist</key>
+		  <integer>1</integer>
+		  <key>Type</key>
+		  <string>S32</string>
+		  <key>Value</key>
+		  <integer>1</integer>
+		</map>
 		<key>RadarNameSystem</key>
 		<map>
 		  <key>Comment</key>
@@ -134,6 +145,28 @@
       <string>String</string>
       <key>Value</key>
       <string>/resync</string>
+    </map>
+    <key>AlchemyChatCommandSetChatChannel</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to set nearby chat channel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/setchannel</string>
+    </map>
+    <key>AlchemyChatCommandSetHome</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to set the avatar home</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/sethome</string>
     </map>
     <key>AlchemyConnectToNeighbors</key>
     <map>
@@ -200,6 +233,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>AlchemyNearbyChatChannel</key>
+    <map>
+      <key>Comment</key>
+      <string>Chat channel used for sending nearby chat from the viewer</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>AlchemyRainbowEffects</key>
     <map>
@@ -521,6 +565,17 @@
 			<key>Value</key>
 			<integer>1</integer>
 		</map>
+        <key>AlchemyDisableSimCamConstraint</key>
+        <map>
+          <key>Comment</key>
+          <string>Disable the push the simulator applies when camera collides with objects</string>
+          <key>Persist</key>
+          <integer>1</integer>
+          <key>Type</key>
+          <string>Boolean</string>
+          <key>Value</key>
+          <integer>0</integer>
+        </map>
 		<key>AscentFlyAlwaysEnabled</key>
 		<map>
 			<key>Comment</key>
@@ -763,6 +818,17 @@
 			<key>Value</key>
 			<string>key2name</string>
 		</map>
+                <key>AscentCmdLineKeyToNameNameSystem</key>
+                <map>
+                  <key>Comment</key>
+		  <string>For key to name command defined by AscentCmdLineKeyToName, the format to show the key's name in. 0 = Old Style, 1 = Display Names and Username, 2 = Displayname only, 3 = Old Style (Display Name)</string>
+		  <key>Persist</key>
+		  <integer>1</integer>
+		  <key>Type</key>
+		  <string>S32</string>
+		  <key>Value</key>
+		  <integer>1</integer>
+                </map>
 		<key>AscentCmdLineOfferTp</key>
 		<map>
 			<key>Comment</key>
@@ -840,17 +906,6 @@
 			<key>Value</key>
 			<string>/open</string>
 		</map>
-		<key>SinguCompleteNameProfiles</key>
-		<map>
-			<key>Comment</key>
-			<string>Use the complete name "Display Name (legacy.name)" in profiles, instead of following the choice set by PhoenixNameSystem.</string>
-			<key>Persist</key>
-			<integer>1</integer>
-			<key>Type</key>
-			<string>Boolean</string>
-			<key>Value</key>
-			<boolean>0</boolean>
-		</map>
 		<key>SinguDefaultEaseIn</key>
 		<map>
 			<key>Comment</key>
@@ -872,6 +927,17 @@
 			<string>F32</string>
 			<key>Value</key>
 			<real>0</real>
+		</map>
+		<key>SinguFollowDistance</key>
+		<map>
+			<key>Comment</key>
+			<string>Distance at which to follow objects and avatars at, from menus that offer follow (minimum 0.5)</string>
+			<key>Persist</key>
+			<integer>1</integer>
+			<key>Type</key>
+			<string>F32</string>
+			<key>Value</key>
+			<string>1.0</string>
 		</map>
 		<key>SinguLastKnownReleaseBuild</key>
 		<map>
@@ -1102,6 +1168,17 @@ Changing this setting only affects new text.</string>
     <map>
       <key>Comment</key>
       <string>Whether or not to spawn a notification in addition to the chat message when you receive items from the marketplace.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>LiruUseMarkedColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to use the color of marks done on radar and minimap to color tags and chat from those individuals</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1558,6 +1635,19 @@ Changing this setting only affects new text.</string>
     <map>
       <key>Comment</key>
       <string>Whether or not the button for the environment settings editor is on the toolbar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <boolean>0</boolean>
+      <key>IsCOA</key>
+      <integer>1</integer>
+    </map>
+    <key>ToolbarVisibleExperiences</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not the button for the experiences floater is on the toolbar</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

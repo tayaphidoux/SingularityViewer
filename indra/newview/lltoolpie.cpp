@@ -533,7 +533,7 @@ void LLToolPie::walkToClickedLocation()
 	mAutoPilotDestination->setDuration(3.f);
 	*/
 
-	handle_go_to();
+	handle_go_to(mPick.mPosGlobal);
 }
 
 // When we get object properties after left-clicking on an object
@@ -569,7 +569,7 @@ void LLToolPie::selectionPropertiesReceived()
 			case CLICK_ACTION_PAY:
 				if ( LLToolPie::getInstance()->mClickActionPayEnabled )
 				{
-					handle_give_money_dialog();
+					handle_give_money_dialog(selected_object);
 				}
 				break;
 			case CLICK_ACTION_OPEN:
@@ -763,8 +763,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 
 void LLToolPie::stopClickToWalk()
 {
-	mPick.mPosGlobal = gAgent.getPositionGlobal();
-	handle_go_to();
+	handle_go_to(gAgent.getPositionGlobal());
 	/* Singu TODO: llhudeffectblob
 	if(mAutoPilotDestination)
 	{

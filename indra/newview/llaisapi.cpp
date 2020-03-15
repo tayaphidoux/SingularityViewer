@@ -35,13 +35,12 @@
 #include "llviewerregion.h"
 #include "llinventoryobserver.h"
 #include "llviewercontrol.h"
-#include <boost/bind.hpp>
 
 ///----------------------------------------------------------------------------
 /// Classes for AISv3 support.
 ///----------------------------------------------------------------------------
 
-class AISCommand : public LLHTTPClient::ResponderWithResult
+class AISCommand final : public LLHTTPClient::ResponderWithCompleted
 {
 public:
 	typedef boost::function<void()> command_func_type;
@@ -60,35 +59,28 @@ public:
 		(mCommandFunc = func)();
 	}
 
-	char const* getName(void) const
+	char const* getName(void) const override
 	{
 		return mName;
 	}
 
 	void markComplete()
 	{
-		mRetryPolicy->onSuccess();
-	}
-
-protected:
-	/* virtual */
-	void httpSuccess()
-	{
 		// Command func holds a reference to self, need to release it
 		// after a success or final failure.
 		mCommandFunc = no_op;
-		AISAPI::InvokeAISCommandCoro(this, getURL(), mTargetId, getContent(), mCompletionFunc, (AISAPI::COMMAND_TYPE)mType);
+		mRetryPolicy->onSuccess();
 	}
 
-	/*virtual*/
-	void httpFailure()
+	void malformedResponse() { mStatus = HTTP_INTERNAL_ERROR_OTHER; mReason = llformat("Malformed response contents (original code: %d)", mStatus); }
+
+	bool onFailure()
 	{
-		LL_WARNS("Inventory") << dumpResponse() << LL_ENDL;
-		S32 status = getStatus();
-		const AIHTTPReceivedHeaders& headers = getResponseHeaders();
-		mRetryPolicy->onFailure(status, headers);
+		bool retry = mStatus != HTTP_INTERNAL_ERROR_OTHER && mStatus != 410; // We handle these and stop
+		LL_WARNS("Inventory") << "Inventory error: " << dumpResponse() << LL_ENDL;
+		if (retry) mRetryPolicy->onFailure(mStatus, getResponseHeaders());
 		F32 seconds_to_wait;
-		if (mRetryPolicy->shouldRetry(seconds_to_wait))
+		if (retry && mRetryPolicy->shouldRetry(seconds_to_wait))
 		{
 			doAfterInterval(mCommandFunc,seconds_to_wait);
 		}
@@ -99,6 +91,13 @@ protected:
 			// *TODO: Notify user?  This seems bad.
 			mCommandFunc = no_op;
 		}
+		return retry;
+	}
+
+protected:
+	void httpCompleted() override
+	{
+		AISAPI::InvokeAISCommandCoro(this, getURL(), mTargetId, getContent(), mCompletionFunc, (AISAPI::COMMAND_TYPE)mType);
 	}
 
 	command_func_type mCommandFunc;
@@ -313,31 +312,97 @@ void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t 
     boost::intrusive_ptr< AISCommand > responder = new AISCommand(UPDATEITEM, "UpdateItem",itemId, callback);
 	responder->run(boost::bind(&LLHTTPClient::patch, url, updates, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off), keep_alive, (AIStateMachine*)NULL, 0));
 }
-void AISAPI::InvokeAISCommandCoro(LLHTTPClient::ResponderWithResult* responder, 
-        std::string url, 
+void AISAPI::InvokeAISCommandCoro(AISCommand* responder,
+        std::string url,
         LLUUID targetId, LLSD result, completion_t callback, COMMAND_TYPE type)
 {
+    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+
+	auto status = responder->getStatus();
+
+    if (!responder->isGoodStatus(status) || !result.isMap())
 	{
 		if (!result.isMap())
 		{
-			responder->failureResult(400, "Malformed response contents", result);
-			return;
+			responder->malformedResponse();
 		}
-		((AISCommand*)responder)->markComplete();
+        else if (status == 410) //GONE
+        {
+            // Item does not exist or was already deleted from server.
+            // parent folder is out of sync
+            if (type == REMOVECATEGORY)
+            {
+                LLViewerInventoryCategory *cat = gInventory.getCategory(targetId);
+                if (cat)
+                {
+                    LL_WARNS("Inventory") << "Purge failed for '" << cat->getName()
+                        << "' local version:" << cat->getVersion()
+                        << " since folder no longer exists at server. Descendent count: server == " << cat->getDescendentCount()
+                        << ", viewer == " << cat->getViewerDescendentCount()
+                        << LL_ENDL;
+                    gInventory.fetchDescendentsOf(cat->getParentUUID());
+                    // Note: don't delete folder here - contained items will be deparented (or deleted)
+                    // and since we are clearly out of sync we can't be sure we won't get rid of something we need.
+                    // For example folder could have been moved or renamed with items intact, let it fetch first.
+                }
+            }
+            else if (type == REMOVEITEM)
+            {
+                LLViewerInventoryItem *item = gInventory.getItem(targetId);
+                if (item)
+                {
+                    LL_WARNS("Inventory") << "Purge failed for '" << item->getName()
+                        << "' since item no longer exists at server." << LL_ENDL;
+                    gInventory.fetchDescendentsOf(item->getParentUUID());
+                    // since item not on the server and exists at viewer, so it needs an update at the least,
+                    // so delete it, in worst case item will be refetched with new params.
+                    gInventory.onObjectDeletedFromServer(targetId);
+                }
+            }
+        }
+        // Keep these statuses accounted for in the responder too
+        if (responder->onFailure()) // If we're retrying, exit early.
+            return;
 	}
+	else responder->markComplete();
 		
 	gInventory.onAISUpdateReceived("AISCommand", result);
 
 	if (callback && callback != nullptr)
 	{
-		LLUUID id(LLUUID::null);
-
-		if (result.has("category_id") && (type == COPYLIBRARYCATEGORY))
+// [SL:KB] - Patch: Appearance-SyncAttach | Checked: Catznip-3.7
+		uuid_list_t ids;
+		switch (type)
 		{
-			id = result["category_id"];
+			case COPYLIBRARYCATEGORY:
+				if (result.has("category_id"))
+				{
+					ids.insert(result["category_id"]);
+				}
+				break;
+			case COPYINVENTORY:
+				{
+					AISUpdate::parseUUIDArray(result, "_created_items", ids);
+					AISUpdate::parseUUIDArray(result, "_created_categories", ids);
+				}
+				break;
+			default:
+				break;
 		}
 
-		callback(id);
+		// If we were feeling daring we'd call LLInventoryCallback::fire for every item but it would take additional work to investigate whether all LLInventoryCallback derived classes
+		// were designed to handle multiple fire calls (with legacy link creation only one would ever fire per link creation) so we'll be cautious and only call for the first one for now
+		// (note that the LL code as written below will always call fire once with the NULL UUID for anything but CopyLibraryCategoryCommand so even the above is an improvement)
+		callback( (!ids.empty()) ? *ids.begin() : LLUUID::null);
+// [/SL:KB]
+//        LLUUID id(LLUUID::null);
+//
+//        if (result.has("category_id") && (type == COPYLIBRARYCATEGORY))
+//	    {
+//		    id = result["category_id"];
+//	    }
+//
+//        callback(id);
 	}
 
 }
@@ -374,18 +439,17 @@ void AISUpdate::parseMeta(const LLSD& update)
 	// parse _categories_removed -> mObjectsDeletedIds
 	uuid_list_t cat_ids;
 	parseUUIDArray(update,"_categories_removed",cat_ids);
-	for (uuid_list_t::const_iterator it = cat_ids.begin();
-		 it != cat_ids.end(); ++it)
+	for (auto cat_id : cat_ids)
 	{
-		LLViewerInventoryCategory *cat = gInventory.getCategory(*it);
+		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
 		if(cat)
 		{
 			mCatDescendentDeltas[cat->getParentUUID()]--;
-			mObjectsDeletedIds.insert(*it);
+			mObjectsDeletedIds.insert(cat_id);
 		}
 		else
 		{
-			LL_WARNS("Inventory") << "removed category not found " << *it << LL_ENDL;
+			LL_WARNS("Inventory") << "removed category not found " << cat_id << LL_ENDL;
 		}
 	}
 
@@ -393,36 +457,34 @@ void AISUpdate::parseMeta(const LLSD& update)
 	uuid_list_t item_ids;
 	parseUUIDArray(update,"_category_items_removed",item_ids);
 	parseUUIDArray(update,"_removed_items",item_ids);
-	for (uuid_list_t::const_iterator it = item_ids.begin();
-		 it != item_ids.end(); ++it)
+	for (auto item_id : item_ids)
 	{
-		LLViewerInventoryItem *item = gInventory.getItem(*it);
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		if(item)
 		{
 			mCatDescendentDeltas[item->getParentUUID()]--;
-			mObjectsDeletedIds.insert(*it);
+			mObjectsDeletedIds.insert(item_id);
 		}
 		else
 		{
-			LL_WARNS("Inventory") << "removed item not found " << *it << LL_ENDL;
+			LL_WARNS("Inventory") << "removed item not found " << item_id << LL_ENDL;
 		}
 	}
 
 	// parse _broken_links_removed -> mObjectsDeletedIds
 	uuid_list_t broken_link_ids;
 	parseUUIDArray(update,"_broken_links_removed",broken_link_ids);
-	for (uuid_list_t::const_iterator it = broken_link_ids.begin();
-		 it != broken_link_ids.end(); ++it)
+	for (auto broken_link_id : broken_link_ids)
 	{
-		LLViewerInventoryItem *item = gInventory.getItem(*it);
+		LLViewerInventoryItem *item = gInventory.getItem(broken_link_id);
 		if(item)
 		{
 			mCatDescendentDeltas[item->getParentUUID()]--;
-			mObjectsDeletedIds.insert(*it);
+			mObjectsDeletedIds.insert(broken_link_id);
 		}
 		else
 		{
-			LL_WARNS("Inventory") << "broken link not found " << *it << LL_ENDL;
+			LL_WARNS("Inventory") << "broken link not found " << broken_link_id << LL_ENDL;
 		}
 	}
 
@@ -764,7 +826,7 @@ void AISUpdate::parseEmbeddedCategories(const LLSD& categories)
 
 void AISUpdate::doUpdate()
 {
-	// Do version/descendent accounting.
+	// Do version/descendant accounting.
 	for (std::map<LLUUID,S32>::const_iterator catit = mCatDescendentDeltas.begin();
 		 catit != mCatDescendentDeltas.end(); ++catit)
 	{
@@ -785,7 +847,7 @@ void AISUpdate::doUpdate()
 			continue;
 		}
 
-		// If we have a known descendent count, set that now.
+		// If we have a known descendant count, set that now.
 		LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
 		if (cat)
 		{
@@ -822,7 +884,7 @@ void AISUpdate::doUpdate()
 		LLUUID category_id(update_it->first);
 		LLPointer<LLViewerInventoryCategory> new_category = update_it->second;
 		// Since this is a copy of the category *before* the accounting update, above,
-		// we need to transfer back the updated version/descendent count.
+		// we need to transfer back the updated version/descendant count.
 		LLViewerInventoryCategory* curr_cat = gInventory.getCategory(new_category->getUUID());
 		if (!curr_cat)
 		{
@@ -866,21 +928,19 @@ void AISUpdate::doUpdate()
 	}
 
 	// DELETE OBJECTS
-	for (uuid_list_t::const_iterator del_it = mObjectsDeletedIds.begin();
-		 del_it != mObjectsDeletedIds.end(); ++del_it)
+	for (auto deleted_id : mObjectsDeletedIds)
 	{
-		LL_DEBUGS("Inventory") << "deleted item " << *del_it << LL_ENDL;
-		gInventory.onObjectDeletedFromServer(*del_it, false, false, false);
+		LL_DEBUGS("Inventory") << "deleted item " << deleted_id << LL_ENDL;
+		gInventory.onObjectDeletedFromServer(deleted_id, false, false, false);
 	}
 
 	// TODO - how can we use this version info? Need to be sure all
 	// changes are going through AIS first, or at least through
 	// something with a reliable responder.
-	for (uuid_int_map_t::iterator ucv_it = mCatVersionsUpdated.begin();
-		 ucv_it != mCatVersionsUpdated.end(); ++ucv_it)
+	for (auto& ucv_it : mCatVersionsUpdated)
 	{
-		const LLUUID id = ucv_it->first;
-		S32 version = ucv_it->second;
+		const LLUUID id = ucv_it.first;
+		S32 version = ucv_it.second;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(id);
 		LL_DEBUGS("Inventory") << "cat version update " << cat->getName() << " to version " << cat->getVersion() << LL_ENDL;
 		if (cat->getVersion() != version)
@@ -896,7 +956,16 @@ void AISUpdate::doUpdate()
             // inventory COF is maintained on the viewer through calls to 
             // LLInventoryModel::accountForUpdate when a changing operation 
             // is performed.  This occasionally gets out of sync however.
-            cat->setVersion(version);
+            if (version != LLViewerInventoryCategory::VERSION_UNKNOWN)
+            {
+                cat->setVersion(version);
+            }
+            else
+            {
+                // We do not account for update if version is UNKNOWN, so we shouldn't rise version
+                // either or viewer will get stuck on descendants count -1, try to refetch folder instead
+                cat->fetch();
+            }
 		}
 	}
 

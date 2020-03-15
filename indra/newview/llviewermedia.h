@@ -227,8 +227,8 @@ public:
 	void mouseUp(const LLVector2& texture_coords, MASK mask, S32 button = 0);
 	void mouseMove(const LLVector2& texture_coords, MASK mask);
     void mouseDoubleClick(const LLVector2& texture_coords, MASK mask);
-	void mouseDoubleClick(S32 x,S32 y, MASK mask, S32 button = 0);
-	void scrollWheel(S32 x, S32 y, MASK mask);
+    void mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button = 0);
+	void scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask);
 	void mouseCapture();
 	
 	void navigateBack();
@@ -339,7 +339,7 @@ public:
 	/*virtual*/ void	cut() override;
 	/*virtual*/ BOOL	canCut() const override;
 
-	/*virtual*/ void	copy() override;
+	/*virtual*/ void	copy() const override final;
 	/*virtual*/ BOOL	canCopy() const override;
 
 	/*virtual*/ void	paste() override;

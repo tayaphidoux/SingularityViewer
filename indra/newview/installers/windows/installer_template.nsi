@@ -1,6 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Second Life setup.nsi
-;; Copyright 2004-2015, Linden Research, Inc.
+;; secondlife setup.nsi
+;; Copyright 2004-2011, Linden Research, Inc.
+;; Copyright 2013-2015 Alchemy Viewer Project
 ;;
 ;; This library is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public
@@ -95,18 +96,6 @@
   SetOverwrite on
 
 ;--------------------------------
-;Version Information
-
-  VIProductVersion "${VERSION_LONG}"
-  VIAddVersionKey "ProductName" "Singularity Viewer Installer"
-  VIAddVersionKey "Comments" "A viewer for the meta-verse!"
-  VIAddVersionKey "CompanyName" "${VENDORSTR}"
-  VIAddVersionKey "LegalCopyright" "Copyright © 2010-2019, ${VENDORSTR}"
-  VIAddVersionKey "FileDescription" "${APPNAME} Installer"
-  VIAddVersionKey "ProductVersion" "${VERSION_LONG}"
-  VIAddVersionKey "FileVersion" "${VERSION_LONG}"
-
-;--------------------------------
 ;Interface Settings
 
   ;Show Details
@@ -199,6 +188,18 @@
   !include "%%SOURCE%%\installers\windows\lang_zh.nsi"
 
 ;--------------------------------
+;Version Information
+
+  VIProductVersion "${VERSION_LONG}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "Singularity Viewer Installer"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "A viewer for the meta-verse!"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "${VENDORSTR}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright © 2010-2020, ${VENDORSTR}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${APPNAME} Installer"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION_LONG}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION_LONG}"
+
+;--------------------------------
 ;Reserve Files
   
   ;If you are using solid compression, files that are required before
@@ -206,7 +207,7 @@
   ;because this will make your installer start faster.
   
   !insertmacro MUI_RESERVEFILE_LANGDLL
-  ReserveFile "${NSISDIR}\Plugins\x86-unicode\nsisdl.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\NSISdl.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\nsDialogs.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\StartMenu.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\StdUtils.dll"
@@ -408,7 +409,41 @@ Section "Viewer"
   
   ;This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
   %%INSTALL_FILES%%
-  
+
+  ;Create temp dir and set out dir to it
+  CreateDirectory "$TEMP\AlchemyInst"
+  SetOutPath "$TEMP\AlchemyInst"
+
+  ;Download LibVLC
+!ifdef WIN64_BIN_BUILD
+  NSISdl::download "http://download.videolan.org/pub/videolan/vlc/3.0.8/win64/vlc-3.0.8-win64.7z" "$TEMP\AlchemyInst\libvlc.7z"
+!else
+  NSISdl::download "http://download.videolan.org/pub/videolan/vlc/3.0.8/win32/vlc-3.0.8-win32.7z" "$TEMP\AlchemyInst\libvlc.7z"
+!endif
+  Nsis7z::ExtractWithDetails "$TEMP\AlchemyInst\libvlc.7z" "Unpacking media plugins %s..."
+  Rename "$TEMP\AlchemyInst\vlc-3.0.8\libvlc.dll" "$INSTDIR\llplugin\libvlc.dll"
+  Rename "$TEMP\AlchemyInst\vlc-3.0.8\libvlccore.dll" "$INSTDIR\llplugin\libvlccore.dll"
+  Rename "$TEMP\AlchemyInst\vlc-3.0.8\plugins" "$INSTDIR\llplugin\plugins"
+
+  ;Download and install VC redist
+!ifdef WIN64_BIN_BUILD
+  NSISdl::download "https://aka.ms/vs/16/release/vc_redist.x64.exe" "$TEMP\AlchemyInst\vc_redist_16.x64.exe"
+  ExecWait "$TEMP\AlchemyInst\vc_redist_16.x64.exe /install /passive /norestart"
+
+  NSISdl::download "https://aka.ms/highdpimfc2013x64enu" "$TEMP\AlchemyInst\vc_redist_12.x64.exe"
+  ExecWait "$TEMP\AlchemyInst\vc_redist_12.x64.exe /install /passive /norestart"
+!else
+  NSISdl::download "https://aka.ms/vs/16/release/vc_redist.x86.exe" "$TEMP\AlchemyInst\vc_redist_16.x86.exe"
+  ExecWait "$TEMP\AlchemyInst\vc_redist_16.x86.exe /install /passive /norestart"
+
+  NSISdl::download "https://aka.ms/highdpimfc2013x86enu" "$TEMP\AlchemyInst\vc_redist_12.x86.exe"
+  ExecWait "$TEMP\AlchemyInst\vc_redist_12.x86.exe /install /passive /norestart"
+!endif
+
+  ;Remove temp dir and reset out to inst dir
+  RMDir /r "$TEMP\AlchemyInst\"
+  SetOutPath "$INSTDIR"
+
   ;Pass the installer's language to the client to use as a default
   StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
   
@@ -425,6 +460,7 @@ Section "Viewer"
     WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Create Account.url" "InternetShortcut" "URL" "http://join.secondlife.com/"
     WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Your Account.url"	"InternetShortcut" "URL" "http://www.secondlife.com/account/"
     WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Scripting Language Help.url" "InternetShortcut" "URL" "http://wiki.secondlife.com/wiki/LSL_Portal"
+
   !insertmacro MUI_STARTMENU_WRITE_END
 
   ;Other shortcuts

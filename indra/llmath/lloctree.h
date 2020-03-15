@@ -704,7 +704,7 @@ public:
 #endif
 		}
 
-		notifyRemoval(data);
+		this->notifyRemoval(data);
 		checkAlive();
 	}
 

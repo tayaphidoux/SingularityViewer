@@ -163,8 +163,8 @@ void LLSurface::create(const S32 grids_per_edge,
 	mOOGridsPerEdge = 1.f / mGridsPerEdge;
 	mGridsPerPatchEdge = grids_per_patch_edge;
 	mPatchesPerEdge = (mGridsPerEdge - 1) / mGridsPerPatchEdge;
-	mMetersPerGrid = width / ((F32)(mGridsPerEdge - 1));
-	mMetersPerEdge = mMetersPerGrid * (mGridsPerEdge - 1);
+	mMetersPerGrid = width / (F32)grids_per_edge;
+	mMetersPerEdge = mMetersPerGrid * grids_per_edge;
 // <FS:CR> Aurora Sim
 	sTextureSize = width;
 // </FS:CR> Aurora Sim

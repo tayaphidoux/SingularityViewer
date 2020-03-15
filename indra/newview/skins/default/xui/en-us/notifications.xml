@@ -994,9 +994,130 @@ You do not have enough [CURRENCY] to join this group.
 
   <notification
    icon="alertmodal.tga"
+   name="CreateGroupCost"
+   type="alertmodal">
+Creating this group will cost L$[COST].
+Groups need more than one member, or they are deleted forever.
+Please invite members within 48 hours.
+    <tag>group</tag>
+    <tag>funds</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Create group for L$[COST]"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupInaccessible"
+   type="alertmodal">
+This group is not accessible to you.
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupError"
+   type="alertmodal">
+Error processing your group membership request.
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupErrorReason"
+   type="alertmodal">
+Unable to join group: [reason]
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <tag>reason</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupTrialUser"
+   type="alertmodal">
+Sorry, trial users can't join groups.
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupMaxGroups"
+   type="alertmodal">
+You cannot join &apos;[group_name]&apos;:
+You are already a member of [group_count] groups, the maximum number allowed is [max_groups]
+    <tag>success</tag>
+    <tag>group_id</tag>
+    <tag>group_name</tag>
+    <tag>group_count</tag>
+    <tag>max_groups</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupClosedEnrollment"
+   type="alertmodal">
+You cannot join &apos;[group_name]&apos;:
+The group no longer has open enrollment.
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupSuccess"
+   type="alertmodal">
+You have been added to the group
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="JoinGroupInsufficientFunds"
+   type="alertmodal">
+Unable to transfer the required [CURRENCY][membership_fee] membership fee.
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LandBuyPass"
    type="alertmodal">
+   <tag>fail</tag>
 For [CURRENCY][COST] you can enter this land (&apos;[PARCEL_NAME]&apos;) for [TIME] hours.  Buy a pass?
+    <tag>funds</tag>
+    <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -1009,6 +1130,7 @@ For [CURRENCY][COST] you can enter this land (&apos;[PARCEL_NAME]&apos;) for [TI
    type="alertmodal">
 Sale price must be set to more than [CURRENCY]0 if selling to anyone.
 Please select an individual to sell to if selling for [CURRENCY]0.
+  <tag>fail</tag>
   </notification>
 
   <notification
@@ -1047,6 +1169,8 @@ Are you sure you want to return all objects shared with the group &apos;[NAME]&a
 *WARNING* This will delete the non-transferable objects deeded to the group!
 
 Objects: [N]
+    <tag>confirm</tag>
+    <tag>group</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -4393,6 +4517,90 @@ Remove estate manager for this estate only or for [ALL_ESTATES]?
 
   <notification
    icon="alert.tga"
+   label="Select estate"
+   name="EstateAllowedExperienceAdd"
+   type="alert">
+    Add to allowed list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateAllowedExperienceRemove"
+   type="alert">
+    Remove from allowed list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateBlockedExperienceAdd"
+   type="alert">
+    Add to blocked list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateBlockedExperienceRemove"
+   type="alert">
+    Remove from blocked list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateTrustedExperienceAdd"
+   type="alert">
+    Add to key list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateTrustedExperienceRemove"
+   type="alert">
+    Remove from key list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>  
+
+  <notification
+   icon="alert.tga"
    label="Confirm Kick"
    name="EstateKickUser"
    type="alert">
@@ -4426,6 +4634,17 @@ Are you sure you want to change the Estate Covenant?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="EstateParcelAccessOverride"
+   type="alertmodal">
+Unchecking this option may remove restrictions that parcel owners have added to prevent griefing, maintain privacy, or protect underage residents from adult material. Please discuss with your parcel owners as needed.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
      yestext="OK"/>
   </notification>
 
@@ -6531,6 +6750,13 @@ Cancelled Attach
 
   <notification
    icon="notifytip.tga"
+   name="CancelledFollow"
+   type="notifytip">
+Cancelled Follow
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
    name="ReplacedMissingWearable"
    type="notifytip">
 Replaced missing clothing/body part with default.
@@ -6938,7 +7164,7 @@ Event Notification:
       <button
        index="2"
        name="Cancel"
-       text="Cancel"/>
+       text="Dismiss"/>
     </form>
   </notification>
 
@@ -7431,27 +7657,6 @@ An object named [OBJECTFROMNAME] owned by [NAME] has given you a [OBJECTTYPE] na
 
   <notification
    icon="notify.tga"
-   name="ObjectGiveItemUnknownUser"
-   type="notify">
-An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJECTTYPE] named [OBJECTNAME].
-    <form name="form">
-      <button
-       index="0"
-       name="Keep"
-       text="Keep"/>
-      <button
-       index="1"
-       name="Discard"
-       text="Discard"/>
-      <button
-       index="2"
-       name="Mute"
-       text="Mute"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="notify.tga"
    name="UserGiveItem"
    log_to_im ="true"
    type="notify">
@@ -7537,10 +7742,6 @@ An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJ
        index="1"
        name="Cancel"
        text="Cancel"/>
-      <button
-       index="3"
-       name="Profile"
-       text="Profile"/>
     </form>
   </notification>
 
@@ -7573,10 +7774,6 @@ Offer a teleport?
        index="1"
        name="No"
        text="No"/>
-      <button
-       index="3"
-       name="Profile"
-       text="Profile"/>
     </form>
   </notification>
 
@@ -7606,7 +7803,7 @@ Offer a teleport?
    type="notify">
     <tag>friendship</tag>
     <tag>confirm</tag>
-[NAME] is offering friendship.
+[NAME_SLURL] is offering friendship.
 
 [MESSAGE]
 
@@ -7624,7 +7821,6 @@ Offer a teleport?
        index="2"
        name="Ignore"
        text="Ignore"/>
-      <button index="3" name="Profile" text="Profile"/>
     </form>
   </notification>
 
@@ -7643,7 +7839,7 @@ Offer a teleport?
    persist="true"
    type="notify">
     <tag>friendship</tag>
-[NAME] is offering friendship.
+[NAME_SLURL] is offering friendship.
 
 (By default, you will be able to see each other&apos;s online status.)
     <form name="form">
@@ -7659,7 +7855,6 @@ Offer a teleport?
        index="2"
        name="Ignore"
        text="Ignore"/>
-      <button index="3" name="Profile" text="Profile"/>
     </form>
   </notification>
 
@@ -7680,6 +7875,24 @@ Offer a teleport?
    type="notify">
     <tag>friendship</tag>
 [NAME] declined your friendship offer.
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="FriendshipAcceptedByMe"
+   log_to_im="true"   
+   type="notifytip">
+    <tag>friendship</tag>
+Accepted friendship offer from [NAME_SLURL]. [MESSAGE]
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="FriendshipDeclinedByMe"
+   log_to_im="true"   
+   type="notifytip">
+    <tag>friendship</tag>
+Declined friendship offer from [NAME_SLURL]. [MESSAGE]
   </notification>
 
   <notification
@@ -7808,22 +8021,172 @@ Is this OK?
     </form>
   </notification>
 
+
+
+  <notification
+    icon="alertmodal.tga"
+    name="ExperienceAcquireFailed"
+    type="alertmodal">
+Unable to acquire a new experience:
+    [ERROR_MESSAGE]
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="NotInGroupExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    A change to the experience group was ignored because the owner is not a member of the selected group.
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="UneditableExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    The uneditable field '[field]' was ignored when updating the experience profile.
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="RestrictedToOwnerExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    Ignored changes to the field '[field]' which can only be set by the experience owner.
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="MaturityRatingExceedsOwnerExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    You may not set the maturity rating of an experience higher than that of the owner.
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="RestrictedTermExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    The following terms prevented the update of the experience profile name and/or description: [extra_info]
+  </notification>
+  
+  <notification
+    icon="notify.tga"
+    name="TeleportedHomeExperienceRemoved"
+    persist="false"
+    type="notify">
+    You have been teleported from the region [region_name] for removing the experience secondlife:///app/experience/[public_id]/profile and are no longer permitted in the region.
+    <form name="form">
+      <ignore name="ignore"
+              text="Kicked from region for removing an experience"/>
+    </form>
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="TrustedExperienceEntry"
+    persist="false"
+    type="notify">
+    You have been allowed into the region [region_name] by participating in the key experience secondlife:///app/experience/[public_id]/profile removing this experience may kick you from the region.
+    <form name="form">
+      <ignore name="ignore"
+              text="Allowed into a region by an experience"/>
+    </form>
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="TrustedExperiencesAvailable"
+    persist="false"
+    type="notify">
+You do not have access to this destination. You may be allowed into the region by Accepting an experience below:
+
+[EXPERIENCE_LIST]
+
+Other Key Experiences may be available.
+  </notification>
+    
+
+  <notification
+    icon="notify.tga"
+    name="ExperienceEvent"
+    persist="false"
+    type="notifytip">
+    An object was allowed to [EventType] by the secondlife:///app/experience/[public_id]/profile experience.
+    Owner: secondlife:///app/agent/[OwnerID]/inspect
+    Object Name: [ObjectName]
+    Parcel Name: [ParcelName]
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="ExperienceEventAttachment"
+    persist="false"
+    type="notifytip">
+    An attachment was allowed to [EventType] by the secondlife:///app/experience/[public_id]/profile experience.
+    Owner: secondlife:///app/agent/[OwnerID]/inspect
+  </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="ScriptQuestionExperience"
+   persist="false"
+   type="notify">
+&apos;[OBJECTNAME]&apos;, an object owned by &apos;[NAME]&apos;, requests your participation in the [GRID_WIDE] experience:
+
+[EXPERIENCE]
+
+Once permission is granted you will not see this message again for this experience unless it is revoked from the experience profile.
+
+Scripts associated with this experience will be able to do the following on regions where the experience is active: 
+
+[QUESTIONS]
+Is this OK?
+  <unique combine="combine_with_new">
+    <context>experience</context>
+  </unique>
+    <form name="form">
+      <button
+       index="3"
+       name="BlockExperience"
+       text="Never"/>
+      <button
+        index="2"
+        name="Mute"
+        text="Mute"/>
+      <button
+       index="0"
+       name="Yes"
+       text="Yes"/>
+      <button
+       index="1"
+       name="No"
+       text="No"/>
+    </form>
+  </notification>
+
   <notification
    icon="notify.tga"
    name="ScriptQuestionCaution"
-   priority="high"
+   priority="critical"
+   persist="true"
    type="notify">
-&apos;[OBJECTNAME]&apos;, an object owned by &apos;[NAME]&apos;, would like to:
+Warning: The object &apos;[OBJECTNAME]&apos; wants total access to your inworld [CURRENCY] account. If you allow access, it can remove funds from your account at any time, or empty your account completely, on an ongoing basis with no additional warnings.
 
-[QUESTIONS]
-If you do not trust this object and its creator, you should deny the request. For additional information, click the Details button.
+[FOOTERTEXT]
 
-Grant this request?
+Do not allow access if you do not fully understand why it wants access to your account.
+  <tag>confirm</tag>
     <form name="form">
       <button
        index="0"
        name="Grant"
-       text="Grant"/>
+       text="Allow"/>
       <button
        default="true"
        index="1"
@@ -7834,6 +8197,9 @@ Grant this request?
        name="Details"
        text="Details..."/>
     </form>
+    <footer>
+[FOOTERTEXT]
+    </footer>
   </notification>
 
   <notification
@@ -11049,7 +11415,7 @@ AntiSpam: Blocked [SOURCE] for spamming [TYPE]s [AMOUNT] times in [TIME] seconds
    icon="notifytip.tga"
    name="AntiSpamNewlineFlood"
    type="notifytip">
-AntiSpam: Blocked newline flood from [SOURCE] (over [AMOUNT] newlines).
+AntiSpam: Blocked newline flood from secondlife:///app/agent/[SOURCE]/about (over [AMOUNT] newlines).
   </notification>
 
   <notification
@@ -11415,7 +11781,9 @@ The object you're attempting to restore in world is no copy, if you do not have 
    name="ServerVersionChanged"
    priority="high"
    type="notifytip">
-The region you have entered is running a different simulator version. Click this message for details.
+The region you have entered is running a different simulator version.
+Current simulator: [NEW_VERSION]
+Previous simulator: [OLD_VERSION]
   </notification>
 
   <notification
@@ -11479,7 +11847,7 @@ You have just entered a [SHORT_APP_NAME] support group chat. To help provide sup
     label="Update Available"
     name="RecommendedUpdate"
     type="notify">
-A newer version, [RECOMMENDED_VER], is available for Singularity[TYPE].
+A newer version, [RECOMMENDED_VER], is available for [SHORT_APP_NAME].
 
 Click [Visit Page] to open
 [URL]
@@ -11497,7 +11865,7 @@ for information and download links for this new version.
    name="UrgentUpdate"
    priority="high"
    type="notify">
-Your version of Singularity[TYPE] is critically out of date!
+Your version of [SHORT_APP_NAME] is critically out of date!
 
 It is STRONGLY recommended to download a newer version of this viewer due to grid compatibility and/or security concerns.
 
@@ -11518,7 +11886,7 @@ for information and download links for newer versions.
    name="UrgentUpdateModal"
    priority="high"
    type="alertmodal">
-Your version of Singularity[TYPE] is critically out of date!
+Your version of [SHORT_APP_NAME] is critically out of date!
 
 It is STRONGLY recommended to download a newer version of this viewer due to grid compatibility and/or security concerns.
 

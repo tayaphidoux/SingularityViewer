@@ -438,6 +438,12 @@ NVIDIA GTX 770					.*NVIDIA .*GTX *77.*						3		1
 NVIDIA GTX 780					.*NVIDIA .*GTX *78.*						3		1
 NVIDIA GTX 970					.*NVIDIA .*GTX *97.*						3		1
 NVIDIA GTX 980					.*NVIDIA .*GTX *98.*						3		1
+NVIDIA GTX 1050					.*NVIDIA.*GTX 105.*						3		1
+NVIDIA GTX 1060					.*NVIDIA.*GTX 106.*						3		1
+NVIDIA GTX 1070					.*NVIDIA.*GTX 107.*						3		1
+NVIDIA GTX 1080					.*NVIDIA.*GTX 108.*						3		1
+NVIDIA GTX 1650					.*NVIDIA.*GTX 165.*						3		1
+NVIDIA GTX 1660					.*NVIDIA.*GTX 166.*						3		1
 NVIDIA GTX TITAN				.*NVIDIA .*GTX *TITAN.*						3		1
 NVIDIA GeForce/Quadro RTX		.*(GeForce|Quadro) .*RTX.*					3		1
 NVIDIA RTX TITAN				.*NVIDIA .*RTX.*TITAN.*						3		1

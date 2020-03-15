@@ -30,16 +30,16 @@
 #include "llvoavatar.h"
 #include "llvovolume.h"
 
-class LLControlAvatar:
+class LLControlAvatar final:
     public LLVOAvatar
 {
     LOG_CLASS(LLControlAvatar);
 
 public:
     LLControlAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
-	virtual void 			initInstance(); // Called after construction to initialize the class.
+	void initInstance() override; // Called after construction to initialize the class.
 	virtual	~LLControlAvatar();
-	virtual LLControlAvatar* asControlAvatar() { return this; }
+	LLControlAvatar* asControlAvatar() override { return this; }
 
     void getNewConstraintFixups(LLVector3& new_pos_constraint, F32& new_scale_constraint) const;
     void matchVolumeTransform();
@@ -52,14 +52,15 @@ public:
     // Delayed kill so we don't make graphics pipeline unhappy calling
     // markDead() inside other graphics pipeline operations.
     void markForDeath();
+    void markDead() override;
 
-    virtual void idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
-	virtual BOOL updateCharacter(LLAgent &agent);
+    void idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time) override;
+	BOOL updateCharacter(LLAgent &agent) override;
 
     void getAnimatedVolumes(std::vector<LLVOVolume*>& volumes);
     void updateAnimations();  
     
-	virtual LLViewerObject*	lineSegmentIntersectRiggedAttachments(
+	LLViewerObject*	lineSegmentIntersectRiggedAttachments(
         const LLVector4a& start, const LLVector4a& end,
         S32 face = -1,                    // which face to check, -1 = ALL_SIDES
         BOOL pick_transparent = FALSE,
@@ -68,15 +69,15 @@ public:
         LLVector4a* intersection = NULL,   // return the intersection point
         LLVector2* tex_coord = NULL,      // return the texture coordinates of the intersection point
         LLVector4a* normal = NULL,         // return the surface normal at the intersection point
-        LLVector4a* tangent = NULL);     // return the surface tangent at the intersection point
+        LLVector4a* tangent = NULL) override;     // return the surface tangent at the intersection point
 
-	virtual void	updateDebugText();
+	void	updateDebugText() override;
 
-    virtual std::string getFullname() const;
+    std::string getFullname() const override;
 
-    virtual bool shouldRenderRigged() const;
+    bool shouldRenderRigged() const override;
 
-	virtual BOOL isImpostor(); 
+	BOOL isImpostor() const override;
     
     bool mPlaying;
 
@@ -101,7 +102,7 @@ typedef std::map<LLUUID, S32> signaled_animation_map_t;
 typedef std::map<LLUUID, signaled_animation_map_t> object_signaled_animation_map_t;
 
 // Stores information about previously requested animations, by object id.
-class LLObjectSignaledAnimationMap: public LLSingleton<LLObjectSignaledAnimationMap>
+class LLObjectSignaledAnimationMap final : public LLSingleton<LLObjectSignaledAnimationMap>
 {
 public:
 	LLObjectSignaledAnimationMap() {}

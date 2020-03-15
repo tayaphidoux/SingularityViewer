@@ -2347,7 +2347,7 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, MASK mask)
+void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask)
 {
 	LLPluginClassMedia* mMediaSource = getMediaPlugin();
 	scaleMouse(&x, &y);
@@ -2355,7 +2355,7 @@ void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, MASK mask)
 	mLastMouseY = y;
 	if (mMediaSource)
 	{
-		mMediaSource->scrollEvent(x, y, mask);
+		mMediaSource->scrollEvent(x, y, scroll_x, scroll_y, mask);
 	}
 }
 
@@ -3529,7 +3529,7 @@ LLViewerMediaImpl::canCut() const
 ////////////////////////////////////////////////////////////////////////////////
 // virtual
 void
-LLViewerMediaImpl::copy()
+LLViewerMediaImpl::copy() const
 {
 	LLPluginClassMedia* mMediaSource = getMediaPlugin();
 	if (mMediaSource)

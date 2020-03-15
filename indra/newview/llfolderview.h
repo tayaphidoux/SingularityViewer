@@ -191,7 +191,7 @@ public:
 
 	// Copy & paste
 	virtual BOOL	canCopy() const;
-	virtual void	copy();
+	virtual void	copy() const override final;
 
 	virtual BOOL	canCut() const;
 	virtual void	cut();

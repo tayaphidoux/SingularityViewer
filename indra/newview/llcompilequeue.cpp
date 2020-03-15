@@ -65,6 +65,7 @@
 #include "lltrans.h"
 
 #include "llselectmgr.h"
+#include "llexperiencecache.h"
 
 // *TODO: This should be separated into the script queue, and the floater views of that queue.
 // There should only be one floater class that can view any queue type
@@ -76,12 +77,12 @@
 struct LLScriptQueueData
 {
 	LLUUID mQueueID;
-	std::string mScriptName;
+	LLPointer<LLInventoryItem> mItemp;
 	LLUUID mTaskId;
-	LLUUID mItemId;
-	LLScriptQueueData(const LLUUID& q_id, const std::string& name, const LLUUID& task_id, const LLUUID& item_id) :
-		mQueueID(q_id), mScriptName(name), mTaskId(task_id), mItemId(item_id) {}
-
+	LLUUID mExperienceId;
+	LLHost mHost;
+	LLScriptQueueData(const LLUUID& q_id, const LLUUID& task_id, LLInventoryItem* item, const LLHost& host) :
+		mQueueID(q_id), mTaskId(task_id), mItemp(item), mHost(host) {}
 };
 
 ///----------------------------------------------------------------------------
@@ -220,7 +221,7 @@ BOOL LLFloaterScriptQueue::nextObject()
 		LL_INFOS() << "LLFloaterScriptQueue::nextObject() - " << count
 				<< " objects left to process." << LL_ENDL;
 		mCurrentObjectID.setNull();
-		if(count > 0)
+		if (count > 0)
 		{
 			successful_start = popNext();
 		}
@@ -228,7 +229,7 @@ BOOL LLFloaterScriptQueue::nextObject()
 				<< (successful_start ? "successful" : "unsuccessful")
 				<< LL_ENDL; 
 	} while((mObjectIDs.size() > 0) && !successful_start);
-	if(isDone() && !mDone)
+	if (isDone() && !mDone)
 	{
 		mDone = true;
 		getChild<LLScrollListCtrl>("queue output")->addSimpleElement(getString("Done"), ADD_BOTTOM);
@@ -245,14 +246,14 @@ BOOL LLFloaterScriptQueue::popNext()
 	// the inventory.
 	BOOL rv = FALSE;
 	S32 count = mObjectIDs.size();
-	if(mCurrentObjectID.isNull() && (count > 0))
+	if (mCurrentObjectID.isNull() && (count > 0))
 	{
 		mCurrentObjectID = mObjectIDs.at(0);
 		LL_INFOS() << "LLFloaterScriptQueue::popNext() - mCurrentID: "
 				<< mCurrentObjectID << LL_ENDL;
 		mObjectIDs.erase(mObjectIDs.begin());
 		LLViewerObject* obj = gObjectList.findObject(mCurrentObjectID);
-		if(obj)
+		if (obj)
 		{
 			LL_INFOS() << "LLFloaterScriptQueue::popNext() requesting inv for "
 					<< mCurrentObjectID << LL_ENDL;
@@ -270,35 +271,21 @@ BOOL LLFloaterScriptQueue::startQueue()
 	return nextObject();
 }
 
-#if 0 // Singu TODO: Experiences
-class CompileQueueExperienceResponder : public LLHTTPClient::ResponderWithResult
+class CompileQueueExperienceResponder final : public LLHTTPClient::ResponderWithResult
 {
+	const LLUUID mParent;
 public:
-	CompileQueueExperienceResponder(const LLUUID& parent):mParent(parent)
-	{
-	}
+	CompileQueueExperienceResponder(const LLUUID& parent): mParent(parent) {}
 
-	LLUUID mParent;
-
-	/*virtual*/ void httpSuccess()
-	{
-		sendResult(getContent());
-	}
-	/*virtual*/ void httpFailure()
-	{
-		sendResult(LLSD());
-	}
+	void httpSuccess() override { sendResult(getContent()); }
+	void httpFailure() override { sendResult(LLSD()); }
 	void sendResult(const LLSD& content)
 	{
-		LLFloaterCompileQueue* queue = (LLFloaterCompileQueue*) LLFloaterScriptQueue::findInstance(mParent);
-		if(!queue)
-			return;
-
-		queue->experienceIdsReceived(content["experience_ids"]);
+		if (auto queue = static_cast<LLFloaterCompileQueue*>(LLFloaterCompileQueue::findInstance(mParent)))
+			queue->experienceIdsReceived(content["experience_ids"]);
 	}
-	/*virtual*/ char const* getName() const { return "RequiredRubbish"; }
+	char const* getName() const override { return "CompileQueueExperienceResponder"; }
 };
-#endif
 
 
 
@@ -318,7 +305,7 @@ public:
 	virtual LLAssetUploadQueue* get() const
 	{
 		LLFloaterCompileQueue* queue = (LLFloaterCompileQueue*) LLFloaterScriptQueue::findInstance(mQueueId);
-		if(NULL == queue)
+		if (NULL == queue)
 		{
 			return NULL;
 		}
@@ -328,7 +315,7 @@ public:
 	virtual void log(std::string message) const
 	{
 		LLFloaterCompileQueue* queue = (LLFloaterCompileQueue*) LLFloaterScriptQueue::findInstance(mQueueId);
-		if(NULL == queue)
+		if (NULL == queue)
 		{
 			return;
 		}
@@ -363,6 +350,21 @@ LLFloaterCompileQueue::~LLFloaterCompileQueue()
 { 
 }
 
+void LLFloaterCompileQueue::experienceIdsReceived(const LLSD& content)
+{
+	for(LLSD::array_const_iterator it  = content.beginArray(); it != content.endArray(); ++it)
+	{
+		mExperienceIds.insert(it->asUUID());
+	}
+	nextObject();
+}
+
+BOOL LLFloaterCompileQueue::hasExperience(const LLUUID& id) const
+{
+	return mExperienceIds.find(id) != mExperienceIds.end();
+}
+
+
 void LLFloaterCompileQueue::handleInventory(LLViewerObject *viewer_object,
 											 LLInventoryObject::object_list_t* inv)
 {
@@ -376,7 +378,7 @@ void LLFloaterCompileQueue::handleInventory(LLViewerObject *viewer_object,
 	LLInventoryObject::object_list_t::const_iterator end = inv->end();
 	for ( ; it != end; ++it)
 	{
-		if((*it)->getType() == LLAssetType::AT_LSL_TEXT)
+		if ((*it)->getType() == LLAssetType::AT_LSL_TEXT)
 		{
 			LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
 			// Check permissions before allowing the user to retrieve data.
@@ -397,29 +399,66 @@ void LLFloaterCompileQueue::handleInventory(LLViewerObject *viewer_object,
 	}
 	else
 	{
-		// request all of the assets.
-		uuid_item_map::iterator iter;
-		for(iter = asset_item_map.begin(); iter != asset_item_map.end(); iter++)
+		LLViewerRegion* region = viewer_object->getRegion();
+		std::string url = std::string();
+		if (region)
 		{
-			LLInventoryItem *itemp = iter->second;
-			LLScriptQueueData* datap = new LLScriptQueueData(getID(),
-												 itemp->getName(),
-												 viewer_object->getID(),
-												 itemp->getUUID());
+			url = region->getCapability("GetMetadata");
+		}
 
-			//LL_INFOS() << "ITEM NAME 2: " << names.get(i) << LL_ENDL;
-			gAssetStorage->getInvItemAsset(viewer_object->getRegion()->getHost(),
-				gAgent.getID(),
-				gAgent.getSessionID(),
-				itemp->getPermissions().getOwner(),
-				viewer_object->getID(),
-				itemp->getUUID(),
-				itemp->getAssetUUID(),
-				itemp->getType(),
-				LLFloaterCompileQueue::scriptArrived,
-				(void*)datap);
+		const auto& host = region->getHost();
+		const auto& obj_id = viewer_object->getID();
+		// request all of the assets.
+		for(const auto& pair : asset_item_map)
+		{
+			LLInventoryItem *itemp = pair.second;
+			LLScriptQueueData* datap = new LLScriptQueueData(getID(),
+												 obj_id,
+												 itemp,
+												 host);
+
+			LLExperienceCache::instance().fetchAssociatedExperience(itemp->getParentUUID(), itemp->getUUID(),
+				boost::bind(LLFloaterCompileQueue::requestAsset, datap, _1));
 		}
 	}
+}
+
+void LLFloaterCompileQueue::requestAsset(LLScriptQueueData* datap, const LLSD& experience)
+{
+	LLFloaterCompileQueue* queue = static_cast<LLFloaterCompileQueue*>(findInstance(datap->mQueueID));
+	if (!queue)
+	{
+		delete datap;
+		return;
+	}
+
+	if (experience.has(LLExperienceCache::EXPERIENCE_ID))
+	{
+		datap->mExperienceId = experience[LLExperienceCache::EXPERIENCE_ID].asUUID();
+		if (!queue->hasExperience(datap->mExperienceId))
+		{
+			std::string buffer = LLTrans::getString("CompileNoExperiencePerm", LLSD::emptyMap()
+				.with("SCRIPT", datap->mItemp->getName())
+				.with("EXPERIENCE", experience[LLExperienceCache::NAME].asString()));
+
+			queue->getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
+			queue->removeItemByItemID(datap->mItemp->getUUID());
+			delete datap;
+			return;
+		}
+	}
+
+	//LL_INFOS() << "ITEM NAME 2: " << names.get(i) << LL_ENDL;
+	gAssetStorage->getInvItemAsset(datap->mHost,
+		gAgent.getID(),
+		gAgent.getSessionID(),
+		datap->mItemp->getPermissions().getOwner(),
+		datap->mTaskId,
+		datap->mItemp->getUUID(),
+		datap->mItemp->getAssetUUID(),
+		datap->mItemp->getType(),
+		LLFloaterCompileQueue::scriptArrived,
+		(void*)datap);
 }
 
 
@@ -438,9 +477,9 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 	LLFloaterCompileQueue* queue = static_cast<LLFloaterCompileQueue*> (LLFloaterScriptQueue::findInstance(data->mQueueID));
 
 	std::string buffer;
-	if(queue && (0 == status))
+	if (queue && (0 == status))
 	{
-		//LL_INFOS() << "ITEM NAME 3: " << data->mScriptName << LL_ENDL;
+		//LL_INFOS() << "ITEM NAME 3: " << data->mItemp->getName() << LL_ENDL;
 
 		// Dump this into a file on the local disk so we can compile it.
 		std::string filename;
@@ -454,7 +493,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 		if (object)
 		{
 			std::string url = object->getRegion()->getCapability("UpdateScriptTask");
-			if(!url.empty())
+			if (!url.empty())
 			{
 				// Read script source in to buffer.
 				U32 script_size = file.getSize();
@@ -462,17 +501,17 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 				file.read(script_data, script_size);
 
 				queue->mUploadQueue->queue(filename, data->mTaskId, 
-										   data->mItemId, is_running, queue->mMono, queue->getID(),
-										   script_data, script_size, data->mScriptName);
+										   data->mItemp->getUUID(), is_running, queue->mMono, queue->getID(),
+										   script_data, script_size, data->mItemp->getName(), data->mExperienceId);
 			}
 			else
 			{
 				std::string text = LLTrans::getString("CompileQueueProblemUploading");
 				LLChat chat(text);
 				LLFloaterChat::addChat(chat);
-				buffer = text + LLTrans::getString(":") + ' ' + data->mScriptName;
+				buffer = text + LLTrans::getString(":") + ' ' + data->mItemp->getName();
 				LL_WARNS() << "Problem uploading script asset." << LL_ENDL;
-				if(queue) queue->removeItemByItemID(data->mItemId);
+				if(queue) queue->removeItemByItemID(data->mItemp->getUUID());
 			}
 		}
 	}
@@ -480,29 +519,29 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 	{
 		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 
-		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
+		if ( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
 		{
 			LLChat chat(LLTrans::getString("CompileQueueScriptNotFound"));
 			LLFloaterChat::addChat(chat);
 
-			buffer = LLTrans::getString("CompileQueueProblemDownloading") + LLTrans::getString(":") + ' ' + data->mScriptName;
+			buffer = LLTrans::getString("CompileQueueProblemDownloading") + LLTrans::getString(":") + ' ' + data->mItemp->getName();
 		}
 		else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
 		{
 			LLChat chat(LLTrans::getString("CompileQueueInsufficientPermDownload"));
 			LLFloaterChat::addChat(chat);
 
-			buffer = LLTrans::getString("CompileQueueInsufficientPermFor") + LLTrans::getString(":") + ' ' + data->mScriptName;
+			buffer = LLTrans::getString("CompileQueueInsufficientPermFor") + LLTrans::getString(":") + ' ' + data->mItemp->getName();
 		}
 		else
 		{
-			buffer = LLTrans::getString("CompileQueueUnknownFailure") + ' ' + data->mScriptName;
+			buffer = LLTrans::getString("CompileQueueUnknownFailure") + ' ' + data->mItemp->getName();
 		}
 
 		LL_WARNS() << "Problem downloading script asset." << LL_ENDL;
-		if(queue) queue->removeItemByItemID(data->mItemId);
+		if(queue) queue->removeItemByItemID(data->mItemp->getUUID());
 	}
-	if(queue && (buffer.size() > 0)) 
+	if (queue && (buffer.size() > 0))
 	{
 		queue->getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
 	}
@@ -528,7 +567,7 @@ void LLFloaterCompileQueue::saveItemByItemID(const LLUUID& asset_id)
 {
 	LL_INFOS() << "LLFloaterCompileQueue::saveItemByAssetID()" << LL_ENDL;
 	LLViewerObject* viewer_object = gObjectList.findObject(mCurrentObjectID);
-	if(viewer_object)
+	if (viewer_object)
 	{
 		S32 count = mCurrentScripts.size();
 		for(S32 i = 0; i < count; ++i)
@@ -582,7 +621,7 @@ void LLFloaterResetQueue::handleInventory(LLViewerObject* viewer_obj,
 	LLInventoryObject::object_list_t::const_iterator end = inv->end();
 	for ( ; it != end; ++it)
 	{
-		if((*it)->getType() == LLAssetType::AT_LSL_TEXT)
+		if ((*it)->getType() == LLAssetType::AT_LSL_TEXT)
 		{
 			LLViewerObject* object = gObjectList.findObject(viewer_obj->getID());
 
@@ -641,7 +680,7 @@ void LLFloaterRunQueue::handleInventory(LLViewerObject* viewer_obj,
 	LLInventoryObject::object_list_t::const_iterator end = inv->end();
 	for ( ; it != end; ++it)
 	{
-		if((*it)->getType() == LLAssetType::AT_LSL_TEXT)
+		if ((*it)->getType() == LLAssetType::AT_LSL_TEXT)
 		{
 			LLViewerObject* object = gObjectList.findObject(viewer_obj->getID());
 
@@ -716,17 +755,16 @@ void LLFloaterCompileQueue::removeItemByItemID(const LLUUID& asset_id)
 
 BOOL LLFloaterCompileQueue::startQueue()
 {
-	/* Singu TODO: Experiences
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-		std::string lookup_url=region->getCapability("GetCreatorExperiences");
-		if(!lookup_url.empty())
+		std::string lookup_url = region->getCapability("GetCreatorExperiences");
+		if (!lookup_url.empty())
 		{
-			LLHTTPClient::get(lookup_url, new CompileQueueExperienceResponder(getKey().asUUID()));
+			LLHTTPClient::get(lookup_url, new CompileQueueExperienceResponder(mID));
 			return TRUE;
 		}
-	}*/
+	}
 	return nextObject();
 }
 
@@ -741,7 +779,7 @@ void LLFloaterNotRunQueue::handleInventory(LLViewerObject* viewer_obj,
 	LLInventoryObject::object_list_t::const_iterator end = inv->end();
 	for ( ; it != end; ++it)
 	{
-		if((*it)->getType() == LLAssetType::AT_LSL_TEXT)
+		if ((*it)->getType() == LLAssetType::AT_LSL_TEXT)
 		{
 			LLViewerObject* object = gObjectList.findObject(viewer_obj->getID());
 

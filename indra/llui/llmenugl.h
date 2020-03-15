@@ -490,7 +490,7 @@ public:
 	void setCanTearOff(BOOL tear_off);
 
 	// add a separator to this menu
-	virtual BOOL addSeparator();
+	virtual BOOL addSeparator(const std::string& name = LLStringUtil::null);
 
 	// for branching menu items, bring sub menus up to root level of menu hierarchy
 	virtual void updateParent( LLView* parentp );
@@ -527,16 +527,31 @@ public:
 
 	// erase group of items from menu
 	void erase(S32 begin, S32 end, bool arrange = true);
+	typedef std::list<LLMenuItemGL*> item_list_t;
+	inline item_list_t::iterator erase(item_list_t::const_iterator first, item_list_t::const_iterator last)
+	{
+		for (auto it = first; it != last; ++it)
+			LLUICtrl::removeChild(*it);
+		return mItems.erase(first, last);
+	}
 
 	// add new item at position
 	void insert(S32 begin, LLView* ctrl, bool arrange = true);
-	void insert(std::list<LLMenuItemGL*>::iterator position_iter, LLMenuItemGL* item, bool arrange = true);
+	void insert(item_list_t::const_iterator position_iter, LLMenuItemGL* item, bool arrange = true);
 
 	// find an item's position
-	std::list<LLMenuItemGL*>::iterator find(LLMenuItemGL* item) { return std::find(mItems.begin(), mItems.end(), item); }
+	item_list_t::const_iterator find(LLMenuItemGL* item) const { return std::find(mItems.begin(), mItems.end(), item); }
+
+	// end of items, for use with other members that return an iterator
+	item_list_t::const_iterator end() const { return mItems.cend(); }
+
+	// get list of items
+	const item_list_t& getItems() const { return mItems; }
+
+	// number of menu items
+	item_list_t::size_type getItemCount() const { return mItems.size(); }
 
 	void			setItemLastSelected(LLMenuItemGL* item);	// must be in menu
-	U32				getItemCount();				// number of menu items
 	LLMenuItemGL*	getItem(S32 number);		// 0 = first item
 	LLMenuItemGL*	getHighlightedItem();				
 
@@ -591,9 +606,8 @@ public:
 	virtual BOOL appendMenu( LLMenuGL* menu );
 
 protected:
-	// TODO: create accessor methods for these?
-	typedef std::list< LLMenuItemGL* > item_list_t;
 	item_list_t mItems;
+	// TODO: create accessor methods for these?
 	LLMenuItemGL*mFirstVisibleItem;
 	LLMenuItemGL *mArrowUpItem, *mArrowDownItem;
 
@@ -764,7 +778,7 @@ public:
 private:
 	virtual BOOL append(LLMenuItemGL* item);
 public:
-	virtual BOOL addSeparator();
+	virtual BOOL addSeparator(const std::string& name = LLStringUtil::null) override final;
 
 	virtual void arrange( void );
 
@@ -844,7 +858,7 @@ public:
 	/*virtual*/ BOOL jumpKeysActive();
 
 	// add a vertical separator to this menu
-	virtual BOOL addSeparator();
+	virtual BOOL addSeparator(const std::string& name = LLStringUtil::null) override final;
 
 	// LLView Functionality
 	virtual BOOL handleHover( S32 x, S32 y, MASK mask );

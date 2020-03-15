@@ -53,6 +53,8 @@ static LLPanelInjector<LLPanelMarketplaceListings> t_panel_status("llpanelmarket
 
 LLPanelMarketplaceListings::LLPanelMarketplaceListings()
 : mRootFolder(NULL)
+, mAuditBtn(nullptr)
+, mFilterEditor(nullptr)
 , mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME)
 , mFilterListingFoldersOnly(false)
 {
@@ -92,14 +94,13 @@ BOOL LLPanelMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL
 					   std::string& tooltip_msg)
 {
 	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-	BOOL handled = (handled_view != NULL);
-	// Special case the drop zone
-	if (handled && (handled_view->getName() == "marketplace_drop_zone"))
+	// Special case the drop zone, also we're a giant drop zone
+	if (!handled_view || (handled_view->getName() == "marketplace_drop_zone"))
 	{
 		LLFolderView* root_folder = getRootFolder();
-		handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		return root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	}
-	return handled;
+	return false;
 }
 
 void LLPanelMarketplaceListings::buildAllPanels()
@@ -222,7 +223,7 @@ void LLPanelMarketplaceListings::onTabChange()
 		// Show/hide the drop zone and resize the inventory tabs panel accordingly
 		LLPanel* drop_zone = (LLPanel*)getChild<LLPanel>("marketplace_drop_zone");
 		bool drop_zone_visible = drop_zone->getVisible();
-		bool allow_drop_on_root = panel->getAllowDropOnRoot() && gSavedSettings.getBOOL("LiruEnableWIPUI");
+		bool allow_drop_on_root = panel->getAllowDropOnRoot();
 		if (drop_zone_visible != allow_drop_on_root)
 		{
 			LLPanel* tabs = (LLPanel*)getChild<LLPanel>("tab_container_panel");

@@ -47,6 +47,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
+#include "llimprocessing.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
 #include "llmarketplacefunctions.h"
@@ -95,6 +96,7 @@
 // Linden library includes
 #include "llavatarnamecache.h"
 #include "lldiriterator.h"
+#include "llexperiencecache.h"
 #include "llimagej2c.h"
 #include "llmemory.h"
 #include "llprimitive.h"
@@ -189,6 +191,7 @@
 #include "llviewerthrottle.h"
 #include "llparcel.h"
 #include "llviewerassetstats.h"
+#include "NACLantispam.h"
 
 #include "llmainlooprepeater.h"
 
@@ -425,27 +428,6 @@ static void ui_audio_callback(const LLUUID& uuid)
 	if (gAudiop)
 	{
 		gAudiop->triggerSound(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
-	}
-}
-
-void request_initial_instant_messages()
-{
-	static BOOL requested = FALSE;
-	if (!requested
-		&& gMessageSystem
-		&& LLMuteList::getInstance()->isLoaded()
-		&& isAgentAvatarValid())
-	{
-		// Auto-accepted inventory items may require the avatar object
-		// to build a correct name.  Likewise, inventory offers from
-		// muted avatars require the mute list to properly mute.
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessageFast(_PREHASH_RetrieveInstantMessages);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		gAgent.sendReliableMessage();
-		requested = TRUE;
 	}
 }
 
@@ -726,6 +708,8 @@ void LLAppViewer::initCrashReporting()
 	annotations.emplace("sentry[contexts][app][app_version]", LLVersionInfo::getVersion());
 	annotations.emplace("sentry[contexts][app][app_build]", LLVersionInfo::getChannelAndVersion());
 
+	annotations.emplace("sentry[release]", LLVersionInfo::getChannelAndVersion());
+
 	annotations.emplace("sentry[tags][second_instance]", fmt::to_string(isSecondInstance()));
 	//annotations.emplace("sentry[tags][bitness]", fmt::to_string(ADDRESS_SIZE));
 	annotations.emplace("sentry[tags][bitness]",
@@ -738,7 +722,6 @@ void LLAppViewer::initCrashReporting()
 
 	// Optional arguments to pass to the handler
 	std::vector<std::string> arguments;
-	arguments.push_back("--no-upload-gzip");
 	arguments.push_back("--no-rate-limit");
 	arguments.push_back("--monitor-self");
 
@@ -2286,7 +2269,9 @@ bool LLAppViewer::initConfiguration()
 	LL_INFOS() << "Loading settings file list" << settings_file_list << LL_ENDL;
 	if (0 == settings_control.loadFromFile(settings_file_list))
 	{
-		LL_ERRS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
+		OSMessageBox("Cannot load default configuration file " + settings_file_list + " The installation may be corrupted.",
+			LLStringUtil::null,OSMB_OK);
+		return false;
 	}
 
 	mSettingsLocationList = settings_control.getLLSD("Locations");
@@ -4045,7 +4030,7 @@ void LLAppViewer::idle()
 	// here.
 	{
 		LAZY_FT("request_initial_instant_messages");
-		request_initial_instant_messages();
+		LLIMProcessing::requestOfflineMessages();
 	}
 
 	///////////////////////////////////
@@ -4176,6 +4161,7 @@ void LLAppViewer::idle()
 		// floating throughout the various object lists.
 		//
 		idleNameCache();
+		if (gAgent.getRegion()) LLExperienceCache::instance().idleCoro();
 
 		gFrameStats.start(LLFrameStats::IDLE_NETWORK);
 		stop_glerror();
@@ -4204,6 +4190,7 @@ void LLAppViewer::idle()
 
 		gIdleCallbacks.callFunctions();
 		gInventory.idleNotifyObservers();
+		if (auto antispam = NACLAntiSpamRegistry::getIfExists()) antispam->idle();
 	}
 
 	// Metrics logging (LLViewerAssetStats, etc.)
@@ -4840,6 +4827,12 @@ void LLAppViewer::disconnectViewer()
 	}
 
 	saveNameCache();
+	if (LLExperienceCache::instanceExists())
+	{
+		// TODO: LLExperienceCache::cleanup() logic should be moved to
+		// cleanupSingleton().
+		LLExperienceCache::instance().cleanup();
+	}
 
 	// close inventory interface, close all windows
 	LLPanelMainInventory::cleanup();

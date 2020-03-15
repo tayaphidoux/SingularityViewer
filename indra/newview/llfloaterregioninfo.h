@@ -3,31 +3,25 @@
  * @author Aaron Brashears
  * @brief Declaration of the region info and controls floater and panels.
  *
- * $LicenseInfo:firstyear=2004&license=viewergpl$
- * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
- * 
+ * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
- * The source code in this file ("Source Code") is provided by Linden Lab
- * to you under the terms of the GNU General Public License, version 2.0
- * ("GPL"), unless you have obtained a separate licensing agreement
- * ("Other License"), formally executed by you and Linden Lab.  Terms of
- * the GPL can be found in doc/GPL-license.txt in this distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ * Copyright (C) 2010, Linden Research, Inc.
  * 
- * There are special exceptions to the terms and conditions of the GPL as
- * it is applied to this Source Code. View the full text of the exception
- * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at
- * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
  * 
- * By copying, modifying or distributing this software, you acknowledge
- * that you have read and understood your obligations described above,
- * and agree to abide by those obligations.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  * 
- * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
- * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
- * COMPLETENESS OR PERFORMANCE.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
@@ -42,6 +36,7 @@
 #include "llenvmanager.h" // for LLEnvironmentSettings
 
 class LLAvatarName;
+class LLDispatcher;
 struct LLEstateAccessChangeInfo;
 class LLLineEditor;
 class LLMessageSystem;
@@ -57,6 +52,7 @@ class LLRadioGroup;
 class LLSliderCtrl;
 class LLSpinCtrl;
 class LLTextBox;
+class LLVFS;
 class AIFilePicker;
 
 class LLPanelRegionGeneralInfo;
@@ -64,8 +60,17 @@ class LLPanelRegionDebugInfo;
 class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
+class LLPanelExperienceListEditor;
+class LLPanelExperiences;
+class LLPanelRegionExperiences;
 class LLPanelEstateAccess;
 
+class LLEventTimer;
+class LLEnvironmentSettings;
+class LLWLParamManager;
+class LLWaterParamManager;
+class LLWLParamSet;
+class LLWaterParamSet;
 
 class LLFloaterRegionInfo : public LLFloater, public LLFloaterSingleton<LLFloaterRegionInfo>
 {
@@ -73,11 +78,11 @@ class LLFloaterRegionInfo : public LLFloater, public LLFloaterSingleton<LLFloate
 public:
 
 
-	/*virtual*/ void onOpen();
-	/*virtual*/ void onClose(bool app_quitting);
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(/*const LLSD& key*/) override;
+	/*virtual*/ void onClose(bool app_quitting) override;
+	/*virtual*/ BOOL postBuild() override;
 // [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.0.0a)
-	/*virtual*/ void open();
+	/*virtual*/ void open() override;
 // [/RLVa:KB]
 
 	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
@@ -94,9 +99,10 @@ public:
 	static LLPanelEstateAccess* getPanelAccess();
 	static LLPanelEstateCovenant* getPanelCovenant();
 	static LLPanelRegionTerrainInfo* getPanelRegionTerrain();
+	static LLPanelRegionExperiences* getPanelExperiences();
 
 	// from LLPanel
-	virtual void refresh();
+	void refresh() override;
 	
 	void requestRegionInfo();
 	void requestMeshRezInfo();
@@ -139,7 +145,7 @@ public:
 	virtual bool refreshFromRegion(LLViewerRegion* region);
 	virtual bool estateUpdate(LLMessageSystem* msg) { return true; }
 	
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 	virtual void updateChild(LLUICtrl* child_ctrl);
 	virtual void onOpen(const LLSD& key) {}
 	
@@ -183,13 +189,14 @@ public:
 		:	LLPanelRegionInfo()	{}
 	~LLPanelRegionGeneralInfo() {}
 	
-	virtual bool refreshFromRegion(LLViewerRegion* region);
+	bool refreshFromRegion(LLViewerRegion* region) override;
 	
 	// LLPanel
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
+
 
 protected:
-	virtual BOOL sendUpdate();
+	BOOL sendUpdate() override;
 	void onClickKick();
 	void onKickCommit(const uuid_vec_t& ids);
 	static void onClickKickAll(void* userdata);
@@ -208,12 +215,12 @@ public:
 		:	LLPanelRegionInfo(), mTargetAvatar() {}
 	~LLPanelRegionDebugInfo() {}
 	// LLPanel
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 	
-	virtual bool refreshFromRegion(LLViewerRegion* region);
+	bool refreshFromRegion(LLViewerRegion* region) override;
 	
 protected:
-	virtual BOOL sendUpdate();
+	BOOL sendUpdate() override;
 
 	void onClickChooseAvatar();
 	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName>& names);
@@ -240,9 +247,9 @@ public:
 	LLPanelRegionTerrainInfo() : LLPanelRegionInfo() {}
 	~LLPanelRegionTerrainInfo() {}
 
-	virtual BOOL postBuild();												// LLPanel
+	BOOL postBuild() override;												// LLPanel
 	
-	virtual bool refreshFromRegion(LLViewerRegion* region);					// refresh local settings from region update from simulator
+	bool refreshFromRegion(LLViewerRegion* region) override;					// refresh local settings from region update from simulator
 	void setEnvControls(bool available);									// Whether environment settings are available for this region
 
 	BOOL validateTextureSizes();
@@ -251,7 +258,7 @@ protected:
 
 	//static void onChangeAnything(LLUICtrl* ctrl, void* userData);			// callback for any change, to enable commit button
 
-	virtual BOOL sendUpdate();
+	BOOL sendUpdate() override;
 
 	static void onClickDownloadRaw(void*);
 	void onClickDownloadRaw_continued(AIFilePicker* filepicker);
@@ -294,13 +301,13 @@ public:
 	static void updateEstateName(const std::string& name);
 	static void updateEstateOwnerID(const LLUUID& id);
 
-	virtual bool refreshFromRegion(LLViewerRegion* region);
-	virtual bool estateUpdate(LLMessageSystem* msg);
+	bool refreshFromRegion(LLViewerRegion* region) override;
+	bool estateUpdate(LLMessageSystem* msg) override;
 	
 	// LLPanel
-	virtual BOOL postBuild();
-	virtual void updateChild(LLUICtrl* child_ctrl);
-	virtual void refresh();
+	BOOL postBuild() override;
+	void updateChild(LLUICtrl* child_ctrl) override;
+	void refresh() override;
 
 	void refreshFromEstate();
 	
@@ -309,7 +316,7 @@ public:
 	const std::string getOwnerName() const;
 
 protected:
-	virtual BOOL sendUpdate();
+	BOOL sendUpdate() override;
 	// confirmation dialog callback
 	bool callbackChangeLindenEstate(const LLSD& notification, const LLSD& response);
 
@@ -330,16 +337,16 @@ public:
 	~LLPanelEstateCovenant() {}
 	
 	// LLPanel
-	virtual BOOL postBuild();
-	virtual void updateChild(LLUICtrl* child_ctrl);
-	virtual bool refreshFromRegion(LLViewerRegion* region);
-	virtual bool estateUpdate(LLMessageSystem* msg);
+	BOOL postBuild() override;
+	void updateChild(LLUICtrl* child_ctrl) override;
+	bool refreshFromRegion(LLViewerRegion* region) override;
+	bool estateUpdate(LLMessageSystem* msg) override;
 
 	// LLView overrides
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,
-						   std::string& tooltip_msg);
+						   std::string& tooltip_msg) override;
 	static bool confirmChangeCovenantCallback(const LLSD& notification, const LLSD& response);
 	static void resetCovenantID(void* userdata);
 	static bool confirmResetCovenantCallback(const LLSD& notification, const LLSD& response);
@@ -372,7 +379,7 @@ public:
 	} EAssetStatus;
 
 protected:
-	virtual BOOL sendUpdate();
+	BOOL sendUpdate() override;
 	LLTextBox*				mEstateNameText;
 	LLTextBox*				mEstateOwnerText;
 	LLTextBox*				mLastModifiedText;
@@ -392,17 +399,17 @@ public:
 	LLPanelEnvironmentInfo();
 
 	// LLPanel
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onOpen(const LLSD& key) override;
 
 	// LLView
-	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
+	/*virtual*/ void handleVisibilityChange(BOOL new_visibility) override;
 
 	// LLPanelRegionInfo
-	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region);
+	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region) override;
 
 private:
-	void refresh();
+	void refresh() override;
 	void setControlsEnabled(bool enabled);
 	void setApplyProgress(bool started);
 	void setDirty(bool dirty);
@@ -444,7 +451,6 @@ private:
 	LLComboBox*		mDayCyclePresetCombo;
 };
 
-#if 0 // Singu TODO: Experiences
 class LLPanelRegionExperiences : public LLPanelRegionInfo
 {
 	LOG_CLASS(LLPanelEnvironmentInfo);
@@ -477,7 +483,6 @@ private:
 	LLUUID mDefaultExperience;
 };
 
-#endif // Singu TODO: Experiences
 
 class LLPanelEstateAccess : public LLPanelRegionInfo
 {

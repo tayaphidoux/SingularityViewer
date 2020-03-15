@@ -45,18 +45,32 @@
       <on_click function="List.InviteToGroup"/>
       <on_visible function="List.EnableAnySelected"/>
     </menu_item_call>
+    <menu_item_call label="Follow" name="Follow">
+      <on_click function="List.Follow"/>
+      <on_enable function="List.EnableSingleSelected"/>
+      <on_visible function="List.IsNearby"/>
+    </menu_item_call>
+    <menu_item_call label="Move To" name="Move To">
+      <on_click function="List.GoTo"/>
+      <on_enable function="List.EnableSingleSelected"/>
+      <on_visible function="List.IsNearby"/>
+    </menu_item_call>
     <menu_item_call label="Offer Teleport" name="Offer Teleport">
       <on_click function="List.OfferTeleport"/>
       <on_enable function="List.EnableAnySelected"/>
     </menu_item_call>
     <menu_item_call label="Teleport To" name="Teleport To">
-      <on_click function="Radar.TeleportTo"/>
+      <on_click function="List.TeleportTo"/>
       <on_enable function="List.EnableSingleSelected"/>
       <on_visible function="List.IsNearby"/>
     </menu_item_call>
     <menu_item_call label="Request Teleport" name="Request Teleport">
       <on_click function="List.RequestTeleport"/>
       <on_visible function="List.EnableSingleSelected"/>
+    </menu_item_call>
+    <menu_item_call label="Find on Map" name="Find on Map">
+      <on_click function="List.Stalk"/>
+      <on_visible function="List.Stalkable"/>
     </menu_item_call>
     <menu_item_call label="Share" name="Share">
       <on_click function="List.Share"/>
@@ -76,6 +90,10 @@
       <on_click function="List.CopyUUIDs"/>
       <on_enable function="List.EnableAnySelected"/>
     </menu_item_call>
+    <menu_item_call label="Copy Name" name="Copy Name">
+      <on_click function="List.CopyNames"/>
+      <on_enable function="List.EnableAnySelected"/>
+    </menu_item_call>
     <menu_item_call label="Copy SLURL" name="Copy SLURL">
       <on_click function="List.CopySLURL"/>
       <on_visible function="List.EnableSingleSelected"/>
@@ -87,10 +105,13 @@
     <on_visible function="List.IsNearby"/>
   </menu_item_call>
   <menu label="Moderation" name="Moderation" create_jump_keys="true">
-    <menu_item_call label="Mute/Unmute" name="Mute/Unmute">
+    <menu_item_call label="Mute" name="Mute">
       <on_click function="List.ToggleMute"/>
-      <on_enable function="List.EnableMute"/>
-      <on_visible function="List.EnableAnySelected"/>
+      <on_visible function="List.EnableMute"/>
+    </menu_item_call>
+    <menu_item_call label="Unmute" name="Unmute">
+      <on_click function="List.ToggleMute"/>
+      <on_visible function="List.EnableUnmute"/>
     </menu_item_call>
     <menu_item_call label="Ban From Group" name="Ban From Group">
       <on_click function="List.BanFromGroup"/>

@@ -84,12 +84,12 @@ const int LLPanelPrimMediaControls::kNumZoomLevels = 2;
 //
 
 LLPanelPrimMediaControls::LLPanelPrimMediaControls() : 
-	mAlpha(1.f),
-	mCurrentURL(""),
-	mPreviousURL(""),
 	mPauseFadeout(false),
 	mUpdateSlider(true),
 	mClearFaceOnFade(false),
+	mAlpha(1.f),
+	mCurrentURL(""),
+	mPreviousURL(""),
 	mCurrentRate(0.0),
 	mMovieDuration(0.0),
 	mTargetObjectID(LLUUID::null),
@@ -285,7 +285,7 @@ LLPluginClassMedia* LLPanelPrimMediaControls::getTargetMediaPlugin()
 		return impl->getMediaPlugin();
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 void LLPanelPrimMediaControls::updateShape()
@@ -299,7 +299,7 @@ void LLPanelPrimMediaControls::updateShape()
 		return;
 	}
 
-	LLPluginClassMedia* media_plugin = NULL;
+	LLPluginClassMedia* media_plugin = nullptr;
 	if(media_impl->hasMedia())
 	{
 		media_plugin = media_impl->getMediaPlugin();
@@ -320,7 +320,7 @@ void LLPanelPrimMediaControls::updateShape()
 	{
 		bool mini_controls = false;
 		LLMediaEntry *media_data = objectp->getTE(mTargetObjectFace)->getMediaData();
-		LLVOVolume *vol = dynamic_cast<LLVOVolume*>(objectp);
+        LLVOVolume *vol = objectp ? objectp->asVolume() : nullptr;
 		if (media_data && vol)
 		{
 			// Don't show the media controls if we do not have permissions
@@ -354,11 +354,11 @@ void LLPanelPrimMediaControls::updateShape()
 		mSecureLockIcon->setVisible(false);
 		mCurrentURL = media_impl->getCurrentMediaURL();
 		
-		mBackCtrl->setEnabled((media_impl != NULL) && media_impl->canNavigateBack() && can_navigate);
-		mFwdCtrl->setEnabled((media_impl != NULL) && media_impl->canNavigateForward() && can_navigate);
+		mBackCtrl->setEnabled((media_impl != nullptr) && media_impl->canNavigateBack() && can_navigate);
+		mFwdCtrl->setEnabled((media_impl != nullptr) && media_impl->canNavigateForward() && can_navigate);
 		mStopCtrl->setEnabled(has_focus && can_navigate);
 		mHomeCtrl->setEnabled(has_focus && can_navigate);
-		LLPluginClassMediaOwner::EMediaStatus result = ((media_impl != NULL) && media_impl->hasMedia()) ? media_plugin->getStatus() : LLPluginClassMediaOwner::MEDIA_NONE;
+		LLPluginClassMediaOwner::EMediaStatus result = ((media_impl != nullptr) && media_impl->hasMedia()) ? media_plugin->getStatus() : LLPluginClassMediaOwner::MEDIA_NONE;
 		
 		mVolumeCtrl->setVisible(has_focus);
 		mVolumeCtrl->setEnabled(has_focus);
@@ -423,7 +423,7 @@ void LLPanelPrimMediaControls::updateShape()
 				mMediaPlaySliderCtrl->setEnabled(true);
 			}
 			
-			// video vloume
+			// video volume
 			if(volume <= 0.0)
 			{
 				mMuteBtn->setToggleState(true);
@@ -552,21 +552,21 @@ void LLPanelPrimMediaControls::updateShape()
 			switch (mScrollState) 
 			{
 				case SCROLL_UP:
-					media_impl->scrollWheel(0, -1, MASK_NONE);
+					media_impl->scrollWheel(0, 0, 0, -1, MASK_NONE);
 					break;
 				case SCROLL_DOWN:
-					media_impl->scrollWheel(0, 1, MASK_NONE);
+					media_impl->scrollWheel(0, 0, 0, 1, MASK_NONE);
 					break;
 				case SCROLL_LEFT:
-					media_impl->scrollWheel(1, 0, MASK_NONE);
+					media_impl->scrollWheel(0, 0, 1, 0, MASK_NONE);
 					//				media_impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 					break;
 				case SCROLL_RIGHT:
-					media_impl->scrollWheel(-1, 0, MASK_NONE);
+					media_impl->scrollWheel(0, 0, -1, 0, MASK_NONE);
 					//				media_impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 					break;
 				case SCROLL_NONE:
-		default:
+				default:
 					break;
 			}
 		}
@@ -1106,7 +1106,7 @@ void LLPanelPrimMediaControls::onScrollUp(void* user_data)
 	
 	if(impl)
 	{
-		impl->scrollWheel(0, -1, MASK_NONE);
+		impl->scrollWheel(0, 0, 0, -1, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollUpHeld(void* user_data)
@@ -1123,7 +1123,7 @@ void LLPanelPrimMediaControls::onScrollRight(void* user_data)
 
 	if(impl)
 	{
-		impl->scrollWheel(-1, 0, MASK_NONE);
+		impl->scrollWheel(0, 0, -1, 0, MASK_NONE);
 //		impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 	}
 }
@@ -1142,7 +1142,7 @@ void LLPanelPrimMediaControls::onScrollLeft(void* user_data)
 
 	if(impl)
 	{
-		impl->scrollWheel(1, 0, MASK_NONE);
+		impl->scrollWheel(0, 0, 1, 0, MASK_NONE);
 //		impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 	}
 }
@@ -1161,7 +1161,7 @@ void LLPanelPrimMediaControls::onScrollDown(void* user_data)
 	
 	if(impl)
 	{
-		impl->scrollWheel(0, 1, MASK_NONE);
+		impl->scrollWheel(0, 0, 0, 1, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollDownHeld(void* user_data)

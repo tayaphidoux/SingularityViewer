@@ -1896,3 +1896,8 @@ void LLTabContainer::commitHoveredButton(S32 x, S32 y)
 	}
 }
 
+S32 LLTabContainer::getTotalTabWidth() const
+{
+	return mTotalTabWidth;
+}
+

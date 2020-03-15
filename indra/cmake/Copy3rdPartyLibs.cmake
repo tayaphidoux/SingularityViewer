@@ -13,10 +13,6 @@ include(LLCommon)
 # set up platform specific lists of files that need to be copied
 ###################################################################
 if(WINDOWS)
-    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
-    set(CMAKE_INSTALL_UCRT_LIBRARIES TRUE)
-    include(InstallRequiredSystemLibrariesAL)
-
     set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug")
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo")
     set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/Release")
@@ -82,39 +78,19 @@ if(WINDOWS)
     endif(ADDRESS_SIZE EQUAL 64)
 		
     if(NOT DISABLE_TCMALLOC)
-      set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
-      set(release_files ${release_files} libtcmalloc_minimal.dll)
+      list(APPEND debug_files libtcmalloc_minimal-debug.dll)
+      list(APPEND release_files libtcmalloc_minimal.dll)
     endif(NOT DISABLE_TCMALLOC)
 
     if(OPENAL)
-      set(debug_files ${debug_files} alut.dll OpenAL32.dll)
-      set(release_files ${release_files} alut.dll OpenAL32.dll)
+      list(APPEND debug_files alut.dll OpenAL32.dll)
+      list(APPEND release_files alut.dll OpenAL32.dll)
     endif(OPENAL)
 
-    if (FMODSTUDIO)
-      set(debug_files ${debug_files} fmodL.dll)
-      set(release_files ${release_files} fmod.dll)
-    endif (FMODSTUDIO)
-
-    foreach(redistfullfile IN LISTS CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
-        get_filename_component(redistfilepath ${redistfullfile} DIRECTORY )
-        get_filename_component(redistfilename ${redistfullfile} NAME)
-        copy_if_different(
-            ${redistfilepath}
-            "${SHARED_LIB_STAGING_DIR_RELEASE}"
-            out_targets
-            ${redistfilename}
-            )
-        set(third_party_targets ${third_party_targets} ${out_targets})
-
-        copy_if_different(
-            ${redistfilepath}
-            "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}"
-            out_targets
-            ${redistfilename}
-            )
-        set(third_party_targets ${third_party_targets} ${out_targets})
-    endforeach()
+    if (USE_FMODSTUDIO)
+      list(APPEND debug_files fmodL.dll)
+      list(APPEND release_files fmod.dll)
+    endif (USE_FMODSTUDIO)
 
 elseif(DARWIN)
     set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug/Resources")
@@ -191,13 +167,13 @@ elseif(LINUX)
        )
 
     if (USE_TCMALLOC)
-      set(release_files ${release_files} "libtcmalloc_minimal.so")
+      list(APPEND release_files "libtcmalloc_minimal.so")
     endif (USE_TCMALLOC)
 
-    if (FMODSTUDIO)
-      set(debug_files ${debug_files} "libfmodL.so")
-      set(release_files ${release_files} "libfmod.so")
-    endif (FMODSTUDIO)
+    if (USE_FMODSTUDIO)
+      list(APPEND debug_files "libfmodL.so")
+      list(APPEND release_files "libfmod.so")
+    endif (USE_FMODSTUDIO)
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")

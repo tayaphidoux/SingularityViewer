@@ -236,6 +236,7 @@ struct ProfCtrlListAccum : public LLControlGroup::ApplyFunctor
 #endif //PROF_CTRL_CALLS
 void spew_key_to_name(const LLUUID& targetKey, const LLAvatarName& av_name)
 {
+	static const LLCachedControl<S32> ns(gSavedSettings, "AscentCmdLineKeyToNameNameSystem");
 	cmdline_printchat(llformat("%s: %s", targetKey.asString().c_str(), av_name.getNSName().c_str()));
 }
 bool cmd_line_chat(std::string data, EChatType type)
@@ -255,12 +256,14 @@ bool cmd_line_chat(std::string data, EChatType type)
 		static LLCachedControl<std::string> sPosCommand(gSavedSettings,  "AscentCmdLinePos");
 		static LLCachedControl<std::string> sRezPlatCommand(gSavedSettings,  "AscentCmdLineRezPlatform");
 		static LLCachedControl<std::string> sHomeCommand(gSavedSettings,  "AscentCmdLineTeleportHome");
+		static LLCachedControl<std::string> sSetHomeCommand(gSavedSettings, "AlchemyChatCommandSetHome", "/sethome");
 		static LLCachedControl<std::string> sCalcCommand(gSavedSettings,  "AscentCmdLineCalc");
 		static LLCachedControl<std::string> sMapToCommand(gSavedSettings,  "AscentCmdLineMapTo");
 		static LLCachedControl<std::string> sClearCommand(gSavedSettings,  "AscentCmdLineClearChat");
 		static LLCachedControl<std::string> sRegionMsgCommand(gSavedSettings,  "SinguCmdLineRegionSay");
 		static LLCachedControl<std::string> sTeleportToCam(gSavedSettings,  "AscentCmdTeleportToCam");
 		static LLCachedControl<std::string> sHoverHeight(gSavedSettings, "AlchemyChatCommandHoverHeight", "/hover");
+		static LLCachedControl<std::string> sSetNearbyChatChannelCmd(gSavedSettings, "AlchemyChatCommandSetChatChannel", "/setchannel");
 		static LLCachedControl<std::string> sResyncAnimCommand(gSavedSettings, "AlchemyChatCommandResyncAnim", "/resync");
 		static LLCachedControl<std::string> sKeyToName(gSavedSettings,  "AscentCmdLineKeyToName");
 		static LLCachedControl<std::string> sOfferTp(gSavedSettings,  "AscentCmdLineOfferTp");
@@ -364,6 +367,11 @@ bool cmd_line_chat(std::string data, EChatType type)
 			gAgent.teleportHome();
 			return false;
 		}
+		else if (cmd == utf8str_tolower(sSetHomeCommand)) // sethome
+		{
+			gAgent.setStartPosition(START_LOCATION_ID_HOME);
+			return false;
+		}
 		else if (cmd == utf8str_tolower(sCalcCommand))//Cryogenic Blitz
 		{
 			if (data.length() > cmd.length() + 1)
@@ -446,6 +454,15 @@ bool cmd_line_chat(std::string data, EChatType type)
 				LLRegionInfoModel::sendEstateOwnerMessage(gMessageSystem, "simulatormessage", LLFloaterRegionInfo::getLastInvoice(), strings);
 			}
 			return false;
+		}
+		else if (cmd == utf8str_tolower(sSetNearbyChatChannelCmd)) // Set nearby chat channel
+		{
+			S32 chan;
+			if (input >> chan)
+			{
+				gSavedSettings.setS32("AlchemyNearbyChatChannel", chan);
+				return false;
+			}
 		}
 		else if (cmd == utf8str_tolower(sTeleportToCam))
 		{

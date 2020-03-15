@@ -1,7 +1,7 @@
 # -*- cmake -*-
 
 include(Variables)
-if (FMODSTUDIO)
+if (USE_FMODSTUDIO)
   use_prebuilt_binary(fmodstudio)
   if(WINDOWS)
     set(lib_suffix .dll)
@@ -31,7 +31,7 @@ if (FMODSTUDIO)
     )
 
   set(FMODSTUDIO_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/fmodstudio)
-endif(FMODSTUDIO)
+endif(USE_FMODSTUDIO)
 
 if(FMOD_LIBRARY_RELEASE AND FMODSTUDIO_INCLUDE_DIR)
   set(FMOD ON)
@@ -41,7 +41,7 @@ if(FMOD_LIBRARY_RELEASE AND FMODSTUDIO_INCLUDE_DIR)
 else (FMOD_LIBRARY_RELEASE AND FMODSTUDIO_INCLUDE_DIR)
   message(STATUS "No support for FMOD Studio audio (need to set FMODSTUDIO_SDK_DIR?)")
   set(FMOD OFF)
-  set(FMODSTUDIO OFF)
+  set(USE_FMODSTUDIO OFF)
 endif (FMOD_LIBRARY_RELEASE AND FMODSTUDIO_INCLUDE_DIR)
 
 if (FMOD)

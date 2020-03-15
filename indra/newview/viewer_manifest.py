@@ -135,9 +135,24 @@ class ViewerManifest(LLManifest):
 
             # File in the newview/ directory
             self.path("gpu_table.txt")
-            # The summary.json file gets left in the build directory by newview/CMakeLists.txt.
-            if not self.path2basename(os.pardir, "summary.json"):
-                print "No summary.json file"
+
+            #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
+            #platform is computed above with other arg parsing
+            build_data_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),
+                            "Channel Base": CHANNEL_VENDOR_BASE,
+                            "Channel":self.channel_with_pkg_suffix(),
+                            "Platform":self.build_data_json_platform,
+                            "Address Size":self.address_size,
+                            "Update Service":"https://app.alchemyviewer.org/update",
+                            }
+            build_data_dict = self.finish_build_data_dict(build_data_dict)
+            with open(os.path.join(os.pardir,'build_data.json'), 'w') as build_data_handle:
+                json.dump(build_data_dict,build_data_handle)
+
+            #we likely no longer need the test, since we will throw an exception above, but belt and suspenders and we get the
+            #return code for free.
+            if not self.path2basename(os.pardir, "build_data.json"):
+                print "No build_data.json file"
 
     def standalone(self):
         return self.args['standalone'] == "ON"
@@ -166,8 +181,7 @@ class ViewerManifest(LLManifest):
         return self.channel().replace(CHANNEL_VENDOR_BASE, "").strip()
 
     def channel_type(self): # returns 'release', 'beta', 'project', or 'test'
-        global CHANNEL_VENDOR_BASE
-        channel_qualifier=self.channel().replace(CHANNEL_VENDOR_BASE, "").lower().strip()
+        channel_qualifier=self.channel_variant().lower()
         if channel_qualifier.startswith('release'):
             channel_type='release'
         elif channel_qualifier.startswith('beta'):
@@ -518,17 +532,6 @@ class WindowsManifest(ViewerManifest):
                     if self.path('libtcmalloc_minimal.dll') == 0:
                         print "Skipping libtcmalloc_minimal.dll"
 
-            # For msvc redist
-            try:
-                    self.path('api-ms*.dll')
-                    self.path('ucrt*.dll')
-                    self.path('concrt*.dll')
-                    self.path('msvc*.dll')
-                    self.path('vcruntime*.dll')
-                    self.path('vccor*.dll')
-            except:
-                print "Skipping msvc redist files"
-
         # For crashpad
         with self.prefix(src=pkgbindir):
             self.path("crashpad_handler.exe")
@@ -660,6 +663,8 @@ class WindowsManifest(ViewerManifest):
         out_path = None
         for pkg_file in dest_files:
             rel_file = os.path.normpath(pkg_file.replace(self.get_dst_prefix()+os.path.sep,''))
+            if install and rel_file.startswith(("llplugin\\libvlc", "llplugin\\plugins\\")):
+                continue
             installed_dir = wpath(os.path.join('$INSTDIR', os.path.dirname(rel_file)))
             pkg_file = wpath(os.path.normpath(pkg_file))
             if installed_dir != out_path:
@@ -1138,6 +1143,8 @@ class DarwinManifest(ViewerManifest):
         self.remove(sparsename)
 
 class LinuxManifest(ViewerManifest):
+    build_data_json_platform = 'lnx'
+
     def is_packaging_viewer(self):
         super(LinuxManifest, self).is_packaging_viewer()
         return True # We always want a packaged viewer even without archive.

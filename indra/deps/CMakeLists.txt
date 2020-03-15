@@ -3,21 +3,22 @@ project(deps)
 include(FetchContent)
 
 set(CMAKE_FOLDER "Third Party")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 FetchContent_Declare(
   Catch2
   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG        v2.10.0
+  GIT_TAG        v2.11.0
   )
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG        7512a55aa3ae309587ca89668ef9ec4074a51a1f
+  GIT_TAG        6.1.2
   )
 FetchContent_Declare(
   absl
   GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
-  GIT_TAG        ab3552a18964e7063c8324f45b3896a6a20b08a8
+  GIT_TAG        29235139149790f5afc430c11cec8f1eb1677607
 )
 
 # This is a hack because absl has dumb cmake
@@ -43,4 +44,5 @@ if(WINDOWS)
 FetchContent_MakeAvailable(fmt)
 endif()
 
-set(CMAKE_FOLDER "")
+unset(CMAKE_FOLDER)
+unset(CMAKE_POSITION_INDEPENDENT_CODE)

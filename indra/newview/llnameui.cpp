@@ -37,34 +37,49 @@
 #include "llagentdata.h"
 #include "llavataractions.h"
 #include "llavatarnamecache.h"
+#include "llexperiencecache.h"
+#include "llfloaterexperienceprofile.h"
 #include "llgroupactions.h"
 #include "lltrans.h"
 
-#include "rlvhandler.h"
+#include "rlvactions.h"
+#include "rlvcommon.h"
 
 // statics
 std::set<LLNameUI*> LLNameUI::sInstances;
 
-LLNameUI::LLNameUI(const std::string& loading, bool rlv_sensitive, const LLUUID& id, bool is_group)
-: mNameID(id), mRLVSensitive(rlv_sensitive), mIsGroup(is_group), mAllowInteract(false)
-, mInitialValue(!loading.empty() ? loading : LLTrans::getString("LoadingData"))
+LLNameUI::LLNameUI(const std::string& loading, bool rlv_sensitive, const LLUUID& id, const Type& type, const std::string& name_system, bool click_for_profile)
+: mNameID(id), mRLVSensitive(rlv_sensitive), mType(NONE), mAllowInteract(false)
+, mNameSystem(name_system.empty() ? "PhoenixNameSystem" : name_system), mInitialValue(!loading.empty() ? loading : LLTrans::getString("LoadingData"))
+, mClickForProfile(click_for_profile)
 {
-	if (mIsGroup) sInstances.insert(this);
+	setType(type);
 }
 
-void LLNameUI::setNameID(const LLUUID& name_id, bool is_group)
+void LLNameUI::setType(const Type& type)
 {
-	mNameID = name_id;
-	mConnection.disconnect();
+	// Disconnect active connections if needed
+	for (auto& connection : mConnections)
+		connection.disconnect();
 
-	if (mIsGroup != is_group)
+	if (mType != type)
 	{
-		if (is_group)
+		if (type == GROUP)
 			sInstances.insert(this);
 		else
+		{
 			sInstances.erase(this);
+			if (type == AVATAR)
+				mConnections[1] = gSavedSettings.getControl(mNameSystem)->getCommitSignal()->connect(boost::bind(&LLNameUI::setNameText, this));
+		}
+		mType = type;
 	}
-	mIsGroup = is_group;
+}
+
+void LLNameUI::setNameID(const LLUUID& name_id, const Type& type)
+{
+	mNameID = name_id;
+	setType(type);
 
 	if (mAllowInteract = mNameID.notNull())
 	{
@@ -72,7 +87,8 @@ void LLNameUI::setNameID(const LLUUID& name_id, bool is_group)
 	}
 	else
 	{
-		setText(LLTrans::getString(mIsGroup ? "GroupNameNone" : "AvatarNameNobody"));
+		setText(LLTrans::getString(mType == GROUP ? "GroupNameNone" :
+			mType == AVATAR ? "AvatarNameNobody" : "ExperienceNameNull"));
 		displayAsLink(false);
 	}
 }
@@ -82,22 +98,31 @@ void LLNameUI::setNameText()
 	std::string name;
 	bool got_name = false;
 
-	if (mIsGroup)
+	if (mType == GROUP)
 	{
 		got_name = gCacheName->getGroupName(mNameID, name);
+	}
+	else if (mType == EXPERIENCE)
+	{
+		auto& cache = LLExperienceCache::instance();
+		const auto& exp = cache.get(mNameID);
+		if (got_name = exp.isMap())
+			name = exp.has(LLExperienceCache::MISSING) && exp[LLExperienceCache::MISSING] ? LLTrans::getString("ExperienceNameNull") : exp[LLExperienceCache::NAME].asString();
+		else
+			cache.get(mNameID, boost::bind(&LLNameUI::setNameText, this));
 	}
 	else
 	{
 		LLAvatarName av_name;
 		if (got_name = LLAvatarNameCache::get(mNameID, &av_name))
-			name = mShowCompleteName ? av_name.getCompleteName() : av_name.getNSName();
+			name = mNameSystem.empty() ? av_name.getNSName() : av_name.getNSName(gSavedSettings.getS32(mNameSystem));
 		else
-			mConnection = LLAvatarNameCache::get(mNameID, boost::bind(&LLNameUI::setNameText, this));
+			mConnections[0] = LLAvatarNameCache::get(mNameID, boost::bind(&LLNameUI::setNameText, this));
 	}
 
-	if (!mIsGroup && got_name && mRLVSensitive) // Filter if needed
+	if (mType == AVATAR && got_name && mRLVSensitive) // Filter if needed
 	{
-		if ((gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES) || gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMETAGS))
+		if ((RlvActions::hasBehaviour(RLV_BHVR_SHOWNAMES) || RlvActions::hasBehaviour(RLV_BHVR_SHOWNAMETAGS))
 			&& mNameID != gAgentID && RlvUtil::isNearbyAgent(mNameID))
 		{
 			mAllowInteract = false;
@@ -113,7 +138,7 @@ void LLNameUI::setNameText()
 	setText(got_name ? name : mInitialValue);
 }
 
-void LLNameUI::refresh(const LLUUID& id, const std::string& full_name, bool is_group)
+void LLNameUI::refresh(const LLUUID& id, const std::string& full_name)
 {
 	if (id == mNameID)
 	{
@@ -121,12 +146,11 @@ void LLNameUI::refresh(const LLUUID& id, const std::string& full_name, bool is_g
 	}
 }
 
-void LLNameUI::refreshAll(const LLUUID& id, const std::string& full_name, bool is_group)
+void LLNameUI::refreshAll(const LLUUID& id, const std::string& full_name)
 {
-	if (!is_group) return;
 	for (auto box : sInstances)
 	{
-		box->refresh(id, full_name, is_group);
+		box->refresh(id, full_name);
 	}
 }
 
@@ -134,8 +158,11 @@ void LLNameUI::showProfile()
 {
 	if (!mAllowInteract) return;
 
-	if (mIsGroup)
-		LLGroupActions::show(mNameID);
-	else
-		LLAvatarActions::showProfile(mNameID);
+	switch (mType)
+	{
+	case LFIDBearer::GROUP: LLGroupActions::show(mNameID); break;
+	case LFIDBearer::AVATAR: LLAvatarActions::showProfile(mNameID); break;
+	case LFIDBearer::EXPERIENCE: LLFloaterExperienceProfile::showInstance(mNameID); break;
+	default: break;
+	}
 }

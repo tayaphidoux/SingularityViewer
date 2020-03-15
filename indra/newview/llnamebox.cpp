@@ -37,11 +37,22 @@
 
 static LLRegisterWidget<LLNameBox> r("name_box");
 
-LLNameBox::LLNameBox(const std::string& name)
-: LLNameUI()
+LLNameBox::LLNameBox(const std::string& name,
+	const LLUUID& name_id,
+	const Type& type,
+	const std::string& loading,
+	bool rlv_sensitive,
+	const std::string& name_system,
+	bool click_for_profile)
+: LLNameUI(loading, rlv_sensitive, name_id, type, name_system, click_for_profile)
 , LLTextBox(name, LLRect(), LLStringUtil::null, nullptr, TRUE)
 {
 	setClickedCallback(boost::bind(&LLNameUI::showProfile, this));
+	if (!name_id.isNull())
+	{
+		setNameID(name_id, type);
+	}
+	else setText(mInitialValue);
 }
 
 void LLNameBox::displayAsLink(bool link)
@@ -57,10 +68,9 @@ BOOL LLNameBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	auto handled = LLTextBox::handleRightMouseDown(x, y, mask);
 	if (mAllowInteract && !handled)
 	{
-		// Singu TODO: Generic menus for groups
-		if (!mIsGroup && mNameID.notNull())
+		if (mNameID.notNull())
 		{
-			showMenu(this, sMenus[0], x, y);
+			showMenu(this, sMenus[getSelectedType()], x, y);
 			handled = true;
 		}
 	}
@@ -71,7 +81,7 @@ BOOL LLNameBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLNameBox::handleHover(S32 x, S32 y, MASK mask)
 {
 	auto handled = LLTextBox::handleHover(x, y, mask);
-	if (mAllowInteract)
+	if (mClickForProfile && mAllowInteract)
 	{
 		getWindow()->setCursor(UI_CURSOR_HAND);
 		handled = true;
@@ -80,19 +90,36 @@ BOOL LLNameBox::handleHover(S32 x, S32 y, MASK mask)
 }
 
 // virtual
-void LLNameBox::initFromXML(LLXMLNodePtr node, LLView* parent)
+LLXMLNodePtr LLNameBox::getXML(bool save_children) const
 {
-	LLTextBox::initFromXML(node, parent);
-	node->getAttributeString("initial_value", mInitialValue);
-	setText(mInitialValue);
-	node->getAttribute_bool("rlv_sensitive", mRLVSensitive);
-	node->getAttribute_bool("is_group", mIsGroup);
+	LLXMLNodePtr node = LLTextBox::getXML();
+
+	node->setName("name_box");
+	node->createChild("initial_value", TRUE)->setStringValue(mInitialValue);
+	node->createChild("rlv_sensitive", TRUE)->setBoolValue(mRLVSensitive);
+	node->createChild("click_for_profile", TRUE)->setBoolValue(mClickForProfile);
+	node->createChild("name_system", TRUE)->setStringValue(mNameSystem);
+
+	return node;
 }
 
 // static
 LLView* LLNameBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLNameBox* name_box = new LLNameBox("name_box");
+	S8 type = AVATAR;
+	node->getAttributeS8("id_type", type);
+	LLUUID id;
+	node->getAttributeUUID("id", id);
+	std::string loading;
+	node->getAttributeString("initial_value", loading);
+	bool rlv_sensitive = false;
+	node->getAttribute_bool("rlv_sensitive", rlv_sensitive);
+	std::string name_system;
+	node->getAttributeString("name_system", name_system);
+	bool click_for_profile = true;
+	node->getAttribute_bool("click_for_profile", click_for_profile);
+	LLNameBox* name_box = new LLNameBox("name_box", id, (Type)type, loading, rlv_sensitive, name_system, click_for_profile);
 	name_box->initFromXML(node,parent);
+
 	return name_box;
 }

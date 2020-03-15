@@ -58,7 +58,7 @@ void LLUrlMatch::setValues(U32 start, U32 end, const std::string &url, const std
 	mTooltip = tooltip;
 	mIcon = icon;
 	mStyle = style;
-	mStyle->setLinkHREF(url);
+	mStyle->setLinkHREF(mStyle->isLink() ? LLStringUtil::null : url); // Singu Note: This hack exists in lieu of no link flag
 	mMenuName = menu;
 	mLocation = location;
 	mID = id;

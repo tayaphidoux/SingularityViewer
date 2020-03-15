@@ -3,31 +3,25 @@
  * @author Aaron Brashears
  * @brief Implementation of the region info and controls floater and panels.
  *
- * $LicenseInfo:firstyear=2004&license=viewergpl$
- * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
- * 
+ * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
- * The source code in this file ("Source Code") is provided by Linden Lab
- * to you under the terms of the GNU General Public License, version 2.0
- * ("GPL"), unless you have obtained a separate licensing agreement
- * ("Other License"), formally executed by you and Linden Lab.  Terms of
- * the GPL can be found in doc/GPL-license.txt in this distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ * Copyright (C) 2010, Linden Research, Inc.
  * 
- * There are special exceptions to the terms and conditions of the GPL as
- * it is applied to this Source Code. View the full text of the exception
- * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at
- * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
  * 
- * By copying, modifying or distributing this software, you acknowledge
- * that you have read and understood your obligations described above,
- * and agree to abide by those obligations.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  * 
- * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
- * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
- * COMPLETENESS OR PERFORMANCE.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
@@ -65,6 +59,7 @@
 #include "llfloaterregiondebugconsole.h"
 #include "llfloatertelehub.h"
 #include "llinventorymodel.h"
+#include "lllayoutstack.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
 #include "llnotifications.h"
@@ -88,6 +83,11 @@
 #include "llvlcomposition.h"
 #include "llwaterparammanager.h"
 #include "llagentui.h"
+#include "llpanelexperiencelisteditor.h"
+#include <boost/function.hpp>
+#include "llpanelexperiencepicker.h"
+#include "llexperiencecache.h"
+#include "llpanelexperiences.h"
 #include "hippogridmanager.h"
 // [RLVa:KB]
 #include "rlvhandler.h"
@@ -102,28 +102,40 @@ const U32 MAX_LISTED_NAMES = 100;
 /// Local class declaration
 ///----------------------------------------------------------------------------
 
-class LLDispatchEstateUpdateInfo : public LLDispatchHandler
+class LLDispatchEstateUpdateInfo final : public LLDispatchHandler
 {
 public:
 	LLDispatchEstateUpdateInfo() {}
 	virtual ~LLDispatchEstateUpdateInfo() {}
-	virtual bool operator()(
+	bool operator()(
 		const LLDispatcher* dispatcher,
 		const std::string& key,
 		const LLUUID& invoice,
-		const sparam_t& strings);
+		const sparam_t& strings) override;
 };
 
-class LLDispatchSetEstateAccess : public LLDispatchHandler
+class LLDispatchSetEstateAccess final : public LLDispatchHandler
 {
 public:
 	LLDispatchSetEstateAccess() {}
 	virtual ~LLDispatchSetEstateAccess() {}
-	virtual bool operator()(
+	bool operator()(
 		const LLDispatcher* dispatcher,
 		const std::string& key,
 		const LLUUID& invoice,
-		const sparam_t& strings);
+		const sparam_t& strings) override;
+};
+
+class LLDispatchSetEstateExperience final : public LLDispatchHandler
+{
+public:
+	bool operator()(
+		const LLDispatcher* dispatcher,
+		const std::string& key,
+		const LLUUID& invoice,
+		const sparam_t& strings) override;
+
+	LLSD getIDs(sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count);
 };
 
 
@@ -255,6 +267,18 @@ BOOL LLFloaterRegionInfo::postBuild()
 	mInfoPanels.push_back(panel);
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_debug.xml");
 	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+
+	if(gDisconnected)
+	{
+		return TRUE;
+	}
+
+	if (!gAgent.getRegion()->getCapability("RegionExperiences").empty())
+	{
+		panel = new LLPanelRegionExperiences;
+		mInfoPanels.push_back(panel);
+		mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+	}
 
 	gMessageSystem->setHandlerFunc(
 		"EstateOwnerMessage", 
@@ -488,7 +512,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 LLPanelEstateInfo* LLFloaterRegionInfo::getPanelEstate()
 {
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
-	if (!floater) return NULL;
+	if (!floater) return nullptr;
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)tab->getChild<LLPanel>("Estate");
 	return panel;
@@ -508,7 +532,7 @@ LLPanelEstateAccess* LLFloaterRegionInfo::getPanelAccess()
 LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 {
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
-	if (!floater) return NULL;
+	if (!floater) return nullptr;
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateCovenant* panel = (LLPanelEstateCovenant*)tab->getChild<LLPanel>("Covenant");
 	return panel;
@@ -521,7 +545,7 @@ LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
 	if (!floater)
 	{
 		llassert(floater);
-		return NULL;
+		return nullptr;
 	}
 
 	LLTabContainer* tab_container = floater->getChild<LLTabContainer>("region_panels");
@@ -529,6 +553,14 @@ LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
 		dynamic_cast<LLPanelRegionTerrainInfo*>(tab_container->getChild<LLPanel>("Terrain"));
 	llassert(panel);
 	return panel;
+}
+
+LLPanelRegionExperiences* LLFloaterRegionInfo::getPanelExperiences()
+{
+	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
+	if (!floater) return nullptr;
+	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
+	return (LLPanelRegionExperiences*)tab->getChild<LLPanel>("Experiences");
 }
 
 void LLFloaterRegionInfo::onTabSelected(const LLSD& param)
@@ -662,7 +694,7 @@ void LLPanelRegionInfo::sendEstateOwnerMessage(
 	if(strings.empty())
 	{
 		msg->nextBlock("ParamList");
-		msg->addString("Parameter", NULL);
+		msg->addString("Parameter", nullptr);
 	}
 	else
 	{
@@ -1538,6 +1570,11 @@ void LLPanelEstateInfo::initDispatch(LLDispatcher& dispatch)
 	static LLDispatchSetEstateAccess set_access;
 	dispatch.addHandler(name, &set_access);
 
+
+	name.assign("setexperience");
+	static LLDispatchSetEstateExperience set_experience;
+	dispatch.addHandler(name, &set_experience);
+
 	estate_dispatch_initialized = true;
 }
 
@@ -1747,13 +1784,13 @@ BOOL LLPanelEstateInfo::postBuild()
 {
 	// set up the callbacks for the generic controls
 	initCtrl("externally_visible_check");
-	initCtrl("use_global_time_check");
-	initCtrl("fixed_sun_check");
-	initCtrl("sun_hour_slider");
 	initCtrl("allow_direct_teleport");
 	initCtrl("limit_payment");
 	initCtrl("limit_age_verified");
 	initCtrl("voice_chat_check");
+	initCtrl("use_global_time_check");
+	initCtrl("fixed_sun_check");
+	initCtrl("sun_hour_slider");
 	initHelpBtn("use_global_time_help",			"HelpEstateUseGlobalTime");
 	initHelpBtn("fixed_sun_help",				"HelpEstateFixedSun");
 	initHelpBtn("externally_visible_help",		"HelpEstateExternallyVisible");
@@ -2033,7 +2070,7 @@ BOOL LLPanelEstateCovenant::postBuild()
 	if (mEditor) mEditor->setHandleEditKeysDirectly(TRUE);
 	LLButton* reset_button = getChild<LLButton>("reset_covenant");
 	reset_button->setEnabled(gAgent.canManageEstate());
-	reset_button->setClickedCallback(LLPanelEstateCovenant::resetCovenantID, NULL);
+	reset_button->setClickedCallback(LLPanelEstateCovenant::resetCovenantID, nullptr);
 
 	return LLPanelRegionInfo::postBuild();
 }
@@ -2114,7 +2151,7 @@ bool LLPanelEstateCovenant::confirmResetCovenantCallback(const LLSD& notificatio
 	switch(option)
 	{
 	case 0:		
-		self->loadInvItem(NULL);
+		self->loadInvItem(nullptr);
 		break;
 	default:
 		break;
@@ -2342,11 +2379,11 @@ bool LLDispatchSetEstateAccess::operator()(
 	if (!panel) return true;
 
 	S32 index = 1;	// skip estate_id
-	U32 access_flags = strtoul(strings[index++].c_str(), NULL,10);
-	S32 num_allowed_agents = strtol(strings[index++].c_str(), NULL, 10);
-	S32 num_allowed_groups = strtol(strings[index++].c_str(), NULL, 10);
-	S32 num_banned_agents = strtol(strings[index++].c_str(), NULL, 10);
-	S32 num_estate_managers = strtol(strings[index++].c_str(), NULL, 10);
+	U32 access_flags = strtoul(strings[index++].c_str(), nullptr,10);
+	S32 num_allowed_agents = strtol(strings[index++].c_str(), nullptr, 10);
+	S32 num_allowed_groups = strtol(strings[index++].c_str(), nullptr, 10);
+	S32 num_banned_agents = strtol(strings[index++].c_str(), nullptr, 10);
+	S32 num_estate_managers = strtol(strings[index++].c_str(), nullptr, 10);
 
 	// sanity ckecks
 	if (num_allowed_agents > 0
@@ -2446,13 +2483,63 @@ bool LLDispatchSetEstateAccess::operator()(
 	return true;
 }
 
+LLSD LLDispatchSetEstateExperience::getIDs( sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count )
+{
+	LLSD idList = LLSD::emptyArray();
+	LLUUID id;
+	while(count--> 0)
+	{
+		memcpy(id.mData, (*(it++)).data(), UUID_BYTES);
+		idList.append(id);
+	}
+	return idList;
+}
+
+// key = "setexperience"
+// strings[0] = str(estate_id)
+// strings[1] = str(send_to_agent_only)
+// strings[2] = str(num blocked)
+// strings[3] = str(num trusted)
+// strings[4] = str(num allowed)
+// strings[8] = bin(uuid) ...
+// ...
+bool LLDispatchSetEstateExperience::operator()(
+	const LLDispatcher* dispatcher,
+	const std::string& key,
+	const LLUUID& invoice,
+	const sparam_t& strings)
+{
+	LLPanelRegionExperiences* panel = LLFloaterRegionInfo::getPanelExperiences();
+	if (!panel) return true;
+
+	sparam_t::const_iterator it = strings.begin();
+	++it; // U32 estate_id = strtol((*it).c_str(), NULL, 10);
+	++it; // U32 send_to_agent_only = strtoul((*(++it)).c_str(), NULL, 10);
+
+	LLUUID id;
+	S32 num_blocked = strtol((*(it++)).c_str(), nullptr, 10);
+	S32 num_trusted = strtol((*(it++)).c_str(), nullptr, 10);
+	S32 num_allowed = strtol((*(it++)).c_str(), nullptr, 10);
+
+	LLSD ids = LLSD::emptyMap()
+		.with("blocked", getIDs(it,								strings.end(), num_blocked))
+		.with("trusted", getIDs(it + (num_blocked),				strings.end(), num_trusted))
+		.with("allowed", getIDs(it + (num_blocked+num_trusted),	strings.end(), num_allowed));
+
+	panel->processResponse(ids);			
+
+	return true;
+}
+
+
+
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo()
 :	mEnableEditing(false),
-	mRegionSettingsRadioGroup(NULL),
-	mDayCycleSettingsRadioGroup(NULL),
-	mWaterPresetCombo(NULL),
-	mSkyPresetCombo(NULL),
-	mDayCyclePresetCombo(NULL)
+	mRegionSettingsRadioGroup(nullptr),
+ 	mDayCycleSettingsRadioGroup(nullptr),
+ 	mWaterPresetCombo(nullptr),
+ 	mSkyPresetCombo(nullptr),
+ 	mDayCyclePresetCombo(nullptr)
 {
 }
 
@@ -2475,9 +2562,9 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 	mDayCyclePresetCombo->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onSelectDayCycle, this));
 
 	getChild<LLButton>("apply_btn")->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onBtnApply, this));
-	//getChild<LLButton>("apply_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, LLEnvManagerNew::getInstance()));
+	getChild<LLButton>("apply_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpUserPrefs, LLEnvManagerNew::getInstance()));
 	getChild<LLButton>("cancel_btn")->setCommitCallback(boost::bind(&LLPanelEnvironmentInfo::onBtnCancel, this));
-	//getChild<LLButton>("cancel_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpPresets, LLEnvManagerNew::getInstance()));
+	getChild<LLButton>("cancel_btn")->setRightMouseDownCallback(boost::bind(&LLEnvManagerNew::dumpPresets, LLEnvManagerNew::getInstance()));
 
 	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingschange, this));
 	LLEnvManagerNew::instance().setRegionSettingsAppliedCallback(boost::bind(&LLPanelEnvironmentInfo::onRegionSettingsApplied, this, _1));
@@ -2523,6 +2610,11 @@ bool LLPanelEnvironmentInfo::refreshFromRegion(LLViewerRegion* region)
 
 void LLPanelEnvironmentInfo::refresh()
 {
+	if(gDisconnected)
+	{
+		return;
+	}
+
 	populateWaterPresetsList();
 	populateSkyPresetsList();
 	populateDayCyclesList();
@@ -3040,7 +3132,6 @@ void LLPanelEnvironmentInfo::onRegionSettingsApplied(bool ok)
 	}
 }
 
-#if 0 // Singu TODO: Experiences
 LLPanelRegionExperiences::LLPanelRegionExperiences()
 : mTrusted(nullptr)
 , mAllowed(nullptr)
@@ -3311,7 +3402,6 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 	onChangeAnything();
 }
 
-#endif // Singu TODO: Experiences
 
 LLPanelEstateAccess::LLPanelEstateAccess()
 : LLPanelRegionInfo(), mPendingUpdate(false)
@@ -4118,6 +4208,27 @@ const std::string& getNAString()
 	return na;
 }
 
+#if defined(__GNUC__) && __GNUC__ < 5 // On GCC 4, implement std::get_time using strptime
+#include <time.h>
+
+namespace std
+{
+	struct get_time
+	{
+		tm* mTime;
+		const char* mFmt;
+		get_time(tm* time, const char* fmt) : mTime(time), mFmt(fmt) {}
+	};
+
+	istringstream& operator>>(istringstream&& str, get_time&& rhs)
+	{
+		if (!strptime(str.str().data(), rhs.mFmt, rhs.mTime))
+			str.setstate(ios_base::failbit);
+		return str;
+	}
+}
+#endif
+
 void handlePseudoISO8601(const std::string& date_str, LLSD& column, const std::string& fmt)
 {
 	if (date_str.front() == '0') // server returns the "0000-00-00 00:00:00" date in case it doesn't know it
@@ -4127,7 +4238,7 @@ void handlePseudoISO8601(const std::string& date_str, LLSD& column, const std::s
 	else
 	{
 		std::tm time = {};
-		if (std::istringstream(date_str) >> std::get_time(&time, "%Y-%m-%d %T"))
+		if (std::istringstream(date_str) >> std::get_time(&time, "%F %T"))
 		{
 			column["value"] = LLDate(mktime(&time));
 			column["type"] = "date";
@@ -4334,10 +4445,11 @@ void LLFloaterRegionInfo::open()
 	{
 		const LLViewerRegion* region(gAgent.getRegion());
 		// Should be able to call LLRegion::canManageEstate() but then we can fake god like
-		if (!(region && region->isEstateManager() && region->getOwner() == gAgentID))
+		if (!region || !region->isEstateManager() || region->getOwner() != gAgentID)
 			return;
 	}
 
 	LLFloater::open();
 }
 // [/RLVa:KB]
+

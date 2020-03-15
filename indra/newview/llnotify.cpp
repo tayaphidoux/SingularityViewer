@@ -35,22 +35,16 @@
 #include "llnotify.h"
 
 #include "llchat.h"
-#include "llfocusmgr.h"
-#include "llrender.h"
 
-#include "llbutton.h"
-#include "llfocusmgr.h"
-#include "llglheaders.h"
 #include "lliconctrl.h"
+#include "llmenugl.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
 #include "lltrans.h"
 #include "lluiconstants.h"
-#include "llui.h"
-#include "llxmlnode.h"
-#include "llviewercontrol.h"
 #include "llviewerdisplay.h"
 #include "llviewertexturelist.h"
+#include "llviewerwindow.h" // for gViewerWindow
 #include "llfloaterchat.h"	// for add_chat_history()
 #include "lloverlaybar.h" // for gOverlayBar
 #include "lluictrlfactory.h"
@@ -234,23 +228,23 @@ LLNotifyBox::LLNotifyBox(LLNotificationPtr notification)
 
 		const S32 MAX_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE;  // For script dialogs: add space for title.
 
-		auto text = new LLTextEditor(std::string("box"), LLRect(x, y, getRect().getWidth()-2, mIsTip ? BOTTOM : BTN_TOP+16), MAX_LENGTH, LLStringUtil::null, sFont, FALSE, true);
-		text->setWordWrap(TRUE);
-		text->setMouseOpaque(TRUE);
-		text->setBorderVisible(FALSE);
-		text->setTakesNonScrollClicks(TRUE);
-		text->setHideScrollbarForShortDocs(TRUE);
-		text->setReadOnlyBgColor ( LLColor4::transparent ); // the background color of the box is manually 
+		mText = new LLTextEditor(std::string("box"), LLRect(x, y, getRect().getWidth()-2, mIsTip ? BOTTOM : BTN_TOP+16), MAX_LENGTH, LLStringUtil::null, sFont, FALSE, true);
+		mText->setWordWrap(TRUE);
+		mText->setMouseOpaque(TRUE);
+		mText->setBorderVisible(FALSE);
+		mText->setTakesNonScrollClicks(TRUE);
+		mText->setHideScrollbarForShortDocs(TRUE);
+		mText->setReadOnlyBgColor ( LLColor4::transparent ); // the background color of the box is manually 
 															// rendered under the text box, therefore we want 
 															// the actual text box to be transparent
 
 		auto text_color = gColors.getColor(mIsCaution && mIsTip ? "NotifyCautionWarnColor" : "NotifyTextColor");
-		text->setReadOnlyFgColor(text_color); //sets caution text color for tip notifications
+		mText->setReadOnlyFgColor(text_color); //sets caution text color for tip notifications
 		if (!mIsCaution) // We could do some extra color math here to determine if bg's too close to link color, but let's just cross with the link color instead
-			text->setLinkColor(new LLColor4(lerp(text_color, gSavedSettings.getColor4("HTMLLinkColor"), 0.4f)));
-		text->setTabStop(FALSE); // can't tab to it (may be a problem for scrolling via keyboard)
-		text->appendText(message,false,false,nullptr,!layout_script_dialog); // Now we can set the text, since colors have been set.
-		addChild(text);
+			mText->setLinkColor(new LLColor4(lerp(text_color, gSavedSettings.getColor4("HTMLLinkColor"), 0.4f)));
+		mText->setTabStop(FALSE); // can't tab to it (may be a problem for scrolling via keyboard)
+		mText->appendText(message,false,false,nullptr,!layout_script_dialog); // Now we can set the text, since colors have been set.
+		addChild(mText);
 	}
 
 	if (mIsTip)
@@ -424,7 +418,8 @@ LLButton* LLNotifyBox::addButton(const std::string& name, const std::string& lab
 
 BOOL LLNotifyBox::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (mIsTip)
+	bool done = LLPanel::handleMouseUp(x, y, mask);
+	if (!done && mIsTip)
 	{
 		mNotification->respond(mNotification->getResponseTemplate(LLNotification::WITH_DEFAULT_BUTTON));
 
@@ -434,17 +429,34 @@ BOOL LLNotifyBox::handleMouseUp(S32 x, S32 y, MASK mask)
 
 	setFocus(TRUE);
 
-	return LLPanel::handleMouseUp(x, y, mask);
+	return done;
 }
 
 // virtual
 BOOL LLNotifyBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	bool done = LLPanel::handleRightMouseDown(x, y, mask);
-	if (!done && !mIsTip) moveToBack(true);
-	return done || !mIsTip;
+	if (!LLPanel::handleRightMouseDown(x, y, mask)) // Allow Children to handle first
+		moveToBack(true);
+	return true;
 }
 
+// virtual
+BOOL LLNotifyBox::handleHover(S32 x, S32 y, MASK mask)
+{
+	if (mIsTip) mEventTimer.stop(); // Stop timer on hover so the user can interact
+	return LLPanel::handleHover(x, y, mask);
+}
+
+bool LLNotifyBox::userIsInteracting() const
+{
+	// If the mouse is over us, the user may wish to interact
+	S32 local_x;
+	S32 local_y;
+	screenPointToLocal(gViewerWindow->getCurrentMouseX(), gViewerWindow->getCurrentMouseY(), &local_x, &local_y);
+	return pointInView(local_x, local_y) || // We're actively hovered
+		// our text is the target of an active menu that could be open (getVisibleMenu sucks because it contains a loop of two dynamic casts, so keep this at the end)
+		(mText && mText->getActive<LLTextEditor>() == mText && LLMenuGL::sMenuContainer->getVisibleMenu());
+}
 
 // virtual
 void LLNotifyBox::draw()
@@ -452,7 +464,7 @@ void LLNotifyBox::draw()
 	// If we are teleporting, stop the timer and restart it when the teleporting completes
 	if (gTeleportDisplay)
 		mEventTimer.stop();
-	else if (!mEventTimer.getStarted())
+	else if (!mEventTimer.getStarted() && (!mIsTip || !userIsInteracting())) // If it's not a tip, we can resume instantly, otherwise the user may be interacting
 		mEventTimer.start();
 
 	F32 display_time = mAnimateTimer.getElapsedTimeF32();

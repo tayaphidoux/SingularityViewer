@@ -523,7 +523,7 @@ class SGHostBlackList{
 	} //should make a functor. if i cared.
 
 	static void cleanup() {
-		std::remove_if(blacklist.begin(), blacklist.end(), is_obsolete);
+		(void)std::remove_if(blacklist.begin(), blacklist.end(), is_obsolete);
 	}
 
 	static iter find(std::string host) {

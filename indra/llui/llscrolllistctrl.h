@@ -202,7 +202,7 @@ public:
 	virtual S32			getFirstSelectedIndex() const;
 	std::vector<LLScrollListItem*> getAllSelected() const;
 	uuid_vec_t 	getSelectedIDs() const override final; //Helper. Much like getAllSelected, but just provides a LLUUID vec
-	S32                 getNumSelected() const override final;
+	S32                 getNumSelected() const;
 	LLScrollListItem*	getLastSelectedItem() const { return mLastSelected; }
 
 	// iterate over all items
@@ -254,9 +254,18 @@ public:
 	bool			filterItem(LLScrollListItem* item);
 	void			setFilter(const std::string& filter);
 
-	// support right-click context menus for avatar/group lists
+	// Context Menus
 	void setContextMenu(LLMenuGL* menu) { mPopupMenu = menu; }
-	void setContextMenu(S32 index) { mPopupMenu = sMenus[index]; }
+	void setContextMenu(U8 index) { mPopupMenu = sMenus[index]; }
+	void setContextMenu(const std::string& menu);
+
+	Type getSelectedType() const override
+	{
+		for (auto i = 0; mPopupMenu && i < COUNT; ++i)
+			if (sMenus[i] == mPopupMenu)
+				return (Type)i;
+		return LFIDBearer::getSelectedType();
+	}
 
 	// Overridden from LLView
 	/*virtual*/ void    draw();
@@ -313,7 +322,7 @@ public:
 	virtual void		scrollToShowSelected();
 
 	// LLEditMenuHandler functions
-	virtual void	copy();
+	void			copy() const override final;
 	virtual BOOL	canCopy() const;
 	virtual void	cut();
 	virtual BOOL	canCut() const;

@@ -1338,7 +1338,7 @@ namespace LLError
 	}
 
 #if LL_WINDOWS
-		// VC80 was optimizing the error away.
+		// MSVC is optimizing the error away.
 		#pragma optimize("", off)
 #endif
 	void crashAndLoop(const std::string& message)
@@ -1347,9 +1347,8 @@ namespace LLError
 		DoutFatal(dc::core, message);
 #else
 		// Now, we go kaboom!
-		int* make_me_crash = NULL;
-
-		*make_me_crash = 0;
+		int* make_me_crash = nullptr;
+		*make_me_crash = 0xDEADBEEF;
 
 		while(true)
 		{

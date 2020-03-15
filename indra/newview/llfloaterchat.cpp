@@ -225,12 +225,13 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	style->setColor(color);
 	style->mItalic = is_irc;
 	style->mBold = chat.mChatType == CHAT_TYPE_SHOUT;
-	edit->appendText(line, false, prepend_newline, style, false);
+	edit->appendText(line, false, prepend_newline, style, chat.mSourceType == CHAT_SOURCE_SYSTEM);
 }
 
 void LLFloaterChat::addChatHistory(const std::string& str, bool log_to_file)
 {
 	LLChat chat(str);
+	chat.mSourceType = CHAT_SOURCE_SYSTEM;
 	addChatHistory(chat, log_to_file);
 }
 
@@ -276,7 +277,7 @@ void LLFloaterChat::addChatHistory(LLChat& chat, bool log_to_file)
 	
 	LLColor4 color = get_text_color(chat);
 	
-	if (!log_to_file) color = LLColor4::grey;	//Recap from log file.
+	if (!log_to_file) color = gSavedSettings.getColor("LogChatColor");	//Recap from log file.
 
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
@@ -344,6 +345,7 @@ void LLFloaterChat::onClickToggleShowMute(bool show_mute, LLTextEditor* history_
 void LLFloaterChat::addChat(const std::string& str, BOOL from_im, BOOL local_agent)
 {
 	LLChat chat(str);
+	chat.mSourceType = CHAT_SOURCE_SYSTEM;
 	addChat(chat, from_im, local_agent);
 }
 

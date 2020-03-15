@@ -134,8 +134,9 @@ namespace
 	}
 } //namespace
 
+const LLColor4* mm_getMarkerColor(const LLUUID& id, bool mark_only = true);
 LLAvatarListEntry::LLAvatarListEntry(const LLUUID& id, const std::string& name, const LLVector3d& position) :
-		mID(id), mName(name), mPosition(position), mMarked(false), mFocused(false),
+		mID(id), mName(name), mPosition(position), mMarked(mm_getMarkerColor(id)), mFocused(false),
 		mStats(),
 		mActivityType(ACTIVITY_NEW), mActivityTimer(),
 		mIsInList(false), mAge(-1), mTime(time(NULL))
@@ -322,6 +323,17 @@ bool is_nearby(const LLUUID& id)
 	return std::find(avatars.begin(), avatars.end(), id) != avatars.end();
 }
 
+const LLVector3d& get_av_pos(const LLUUID& id)
+{
+	if (const auto inst = LLFloaterAvatarList::getIfExists())
+		if (const auto av = inst->getAvatarEntry(id))
+			return av->getPosition();
+
+	LLWorld::pos_map_t avatars;
+	LLWorld::instance().getAvatars(&avatars);
+	return avatars[id];
+}
+
 void track_av(const LLUUID& id)
 {
 	if (auto inst = LLFloaterAvatarList::getIfExists())
@@ -336,83 +348,60 @@ void track_av(const LLUUID& id)
 	LLTracker::trackLocation(avatars[id], LLStringUtil::null, LLStringUtil::null);
 }
 
-void teleport_to(const LLUUID& id)
-{
-	if (auto entry = LLFloaterAvatarList::instanceExists() ? LLFloaterAvatarList::instance().getAvatarEntry(id) : nullptr)
-		gAgent.teleportViaLocation(entry->getPosition());
-	else
-	{
-		LLWorld::pos_map_t avatars;
-		LLWorld::instance().getAvatars(&avatars);
-		gAgent.teleportViaLocation(avatars[id]);
-	}
-}
-
 static void cmd_profile(const LLAvatarListEntry* entry);
-static void cmd_toggle_mark(LLAvatarListEntry* entry);
+static void cmd_toggle_mark(LLAvatarListEntry* entry)
+{
+	bool mark = !entry->isMarked();
+	void mm_setcolor(LLUUID key, LLColor4 col);
+	void mm_clearMark(const LLUUID & id);
+	mark ? mm_setcolor(entry->getID(), LLColor4::red) : mm_clearMark(entry->getID());
+	entry->setMarked(mark);
+}
 static void cmd_ar(const LLAvatarListEntry* entry);
 static void cmd_teleport(const LLAvatarListEntry* entry);
 
 namespace
 {
 	typedef LLMemberListener<LLView> view_listener_t;
-	class RadarTrack : public view_listener_t
+	class RadarTrack final : public view_listener_t
 	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
 			LLFloaterAvatarList::instance().onClickTrack();
 			return true;
 		}
 	};
 
-	class RadarMark : public view_listener_t
+	class RadarFocus final : public view_listener_t
 	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-		{
-			LLFloaterAvatarList::instance().doCommand(cmd_toggle_mark);
-			return true;
-		}
-	};
-
-	class RadarFocus : public view_listener_t
-	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
 			LLFloaterAvatarList::setFocusAvatar(LFIDBearer::getActiveSelectedID());
 			return true;
 		}
 	};
 
-	class RadarFocusPrev : public view_listener_t
+	class RadarFocusPrev final : public view_listener_t
 	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
 			LLFloaterAvatarList::instance().focusOnPrev(userdata.asInteger());
 			return true;
 		}
 	};
 
-	class RadarFocusNext : public view_listener_t
+	class RadarFocusNext final : public view_listener_t
 	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
 			LLFloaterAvatarList::instance().focusOnNext(userdata.asInteger());
 			return true;
 		}
 	};
 
-	class RadarTeleportTo : public view_listener_t
+	class RadarAnnounceKeys final : public view_listener_t
 	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-		{
-			teleport_to(LFIDBearer::getActiveSelectedID());
-			return true;
-		}
-	};
-
-	class RadarAnnounceKeys : public view_listener_t
-	{
-		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
 			LLFloaterAvatarList::instance().sendKeys();
 			return true;
@@ -425,11 +414,9 @@ void addMenu(view_listener_t* menu, const std::string& name);
 void add_radar_listeners()
 {
 	addMenu(new RadarTrack, "Radar.Track");
-	addMenu(new RadarMark, "Radar.Mark");
 	addMenu(new RadarFocus, "Radar.Focus");
 	addMenu(new RadarFocusPrev, "Radar.FocusPrev");
 	addMenu(new RadarFocusNext, "Radar.FocusNext");
-	addMenu(new RadarTeleportTo, "Radar.TeleportTo");
 	addMenu(new RadarAnnounceKeys, "Radar.AnnounceKeys");
 }
 
@@ -790,7 +777,7 @@ void LLFloaterAvatarList::refreshAvatarList()
 			if (entry->isMarked())
 			{
 				mark.value = "X";
-				mark.color = LLColor4::blue;
+				mark.color = *mm_getMarkerColor(av_id);
 				mark.font_style = "BOLD";
 			}
 			element.columns.add(mark);
@@ -1246,7 +1233,7 @@ void LLFloaterAvatarList::removeFocusFromAll()
 // static
 void LLFloaterAvatarList::setFocusAvatar(const LLUUID& id)
 {
-	if (!gAgentCamera.lookAtObject(id, false) && !lookAtAvatar(id)) return;
+	if (/*!gAgentCamera.lookAtObject(id, false) &&*/ !lookAtAvatar(id)) return;
 	if (auto inst = getIfExists())
 		inst->setFocusAvatarInternal(id);
 }
@@ -1460,7 +1447,6 @@ void send_estate_message(const std::string request, const std::vector<std::strin
 
 static void cmd_append_names(const LLAvatarListEntry* entry, std::string &str, std::string &sep)
 															{ if(!str.empty())str.append(sep);str.append(entry->getName()); }
-static void cmd_toggle_mark(LLAvatarListEntry* entry)		{ entry->toggleMark(); }
 static void cmd_ar(const LLAvatarListEntry* entry)			{ LLFloaterReporter::showFromObject(entry->getID()); }
 static void cmd_profile(const LLAvatarListEntry* entry)		{ LLAvatarActions::showProfile(entry->getID()); }
 static void cmd_teleport(const LLAvatarListEntry* entry)	{ gAgent.teleportViaLocation(entry->getPosition()); }

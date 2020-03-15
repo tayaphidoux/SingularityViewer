@@ -2406,7 +2406,10 @@ Klicken Sie auf &#x201E;Akzeptieren&#x201C;, um dem Chat beizutreten, oder auf &
   <notification name="ThrottledSLURL">Mehrere SLurls wurden von einem nicht vertrauten Browser innerhalb einer kurzen Zeitspanne empfangen.
 Sie wurden aus Sicherheitsgr&#xFC;nden geblockt f&#xFC;r ein paar Minuten.<tag>Sicherheit</tag></notification>
 
-  <notification name="ServerVersionChanged">Die Region, die Sie betreten haben, verwendet eine andere Simulatorversion. Klicken Sie auf diese Nachricht, um weitere Informationen zu erhalten.</notification>
+  <notification name="ServerVersionChanged">Die Region, die Sie betreten haben, verwendet eine andere Simulatorversion.
+Current simulator: [NEW_VERSION]
+Previous simulator: [OLD_VERSION]
+  </notification>
      <notification name="ObjectMediaFailure">Server Fehler: Media update oder download fehlgeschlagen.
 '[ERROR]'<tag>fehlgeschlagen</tag><usetemplate name="okbutton" yestext="OK"/></notification>
 

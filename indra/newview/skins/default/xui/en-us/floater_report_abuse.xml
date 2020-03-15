@@ -5,6 +5,9 @@
     <string name="Screenshot">
         Screenshot
     </string>
+    <string name="Ridiculous1" value="Harassment &gt; User keeps licking finger and touching me"/>
+    <string name="Ridiculous2" value="Land &gt; Encroachment &gt; User won't stay on their side of the car"/>
+    <string name="Ridiculous3" value="Freud &gt; User has taken an interest in their mother"/>
 	<texture_picker allow_no_texture="true" bottom="-150" default_image_name="None"
 	     follows="left|top" height="114" label="" left="238" mouse_opaque="true"
 	     name="screenshot" width="134" />
@@ -17,12 +20,12 @@
 	     mouse_opaque="true" name="reporter_title" v_pad="0" width="50">
 		Reporter:
 	</text>
-	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="-48" drop_shadow_visible="true" follows="left|top"
+	<name_box bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	     bottom="-48" drop_shadow_visible="true" follows="left|top" click_for_profile="false"
 	     font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="62"
 	     mouse_opaque="true" name="reporter_field" v_pad="0" width="150">
 		Loremipsum Dolorsitamut
-	</text>
+	</name_box>
 	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom="-64" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerifSmall" h_pad="0" halign="left" height="16" left="16"
@@ -75,12 +78,12 @@
 	     mouse_opaque="true" name="owner_name_label" v_pad="0" width="60">
 		Owner:
 	</text>
-	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom_delta="0" drop_shadow_visible="true" follows="left|top"
+	<name_box bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	     bottom_delta="0" drop_shadow_visible="true" follows="left|top" rlv_sensitive="true"
 	     font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="66"
 	     mouse_opaque="true" name="owner_name" v_pad="0" width="109">
 		Hendrerit Vulputate
-	</text>
+	</name_box>
 	<combo_box bottom_delta="-48" follows="left|top" height="20" left="16" mouse_opaque="true"
 	     name="category_combo"
 	     tool_tip="Category -- select the category that best describes this report"
@@ -116,19 +119,19 @@
         <combo_box.item
          label="Fraud &gt; L$ or USD $"
          name="Fraud__US$"
-         value="50" />
+         value="47" />
         <combo_box.item
-	 name="Ridiculous3"
+         name="Ridiculous3"
          label="Freud &gt; User has taken an interest in their mother"
-         value="100" />
+         value="1000" />
         <combo_box.item
          label="Harassment &gt; Targeted behavior intended to disrupt"
          name="Harassment__Solicting_inciting_others_to_violate_ToS"
-         value="55" />
+         value="51" />
         <combo_box.item
          label="Harassment &gt; User keeps licking finger and touching me"
          name="Ridiculous1"
-	 value="100"/>
+         value="1000"/>
         <combo_box.item
          label="Indecency &gt; Broadly offensive content or conduct"
          name="Indecency__Broadly_offensive_content_or_conduct"
@@ -152,9 +155,9 @@
         <combo_box.item
          name="Ridiculous2"
          label="Land &gt; Encroachment &gt; User won't stay on their side of the car"
-         value="100" />
+         value="1000" />
         <combo_box.item
-         label="Gaming Policy Violation"
+         label="Skill Gaming Policy Violation"
          name="Wagering_gambling"
          value="67" />
         <combo_box.item
@@ -215,9 +218,9 @@
 	     bottom_delta="-32" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerifSmall" h_pad="0" halign="left" height="48" left="70"
 	     mouse_opaque="true" name="bug_aviso" v_pad="0" width="308">
-		Please be specific about the date, location, nature of
-abuse, relevant chat/IM text, and select the object
-if possible.
+Please be as specific as possible: date, location,
+nature of abuse, relevant chat/IM text, etc.
+* Incomplete reports won't be investigated
 	</text>
 	<text_editor bottom_delta="-152" embedded_items="false"
 	     follows="left|top" font="SansSerifSmall" height="146" left="16"

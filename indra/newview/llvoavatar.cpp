@@ -4153,10 +4153,7 @@ void LLVOAvatar::clearNameTag()
 //static
 void LLVOAvatar::invalidateNameTag(const LLUUID& agent_id)
 {
-	LLViewerObject* obj = gObjectList.findObject(agent_id);
-	if (!obj) return;
-
-	LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(obj);
+	LLVOAvatar* avatar = gObjectList.findAvatar(agent_id);
 	if (!avatar) return;
 
 	avatar->clearNameTag();
@@ -6923,7 +6920,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, uuid_set_t*
         }
     }
 
-	LLVOVolume *vobj = dynamic_cast<LLVOVolume*>(vo);
+	LLVOVolume *vobj = vo->asVolume();
 	if (vobj && vobj->isRiggedMesh() &&
 		vobj->getVolume() && vobj->getVolume()->isMeshAssetLoaded() && gMeshRepo.meshRezEnabled())
 	{
@@ -8661,11 +8658,13 @@ bool LLVOAvatar::isTooComplex() const
 {
 	static const LLCachedControl<S32> always_render_friends("AlwaysRenderFriends", 0);
 	bool too_complex;
-	if (isSelf() || (always_render_friends && always_render_friends != 3 && LLAvatarTracker::instance().isBuddy(getID())))
+	// 'AlwaysRenderFriends' == 0, or an animesh, falls through to the complexity limits, if not self. Self is always rendered.
+	// 1 always render friends, 2 render only friends, 3 render only self
+	if (isSelf() || (always_render_friends && always_render_friends != 3 && !isControlAvatar() && LLAvatarTracker::instance().isBuddy(getID())))
 	{
 		too_complex = false;
 	}
-	else if (always_render_friends >= 2)
+	else if (always_render_friends >= 2 && !isControlAvatar())
 	{
 		too_complex = true;
 	}
@@ -9012,7 +9011,7 @@ void LLVOAvatar::updateMeshTextures()
 	// set texture and color of hair manually if we are not using a baked image.
 	// This can happen while loading hair for yourself, or for clients that did not
 	// bake a hair texture. Still needed for yourself after 1.22 is depricated.
-	if (!is_layer_baked[BAKED_HAIR] || isEditingAppearance())
+	if (!is_layer_baked[BAKED_HAIR])
 	{
 		const LLColor4 color = mTexHairColor ? mTexHairColor->getColor() : LLColor4(1,1,1,1);
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );
@@ -10565,7 +10564,7 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
 	{{
 			LLViewerObject* attached_object = iter.first;
 #endif
-            LLVOVolume *volume = dynamic_cast<LLVOVolume*>(attached_object);
+            LLVOVolume *volume = attached_object->asVolume();
             if (volume)
             {
                 volumes.push_back(volume);
@@ -10578,11 +10577,12 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
                 }
             }
             LLViewerObject::const_child_list_t& children = attached_object->getChildren();
-            for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-                 it != children.end(); ++it)
+			for (LLViewerObject* childp : children)
             {
-                LLViewerObject *childp = *it;
-                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(childp);
+				if (!childp) 
+					continue;
+
+                LLVOVolume *volume = childp->asVolume();
                 if (volume)
                 {
                     volumes.push_back(volume);
@@ -10599,11 +10599,9 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
         {
             volumes.push_back(volp);
             LLViewerObject::const_child_list_t& children = volp->getChildren();
-            for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-                 it != children.end(); ++it)
+            for (LLViewerObject* childp : children)
             {
-                LLViewerObject *childp = *it;
-                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(childp);
+                LLVOVolume *volume = childp ? childp->asVolume() : nullptr;
                 if (volume)
                 {
                     volumes.push_back(volume);
@@ -10948,7 +10946,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
 					++child_iter)
 				{
 					LLViewerObject* child_obj = *child_iter;
-					LLVOVolume *child = dynamic_cast<LLVOVolume*>(child_obj);
+                    LLVOVolume *child = child_obj ? child_obj->asVolume() : nullptr;
 					if (child)
 					{
 						attachment_children_cost += child->getRenderCost(textures);
@@ -11005,7 +11003,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
 				iter != child_list.end(); ++iter)
 			{
 				LLViewerObject* childp = *iter;
-				const LLVOVolume* chld_volume = dynamic_cast<LLVOVolume*>(childp);
+                const LLVOVolume* chld_volume = childp ? childp->asVolume() : nullptr;
 				if (chld_volume)
 				{
 					// get cost and individual textures

@@ -38,8 +38,10 @@
 class LLUICtrl;
 class LLView;
 class LLParcelSelection;
+class LLPickInfo;
 class LLObjectSelection;
 class LLSelectNode;
+class LLViewerObject;
 
 void pre_init_menus();
 void init_menus();
@@ -88,14 +90,14 @@ BOOL enable_god_full(void* user_data);
 BOOL enable_god_liaison(void* user_data);
 BOOL enable_god_basic(void* user_data);
 void set_underclothes_menu_options();
-void check_merchant_status();
+void check_merchant_status(bool force = false);
 
 void exchange_callingcard(const LLUUID& dest_id);
 
 void handle_gestures(void*);
 void handle_sit_down(void*);
 void handle_object_build(void*);
-void handle_object_touch();
+void handle_object_touch(LLViewerObject*, const LLPickInfo* const = nullptr);
 bool enable_object_open();
 void handle_object_open();
 
@@ -133,10 +135,10 @@ void handle_toggle_flycam();
 void handle_fake_away_status(void*);
 
 void handle_object_sit_or_stand();
-void handle_give_money_dialog();
-bool enable_pay_object();
+void handle_give_money_dialog(LLViewerObject*);
+bool enable_pay_object(LLViewerObject*);
 bool enable_buy_object();
-bool handle_go_to();
+void handle_go_to(const LLVector3d& pos);
 
 // Export to XML or Collada
 void handle_export_selected( void * );

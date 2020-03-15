@@ -289,11 +289,6 @@ LLAgentCamera::~LLAgentCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::resetView(BOOL reset_camera, BOOL change_camera)
 {
-	if (gAgent.getAutoPilot())
-	{
-		gAgent.stopAutoPilot(TRUE);
-	}
-
 	LLSelectMgr::getInstance()->unhighlightAll();
 
 	// By popular request, keep land selection while walking around. JC
@@ -2517,13 +2512,13 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 			gAgent.sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
 			gAgent.setCustomAnim(TRUE);
 			gAgentAvatarp->startMotion(ANIM_AGENT_CUSTOMIZE);
-		}
-		LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
+			LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
 
-		if (turn_motion)
-		{
-			// delay camera animation long enough to play through turn animation
-			setAnimationDuration(turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP);
+			if (turn_motion)
+			{
+				// delay camera animation long enough to play through turn animation
+				setAnimationDuration(turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP);
+			}
 		}
 	}
 	// <edit>

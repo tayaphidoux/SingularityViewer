@@ -7,6 +7,7 @@ include(LLCommon)
 include(LLMath)
 include(LLMessage)
 include(LLRender)
+include(Boost)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -46,14 +47,6 @@ set(llplugin_HEADER_FILES
 set_source_files_properties(${llplugin_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-if(NOT WORD_SIZE EQUAL 32)
-	if(WINDOWS)
-		# add_definitions(/FIXED:NO)
-	else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-		add_definitions(-fPIC)
-	endif(WINDOWS)
-endif (NOT WORD_SIZE EQUAL 32)
-
 list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})
 
 add_library (llplugin ${llplugin_SOURCE_FILES})
@@ -66,6 +59,8 @@ else()
         llcommon
         )
 endif()
+
+set_target_properties(llplugin PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 add_subdirectory(slplugin)
 

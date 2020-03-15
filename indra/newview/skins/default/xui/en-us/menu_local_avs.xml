@@ -45,17 +45,29 @@
       <on_click function="List.InviteToGroup"/>
       <on_visible function="List.EnableAnySelected"/>
     </menu_item_call>
+    <menu_item_call label="Follow" name="Follow">
+      <on_click function="List.Follow"/>
+      <on_visible function="List.EnableSingleSelected"/>
+    </menu_item_call>
+    <menu_item_call label="Move To" name="Move To">
+      <on_click function="List.GoTo"/>
+      <on_visible function="List.EnableSingleSelected"/>
+    </menu_item_call>
     <menu_item_call label="Offer Teleport" name="Offer Teleport">
       <on_click function="List.OfferTeleport"/>
-      <on_enable function="List.EnableAnySelected"/>
+      <on_visible function="List.EnableSingleSelected"/>
     </menu_item_call>
     <menu_item_call label="Teleport To" name="Teleport To">
-      <on_click function="Radar.TeleportTo"/>
-      <on_enable function="List.EnableSingleSelected"/>
+      <on_click function="List.TeleportTo"/>
+      <on_visible function="List.EnableSingleSelected"/>
     </menu_item_call>
     <menu_item_call label="Request Teleport" name="Request Teleport">
       <on_click function="List.RequestTeleport"/>
       <on_visible function="List.EnableSingleSelected"/>
+    </menu_item_call>
+    <menu_item_call label="Find on Map" name="Find on Map">
+      <on_click function="List.Stalk"/>
+      <on_visible function="List.Stalkable"/>
     </menu_item_call>
     <menu_item_call label="Share" name="Share">
       <on_click function="List.Share"/>
@@ -63,16 +75,20 @@
     </menu_item_call>
     <menu_item_call label="Chat History" name="Chat History">
       <on_click function="List.ShowLog"/>
-      <on_enable function="List.EnableAnySelected"/>
+      <on_visible function="List.EnableAnySelected"/>
     </menu_item_call>
     <menu_item_call label="Track/Untrack" name="Track/Untrack">
-      <on_click function="List.Track"/>
-      <on_enable function="List.EnableSingleSelected"/>
+      <on_click function="Radar.Track"/>
+      <on_visible function="List.EnableAnySelected"/>
     </menu_item_call>
     <menu_item_separator/>
     <menu_item_call label="Copy Key" name="Copy Key">
       <on_click function="List.CopyUUIDs"/>
-      <on_enable function="List.EnableAnySelected"/>
+      <on_visible function="List.EnableAnySelected"/>
+    </menu_item_call>
+    <menu_item_call label="Copy Names" name="Copy Names">
+      <on_click function="List.CopyNames"/>
+      <on_visible function="List.EnableAnySelected"/>
     </menu_item_call>
     <menu_item_call label="Copy SLURL" name="Copy SLURL">
       <on_click function="List.CopySLURL"/>

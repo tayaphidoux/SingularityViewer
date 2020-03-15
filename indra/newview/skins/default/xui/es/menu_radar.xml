@@ -24,7 +24,6 @@
 		<menu_item_call label="Enfocar Siguiente" name="Focus Next"/>
 		<menu_item_call label="Enfocar Anterior" name="Focus Previous"/>
 		<menu_item_separator/>
-		<menu_item_call label="Marcar/Desmarcar" name="Mark/Unmark"/>
 		<menu_item_call label="Enfocar Siguiente Marcado" name="Focus Next Marked"/>
 		<menu_item_call label="Enfocar Anterior Marcado" name="Focus Previous Marked"/>
 	</menu>

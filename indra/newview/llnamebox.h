@@ -36,12 +36,12 @@
 #include "llnameui.h"
 #include "lltextbox.h"
 
-class LLNameBox
+class LLNameBox final
 :	public LLTextBox
 ,	public LLNameUI
 {
 public:
-	virtual void initFromXML(LLXMLNodePtr node, LLView* parent);
+	LLXMLNodePtr getXML(bool save_children = true) const override final;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	void displayAsLink(bool link) override final;
@@ -49,13 +49,18 @@ public:
 	void setValue(const LLSD& value) override final { LLNameUI::setValue(value); }
 	LLSD getValue() const override final { return LLNameUI::getValue(); }
 
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override final { return mClickForProfile && mAllowInteract && LLTextBox::handleMouseDown(x, y, mask); }
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask) override final { return mClickForProfile && mAllowInteract && LLTextBox::handleMouseUp(x, y, mask); }
 	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override final;
 	BOOL handleHover(S32 x, S32 y, MASK mask) override final;
 
-protected:
-	LLNameBox(const std::string& name);
-	
-	friend class LLUICtrlFactory;
+	LLNameBox(const std::string& name,
+		const LLUUID& name_id = LLUUID::null,
+		const Type& type = AVATAR,
+		const std::string& loading = LLStringUtil::null,
+		bool rlv_sensitive = false,
+		const std::string& name_system = LLStringUtil::null,
+		bool click_for_profile = false);
 };
 
 #endif

@@ -6069,7 +6069,8 @@ Ingresa el dominio a añadir en la [LIST]:
 
 	<notification name="ServerVersionChanged">
 		La región en la que has entrado está utilizando una versión diferente del simulador.
-Pulsa en este mensaje para ver más detalles.
+Current simulator: [NEW_VERSION]
+Previous simulator: [OLD_VERSION]
 	</notification>
 	
 	<notification name="SGIncompleteAppearance">

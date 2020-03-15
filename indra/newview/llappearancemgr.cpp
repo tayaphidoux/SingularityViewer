@@ -2841,6 +2841,12 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 {
 	if(!category) return;
 
+	// Attachments getting lost on TP:
+	// We'll be sending the outfit change request to our current region,
+	// so we'll learn them if they've been sending bad kills.
+	// We don't take kindly to that sorta behaviour round these parts.
+	gAgent.setIsCrossingRegion(false);
+
 	selfClearPhases();
 	selfStartPhase("wear_inventory_category");
 
@@ -4178,7 +4184,7 @@ LLUUID LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, L
 // 2) Stuff with requests via makeLink and makeCopy
 // 3) Call dispatch()
 // 4) Let the LLPointer go out of scope.
-class LLCreateLegacyOutfit : public LLBoostFuncInventoryCallbackFireOnce
+class LLCreateLegacyOutfit final : public LLBoostFuncInventoryCallbackFireOnce
 {
 public:
 	LLCreateLegacyOutfit(const LLUUID& folder_id, inventory_func_type fire_func, nullary_func_type destroy_func = no_op) : 

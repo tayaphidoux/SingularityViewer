@@ -282,6 +282,11 @@ int	LLFile::rename_nowarn(const std::string& filename, const std::string& newnam
 	int rc = _wrename(utf16filename.c_str(),utf16newname.c_str());
 #else
 	int rc = ::rename(filename.c_str(),newname.c_str());
+	if (rc == -1 && errno == EXDEV)
+	{
+		rc = std::system(("mv '" + filename + "' '" + newname + '\'').data());
+		errno = 0;
+	}
 #endif
 	return rc;
 }

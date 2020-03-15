@@ -281,8 +281,12 @@ public:
 		std::string body;
 		decode_raw_body(channels, buffer, body);
 
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);;
+		LLSD result = LlsdFromJsonString(body);
+		if (result.isUndefined())
+		{
+			log_SLM_warning("Get /listings", getStatus(), getReason(), LLStringUtil::null, "Empty or Invalid JSON Response");
+			return;
+		}
 
 		if (!isGoodStatus(mStatus))
 		{
@@ -342,8 +346,12 @@ public:
 		std::string body;
 		decode_raw_body(channels, buffer, body);
 
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);;
+		LLSD result = LlsdFromJsonString(body);
+		if (result.isUndefined())
+		{
+			log_SLM_warning("Post /listings", getStatus(), getReason(), LLStringUtil::null, "Empty or Invalid JSON Response");
+			return;
+		}
 
 		if (!isGoodStatus(mStatus))
 		{
@@ -396,8 +404,12 @@ public:
 		std::string body;
 		decode_raw_body(channels, buffer, body);
 
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);
+		LLSD result = LlsdFromJsonString(body);
+		if (result.isUndefined())
+		{
+			log_SLM_warning("Get /listing", getStatus(), getReason(), LLStringUtil::null, "Empty or Invalid JSON Response");
+			return;
+		}
 
 		if (!isGoodStatus(mStatus))
 		{
@@ -469,8 +481,12 @@ public:
 		std::string body;
 		decode_raw_body(channels, buffer, body);
 
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);
+		LLSD result = LlsdFromJsonString(body);
+		if (result.isUndefined())
+		{
+			log_SLM_warning("Put /listing", getStatus(), getReason(), LLStringUtil::null, "Empty or Invalid JSON Response");
+			return;
+		}
 
 		if (!isGoodStatus(mStatus))
 		{
@@ -543,8 +559,12 @@ public:
 		std::string body;
 		decode_raw_body(channels, buffer, body);
 
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);
+		LLSD result = LlsdFromJsonString(body);
+		if (result.isUndefined())
+		{
+			log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), LLStringUtil::null, "Empty or Invalid JSON Response");
+			return;
+		}
 
 		if (!isGoodStatus(mStatus))
 		{
@@ -612,8 +632,12 @@ public:
 
 		std::string body;
 		decode_raw_body(channels, buffer, body);
-		auto json = nlohmann::json::parse(body);
-		LLSD result = LlsdFromJson(json);
+		LLSD result = LlsdFromJsonString(body);
+		if (result.isUndefined())
+		{
+			log_SLM_warning("Delete /listing", getStatus(), getReason(), LLStringUtil::null, "Empty or Invalid JSON Response");
+			return;
+		}
 
 		if (!isGoodStatus(mStatus))
 		{
@@ -1245,7 +1269,7 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
 	}
 
 	log_SLM_infos("LLHTTPClient::get", url, LLStringUtil::null);
-	LLHTTPClient::get(url, LLSD(), new LLSLMGetMerchantResponder);
+	LLHTTPClient::get(url, new LLSLMGetMerchantResponder);
 }
 
 void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot_type& cb)

@@ -32,48 +32,38 @@ LFFloaterInvPanel::LFFloaterInvPanel(const LLSD& cat, const std::string& name, L
 : LLInstanceTracker<LFFloaterInvPanel, LLSD>(cat)
 {
 	// Setup the floater first
-	mPanel = new LLInventoryPanel("inv_panel", LLInventoryPanel::DEFAULT_SORT_ORDER, cat, LLRect(), model ? model : &gInventory, true);
-	const auto& title = name.empty() ? gInventory.getCategory(mPanel->getRootFolderID())->getName() : name;
-
-	// Figure out a unique name for our rect control
-	const auto rect_control = llformat("FloaterInv%sRect", boost::algorithm::erase_all_copy(title, " ").data());
-
-	bool existed = gSavedSettings.controlExists(rect_control);
-	if (existed) // Set our initial rect to the stored control
-		setRectControl(rect_control);
+	auto mPanel = new LLInventoryPanel("inv_panel", LLInventoryPanel::DEFAULT_SORT_ORDER, cat, LLRect(), model ? model : &gInventory, true);
 
 	// Load from XUI
-	mCommitCallbackRegistrar.add("InvPanel.Search", boost::bind(&LLInventoryPanel::setFilterSubString, boost::ref(mPanel), _2));
+	mCommitCallbackRegistrar.add("InvPanel.Search", boost::bind(&LLInventoryPanel::setFilterSubString, mPanel, _2));
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inv_panel.xml");
 
 	// Now set the title
+	const auto& title = name.empty() ? gInventory.getCategory(mPanel->getRootFolderID())->getName() : name;
 	setTitle(title);
 
-	// If we haven't existed before, create and set our rect control now
-	if (!existed)
+	// Figure out a unique name for our rect control
+	const auto rect_control = llformat("FloaterInv%sRect", boost::algorithm::erase_all_copy(title, " ").data());
+	if (!gSavedSettings.controlExists(rect_control)) // If we haven't existed before, create it
 	{
 		S32 left, top;
 		gFloaterView->getNewFloaterPosition(&left, &top);
 		LLRect rect = getRect();
 		rect.translate(left - rect.mLeft, top - rect.mTop);
-		setRect(rect);
 		gSavedSettings.declareRect(rect_control, rect, "Rectangle for " + title + " window");
-		setRectControl(rect_control);
 	}
+	setRectControl(rect_control);
+	applyRectControl(); // Set our initial rect to the stored (or just created) control
 
 	// Now take care of the children
 	LLPanel* panel = getChild<LLPanel>("placeholder_panel");
 	mPanel->setRect(panel->getRect());
+	mPanel->setOrigin(0, 0);
 	mPanel->postBuild();
 	mPanel->setFollows(FOLLOWS_ALL);
 	mPanel->setEnabled(true);
-	addChild(mPanel);
-	removeChild(panel);
-}
-
-LFFloaterInvPanel::~LFFloaterInvPanel()
-{
-	delete mPanel;
+	mPanel->removeBorder();
+	panel->addChild(mPanel);
 }
 
 // static
@@ -100,15 +90,18 @@ void LFFloaterInvPanel::closeAll()
 	}
 }
 
-// virtual
 BOOL LFFloaterInvPanel::handleKeyHere(KEY key, MASK mask)
 {
-	if (!mPanel->hasFocus() && mask == MASK_NONE && (key == KEY_RETURN || key == KEY_DOWN))
+	if (mask == MASK_NONE && (key == KEY_RETURN || key == KEY_DOWN))
 	{
-		mPanel->setFocus(true);
-		if (LLFolderView* root = mPanel->getRootFolder())
-			root->scrollToShowSelection();
-		return true;
+		auto& mPanel = *getChild<LLInventoryPanel>("inv_panel");
+		if (!mPanel.hasFocus())
+		{
+			mPanel.setFocus(true);
+			if (LLFolderView* root = mPanel.getRootFolder())
+				root->scrollToShowSelection();
+			return true;
+		}
 	}
 
 	return LLFloater::handleKeyHere(key, mask);

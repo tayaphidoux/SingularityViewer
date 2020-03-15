@@ -813,16 +813,19 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, LLColor4 incol
 
 	std::string show_name = name;
 	bool is_irc = false;
+	bool system = name.empty();
 	// 'name' is a sender name that we want to hotlink so that clicking on it opens a profile.
-	if (!name.empty()) // If name exists, then add it to the front of the message.
+	if (!system) // If name exists, then add it to the front of the message.
 	{
 		// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
 		if (name == SYSTEM_FROM)
 		{
+			system = true;
 			mHistoryEditor->appendColoredText(name,false,prepend_newline,incolor);
 		}
 		else
 		{
+			system = !from_user;
 			// IRC style text starts with a colon here; empty names and system messages aren't irc style.
 			static const LLCachedControl<bool> italicize("LiruItalicizeActions");
 			is_irc = italicize && utf8msg[0] != ':';
@@ -831,7 +834,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, LLColor4 incol
 			// Convert the name to a hotlink and add to message.
 			LLStyleSP source_style = LLStyleMap::instance().lookupAgent(source);
 			source_style->mItalic = is_irc;
-			mHistoryEditor->appendText(show_name,false,prepend_newline,source_style, false);
+			mHistoryEditor->appendText(show_name,false,prepend_newline,source_style, system);
 		}
 		prepend_newline = false;
 	}
@@ -842,7 +845,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, LLColor4 incol
 		style->setColor(incolor);
 		style->mItalic = is_irc;
 		style->mBold = from_user && gSavedSettings.getBOOL("SingularityBoldGroupModerator") && isModerator(source);
-		mHistoryEditor->appendText(utf8msg, false, prepend_newline, style, false);
+		mHistoryEditor->appendText(utf8msg, false, prepend_newline, style, system);
 	}
 
 	if (log_to_file
@@ -1125,7 +1128,7 @@ void LLFloaterIMPanel::removeDynamicFocus()
 	findChild<LLComboBox>("instant_message_flyout")->remove(getString("focus"));
 }
 
-void copy_profile_uri(const LLUUID& id, bool group = false);
+void copy_profile_uri(const LLUUID& id, const LFIDBearer::Type& type = LFIDBearer::AVATAR);
 
 void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 {
@@ -1667,7 +1670,8 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 	}
 
 	//self->addHistoryLine(line, LLColor4::grey, FALSE);
-	self->mHistoryEditor->appendColoredText(message, false, true, LLColor4::grey);
+	LLStyleSP style(new LLStyle(true, gSavedSettings.getColor4("LogChatColor"), LLStringUtil::null));
+	self->mHistoryEditor->appendText(message, false, true, style, false);
 }
 
 void LLFloaterIMPanel::showSessionStartError(

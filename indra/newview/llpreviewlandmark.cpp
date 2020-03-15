@@ -63,10 +63,6 @@
 ////////////////////////////////////////////////////////////////////////////
 // LLPreviewLandmark
 
-// static
-LLPreviewLandmarkList LLPreviewLandmark::sOrderedInstances;
-
-
 LLPreviewLandmark::LLPreviewLandmark(const std::string& name,
 									 const LLRect& rect,
 									 const std::string& title,
@@ -112,18 +108,10 @@ LLPreviewLandmark::LLPreviewLandmark(const std::string& name,
 		translate(rect.mLeft - curRect.mLeft, rect.mTop - curRect.mTop);
 	}
 	*/
-	LLPreviewLandmark::sOrderedInstances.push_back( this );
 }
 
 LLPreviewLandmark::~LLPreviewLandmark()
 {
-	LLPreviewLandmarkList::iterator this_itr;
-	this_itr = std::find(LLPreviewLandmark::sOrderedInstances.begin(), 
-			LLPreviewLandmark::sOrderedInstances.end(), this);
-	if (this_itr != LLPreviewLandmark::sOrderedInstances.end())
-	{
-		LLPreviewLandmark::sOrderedInstances.erase(this_itr);
-	}
 }
 
 

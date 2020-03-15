@@ -39,14 +39,15 @@ class LLAvatarName;
  * We don't use LLScrollListItem to be able to override getUUID(), which is needed
  * because the name list item value is not simply an UUID but a map (uuid, is_group).
  */
-class LLNameListItem : public LLScrollListItem, public LLHandleProvider<LLNameListItem>
+class LLNameListItem final : public LLScrollListItem, public LLHandleProvider<LLNameListItem>
 {
 public:
 	enum ENameType
 	{
 		INDIVIDUAL,
 		GROUP,
-		SPECIAL
+		SPECIAL,
+		EXPERIENCE
 	};
 
 	// provide names for enums
@@ -86,7 +87,7 @@ private:
 };
 
 
-class LLNameListCtrl
+class LLNameListCtrl final
 :	public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
 {
 public:
@@ -98,8 +99,8 @@ public:
 		Alternative<S32>				column_index;
 		Alternative<std::string>		column_name;
 		NameColumn()
-		:	column_name("name_column"),
-			column_index("name_column_index", 0)
+		:	column_index("name_column_index", 0),
+			column_name("name_column")
 		{}
 	};
 
@@ -118,7 +119,7 @@ protected:
 	}
 	friend class LLUICtrlFactory;
 public:
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
+	virtual LLXMLNodePtr getXML(bool save_children = true) const override;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	// Add a user to the list by name.  It will be added, the name 
@@ -127,7 +128,7 @@ public:
 					 BOOL enabled = TRUE, const std::string& suffix = LLStringUtil::null, const std::string& prefix = LLStringUtil::null);
 	LLScrollListItem* addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
-	/*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
+	/*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL) override;
 	LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM, const std::string& suffix = LLStringUtil::null,
 																							const std::string& prefix = LLStringUtil::null);
 
@@ -146,8 +147,10 @@ public:
 	/*virtual*/ BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 									  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 									  EAcceptance *accept,
-									  std::string& tooltip_msg);
+									  std::string& tooltip_msg) override;
 	BOOL handleDoubleClick(S32 x, S32 y, MASK mask) override;
+
+	Type getSelectedType() const override final;
 
 	void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
 
@@ -158,8 +161,9 @@ private:
 
 private:
 	S32    	 mNameColumnIndex;
+	//std::string		mNameColumn;
 	BOOL	 mAllowCallingCardDrop;
-	const LLCachedControl<S32> mNameSystem;
+	const LLCachedControl<S32> mNameSystem; // Singu Note: Instead of mShortNames
 	typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
 	avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
 
@@ -167,7 +171,7 @@ private:
 	namelist_complete_signal_t mNameListCompleteSignal;
 
 public:
-	boost::signals2::connection setOnNameListCompleteCallback(boost::function<void(bool)> onNameListCompleteCallback)
+	boost::signals2::connection setOnNameListCompleteCallback(std::function<void(bool)> onNameListCompleteCallback)
 	{
 		return mNameListCompleteSignal.connect(onNameListCompleteCallback);
 	}
