@@ -335,7 +335,7 @@ void LLAvatarNameCache::requestNamesViaCapability()
 	while(!sAskQueue.empty())
 	{
 		it = sAskQueue.begin();
-		const LLUUID& agent_id = *it;
+		const LLUUID agent_id = *it;
 		sAskQueue.erase(it);
 
 		if (url.empty())

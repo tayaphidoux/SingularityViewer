@@ -4405,24 +4405,27 @@ bool LLModelPreview::lodQueryCallback()
     // not the best solution, but model preview belongs to floater
     // so it is an easy way to check that preview still exists.
     LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
-    if (fmp && fmp->mModelPreview)
-    {
-        LLModelPreview* preview = fmp->mModelPreview;
-        if (preview->mLodsQuery.size() > 0)
-        {
-            S32 lod = preview->mLodsQuery.back();
-            preview->mLodsQuery.pop_back();
-            preview->genLODs(lod);
-
-            // return false to continue cycle
-            return false;
-        }
-    }
-
-	for (U32 lod = 0; lod < NUM_LOD; ++lod)
+	if (fmp)
 	{
-		LLIconCtrl* icon = fmp->getChild<LLIconCtrl>(lod_icon_name[lod]);
-		icon->setVisible(true);
+		if (fmp->mModelPreview)
+		{
+			LLModelPreview* preview = fmp->mModelPreview;
+			if (preview->mLodsQuery.size() > 0)
+			{
+				S32 lod = preview->mLodsQuery.back();
+				preview->mLodsQuery.pop_back();
+				preview->genLODs(lod);
+
+				// return false to continue cycle
+				return false;
+			}
+		}
+
+		for (U32 lod = 0; lod < NUM_LOD; ++lod)
+		{
+			LLIconCtrl* icon = fmp->getChild<LLIconCtrl>(lod_icon_name[lod]);
+			icon->setVisible(true);
+		}
 	}
 	
     // nothing to process

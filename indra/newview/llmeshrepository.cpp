@@ -742,10 +742,13 @@ void LLMeshRepoThread::lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32
 
 void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 { //could be called from any thread
+	std::unique_lock<LLMutex> header_lock(*mHeaderMutex);
+	bool exists = mMeshHeader.find(mesh_params.getSculptID()) != mMeshHeader.end();
+	header_lock.unlock();
 	LLMutexLock lock(mMutex);
-	mesh_header_map::iterator iter = mMeshHeader.find(mesh_params.getSculptID());
-	if (iter != mMeshHeader.end())
-	{ //if we have the header, request LOD byte range
+	if (exists)
+	{
+		//if we have the header, request LOD byte range
 		gMeshRepo.mThread->pushLODRequest(mesh_params, lod, 0.f);
 		LLMeshRepository::sLODProcessing++;
 	}
