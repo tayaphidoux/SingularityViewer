@@ -160,6 +160,7 @@ elseif(LINUX)
         libexpat.so
         libexpat.so.1
         libGLOD.so
+        libopenal.so
        )
 
     if (USE_TCMALLOC)
