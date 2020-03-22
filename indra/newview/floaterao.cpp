@@ -460,12 +460,20 @@ AOSystem::AOSystem()
 #undef BASIC_OVERRIDE
 #undef ANY_OVERRIDE
 
-	sSwimming = is_underwater();
+	auto swim_forced = gSavedSettings.getControl("AOSwimForced");
+	sSwimming = swim_forced->get().asBoolean() || is_underwater();
 	mConnections[0] = gSavedSettings.getControl("AOSitsEnabled")->getSignal()->connect([this](LLControlVariable*, const LLSD& val) {
 		if (!isAgentAvatarValid() || !gAgentAvatarp->isSitting()) return;
 		gAgent.sendAnimationRequest(mAOOverrides[getSitType()]->ao_id, val.asBoolean() ? ANIM_REQUEST_START : ANIM_REQUEST_STOP);
 	});
-	mConnections[1] = gSavedSettings.getControl("AOSwimEnabled")->getSignal()->connect(boost::bind(&AOSystem::toggleSwim, this, boost::bind(is_underwater)));
+	const auto& swim_cb = [=](LLControlVariable*, const LLSD&){ toggleSwim(swim_forced->get().asBoolean() || is_underwater()); };
+	auto swim_enabled = gSavedSettings.getControl("AOSwimEnabled");
+	mConnections[1] = swim_enabled->getSignal()->connect(swim_cb);
+	mConnections[2] = swim_forced->getSignal()->connect([swim_cb, swim_enabled](LLControlVariable*, const LLSD& val) {
+		if (val.asBoolean()) // Automatically enable Swim AO.
+			swim_enabled->set(true);
+		swim_cb(nullptr, LLSD());
+	});
 }
 
 AOSystem::~AOSystem()
