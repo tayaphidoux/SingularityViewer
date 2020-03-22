@@ -6317,7 +6317,7 @@ void LLVOAvatar::processAnimationStateChanges()
 			// <edit>
 			LLFloaterExploreAnimations::processAnim(getID(), anim_it->first, false);
 			// </edit>
-			mPlayingAnimations.erase(anim_it++);
+			anim_it = mPlayingAnimations.erase(anim_it);
 			continue;
 		}
 
