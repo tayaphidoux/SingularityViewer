@@ -1512,8 +1512,8 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	{
 		if (mFromGroup)
 		{
-			std::string group_name;
-			if (gCacheName->getGroupName(mFromID, group_name))
+			std::string group_name = LLGroupActions::getSLURL(mFromID);
+			//if (gCacheName->getGroupName(mFromID, group_name))
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " + LLTrans::getString("'")
 				+ mFromName + LLTrans::getString("'") + " " + LLTrans::getString("InvOfferOwnedByGroup")
@@ -1522,35 +1522,38 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByGroup")
 				+ " " + group_name + LLTrans::getString("'") + LLTrans::getString(".");
 			}
-			else
+			/*else
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " + LLTrans::getString("'")
 				+ mFromName + LLTrans::getString("'") + " " + LLTrans::getString("InvOfferOwnedByUnknownGroup");
 				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByUnknownGroup") + LLTrans::getString(".");
-			}
+			}*/
 		}
 		else
 		{
-			std::string full_name;
-			if (gCacheName->getFullName(mFromID, full_name))
-			{
+			std::string full_name = LLAvatarActions::getSLURL(mFromID);
+
 // [RLVa:KB] - Version: 1.23.4 | Checked: 2009-07-08 (RLVa-1.0.0e)
-				if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) && (RlvUtil::isNearbyAgent(mFromID)) )
+			if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) && (RlvUtil::isNearbyAgent(mFromID)) )
+			{
+				if (gCacheName->getFullName(mFromID, full_name))
 				{
 					full_name = RlvStrings::getAnonym(full_name);
 				}
-				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " + LLTrans::getString("'") + mFromName
-				+ LLTrans::getString("'") +" " + LLTrans::getString("InvOfferOwnedBy") + full_name;
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedBy") + " " + full_name + LLTrans::getString(".");
-// [/RLVa:KB]
-				//from_string = std::string("An object named '") + mFromName + "' owned by " + first_name + " " + last_name;
-				//chatHistory_string = mFromName + " owned by " + first_name + " " + last_name;
+			}
+
+			from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " + LLTrans::getString("'") + mFromName + LLTrans::getString("'") + ' ';
+			chatHistory_string = mFromName + ' ';
+			if (full_name.empty())
+			{
+				from_string += LLTrans::getString("InvOfferOwnedByUnknownUser");
+				chatHistory_string += LLTrans::getString("InvOfferOwnedByUnknownUser") + LLTrans::getString(".");
 			}
 			else
+// [/RLVa:KB]
 			{
-				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " + LLTrans::getString("'")
-				+ mFromName + LLTrans::getString("'") + " " + LLTrans::getString("InvOfferOwnedByUnknownUser");
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByUnknownUser") + LLTrans::getString(".");
+				from_string += LLTrans::getString("InvOfferOwnedBy") + full_name;
+				chatHistory_string += LLTrans::getString("InvOfferOwnedBy") + " " + full_name + LLTrans::getString(".");
 			}
 		}
 	}
