@@ -1172,14 +1172,12 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="ok">
 		OK
 	</string>
-	<string name="GroupNotifyGroupNotice">
-		Anúncio de grupo
-	</string>
 	<string name="GroupNotifyGroupNotices">
 		Anúncios do grupo
 	</string>
-	<string name="GroupNotifySentBy">
-		Enviado por
+	<string name="GroupNotifyBy">
+por [NAME]
+en [GROUP]
 	</string>
 	<string name="GroupNotifyAttached">
 		Anexo:

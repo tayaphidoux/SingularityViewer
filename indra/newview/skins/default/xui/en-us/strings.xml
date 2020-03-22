@@ -3331,9 +3331,11 @@ Where tag = tag string to match.  Removes bot's matching the tag.
 	<!-- used in the construction of a Group Notice blue dialog box, buttons, tooltip etc. Seems to be no longer utilized by code in Viewer 2.0 -->
 	<string name="next">Next</string>
 	<string name="ok">OK</string>
-	<string name="GroupNotifyGroupNotice">Group Notice</string>
 	<string name="GroupNotifyGroupNotices">Group Notices</string>
-	<string name="GroupNotifySentBy">Sent by</string>
+	<string name="GroupNotifyBy">
+by [NAME]
+in [GROUP]
+	</string>
 	<string name="GroupNotifyAttached">Attached:</string>
 	<string name="GroupNotifyViewPastNotices">View past notices or opt-out of receiving these messages here.</string>
 	<string name="GroupNotifyOpenAttachment">Open Attachment</string>
