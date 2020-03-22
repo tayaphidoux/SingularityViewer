@@ -158,8 +158,7 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 	sLastUpdate = current;
 
 	// Send update request.
-	std::string url = gAgent.getRegionCapability("ExtEnvironment");
-	if (url.empty()) url = gAgent.getRegionCapability("EnvironmentSettings");
+	std::string url = gAgent.getRegionCapability("EnvironmentSettings");
 	if (url.empty())
 	{
 		LL_WARNS("WindlightCaps") << "Applying windlight settings not supported" << LL_ENDL;
