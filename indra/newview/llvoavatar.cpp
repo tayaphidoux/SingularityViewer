@@ -109,8 +109,8 @@
 #include "llvoicevisualizer.h" // Ventrella
 
 #include "llsdserialize.h" //For the client definitions
+#include "aosystem.h"
 #include "llcachename.h"
-#include "floaterao.h"
 #include "llsdutil.h"
 
 #include "llskinningutil.h"

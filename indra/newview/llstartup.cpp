@@ -52,9 +52,9 @@
 #include "llaudioengine_openal.h"
 #endif
 
+#include "aosystem.h"
 #include "hippogridmanager.h"
 #include "hippolimits.h"
-#include "floaterao.h"
 #include "statemachine/aifilepicker.h"
 #include "lfsimfeaturehandler.h"
 

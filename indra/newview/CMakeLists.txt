@@ -92,6 +92,7 @@ set(viewer_SOURCE_FILES
     aixmllindengenepool.cpp
     alfloaterregiontracker.cpp
     aoremotectrl.cpp
+    aosystem.cpp
     ascentfloatercontactgroups.cpp
     ascentkeyword.cpp
     ascentprefschat.cpp
@@ -636,6 +637,8 @@ set(viewer_HEADER_FILES
     aixmllindengenepool.h
     alfloaterregiontracker.h
     aoremotectrl.h
+    aostate.h
+    aosystem.h
     ascentfloatercontactgroups.h
     ascentkeyword.h
     ascentprefschat.h

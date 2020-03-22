@@ -159,9 +159,9 @@
 
 // Included so that constants/settings might be initialized
 // in save_settings_to_globals()
+#include "aosystem.h"
 #include "llbutton.h"
 #include "llcombobox.h"
-#include "floaterao.h"
 #include "floaterlocalassetbrowse.h"
 #include "llsurface.h"
 #include "llvotree.h"
