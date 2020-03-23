@@ -134,7 +134,7 @@ LLMaterialMgr::~LLMaterialMgr()
 bool LLMaterialMgr::isGetPending(const LLUUID& region_id, const LLMaterialID& material_id) const
 {
 	get_pending_map_t::const_iterator itPending = mGetPending.find(pending_material_t(region_id, material_id));
-	return (mGetPending.end() != itPending) && (LLFrameTimer::getTotalSeconds() < itPending->second + MATERIALS_POST_TIMEOUT);
+	return (mGetPending.end() != itPending) && (LLFrameTimer::getTotalSeconds() < itPending->second + F64(MATERIALS_POST_TIMEOUT));
 }
 
 void LLMaterialMgr::markGetPending(const LLUUID& region_id, const LLMaterialID& material_id)
@@ -270,7 +270,7 @@ boost::signals2::connection LLMaterialMgr::getTE(const LLUUID& region_id, const 
 bool LLMaterialMgr::isGetAllPending(const LLUUID& region_id) const
 {
 	getall_pending_map_t::const_iterator itPending = mGetAllPending.find(region_id);
-	return (mGetAllPending.end() != itPending) && (LLFrameTimer::getTotalSeconds() < itPending->second + MATERIALS_GET_TIMEOUT);
+	return (mGetAllPending.end() != itPending) && (LLFrameTimer::getTotalSeconds() < itPending->second + F64(MATERIALS_GET_TIMEOUT));
 }
 
 void LLMaterialMgr::getAll(const LLUUID& region_id)
@@ -583,7 +583,7 @@ void LLMaterialMgr::processGetQueue()
 	{
 		get_queue_t::iterator itRegionQueue = loopRegionQueue++;
 
-		const LLUUID& region_id = itRegionQueue->first;
+		const LLUUID region_id = itRegionQueue->first;
 		if (isGetAllPending(region_id))
 		{
 			continue;
@@ -621,12 +621,12 @@ void LLMaterialMgr::processGetQueue()
 		material_queue_t& materials = itRegionQueue->second;
 		U32 max_entries = regionp->getMaxMaterialsPerTransaction();
 		material_queue_t::iterator loopMaterial = materials.begin();
-		while ( (materials.end() != loopMaterial) && (materialsData.size() < (int)max_entries) )
+		while ( (materials.end() != loopMaterial) && ((U32)materialsData.size() < max_entries) )
 		{
 			material_queue_t::iterator itMaterial = loopMaterial++;
 			materialsData.append((*itMaterial).asLLSD());
-			materials.erase(itMaterial);
 			markGetPending(region_id, *itMaterial);
+			materials.erase(itMaterial);
 		}
 		if (materials.empty())
 		{
@@ -727,7 +727,7 @@ void LLMaterialMgr::processPutQueue()
 		facematerial_map_t& face_map = itQueue->second;
 				U32 max_entries = regionp->getMaxMaterialsPerTransaction();
 		facematerial_map_t::iterator itFace = face_map.begin();
-				while ( (face_map.end() != itFace) && (facesData.size() < (int)max_entries) )
+				while ( (face_map.end() != itFace) && ((U32)facesData.size() < max_entries) )
 		{
 			LLSD faceData = LLSD::emptyMap();
 			faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(itFace->first);

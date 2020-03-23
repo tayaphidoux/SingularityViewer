@@ -596,7 +596,7 @@ BOOL LLSurface::idleUpdate(F32 max_update_time)
 
 	// Always call updateNormals() / updateVerticalStats()
 	//  every frame to avoid artifacts
-	for (auto& it = mDirtyPatchList.cbegin(); it != mDirtyPatchList.cend();)
+	for (auto it = mDirtyPatchList.cbegin(); it != mDirtyPatchList.cend();)
 	{
 		if (it->second.expired())
 		{
