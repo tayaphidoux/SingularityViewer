@@ -1,13 +1,13 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-if (STANDALONE)
+if (LINUX)
   include(FindPkgConfig)
   pkg_check_modules(OGG REQUIRED ogg)
   pkg_check_modules(VORBIS REQUIRED vorbis)
   pkg_check_modules(VORBISENC REQUIRED vorbisenc)
   pkg_check_modules(VORBISFILE REQUIRED vorbisfile)
-else (STANDALONE)
+else (LINUX)
   use_prebuilt_binary(ogg_vorbis)
   set(VORBIS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
   set(VORBISENC_INCLUDE_DIRS ${VORBIS_INCLUDE_DIRS})
@@ -32,7 +32,7 @@ else (STANDALONE)
     set(VORBISENC_LIBRARIES vorbisenc)
     set(VORBISFILE_LIBRARIES vorbisfile)
   endif (WINDOWS)
-endif (STANDALONE)
+endif (LINUX)
 
 link_directories(
     ${VORBIS_LIBRARY_DIRS}
