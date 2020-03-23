@@ -287,6 +287,11 @@ void LLFloaterChat::addChatHistory(LLChat& chat, bool log_to_file)
 			return;
 		}
 	}
+	else if (chat.mChatType == CHAT_TYPE_OWNER && gSavedSettings.getBOOL("SinguOwnerSayAsErrors"))
+	{
+		LLFloaterScriptDebug::addScriptLine(chat, color);
+		return;
+	}
 	
 	// could flash the chat button in the status bar here. JC
 	LLFloaterChat* chat_floater = LLFloaterChat::getInstance(LLSD());
