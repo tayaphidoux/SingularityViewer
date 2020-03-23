@@ -40,7 +40,6 @@
 #include "llavatarnamecache.h"
 #include "llcororesponder.h"
 #include "../lscript/lscript_byteformat.h"	//Need LSCRIPTRunTimePermissionBits and SCRIPT_PERMISSION_*
-#include "lleconomy.h"
 #include "llfocusmgr.h"
 #include "llfollowcamparams.h"
 #include "llinventorydefines.h"
@@ -54,6 +53,7 @@
 #include "mean_collision_data.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llcontrolavatar.h"
@@ -735,7 +735,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 	if (option == 0 && !group_id.isNull())
 	{
 		// check for promotion or demotion.
-		S32 max_groups = gHippoLimits->getMaxAgentGroups();
+		S32 max_groups = LLAgentBenefitsMgr::current().getGroupMembershipLimit();
 		if (gAgent.isInGroup(group_id)) ++max_groups;
 
 		if ((S32)gAgent.mGroups.size() < max_groups)
@@ -5768,19 +5768,9 @@ void process_frozen_message(LLMessageSystem* msgsystem, void** user_data)
 // do some extra stuff once we get our economy data
 void process_economy_data(LLMessageSystem* msg, void** /*user_data*/)
 {
-	LLGlobalEconomy::processEconomyData(msg, LLGlobalEconomy::Singleton::getInstance());
-
-	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-
-	LL_INFOS_ONCE("Messaging") << "EconomyData message arrived; upload cost is L$" << upload_cost << LL_ENDL;
-
-	std::string fee = gHippoGridManager->getConnectedGrid()->getUploadFee();
-	gMenuHolder->childSetLabelArg("Upload Image", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Upload Sound", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Upload Animation", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Bulk Upload", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Buy and Sell L$...", "[CURRENCY]",
-		gHippoGridManager->getConnectedGrid()->getCurrencySymbol());
+	auto& grid = *gHippoGridManager->getConnectedGrid();
+	if (grid.isSecondLife() || !LLAgentBenefitsMgr::isCurrent("NonSL")) return; // Quick hack to allow other grids benefits management
+	LLAgentBenefitsMgr::current().processEconomyData(msg);
 }
 
 void notify_cautioned_script_question(const LLSD& notification, const LLSD& response, S32 orig_questions, BOOL granted)

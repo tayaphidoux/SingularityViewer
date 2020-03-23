@@ -95,6 +95,7 @@
 #include "v3math.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
@@ -286,6 +287,7 @@ static LLHost gFirstSim;
 static std::string gFirstSimSeedCap;
 static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
+static bool mBenefitsSuccessfullyInit = false;
 
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
@@ -316,6 +318,7 @@ void apply_udp_blacklist(const std::string& csv);
 //bool process_login_success_response(std::string& password);
 bool process_login_success_response(std::string& password, U32& first_sim_size_x, U32& first_sim_size_y);
 // </FS:CR> Aurora Sim
+void on_benefits_failed_callback(const LLSD& notification, const LLSD& response);
 void transition_back_to_login_panel(const std::string& emsg);
 
 void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is_group)
@@ -2009,7 +2012,7 @@ bool idle_startup()
 			send_complete_agent_movement(regionp->getHost());
 			gAssetStorage->setUpstream(regionp->getHost());
 			gCacheName->setUpstream(regionp->getHost());
-			msg->newMessageFast(_PREHASH_EconomyDataRequest);
+			if (!mBenefitsSuccessfullyInit) msg->newMessageFast(_PREHASH_EconomyDataRequest);
 			gAgent.sendReliableMessage();
 		}
 		display_startup();
@@ -2677,6 +2680,11 @@ bool idle_startup()
 	{
 		set_startup_status(1.0, LLStringUtil::null, LLStringUtil::null);
 		display_startup();
+
+		if (!mBenefitsSuccessfullyInit && !gHippoGridManager->getConnectedGrid()->isSecondLife())
+		{
+			LLNotificationsUtil::add("FailedToGetBenefits", LLSD(), LLSD(), boost::bind(on_benefits_failed_callback, _1, _2));
+		}
 
 		// Let the map know about the inventory.
 		LLFloaterWorldMap* floater_world_map = gFloaterWorldMap;
@@ -3886,9 +3894,69 @@ void apply_udp_blacklist(const std::string& csv)
 	
 }
 
+void on_benefits_failed_callback(const LLSD& notification, const LLSD& response)
+{
+	LL_WARNS("Benefits") << "Failed to load benefits information" << LL_ENDL;
+}
+
+bool init_benefits(LLSD& response)
+{
+	bool succ = true;
+
+	std::string package_name = response["account_type"].asString();
+	const LLSD& benefits_sd = response["account_level_benefits"];
+	if (!LLAgentBenefitsMgr::init(package_name, benefits_sd) ||
+		!LLAgentBenefitsMgr::initCurrent(package_name, benefits_sd))
+	{
+		succ = false;
+	}
+	else
+	{
+		LL_DEBUGS("Benefits") << "Initialized current benefits, level " << package_name << " from " << benefits_sd << LL_ENDL;
+	}
+	const LLSD& packages_sd = response["premium_packages"];
+	for(LLSD::map_const_iterator package_iter = packages_sd.beginMap();
+		package_iter != packages_sd.endMap();
+		++package_iter)
+	{
+		std::string package_name = package_iter->first;
+		const LLSD& benefits_sd = package_iter->second["benefits"];
+		if (LLAgentBenefitsMgr::init(package_name, benefits_sd))
+		{
+			LL_DEBUGS("Benefits") << "Initialized benefits for package " << package_name << " from " << benefits_sd << LL_ENDL;
+		}
+		else
+		{
+			LL_WARNS("Benefits") << "Failed init for package " << package_name << " from " << benefits_sd << LL_ENDL;
+			succ = false;
+		}
+	}
+
+	if (!LLAgentBenefitsMgr::has("Base"))
+	{
+		LL_WARNS("Benefits") << "Benefits info did not include required package Base" << LL_ENDL;
+		succ = false;
+	}
+	if (!LLAgentBenefitsMgr::has("Premium"))
+	{
+		LL_WARNS("Benefits") << "Benefits info did not include required package Premium" << LL_ENDL;
+		succ = false;
+	}
+
+	// FIXME PREMIUM - for testing if login does not yet provide Premium Plus. Should be removed thereafter.
+	//if (succ && !LLAgentBenefitsMgr::has("Premium Plus"))
+	//{
+	//	LLAgentBenefitsMgr::init("Premium Plus", packages_sd["Premium"]["benefits"]);
+	//	llassert(LLAgentBenefitsMgr::has("Premium Plus"));
+	//}
+	return succ;
+}
+
 bool process_login_success_response(std::string& password, U32& first_sim_size_x, U32& first_sim_size_y)
 {
 	LLSD response = LLUserAuth::getInstance()->getResponse();
+
+	mBenefitsSuccessfullyInit = init_benefits(response);
 
 	std::string text(response["udp_blacklist"]);
 	if(!text.empty())
@@ -4112,14 +4180,15 @@ bool process_login_success_response(std::string& password, U32& first_sim_size_x
 		LLWorldMap::gotMapServerURL(true);
 	}
 
-	bool opensim = !gHippoGridManager->getConnectedGrid()->isSecondLife();
+	auto& grid = *gHippoGridManager->getConnectedGrid();
+	bool opensim = !grid.isSecondLife();
 	if (opensim)
 	{
 		std::string web_profile_url = response["web_profile_url"];
 		//if(!web_profile_url.empty()) // Singu Note: We're using this to check if this grid supports web profiles at all, so set empty if empty.
 			gSavedSettings.setString("WebProfileURL", web_profile_url);
 	}
-	else if(!gHippoGridManager->getConnectedGrid()->isInProductionGrid())
+	else if(!grid.isInProductionGrid())
 	{
 		gSavedSettings.setString("WebProfileURL", "https://my-demo.secondlife.com/[AGENT_NAME]");
 	}
@@ -4180,34 +4249,34 @@ bool process_login_success_response(std::string& password, U32& first_sim_size_x
 
 	// Override grid info with anything sent in the login response
 	std::string tmp = response["gridname"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setGridName(tmp);
+	if (!tmp.empty()) grid.setGridName(tmp);
 	tmp = response["loginuri"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setLoginUri(tmp);
+	if (!tmp.empty()) grid.setLoginUri(tmp);
 	tmp = response["welcome"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setLoginPage(tmp);
+	if (!tmp.empty()) grid.setLoginPage(tmp);
 	tmp = response["loginpage"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setLoginPage(tmp);
+	if (!tmp.empty()) grid.setLoginPage(tmp);
 	tmp = response["economy"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setHelperUri(tmp);
+	if (!tmp.empty()) grid.setHelperUri(tmp);
 	tmp = response["helperuri"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setHelperUri(tmp);
+	if (!tmp.empty()) grid.setHelperUri(tmp);
 	tmp = response["about"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setWebSite(tmp);
+	if (!tmp.empty()) grid.setWebSite(tmp);
 	tmp = response["website"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setWebSite(tmp);
+	if (!tmp.empty()) grid.setWebSite(tmp);
 	tmp = response["help"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setSupportUrl(tmp);
+	if (!tmp.empty()) grid.setSupportUrl(tmp);
 	tmp = response["support"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setSupportUrl(tmp);
+	if (!tmp.empty()) grid.setSupportUrl(tmp);
 	tmp = response["register"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setRegisterUrl(tmp);
+	if (!tmp.empty()) grid.setRegisterUrl(tmp);
 	tmp = response["account"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setRegisterUrl(tmp);
+	if (!tmp.empty()) grid.setRegisterUrl(tmp);
 	tmp = response["password"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setPasswordUrl(tmp);
+	if (!tmp.empty()) grid.setPasswordUrl(tmp);
 	tmp = response["search"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setSearchUrl(tmp);
-	else if (opensim) tmp = gHippoGridManager->getConnectedGrid()->getSearchUrl(); // Fallback from grid info response for setting
+	if (!tmp.empty()) grid.setSearchUrl(tmp);
+	else if (opensim) tmp = grid.getSearchUrl(); // Fallback from grid info response for setting
 	if (opensim)
 	{
 		gSavedSettings.setString("SearchURL", tmp); // Singu Note: For web search purposes, always set this setting
@@ -4216,32 +4285,31 @@ bool process_login_success_response(std::string& password, U32& first_sim_size_x
 		gMenuBarView->getChildView("Avatar Picker")->setVisible(!tmp.empty());
 		gSavedSettings.setString("DestinationGuideURL", response["destination_guide_url"].asString());
 		tmp = response["classified_fee"].asString();
-		gHippoGridManager->getConnectedGrid()->setClassifiedFee(tmp.empty() ? 0 : atoi(tmp.c_str()));
+		grid.setClassifiedFee(tmp.empty() ? 0 : atoi(tmp.c_str()));
 	}
 	tmp = response["currency"].asString();
 	if (!tmp.empty())
 	{
 		LLTrans::setDefaultArg("[CURRENCY]", tmp);
-		gHippoGridManager->getConnectedGrid()->setCurrencySymbol(tmp);
+		grid.setCurrencySymbol(tmp);
 	}
 	tmp = response["currency_text"].asString();
 	if (!tmp.empty())
 	{
 		LLTrans::setDefaultArg("[CURRENCY_TEXT]", tmp);
-		gHippoGridManager->getConnectedGrid()->setCurrencyText(tmp);
+		grid.setCurrencyText(tmp);
 	}
 	tmp = response["real_currency"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setRealCurrencySymbol(tmp);
+	if (!tmp.empty()) grid.setRealCurrencySymbol(tmp);
 	tmp = response["directory_fee"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setDirectoryFee(atoi(tmp.c_str()));
-	tmp = response["max_groups"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setMaxAgentGroups(atoi(tmp.c_str()));
-	tmp = response["max-agent-groups"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setMaxAgentGroups(atoi(tmp.c_str()));
+	if (!tmp.empty()) grid.setDirectoryFee(atoi(tmp.c_str()));
+	if (mBenefitsSuccessfullyInit)
 	tmp = response["VoiceConnector"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setVoiceConnector(tmp);
+	if (!tmp.empty()) grid.setVoiceConnector(tmp);
 	tmp = response["upc_supported"].asString();
-	if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setUPCSupported(true);
+	if (!tmp.empty()) grid.setUPCSupported(true);
+	if (opensim && !mBenefitsSuccessfullyInit)
+		LLAgentBenefitsMgr::instance().initNonSL(response);
 	gHippoGridManager->saveFile();
 	gHippoLimits->setLimits();
 

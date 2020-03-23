@@ -35,6 +35,7 @@
 
 // viewer includes
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llcompilequeue.h"
 #include "llfloaterbuycurrency.h"
 #include "statemachine/aifilepicker.h"
@@ -59,7 +60,6 @@
 
 // library includes
 #include "lldir.h"
-#include "lleconomy.h"
 #include "llfocusmgr.h"
 #include "llnotificationsutil.h"
 #include "llscrolllistctrl.h"
@@ -326,7 +326,11 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 	// deal with L$ errors
 	if (reason == "insufficient funds")
 	{
-		S32 price = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		S32 price;
+		if (content.has("upload_price"))
+			price = content["upload_price"];
+		else
+			LLAgentBenefitsMgr::current().findUploadCost(mAssetType, price);
 		LLFloaterBuyCurrency::buyCurrency("Uploading costs", price);
 	}
 	else
@@ -390,13 +394,14 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 
 	// Update L$ and ownership credit information
 	// since it probably changed on the server
-	if (asset_type == LLAssetType::AT_TEXTURE ||
+	if (content.has("upload_price"))
+		expected_upload_cost = content["upload_price"];
+	else if (asset_type == LLAssetType::AT_TEXTURE ||
 		asset_type == LLAssetType::AT_SOUND ||
 		asset_type == LLAssetType::AT_ANIMATION ||
 		asset_type == LLAssetType::AT_MESH)
 	{
-		expected_upload_cost = 
-			LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost);
 	}
 
 	LL_INFOS() << "Adding " << content["new_inventory_item"].asUUID() << " "

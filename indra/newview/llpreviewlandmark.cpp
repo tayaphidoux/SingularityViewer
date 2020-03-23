@@ -43,7 +43,6 @@
 
 #include "llagent.h"
 #include "llbutton.h"
-#include "lleconomy.h"
 #include "llfloaterinventory.h"
 #include "llfloaterworldmap.h"
 #include "lliconctrl.h"

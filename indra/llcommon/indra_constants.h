@@ -244,7 +244,6 @@ const U8 SIM_ACCESS_DOWN	= 254;
 const U8 SIM_ACCESS_MAX 	= SIM_ACCESS_ADULT;
 
 // attachment constants
-const U32 MAX_AGENT_ATTACHMENTS = 38;
 const U8  ATTACHMENT_ADD = 0x80;
 
 // god levels

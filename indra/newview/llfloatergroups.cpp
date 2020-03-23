@@ -45,6 +45,7 @@
 
 #include "hbfloatergrouptitles.h"
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llbutton.h"
 #include "llfloatergroupinvite.h"
 #include "llgroupactions.h"
@@ -187,7 +188,7 @@ void LLPanelGroups::setTexts()
 	LLUICtrl* ctrl(getChild<LLUICtrl>("groupcount"));
 	size_t count(gAgent.mGroups.size());
 	ctrl->setTextArg("[COUNT]", llformat("%d", count));
-	int maxgroups(gHippoLimits->getMaxAgentGroups());
+	int maxgroups(LLAgentBenefitsMgr::current().getGroupMembershipLimit());
 	ctrl->setTextArg("[MAX]", llformat("%d", maxgroups));
 	ctrl->setTextArg("[LEFT]", llformat("%d", maxgroups - count));
 }

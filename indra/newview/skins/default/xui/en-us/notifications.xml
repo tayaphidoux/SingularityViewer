@@ -996,7 +996,7 @@ You do not have enough [CURRENCY] to join this group.
    icon="alertmodal.tga"
    name="CreateGroupCost"
    type="alertmodal">
-Creating this group will cost L$[COST].
+	  Creating this group will cost [COST].
 Groups need more than one member, or they are deleted forever.
 Please invite members within 48 hours.
     <tag>group</tag>
@@ -1005,7 +1005,7 @@ Please invite members within 48 hours.
      canceltext="Cancel"
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="Create group for L$[COST]"/>
+     yestext="Create group for [COST]"/>
   </notification>
 
   <notification
@@ -8800,6 +8800,15 @@ Server Error: Media update or get failed.
          yestext="OK"/>
     </notification>
 
+    <notification
+        icon="alertmodal.tga"
+        name="FailedToGetBenefits"
+        type="alertmodal">
+      Unfortunately, we were unable to get benefits information for this session. This should not happen in a normal production environment. Please contact support. This session will not work normally and we recommend that you restart.
+      <usetemplate
+          name="okbutton"
+          yestext="OK"/>
+    </notification>
   <notification
    icon="notifytip.tga"
    name="ShareNotification"
@@ -11424,19 +11433,7 @@ AntiSpam: Blocked newline flood from secondlife:///app/agent/[SOURCE]/about (ove
    type="alertmodal">
 Would you like to bulk upload the files as temporary files?
 
-WARNING: Each upload costs [UPLOADCOST] if it's not temporary
-    <usetemplate
-     name="yesnocancelbuttons"
-     notext="Permanent"
-     yestext="Temporary"
-     canceltext="Cancel"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="BulkTemporaryUploadFree"
-   type="alertmodal">
-Would you like to bulk upload the files as temporary files?
+WARNING: Each upload will cost its normal price, if it's not temporary
     <usetemplate
      name="yesnocancelbuttons"
      notext="Permanent"

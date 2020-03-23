@@ -35,6 +35,7 @@
 #include "llpanelgroupgeneral.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "lluictrlfactory.h"
 #include "roles_constants.h"
 
@@ -182,10 +183,11 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mCtrlOpenEnrollment->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitAny,this));
 	}
 
+	auto& grid = *gHippoGridManager->getConnectedGrid();
 	mCtrlEnrollmentFee = getChild<LLCheckBoxCtrl>("check_enrollment_fee", recurse);
 	if (mCtrlEnrollmentFee)
 	{
-		mCtrlEnrollmentFee->setLabelArg("[CURRENCY]", gHippoGridManager->getConnectedGrid()->getCurrencySymbol());
+		mCtrlEnrollmentFee->setLabelArg("[CURRENCY]", grid.getCurrencySymbol());
 		mCtrlEnrollmentFee->setCommitCallback(boost::bind(&LLPanelGroupGeneral::onCommitEnrollment,this));
 	}
 
@@ -242,7 +244,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	}
 
 	LLStringUtil::format_map_t args;
-	args["[GROUPCREATEFEE]"] = gHippoGridManager->getConnectedGrid()->getGroupCreationFee();
+	args["[GROUPCREATEFEE]"] = grid.formatFee(LLAgentBenefitsMgr::current().getCreateGroupCost());
 	mIncompleteMemberDataStr = getString("incomplete_member_data_str");
 	mConfirmGroupCreateStr = getString("confirm_group_create_str", args);
 

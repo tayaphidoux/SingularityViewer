@@ -35,6 +35,7 @@
 
 // project includes
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "statemachine/aifilepicker.h"
 #include "llfloaterbvhpreview.h"
@@ -68,7 +69,6 @@
 
 // linden libraries
 #include "llassetuploadresponders.h"
-#include "lleconomy.h"
 #include "llhttpclient.h"
 #include "llmemberlistener.h"
 #include "llnotificationsutil.h"
@@ -115,17 +115,6 @@ class LLFileEnableSaveAs : public view_listener_t
 			}
 		}
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(frontmost && frontmost->canSaveAs());
-		return true;
-	}
-};
-
-class LLFileEnableUpload : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() &&
-						 gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
 };
@@ -416,9 +405,7 @@ class LLFileUploadBulk : public view_listener_t
 		}
 		else
 		{
-			S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-			const char* notification_type = expected_upload_cost ? "BulkTemporaryUpload" : "BulkTemporaryUploadFree";
-			LLNotificationsUtil::add(notification_type, LLSD().with("UPLOADCOST", grid->getUploadFee()), LLSD(), onConfirmBulkUploadTemp);
+			LLNotificationsUtil::add("BulkTemporaryUpload", LLSD(), LLSD(), onConfirmBulkUploadTemp);
 		}
 		return true;
 	}
@@ -465,7 +452,6 @@ class LLFileUploadBulk : public view_listener_t
 				
 				std::string display_name = LLStringUtil::null;
 				LLAssetStorage::LLStoreAssetCallback callback = NULL;
-				S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 				void *userdata = NULL;
 				gSavedSettings.setBOOL("TemporaryUpload", enabled);
 				upload_new_resource(
@@ -480,7 +466,7 @@ class LLFileUploadBulk : public view_listener_t
 					LLFloaterPerms::getEveryonePerms("Uploads"),
 					display_name,
 					callback,
-					expected_upload_cost,
+					0,
 					userdata);
 
 			}
@@ -924,6 +910,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 		error_message = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
 		error = TRUE;;
 	}
+
+	// Now that we've determined the type, figure out the cost
+	if (!error) LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost);
 
 	// gen a new transaction ID for this asset
 	tid.generate();
@@ -1396,7 +1385,6 @@ void init_menu_file()
 	(new LLFileSavePreview())->registerListener(gMenuHolder, "File.SavePreview");
 	(new LLFileTakeSnapshotToDisk())->registerListener(gMenuHolder, "File.TakeSnapshotToDisk");
 	(new LLFileQuit())->registerListener(gMenuHolder, "File.Quit");
-	(new LLFileEnableUpload())->registerListener(gMenuHolder, "File.EnableUpload");
 	(new LLFileEnableUploadModel())->registerListener(gMenuHolder, "File.EnableUploadModel");
 
 	(new LLFileEnableSaveAs())->registerListener(gMenuHolder, "File.EnableSaveAs");

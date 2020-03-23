@@ -44,7 +44,6 @@
 #include "roles_constants.h"
 #include "lltransactiontypes.h"
 #include "llstatusbar.h"
-#include "lleconomy.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llfloaterdirectory.h"
