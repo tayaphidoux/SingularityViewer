@@ -360,6 +360,8 @@ static void cmd_toggle_mark(LLAvatarListEntry* entry)
 static void cmd_ar(const LLAvatarListEntry* entry);
 static void cmd_teleport(const LLAvatarListEntry* entry);
 
+const LLUUID& active_owner_or_id(const LLSD& userdata);
+
 namespace
 {
 	typedef LLMemberListener<LLView> view_listener_t;
@@ -376,7 +378,6 @@ namespace
 	{
 		bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
 		{
-			const LLUUID& active_owner_or_id(const LLSD& userdata);
 			LLFloaterAvatarList::setFocusAvatar(active_owner_or_id(userdata));
 			return true;
 		}

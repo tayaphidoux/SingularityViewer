@@ -66,6 +66,7 @@
 #include "lluploadfloaterobservers.h"
 #include "aicurl.h"
 
+#include <mutex>
 #include "boost/lexical_cast.hpp"
 
 #ifndef LL_WINDOWS
