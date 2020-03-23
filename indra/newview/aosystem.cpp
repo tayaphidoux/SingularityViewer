@@ -207,7 +207,7 @@ AOSystem::AOSystem()
 {
 // TODO: When we move to C++20 and when GCC and MSVC support it (at the time of writing, neither fully do), use __VA_OPT__ here instead.
 #define ANY_OVERRIDE(which, state, ...) mAOOverrides[STATE_AGENT_##state] = new which(ANIM_AGENT_##state, ##__VA_ARGS__)
-#define BASIC_OVERRIDE(state, ...) ANY_OVERRIDE(override_single, ##state, ##__VA_ARGS__)
+#define BASIC_OVERRIDE(state, ...) ANY_OVERRIDE(override_single, state, ##__VA_ARGS__)
 	mAOOverrides[STATE_AGENT_IDLE] = new override_stand();
 	BASIC_OVERRIDE(WALK, "Walk");
 	BASIC_OVERRIDE(RUN, "Run");
