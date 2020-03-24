@@ -2681,7 +2681,7 @@ bool idle_startup()
 		set_startup_status(1.0, LLStringUtil::null, LLStringUtil::null);
 		display_startup();
 
-		if (!mBenefitsSuccessfullyInit && !gHippoGridManager->getConnectedGrid()->isSecondLife())
+		if (!mBenefitsSuccessfullyInit && gHippoGridManager->getConnectedGrid()->isSecondLife())
 		{
 			LLNotificationsUtil::add("FailedToGetBenefits", LLSD(), LLSD(), boost::bind(on_benefits_failed_callback, _1, _2));
 		}
