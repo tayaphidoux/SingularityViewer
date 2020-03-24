@@ -235,7 +235,7 @@ private:
 
 private:
 	// widgets in general are not copyable
-	LLView(const LLView& other) {};
+	LLView(const LLView& other) = delete;
 public:
 #if LL_DEBUG
 	static BOOL sIsDrawing;
