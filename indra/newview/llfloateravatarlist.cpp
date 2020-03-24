@@ -174,7 +174,8 @@ void LLAvatarListEntry::processProperties(void* data, EAvatarProcessorType type)
 					using namespace boost::gregorian;
 					int year, month, day;
 					const auto born = pAvatarData->born_on;
-					if (!born.empty() && sscanf(born.c_str(),"%d/%d/%d",&month,&day,&year) == 3)
+					if (born.empty()) return; // Opensim returns this for NPCs.
+					if (sscanf(born.c_str(),"%d/%d/%d",&month,&day,&year) == 3)
 					try
 					{
 						mAge = (day_clock::local_day() - date(year, month, day)).days();
@@ -187,10 +188,14 @@ void LLAvatarListEntry::processProperties(void* data, EAvatarProcessorType type)
 						if (!mStats[STAT_TYPE_AGE] && (U32)mAge < sAvatarAgeAlertDays) //Only announce age once per entry.
 							chat_avatar_status(mName, mID, STAT_TYPE_AGE, mStats[STAT_TYPE_AGE] = true, (mPosition - gAgent.getPositionGlobal()).magVec());
 					}
-					else // Something failed, resend request
+					else // Something failed, resend request but only on NonSL grids
 					{
-						LL_WARNS() << "Failed to extract age from APT_PROPERTIES for " << mID << ", received \"" << born << "\". Requesting properties again." << LL_ENDL;
-						inst.sendAvatarPropertiesRequest(mID);
+						LL_WARNS() << "Failed to extract age from APT_PROPERTIES for " << mID << ", received \"" << born << "\"." << LL_ENDL;
+						if (!gHippoGridManager->getConnectedGrid()->isSecondLife())
+						{
+							LL_WARNS() << "Requesting properties again." << LL_ENDL;
+							inst.sendAvatarPropertiesRequest(mID);
+						}
 					}
 				}
 			}
