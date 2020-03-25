@@ -9668,7 +9668,7 @@ class ListIsNearby final : public view_listener_t
 	{
 		const auto& data = userdata["data"];
 		const auto& id = active_owner_or_id(data);
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(!data.asBoolean() && LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? !!gObjectList.findObject(id) : is_nearby(id));
+		gMenuHolder->findControl(userdata["control"].asString())->setValue((LFIDBearer::getActiveType() == LFIDBearer::OBJECT && data.asBoolean()) ? !!gObjectList.findObject(id) : is_nearby(id));
 		return true;
 	}
 };
