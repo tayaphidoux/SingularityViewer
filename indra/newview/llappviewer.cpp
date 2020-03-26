@@ -220,13 +220,40 @@
 #include <client/crashpad_client.h>
 #include <client/prune_crash_reports.h>
 #include <client/settings.h>
+#include <client/annotation.h>
 
 #include <fmt/format.h>
 
 #include "llnotificationsutil.h"
 #include "llversioninfo.h"
+
+
+template <size_t SIZE, crashpad::Annotation::Type T = crashpad::Annotation::Type::kString>
+struct crashpad_annotation : public crashpad::Annotation {
+	std::array<char, SIZE> buffer;
+	crashpad_annotation(const char* name) : crashpad::Annotation(T, name, buffer.data())
+	{}
+	void set(const std::string& src) {
+		LL_INFOS() << name() << ": " << src.c_str() << LL_ENDL;
+		const size_t min_size = llmin(SIZE, src.size());
+		memcpy(buffer.data(), src.data(), min_size);
+		buffer.data()[SIZE - 1] = '\0';
+		SetSize(min_size);
+	}
+};
+#define DEFINE_CRASHPAD_ANNOTATION(name, len) \
+static crashpad_annotation<len> g_crashpad_annotation_##name##_buffer(#name);
+#define SET_CRASHPAD_ANNOTATION_VALUE(name, value) \
+g_crashpad_annotation_##name##_buffer.set(value);
+#else
+#define SET_CRASHPAD_ANNOTATION_VALUE(name, value)
+#define DEFINE_CRASHPAD_ANNOTATION(name, len)
 #endif
 
+DEFINE_CRASHPAD_ANNOTATION(fatal_message, 512);
+DEFINE_CRASHPAD_ANNOTATION(grid_name, 64);
+DEFINE_CRASHPAD_ANNOTATION(cpu_string, 128);
+DEFINE_CRASHPAD_ANNOTATION(startup_state, 32);
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
 //
@@ -770,7 +797,17 @@ bool LLAppViewer::init()
 	initCrashReporting();
 #endif
 
+	writeDebugInfo();
+
 	setupErrorHandling();
+
+	{
+		auto fn = boost::bind<bool>([](const LLSD& stateInfo) -> bool {
+			SET_CRASHPAD_ANNOTATION_VALUE(startup_state, stateInfo["str"].asString());
+			return false;
+			}, _1);
+		LLStartUp::getStateEventPump().listen<::LLEventListener>("LLAppViewer", fn);
+	}
 
 	//
 	// Start of the application
@@ -2741,6 +2778,10 @@ void LLAppViewer::writeDebugInfo(bool isStatic)
 	
 	isStatic ?  LLSDSerialize::toPrettyXML(gDebugInfo, out_file)
 			 :  LLSDSerialize::toPrettyXML(gDebugInfo["Dynamic"], out_file);
+#else
+	SET_CRASHPAD_ANNOTATION_VALUE(fatal_message, gDebugInfo["FatalMessage"].asString());
+	SET_CRASHPAD_ANNOTATION_VALUE(grid_name, gDebugInfo["GridName"].asString());
+	SET_CRASHPAD_ANNOTATION_VALUE(cpu_string, gDebugInfo["CPUInfo"]["CPUString"].asString());
 #endif
 }
 
