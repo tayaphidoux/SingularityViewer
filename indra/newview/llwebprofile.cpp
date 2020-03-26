@@ -32,7 +32,7 @@
 #include "llbufferstream.h"
 #include "llhttpclient.h"
 #include "llimagepng.h"
-#include "llplugincookiestore.h"
+//#include "llplugincookiestore.h"
 
 // newview
 #include "llpanelprofile.h"		// <edit>getProfileURL (this is the original location LL put it).</edit>

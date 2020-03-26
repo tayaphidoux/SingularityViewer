@@ -45,6 +45,7 @@
 #include "llwindow.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llavataractions.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
@@ -984,23 +985,23 @@ void LLPanelAvatarPicks::processProperties(void* data, EAvatarProcessorType type
 			// are no tabs in the container.
 			tabs->selectFirstTab();
 			bool edit(getPanelAvatar()->isEditable());
-			S32 tab_count = tabs->getTabCount();
+			bool can_add = self && tabs->getTabCount() < LLAgentBenefitsMgr::current().getPicksLimit();
 			LLView* view = getChildView("New...");
-			view->setEnabled(self && tab_count < MAX_AVATAR_PICKS
+			view->setEnabled(can_add
 // [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.0.0a)
 				&& !gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC));
 // [/RLVa:KB]
 			view->setVisible(self && edit);
 			view = getChildView("Delete...");
-			view->setEnabled(self && tab_count);
+			view->setEnabled(can_add);
 			view->setVisible(self && edit);
 
 			//For pick import/export - RK
 			view = getChildView("Import...");
 			view->setVisible(self && edit);
-			view->setEnabled(tab_count < MAX_AVATAR_PICKS);
+			view->setEnabled(can_add);
 			view = getChildView("Export...");
-			view->setEnabled(self && tab_count);
+			view->setEnabled(can_add);
 			view->setVisible(self);
 
 			childSetVisible("loading_text", false);
@@ -1022,13 +1023,13 @@ void LLPanelAvatarPicks::onClickNew()
 	panel_pick->initNewPick();
 	tabs->addTabPanel(panel_pick, panel_pick->getPickName());
 	tabs->selectLastTab();
-	S32 tab_count = tabs->getTabCount();
-	getChildView("New...")->setEnabled(tab_count < MAX_AVATAR_PICKS
+	bool can_add = tabs->getTabCount() < LLAgentBenefitsMgr::current().getPicksLimit();
+	getChildView("New...")->setEnabled(can_add
 // [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.0.0a)
 		&& !gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC));
 // [/RLVa:KB]
 	getChildView("Delete...")->setEnabled(true);
-	getChildView("Import...")->setEnabled(tab_count < MAX_AVATAR_PICKS);
+	getChildView("Import...")->setEnabled(can_add);
 }
 
 //Pick import and export - RK
@@ -1039,17 +1040,17 @@ void LLPanelAvatarPicks::onClickImport()
 }
 
 // static
-void LLPanelAvatarPicks::onClickImport_continued(void* data, bool import)
+void LLPanelAvatarPicks::onClickImport_continued(void* data, bool importt)
 {
 	LLPanelAvatarPicks* self = (LLPanelAvatarPicks*)data;
 	LLTabContainer* tabs = self->getChild<LLTabContainer>("picks tab");
-	if (import && self->mPanelPick)
+	if (importt && self->mPanelPick)
 	{
 		tabs->addTabPanel(self->mPanelPick, self->mPanelPick->getPickName());
 		tabs->selectLastTab();
 		self->childSetEnabled("New...", !gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC));
 		self->childSetEnabled("Delete...", false);
-		self->childSetEnabled("Import...", tabs->getTabCount() < MAX_AVATAR_PICKS);
+		self->childSetEnabled("Import...", tabs->getTabCount() < LLAgentBenefitsMgr::current().getPicksLimit());
 	}
 }
 

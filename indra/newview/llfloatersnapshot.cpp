@@ -54,7 +54,7 @@
 #include "llfocusmgr.h"
 #include "llbutton.h"
 #include "llcombobox.h"
-#include "lleconomy.h"
+#include "llagentbenefits.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llviewercontrol.h"
@@ -1414,7 +1414,7 @@ void LLSnapshotLivePreview::saveTexture()
 	std::string who_took_it;
 	LLAgentUI::buildFullname(who_took_it);
 	LLAssetStorage::LLStoreAssetCallback callback = &LLSnapshotLivePreview::saveTextureDone;
-	S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+	S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
 	saveTextureUserData* user_data = new saveTextureUserData(this, sSnapshotIndex, gSavedSettings.getBOOL("TemporaryUpload"));
 	if (upload_new_resource(tid,	// tid
 				LLAssetType::AT_TEXTURE,
@@ -1752,7 +1752,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater, bool de
 {
 	DoutEntering(dc::snapshot, "LLFloaterSnapshot::Impl::updateControls()");
 	const HippoGridInfo& grid(*gHippoGridManager->getConnectedGrid());
-	floater->childSetLabelArg("upload_btn", "[UPLOADFEE]", gSavedSettings.getBOOL("TemporaryUpload") ? (grid.getCurrencySymbol() + '0') : grid.getUploadFee());
+	floater->childSetLabelArg("upload_btn", "[UPLOADFEE]", grid.formatFee(gSavedSettings.getBOOL("TemporaryUpload") ? 0 : LLAgentBenefitsMgr::current().getTextureUploadCost()));
 
 	LLSnapshotLivePreview::ESnapshotType shot_type = (LLSnapshotLivePreview::ESnapshotType)gSavedSettings.getS32("LastSnapshotType");
 	ESnapshotFormat shot_format = (ESnapshotFormat)gSavedSettings.getS32("SnapshotFormat");
@@ -1857,7 +1857,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater, bool de
 	{
 		bytes_string = floater->getString("unknown");
 	}
-	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+	S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
 	floater->childSetLabelArg("texture", "[AMOUNT]", llformat("%d",upload_cost));
 	floater->childSetLabelArg("upload_btn", "[AMOUNT]", llformat("%d",upload_cost));
 	floater->childSetTextArg("file_size_label", "[SIZE]", bytes_string);

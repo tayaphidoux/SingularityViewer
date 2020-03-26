@@ -40,7 +40,6 @@
 #include "llavatarnamecache.h"
 #include "llcororesponder.h"
 #include "../lscript/lscript_byteformat.h"	//Need LSCRIPTRunTimePermissionBits and SCRIPT_PERMISSION_*
-#include "lleconomy.h"
 #include "llfocusmgr.h"
 #include "llfollowcamparams.h"
 #include "llinventorydefines.h"
@@ -54,6 +53,7 @@
 #include "mean_collision_data.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llcontrolavatar.h"
@@ -78,6 +78,7 @@
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
+#include "lllslconstants.h"
 #include "llmarketplacefunctions.h"
 #include "llmutelist.h"
 #include "llnotify.h"
@@ -734,7 +735,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 	if (option == 0 && !group_id.isNull())
 	{
 		// check for promotion or demotion.
-		S32 max_groups = gHippoLimits->getMaxAgentGroups();
+		S32 max_groups = LLAgentBenefitsMgr::current().getGroupMembershipLimit();
 		if (gAgent.isInGroup(group_id)) ++max_groups;
 
 		if ((S32)gAgent.mGroups.size() < max_groups)
@@ -1511,8 +1512,8 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	{
 		if (mFromGroup)
 		{
-			std::string group_name;
-			if (gCacheName->getGroupName(mFromID, group_name))
+			std::string group_name = LLGroupActions::getSLURL(mFromID);
+			//if (gCacheName->getGroupName(mFromID, group_name))
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " + LLTrans::getString("'")
 				+ mFromName + LLTrans::getString("'") + " " + LLTrans::getString("InvOfferOwnedByGroup")
@@ -1521,35 +1522,38 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByGroup")
 				+ " " + group_name + LLTrans::getString("'") + LLTrans::getString(".");
 			}
-			else
+			/*else
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " + LLTrans::getString("'")
 				+ mFromName + LLTrans::getString("'") + " " + LLTrans::getString("InvOfferOwnedByUnknownGroup");
 				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByUnknownGroup") + LLTrans::getString(".");
-			}
+			}*/
 		}
 		else
 		{
-			std::string full_name;
-			if (gCacheName->getFullName(mFromID, full_name))
-			{
+			std::string full_name = LLAvatarActions::getSLURL(mFromID);
+
 // [RLVa:KB] - Version: 1.23.4 | Checked: 2009-07-08 (RLVa-1.0.0e)
-				if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) && (RlvUtil::isNearbyAgent(mFromID)) )
+			if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) && (RlvUtil::isNearbyAgent(mFromID)) )
+			{
+				if (gCacheName->getFullName(mFromID, full_name))
 				{
 					full_name = RlvStrings::getAnonym(full_name);
 				}
-				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " + LLTrans::getString("'") + mFromName
-				+ LLTrans::getString("'") +" " + LLTrans::getString("InvOfferOwnedBy") + full_name;
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedBy") + " " + full_name + LLTrans::getString(".");
-// [/RLVa:KB]
-				//from_string = std::string("An object named '") + mFromName + "' owned by " + first_name + " " + last_name;
-				//chatHistory_string = mFromName + " owned by " + first_name + " " + last_name;
+			}
+
+			from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " + LLTrans::getString("'") + mFromName + LLTrans::getString("'") + ' ';
+			chatHistory_string = mFromName + ' ';
+			if (full_name.empty())
+			{
+				from_string += LLTrans::getString("InvOfferOwnedByUnknownUser");
+				chatHistory_string += LLTrans::getString("InvOfferOwnedByUnknownUser") + LLTrans::getString(".");
 			}
 			else
+// [/RLVa:KB]
 			{
-				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " + LLTrans::getString("'")
-				+ mFromName + LLTrans::getString("'") + " " + LLTrans::getString("InvOfferOwnedByUnknownUser");
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByUnknownUser") + LLTrans::getString(".");
+				from_string += LLTrans::getString("InvOfferOwnedBy") + full_name;
+				chatHistory_string += LLTrans::getString("InvOfferOwnedBy") + " " + full_name + LLTrans::getString(".");
 			}
 		}
 	}
@@ -5764,19 +5768,9 @@ void process_frozen_message(LLMessageSystem* msgsystem, void** user_data)
 // do some extra stuff once we get our economy data
 void process_economy_data(LLMessageSystem* msg, void** /*user_data*/)
 {
-	LLGlobalEconomy::processEconomyData(msg, LLGlobalEconomy::Singleton::getInstance());
-
-	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-
-	LL_INFOS_ONCE("Messaging") << "EconomyData message arrived; upload cost is L$" << upload_cost << LL_ENDL;
-
-	std::string fee = gHippoGridManager->getConnectedGrid()->getUploadFee();
-	gMenuHolder->childSetLabelArg("Upload Image", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Upload Sound", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Upload Animation", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Bulk Upload", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Buy and Sell L$...", "[CURRENCY]",
-		gHippoGridManager->getConnectedGrid()->getCurrencySymbol());
+	auto& grid = *gHippoGridManager->getConnectedGrid();
+	if (grid.isSecondLife() || !LLAgentBenefitsMgr::isCurrent("NonSL")) return; // Quick hack to allow other grids benefits management
+	LLAgentBenefitsMgr::current().processEconomyData(msg);
 }
 
 void notify_cautioned_script_question(const LLSD& notification, const LLSD& response, S32 orig_questions, BOOL granted)
@@ -6855,23 +6849,43 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 //---------------------------------------------------------------------------
 
 const S32 SCRIPT_DIALOG_MAX_BUTTONS = 12;
-const S32 SCRIPT_DIALOG_BUTTON_STR_SIZE = 24;
-const S32 SCRIPT_DIALOG_MAX_MESSAGE_SIZE = 512;
 const char* SCRIPT_DIALOG_HEADER = "Script Dialog:\n";
 
 bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 {
 	LLNotificationForm form(notification["form"]);
 
-	std::string button = LLNotification::getSelectedOptionName(response);
+	std::string rtn_text;
 	S32 button_idx = LLNotification::getSelectedOption(notification, response);
-	// Didn't click "Ignore" or "Block"
-	if (button_idx > -1)
+
+	if (notification["payload"].has("textbox"))
 	{
-		if (notification["payload"].has("textbox"))
+		rtn_text = response["message"].asString();
+	}
+	else
+	{
+		rtn_text = LLNotification::getSelectedOptionName(response);
+	}
+
+	// Button -2 = Mute
+	// Button -1 = Ignore - no processing needed for this button
+	// Buttons 0 and above = dialog choices
+
+	if (-2 == button_idx)
+	{
+		std::string object_name = notification["payload"]["object_name"].asString();
+		LLUUID object_id = notification["payload"]["object_id"].asUUID();
+		LLMute mute(object_id, object_name, LLMute::OBJECT);
+		if (LLMuteList::getInstance()->add(mute))
 		{
-			button = response["message"].asString();
+			// This call opens the sidebar, displays the block list, and highlights the newly blocked
+			// object in the list so the user can see that their block click has taken effect.
+			LLFloaterMute::showInstance()->selectMute(object_id);
 		}
+	}
+
+	if (0 <= button_idx)
+	{
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessage("ScriptDialogReply");
 		msg->nextBlock("AgentData");
@@ -6881,12 +6895,8 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 		msg->addUUID("ObjectID", notification["payload"]["object_id"].asUUID());
 		msg->addS32("ChatChannel", notification["payload"]["chat_channel"].asInteger());
 		msg->addS32("ButtonIndex", button_idx);
-		msg->addString("ButtonLabel", button);
+		msg->addString("ButtonLabel", rtn_text);
 		msg->sendReliable(LLHost(notification["payload"]["sender"].asString()));
-	}
-	else if (button_idx == -2) // Block
-	{
-		LLMuteList::getInstance()->add(LLMute(notification["payload"]["object_id"].asUUID(), notification["substitutions"]["TITLE"].asString(), LLMute::OBJECT));
 	}
 
 	return false;
@@ -6913,7 +6923,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	msg->getString("Data", "FirstName", first_name);
 	bool const is_group = first_name.empty();
 
-//	For compability with OS grids first check for presence of extended packet before fetching data.
+	//	For compability with OS grids first check for presence of extended packet before fetching data.
     LLUUID owner_id;
 	if (gMessageSystem->getNumberOfBlocks("OwnerData") > 0)
 	{
@@ -6957,6 +6967,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 
 	payload["sender"] = msg->getSender().getIPandPort();
 	payload["object_id"] = object_id;
+	payload["object_name"] = object_name;
 	payload["chat_channel"] = chat_channel;
 
 	// build up custom form
@@ -6967,30 +6978,15 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		button_count = SCRIPT_DIALOG_MAX_BUTTONS;
 	}
 
-	LLNotificationForm form;
-	std::string firstbutton;
-	msg->getString("Buttons", "ButtonLabel", firstbutton, 0);
-	form.addElement("button", std::string(firstbutton));
 	bool is_text_box = false;
-	std::string default_text;
-	if (firstbutton == "!!llTextBox!!")
+	LLNotificationForm form;
+	for (i = 0; i < button_count; i++)
 	{
-		is_text_box = true;
-		for (i = 1; i < button_count; i++)
-		{
-			std::string tdesc;
-			msg->getString("Buttons", "ButtonLabel", tdesc, i);
-			default_text += tdesc;
-		}
-	}
-	else
-	{
-		for (i = 1; i < button_count; i++)
-		{
-			std::string tdesc;
-			msg->getString("Buttons", "ButtonLabel", tdesc, i);
-			form.addElement("button", std::string(tdesc));
-		}
+		std::string tdesc;
+		msg->getString("Buttons", "ButtonLabel", tdesc, i);
+		if (is_text_box = tdesc == TEXTBOX_MAGIC_TOKEN)
+			break;
+		form.addElement("button", std::string(tdesc));
 	}
 
 	LLSD query_string;
@@ -7032,8 +7028,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		is_group ? last_name : LLCacheName::buildFullName(first_name, last_name);
 	if (is_text_box)
 	{
-		args["DEFAULT"] = default_text;
-		payload["textbox"] = "true";
+		payload["textbox"] = true;
 		LLNotificationsUtil::add("ScriptTextBoxDialog", args, payload, callback_script_dialog);
 	}
 	else if (!is_group)
@@ -7067,12 +7062,12 @@ bool callback_load_url(const LLSD& notification, const LLSD& response)
 
 static LLNotificationFunctorRegistration callback_load_url_reg("LoadWebPage", callback_load_url);
 
-// We've got the name of the person who owns the object hurling the url.
+// We've got the name of the person or group that owns the object hurling the url.
 // Display confirmation dialog.
 void callback_load_url_name(const LLUUID& id, const std::string& full_name, bool is_group)
 {
 	std::vector<LLSD>::iterator it;
-	for (it = gLoadUrlList.begin(); it != gLoadUrlList.end(); )
+	for (it = gLoadUrlList.begin(); it != gLoadUrlList.end();)
 	{
 		LLSD load_url_info = *it;
 		if (load_url_info["owner_id"].asUUID() == id)

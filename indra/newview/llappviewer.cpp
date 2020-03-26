@@ -159,6 +159,7 @@
 
 // Included so that constants/settings might be initialized
 // in save_settings_to_globals()
+#include "aosystem.h"
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "floaterlocalassetbrowse.h"
@@ -1695,6 +1696,8 @@ bool LLAppViewer::cleanup()
 	}
 
 	LLCalc::cleanUp();
+
+	AOSystem::deleteSingleton();
 
 	LL_INFOS() << "Global stuff deleted" << LL_ENDL;
 

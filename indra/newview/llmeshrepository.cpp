@@ -38,7 +38,6 @@
 #include "lldatapacker.h"
 #include "llfasttimer.h"
 #include "llfloaterperms.h"
-#include "lleconomy.h"
 #include "llimagej2c.h"
 #include "llhost.h"
 #include "llnotificationsutil.h"
@@ -66,6 +65,7 @@
 #include "lluploadfloaterobservers.h"
 #include "aicurl.h"
 
+#include <mutex>
 #include "boost/lexical_cast.hpp"
 
 #ifndef LL_WINDOWS

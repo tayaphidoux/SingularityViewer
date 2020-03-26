@@ -51,8 +51,8 @@
 #include "llhttpclient.h"
 
 // Surface id's
-#define LAND  1
-#define WATER 2
+//#define LAND  1
+//#define WATER 2
 const U32	MAX_OBJECT_CACHE_ENTRIES = 50000;
 
 // Region handshake flags

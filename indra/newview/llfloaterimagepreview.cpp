@@ -40,6 +40,7 @@
 #include "llimagej2c.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "lldrawable.h"
@@ -96,7 +97,8 @@ BOOL LLFloaterImagePreview::postBuild()
 		return FALSE;
 	}
 
-	childSetLabelArg("ok_btn", "[UPLOADFEE]", gHippoGridManager->getConnectedGrid()->getUploadFee());
+	auto& grid = *gHippoGridManager->getConnectedGrid();
+	childSetLabelArg("ok_btn", "[UPLOADFEE]", grid.formatFee(LLAgentBenefitsMgr::current().getTextureUploadCost()));
 
 	LLCtrlSelectionInterface* iface = childGetSelectionInterface("clothing_type_combo");
 	if (iface)
@@ -126,7 +128,11 @@ BOOL LLFloaterImagePreview::postBuild()
 
 		// <edit>
 		gSavedSettings.setBOOL("TemporaryUpload",FALSE);
-		childSetValue("temp_check",FALSE);
+		auto child = getChildView("temp_check");
+		if (grid.isSecondLife())
+			child->setVisible(false);
+		else
+			child->setValue(false);
 		// </edit>
 	}
 	else

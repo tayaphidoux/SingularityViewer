@@ -1790,9 +1790,11 @@ Where tag = tag string to match.  Removes bot's matching the tag.</string>
 	<!-- used in the construction of a Group Notice blue dialog box, buttons, tooltip etc. Seems to be no longer utilized by code in Viewer 2.0 -->
 	<string name="next">Vor</string>
 	<string name="ok">OK</string>
-	<string name="GroupNotifyGroupNotice">Gruppenmitteilung</string>
 	<string name="GroupNotifyGroupNotices">Gruppenmitteilungen</string>
-	<string name="GroupNotifySentBy">Gesendet von</string>
+	<string name="GroupNotifyBy">
+von [NAME]
+im [GROUP]
+	</string>
 	<string name="GroupNotifyAttached">Im Anhang:</string>
 	<string name="GroupNotifyViewPastNotices">Alte Mitteilungen anzeigen oder hier Auswahl treffen, um keine Mitteilungen mehr zu erhalten.</string>
 	<string name="GroupNotifyOpenAttachment">Anhang öffnen</string>

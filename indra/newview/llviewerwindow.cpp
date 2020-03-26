@@ -247,7 +247,7 @@ const F32 MIN_AFK_TIME = 2.f; // minimum time after setting away state before co
 const F32 MAX_FAST_FRAME_TIME = 0.5f;
 const F32 FAST_FRAME_INCREMENT = 0.1f;
 
-const F32 MIN_DISPLAY_SCALE = 0.75f;
+const F32 MIN_DISPLAY_SCALE = 0.5f;
 
 std::string	LLViewerWindow::sSnapshotBaseName;
 std::string	LLViewerWindow::sSnapshotDir;

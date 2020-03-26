@@ -31,6 +31,7 @@
 #include "pipeline.h"
 
 #include "llagentaccess.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llagentui.h"
@@ -106,7 +107,7 @@
 
 #include "lluictrlfactory.h" //For LLUICtrlFactory::getLayeredXMLNode
 
-#include "floaterao.h" // for Typing override
+#include "aosystem.h" // for Typing override
 #include "hippolimits.h" // for getMaxAgentGroups
 // [RLVa:KB] - Checked: 2011-11-04 (RLVa-1.4.4a)
 #include "rlvactions.h"
@@ -1782,9 +1783,10 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 			if (auto object = gObjectList.findObject(mLeaderID))
 			{
 				mAutoPilotTargetGlobal = object->getPositionGlobal();
-				if (const auto& av = object->asAvatar()) // Fly if avatar target is flying
+				if (const auto& av = object->asAvatar()) // Fly/sit if avatar target is flying
 				{
-					setFlying(av->mInAir);
+					const auto& our_pos_global = getPositionGlobal();
+					setFlying(av->mInAir && (getFlying() || mAutoPilotTargetGlobal[VZ] > our_pos_global[VZ])); // If they're in air, fly if they're higher or we were already (follow) flying
 					if (av->isSitting() && (!rlv_handler_t::isEnabled() || !gRlvHandler.hasBehaviour(RLV_BHVR_SIT)))
 					{
 						if (auto seat = av->getParent())
@@ -1804,7 +1806,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 						}
 						else // Ground sit, but only if near enough
 						{
-							if (dist_vec(av->getPositionAgent(), getPositionAgent()) <= mAutoPilotStopDistance) // We're close enough, sit.
+							if (dist_vec(mAutoPilotTargetGlobal, our_pos_global) <= mAutoPilotStopDistance) // We're close enough, sit.
 							{
 								if (!gAgentAvatarp->isSittingAvatarOnGround())
 									setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
@@ -1822,7 +1824,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 					}
 					else
 					{
-						if (dist_vec(av->getPositionAgent(), getPositionAgent()) <= mAutoPilotStopDistance)
+						if (dist_vec(mAutoPilotTargetGlobal, our_pos_global) <= mAutoPilotStopDistance)
 						{
 							follow = 3; // We're close enough, indicate no walking
 						}
@@ -2115,7 +2117,7 @@ void LLAgent::startTyping()
 		}
 	}
 
-	LLFloaterAO::typing(true); // Singu Note: Typing anims handled by AO/settings.
+	AOSystem::typing(true); // Singu Note: Typing anims handled by AO/settings.
 	gChatBar->
 			sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
@@ -2128,7 +2130,7 @@ void LLAgent::stopTyping()
 	if (mRenderState & AGENT_STATE_TYPING)
 	{
 		clearRenderState(AGENT_STATE_TYPING);
-		LLFloaterAO::typing(false); // Singu Note: Typing anims handled by AO/settings.
+		AOSystem::typing(false); // Singu Note: Typing anims handled by AO/settings.
 		gChatBar->
 				sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
@@ -3159,7 +3161,7 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 
 BOOL LLAgent::canJoinGroups() const
 {
-	return (S32)mGroups.size() < gHippoLimits->getMaxAgentGroups();
+	return (S32)mGroups.size() < LLAgentBenefitsMgr::current().getGroupMembershipLimit();
 }
 
 LLQuaternion LLAgent::getHeadRotation()

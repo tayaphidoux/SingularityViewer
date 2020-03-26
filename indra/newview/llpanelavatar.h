@@ -251,7 +251,7 @@ private:
 	
 	//Pick import and export - RK
 	void onClickImport();
-	static void onClickImport_continued(void* self, bool import);
+	static void onClickImport_continued(void* self, bool importt);
 	void onClickExport();
 
 	bool callbackDelete(const LLSD& notification, const LLSD& response);

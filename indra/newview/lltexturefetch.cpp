@@ -2348,7 +2348,7 @@ LLTextureFetch::~LLTextureFetch()
 	while (! mCommands.empty())
 	{
 		TFRequest * req(mCommands.front());
-		mCommands.erase(mCommands.begin());
+		mCommands.pop_front();
 		delete req;
 	}
 	
@@ -3367,7 +3367,7 @@ LLTextureFetch::TFRequest * LLTextureFetch::cmdDequeue()
 	if (! mCommands.empty())
 	{
 		ret = mCommands.front();
-		mCommands.erase(mCommands.begin());
+		mCommands.pop_front();
 	}
 	unlockQueue();														// -Mfq
 

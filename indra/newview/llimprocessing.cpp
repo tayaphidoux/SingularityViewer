@@ -1971,6 +1971,8 @@ void LLIMProcessing::requestOfflineMessagesCoro(const LLCoroResponder& responder
             from_group = message_data["from_group"].asString() == "Y";
         }
 
+        auto agentName = message_data["from_agent_name"].asString();
+        auto message = message_data["message"].asString();
         LLIMProcessing::processNewMessage(message_data["from_agent_id"].asUUID(),
             from_group,
             message_data["to_agent_id"].asUUID(),
@@ -1978,8 +1980,8 @@ void LLIMProcessing::requestOfflineMessagesCoro(const LLCoroResponder& responder
             (EInstantMessage)message_data["dialog"].asInteger(),
             LLUUID::null, // session id, since there is none we can only use frienship/group invite caps
             message_data["timestamp"].asInteger(),
-            message_data["from_agent_name"].asString(),
-            message_data["message"].asString(),
+            agentName,
+            message,
             parent_estate_id,
             message_data["region_id"].asUUID(),
             position,

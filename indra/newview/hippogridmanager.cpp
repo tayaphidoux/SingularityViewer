@@ -8,7 +8,6 @@
 
 #include <stdtypes.h>
 #include <lldir.h>
-#include <lleconomy.h>
 #include <llerror.h>
 #include <llfile.h>
 #include <llhttpclient.h>
@@ -59,7 +58,6 @@ HippoGridInfo::HippoGridInfo(const std::string& gridName) :
 	mRenderCompat(true),
 	mAutoUpdate(false),
 	mLocked(false),
-	mMaxAgentGroups(-1),
 	mCurrencySymbol("OS$"),
 	mCurrencyText("OS Dollars"),
 	mRealCurrencySymbol("US$"),
@@ -414,37 +412,22 @@ void HippoGridInfo::getGridInfo()
 	XML_ParserFree(parser);
 }
 
-std::string HippoGridInfo::getUploadFee() const
-{
-	std::string fee;
-	formatFee(fee, LLGlobalEconomy::Singleton::getInstance()->getPriceUpload(), true);
-	return fee;
-}
-
-std::string HippoGridInfo::getGroupCreationFee() const
-{
-	std::string fee;
-	formatFee(fee, LLGlobalEconomy::Singleton::getInstance()->getPriceGroupCreate(), false);
-	return fee;
-}
-
 std::string HippoGridInfo::getDirectoryFee() const
 {
-	std::string fee;
-	formatFee(fee, mDirectoryFee, true);
+	std::string fee = formatFee(mDirectoryFee, true);
 	if (mDirectoryFee != 0) fee += "/" + LLTrans::getString("hippo_label_week");
 	return fee;
 }
 
-void HippoGridInfo::formatFee(std::string &fee, int cost, bool showFree) const
+std::string HippoGridInfo::formatFee(int cost, bool showFree) const
 {
-	if (showFree && (cost == 0)) 
+	if (showFree && (cost < 0)) 
 	{
-		fee = LLTrans::getString("hippo_label_free");
+		return LLTrans::getString("hippo_label_free");
 	} 
 	else 
 	{
-		fee = llformat("%s%d", getCurrencySymbol().c_str(), cost);
+		return llformat("%s%d", getCurrencySymbol().c_str(), cost);
 	}
 }
 

@@ -92,6 +92,7 @@ set(viewer_SOURCE_FILES
     aixmllindengenepool.cpp
     alfloaterregiontracker.cpp
     aoremotectrl.cpp
+    aosystem.cpp
     ascentfloatercontactgroups.cpp
     ascentkeyword.cpp
     ascentprefschat.cpp
@@ -119,6 +120,7 @@ set(viewer_SOURCE_FILES
     llaisapi.cpp
     llagent.cpp
     llagentaccess.cpp
+    llagentbenefits.cpp
     llagentcamera.cpp
     llagentdata.cpp
     llagentlanguage.cpp
@@ -636,6 +638,8 @@ set(viewer_HEADER_FILES
     aixmllindengenepool.h
     alfloaterregiontracker.h
     aoremotectrl.h
+    aostate.h
+    aosystem.h
     ascentfloatercontactgroups.h
     ascentkeyword.h
     ascentprefschat.h
@@ -663,6 +667,7 @@ set(viewer_HEADER_FILES
     llaisapi.h
     llagent.h
     llagentaccess.h
+    llagentbenefits.h
     llagentcamera.h
     llagentdata.h
     llagentlanguage.h

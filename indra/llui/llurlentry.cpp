@@ -588,7 +588,7 @@ void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
 	}
 	mAvatarNameCacheConnections.erase(range.first, range.second);
 
-	std::string label = av_name.getCompleteName();
+	std::string label = av_name.getNSName();
 
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), label, mIcon);

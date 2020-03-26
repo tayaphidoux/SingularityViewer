@@ -8,24 +8,24 @@
     <menu_item_call enabled="true" label="Upload Image ([UPLOADFEE])..."
         mouse_opaque="true" name="Upload Image" shortcut="control|U" >
 		<on_click function="File.UploadImage" userdata="" />
-		<on_enable function="File.EnableUpload" />
+	<on_enable function="Upload.CalculateCosts" userdata="texture"/>
     </menu_item_call>
     <menu_item_call label="Upload Sound ([UPLOADFEE])..." name="Upload Sound"
         mouse_opaque="true" enabled="true" >
         <on_click function="File.UploadSound" userdata="" />
-        <on_enable function="File.EnableUpload" />
+	<on_enable function="Upload.CalculateCosts" userdata="sound"/>
     </menu_item_call>
     <menu_item_call label="Upload Animation ([UPLOADFEE])..." name="Upload Animation"
         mouse_opaque="true" enabled="true"  >
         <on_click function="File.UploadAnim" userdata="" />
-        <on_enable function="File.EnableUpload" />
+	<on_enable function="Upload.CalculateCosts" userdata="animation"/>
     </menu_item_call>
 	<menu_item_call label="Upload Mesh..." name="Upload Mesh"
         mouse_opaque="true" enabled="true"  >
         <on_click function="File.UploadModel" userdata="" />
         <on_enable function="File.EnableUploadModel" />
     </menu_item_call>
-    <menu_item_call label="Bulk Upload ([UPLOADFEE] per file)..." name="Bulk Upload"
+    <menu_item_call label="Bulk Upload (Costs per file)..." name="Bulk Upload"
         mouse_opaque="true" enabled="true" >
         <on_click function="File.UploadBulk" userdata="" />
     </menu_item_call>

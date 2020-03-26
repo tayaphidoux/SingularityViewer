@@ -236,8 +236,8 @@ public:
 	void			setCommitOnFocusLost(BOOL b)			{ mCommitOnFocusLost = b; }
 
 	// Hack to handle Notecards
-	virtual BOOL	importBuffer(const char* buffer, S32 length );
-	virtual BOOL	exportBuffer(std::string& buffer );
+	virtual BOOL	importBuffer(const char* buffer, S32 length) { return false; }
+	virtual BOOL	exportBuffer(std::string& buffer) { return false; }
 
 	// If takes focus, will take keyboard focus on click.
 	void			setTakesFocus(BOOL b)					{ mTakesFocus = b; }

@@ -5,7 +5,7 @@
 		<menu_item_call label="Subir Sonido ([UPLOADFEE])..." name="Upload Sound"/>
 		<menu_item_call label="Subir Animación ([UPLOADFEE])..." name="Upload Animation"/>
 		<menu_item_call label="Subir Modelo..." name="Upload Mesh"/>
-		<menu_item_call label="Subir Masivo ([UPLOADFEE] por archivo)..." name="Bulk Upload"/>
+		<menu_item_call label="Subir Masivo (por archivo)..." name="Bulk Upload"/>
 		<menu_item_call label="Importar Objeto XML" name="Import"/>
 		<menu_item_call label="Importar con Texturas" name="Import2"/>
 		<menu_item_call label="Cambiar Texturas Locales" name="Change Local Textures"/>

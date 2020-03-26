@@ -53,6 +53,7 @@
 #include "lffloaterinvpanel.h"
 #include "lfsimfeaturehandler.h"
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llappearancemgr.h"
 #include "llagentwearables.h"
@@ -681,15 +682,15 @@ void init_menus()
     gViewerWindow->setMenuBackgroundColor(false, 
         LLViewerLogin::getInstance()->isInProductionGrid());
 
-	// Assume L$10 for now, the server will tell us the real cost at login
-	const std::string upload_cost("10");
-	std::string fee = gHippoGridManager->getConnectedGrid()->getCurrencySymbol() + "10";
-	gMenuHolder->childSetLabelArg("Upload Image", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Upload Sound", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Upload Animation", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Bulk Upload", "[UPLOADFEE]", fee);
-	gMenuHolder->childSetLabelArg("Buy and Sell L$...", "[CURRENCY]",
-		gHippoGridManager->getConnectedGrid()->getCurrencySymbol());
+	std::string symbol = gHippoGridManager->getConnectedGrid()->getCurrencySymbol();
+	auto& benefits = LLAgentBenefitsMgr::current();
+	const std::string texture_upload_cost_str = symbol + std::to_string(benefits.getTextureUploadCost());
+	const std::string sound_upload_cost_str = symbol + std::to_string(benefits.getSoundUploadCost());
+	const std::string animation_upload_cost_str = symbol + std::to_string(benefits.getAnimationUploadCost());
+	gMenuHolder->childSetLabelArg("Upload Image", "[UPLOADFEE]", texture_upload_cost_str);
+	gMenuHolder->childSetLabelArg("Upload Sound", "[UPLOADFEE]", sound_upload_cost_str);
+	gMenuHolder->childSetLabelArg("Upload Animation", "[UPLOADFEE]", animation_upload_cost_str);
+	gMenuHolder->childSetLabelArg("Buy and Sell L$...", "[CURRENCY]", symbol);
 
 	gAFKMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Away", TRUE);
 	gBusyMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Busy", TRUE);
@@ -8876,6 +8877,43 @@ class LLWorldEnableEnvSettings final : public view_listener_t
 	}
 };
 
+class LLUploadCostCalculator final : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
+	{
+		auto& asset_type_str = userdata["data"].asStringRef();
+		S32 upload_cost = -1;
+		LLView* view;
+
+		if (asset_type_str == "texture")
+		{
+			upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
+			view = gMenuHolder->findChild<LLView>("Upload Image");
+		}
+		else if (asset_type_str == "animation")
+		{
+			upload_cost = LLAgentBenefitsMgr::current().getAnimationUploadCost();
+			view = gMenuHolder->findChild<LLView>("Upload Animation");
+		}
+		else if (asset_type_str == "sound")
+		{
+			upload_cost = LLAgentBenefitsMgr::current().getSoundUploadCost();
+			view = gMenuHolder->findChild<LLView>("Upload Sound");
+		}
+		else
+		{
+			LL_WARNS() << "Unable to find upload cost for asset_type_str " << asset_type_str << LL_ENDL;
+			return true;
+		}
+		auto ctrl = gMenuHolder->findControl(userdata["control"].asString());
+		ctrl->setValue(gStatusBar && gStatusBar->getBalance() >= upload_cost);
+		view->setLabelArg("[UPLOADFEE]", gHippoGridManager->getConnectedGrid()->formatFee(upload_cost));
+
+		return true;
+	}
+};
+
+// TPV listeners go below here
 class SinguCloseAllDialogs final : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) override
@@ -9630,7 +9668,7 @@ class ListIsNearby final : public view_listener_t
 	{
 		const auto& data = userdata["data"];
 		const auto& id = active_owner_or_id(data);
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(!data.asBoolean() && LFIDBearer::getActiveType() == LFIDBearer::OBJECT ? !!gObjectList.findObject(id) : is_nearby(id));
+		gMenuHolder->findControl(userdata["control"].asString())->setValue((LFIDBearer::getActiveType() == LFIDBearer::OBJECT && data.asBoolean()) ? !!gObjectList.findObject(id) : is_nearby(id));
 		return true;
 	}
 };
@@ -10012,6 +10050,8 @@ void initialize_menus()
 		F32 mVal;
 		bool mMult;
 	};
+
+	addMenu(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
 	// File menu
 	init_menu_file();

@@ -56,15 +56,13 @@ public:
 	const std::string& getVoiceConnector()  const { return mVoiceConnector; }
 	bool isRenderCompat()                   const { return mRenderCompat; }
 	std::string getGridNick() const;
-	int getMaxAgentGroups() const { return mMaxAgentGroups; }
 
 	const std::string& getCurrencySymbol()     const { return mCurrencySymbol; }
 	const std::string& getCurrencyText()       const { return mCurrencyText; }
 	const std::string& getRealCurrencySymbol() const { return mRealCurrencySymbol; }
-	std::string getUploadFee()                 const;
-	std::string getGroupCreationFee()          const;
 	const int& getClassifiedFee()              const { return mClassifiedFee; }
 	std::string getDirectoryFee()              const;
+	std::string formatFee(S32 cost, bool showFree = true) const;
 
 	void setPlatform (const std::string& platform);
 	void setPlatform (Platform platform);
@@ -82,7 +80,6 @@ public:
 	void setSearchUrl(const std::string& url);
 	void setGridMessage(const std::string& message);
 	void setRenderCompat(bool compat);
-	void setMaxAgentGroups(int max)                   { mMaxAgentGroups = max;   }
 	void setVoiceConnector(const std::string& vc)     { mVoiceConnector = vc;    }
 	void setUPCSupported(bool on);
 	bool getUPCSupported();
@@ -123,7 +120,6 @@ private:
 	bool mAutoUpdate;
 	bool mLocked;
 	bool mUPCSupported;
-	int mMaxAgentGroups;
 
 	std::string mCurrencySymbol;
 	std::string mCurrencyText;
@@ -143,7 +139,6 @@ private:
 
 	static std::string sanitizeUri(std::string const& uri_in);
 	void useHttps(void);
-	void formatFee(std::string &fee, int cost, bool showFree) const;
 
 	static void onXmlElementStart(void* userData, const XML_Char* name, const XML_Char** atts);
 	static void onXmlElementEnd(void* userData, const XML_Char* name);

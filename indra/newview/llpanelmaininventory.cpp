@@ -29,7 +29,6 @@
 
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "lleconomy.h"
 #include "llfirstuse.h"
 #include "llfiltereditor.h"
 #include "llinventorybridge.h"

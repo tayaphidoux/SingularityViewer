@@ -55,7 +55,6 @@
 #include "llviewerwindow.h"
 #include "llstatusbar.h"
 #include "llviewerregion.h"
-#include "lleconomy.h"
 #include "lltrans.h"
 
 #include "llgl.h"

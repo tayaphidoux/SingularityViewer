@@ -29,6 +29,7 @@
 
 #include "pipeline.h"
 
+#include "aosystem.h"			//For AOSystem
 #include "llagent.h"
 #include "llanimationstates.h"
 #include "llfloatercamera.h"
@@ -49,7 +50,6 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llfloatertools.h"		//For gFloaterTools
-#include "floaterao.h"			//For LLFloaterAO
 #include "llfloatercustomize.h" //For gFloaterCustomize
 // [RLVa:KB] - Checked: 2010-05-10 (RLVa-1.2.0g)
 #include "rlvhandler.h"
@@ -2265,7 +2265,8 @@ void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 		mMouselookTimer.reset();
 
 		gFocusMgr.setKeyboardFocus(NULL);
-		if (gSavedSettings.getBOOL("AONoStandsInMouselook"))	LLFloaterAO::stopMotion(LLFloaterAO::getCurrentStandId(), true);
+		auto ao = AOSystem::getIfExists();
+		if (ao && gSavedSettings.getBOOL("AONoStandsInMouselook")) ao->stopCurrentStand();
 		
 		updateLastCamera();
 		mCameraMode = CAMERA_MODE_MOUSELOOK;
