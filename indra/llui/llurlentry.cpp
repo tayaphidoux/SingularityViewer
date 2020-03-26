@@ -666,7 +666,7 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	LLAvatarName av_name;
 	if (LLAvatarNameCache::get(agent_id, &av_name))
 	{
-		std::string label = av_name.getCompleteName();
+		std::string label = av_name.getNSName();
 
 		// handle suffixes like /mute or /offerteleport
 		label = localize_slapp_label(url, label);
