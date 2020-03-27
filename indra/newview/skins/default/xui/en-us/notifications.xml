@@ -7862,7 +7862,7 @@ Offer a teleport?
    icon="notify.tga"
    name="FriendshipAccepted"
    log_to_im="true"   
-   type="notify">
+   type="notifytip">
     <tag>friendship</tag>
 [NAME] accepted your friendship offer.
   </notification>
@@ -7872,7 +7872,7 @@ Offer a teleport?
    name="FriendshipDeclined"
    log_to_im="true"   
    persist="true"
-   type="notify">
+   type="notifytip">
     <tag>friendship</tag>
 [NAME] declined your friendship offer.
   </notification>
