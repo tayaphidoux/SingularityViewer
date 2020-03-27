@@ -224,7 +224,9 @@ LLNotifyBox::LLNotifyBox(LLNotificationPtr notification)
 		if (!mIsCaution || !mIsTip) // We could do some extra color math here to determine if bg's too close to link color, but let's just cross with the link color instead
 			mText->setLinkColor(new LLColor4(lerp(text_color, gSavedSettings.getColor4("HTMLLinkColor"), 0.4f)));
 		mText->setTabStop(FALSE); // can't tab to it (may be a problem for scrolling via keyboard)
-		mText->appendText(message,false,false,style,!layout_script_dialog); // Now we can set the text, since colors have been set.
+		mText->appendText(message,false,false,style); // Now we can set the text, since colors have been set.
+		if (is_textbox || layout_script_dialog)
+			mText->appendText(notification->getSubstitutions()["SCRIPT_MESSAGE"], false, true, style, false);
 		addChild(mText);
 	}
 
