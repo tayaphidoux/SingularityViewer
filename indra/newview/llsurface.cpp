@@ -53,6 +53,7 @@
 #include "llglheaders.h"
 #include "lldrawpoolterrain.h"
 #include "lldrawable.h"
+#include "hippogridmanager.h"
 
 extern LLPipeline gPipeline;
 extern bool gShiftFrame;
@@ -371,6 +372,14 @@ void LLSurface::connectNeighbor(LLSurface* neighborp, U32 direction)
 	// - Non-power-of-2 regions should work here, but the rest of the viewer code will probably choke on them.
 
 	surface_patch_ref patchp, neighbor_patchp;
+	if (mNeighbors[direction] == neighborp)
+	{
+		return;
+	}
+	if (mNeighbors[direction])
+	{
+		mNeighbors[direction]->disconnectNeighbor(this, gDirOpposite[direction]);
+	}
 	mNeighbors[direction] = neighborp;
 
 	const S32 max_idx = mPatchesPerEdge - 1;
@@ -480,33 +489,71 @@ void LLSurface::connectNeighbor(LLSurface* neighborp, U32 direction)
 	}
 }
 
-void LLSurface::disconnectNeighbor(LLSurface *surfacep)
+void LLSurface::disconnectNeighbor(LLSurface* surfacep, U32 direction)
 {
-	S32 i;
-	for (i = 0; i < 8; i++)
+	if (surfacep && surfacep == mNeighbors[direction])
 	{
-		if (surfacep == mNeighbors[i])
+		// Iterate through surface patches, removing any connectivity to removed surface.
+		// Extra branches for debugging.
+		if (!gHippoGridManager->getCurrentGrid()->isSecondLife())
 		{
-			mNeighbors[i] = NULL;
+			for (auto& patchp : mPatchList)
+			{
+				patchp->disconnectNeighbor(surfacep);
+			}
 		}
-	}
-
-	// Iterate through surface patches, removing any connectivity to removed surface.
-	for (auto& patchp : mPatchList)
-	{
-		patchp->disconnectNeighbor(surfacep);
+		if (gHippoGridManager->getCurrentGrid()->isSecondLife())
+		{
+			for (auto& patchp : mPatchList)
+			{
+				patchp->disconnectNeighbor(surfacep);
+			}
+		}
 	}
 }
 
 
 void LLSurface::disconnectAllNeighbors()
 {
+	// Pulled out of loop to debug.
+	if (mNeighbors[EAST])
+	{
+		mNeighbors[EAST]->disconnectNeighbor(this, gDirOpposite[EAST]);
+	}
+	if (mNeighbors[NORTH])
+	{
+		mNeighbors[NORTH]->disconnectNeighbor(this, gDirOpposite[NORTH]);
+	}
+	if (mNeighbors[WEST])
+	{
+		mNeighbors[WEST]->disconnectNeighbor(this, gDirOpposite[WEST]);
+	}
+	if (mNeighbors[SOUTH])
+	{
+		mNeighbors[SOUTH]->disconnectNeighbor(this, gDirOpposite[SOUTH]);
+	}
+	if (mNeighbors[NORTHEAST])
+	{
+		mNeighbors[NORTHEAST]->disconnectNeighbor(this, gDirOpposite[NORTHEAST]);
+	}
+	if (mNeighbors[NORTHWEST])
+	{
+		mNeighbors[NORTHWEST]->disconnectNeighbor(this, gDirOpposite[NORTHWEST]);
+	}
+	if (mNeighbors[SOUTHWEST])
+	{
+		mNeighbors[SOUTHWEST]->disconnectNeighbor(this, gDirOpposite[SOUTHWEST]);
+	}
+	if (mNeighbors[SOUTHEAST])
+	{
+		mNeighbors[SOUTHEAST]->disconnectNeighbor(this, gDirOpposite[SOUTHEAST]);
+	}
 	S32 i;
 	for (i = 0; i < 8; i++)
 	{
 		if (mNeighbors[i])
 		{
-			mNeighbors[i]->disconnectNeighbor(this);
+			//mNeighbors[i]->disconnectNeighbor(this);
 			mNeighbors[i] = NULL;
 		}
 	}
