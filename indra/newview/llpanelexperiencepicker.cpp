@@ -62,13 +62,12 @@ const static std::string columnSpace = " ";
 /* Singu Note: We do not have injectors, so we'll have to call this function instead
 static LLPanelInjector<LLPanelExperiencePicker> t_panel_status("llpanelexperiencepicker");
 */
-void* create_xp_picker(void* data) { return new LLPanelExperiencePicker(false); }
 
-LLPanelExperiencePicker::LLPanelExperiencePicker(bool build)
+LLPanelExperiencePicker::LLPanelExperiencePicker()
 	:LLPanel()
 {
 	//buildFromFile("panel_experience_search.xml");
-	if (build) LLUICtrlFactory::getInstance()->buildPanel(this, "panel_experience_search.xml"); // Singu Note: Use filename in xml
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_experience_search.xml"); // Singu Note: Use filename in xml
 	setDefaultFilters();
 }
 

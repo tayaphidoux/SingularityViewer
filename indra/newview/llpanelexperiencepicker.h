@@ -32,7 +32,6 @@
 class LLScrollListCtrl;
 class LLLineEditor;
 
-void* create_xp_picker(void* data);
 class LLPanelExperiencePicker final : public LLPanel
 {
 public:
@@ -44,7 +43,7 @@ public:
 	typedef std::function<bool (const LLSD&)> filter_function;
 	typedef std::vector<filter_function> filter_list;
 
-	LLPanelExperiencePicker(bool build = true);
+	LLPanelExperiencePicker();
 	virtual ~LLPanelExperiencePicker();
 
 	BOOL postBuild() override;
