@@ -32,6 +32,7 @@
 
 #include "lllineeditor.h"
 #include "llfloaterexperienceprofile.h"
+#include "llfloaterexperiences.h"
 //#include "llfloaterreg.h"
 #include "lluictrlfactory.h"
 #include "llscrolllistctrl.h"
@@ -62,13 +63,12 @@ const static std::string columnSpace = " ";
 /* Singu Note: We do not have injectors, so we'll have to call this function instead
 static LLPanelInjector<LLPanelExperiencePicker> t_panel_status("llpanelexperiencepicker");
 */
-void* create_xp_picker(void* data) { return new LLPanelExperiencePicker(false); }
 
-LLPanelExperiencePicker::LLPanelExperiencePicker(bool build)
+LLPanelExperiencePicker::LLPanelExperiencePicker()
 	:LLPanel()
 {
 	//buildFromFile("panel_experience_search.xml");
-	if (build) LLUICtrlFactory::getInstance()->buildPanel(this, "panel_experience_search.xml"); // Singu Note: Use filename in xml
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_experience_search.xml"); // Singu Note: Use filename in xml
 	setDefaultFilters();
 }
 
@@ -288,7 +288,7 @@ void LLPanelExperiencePicker::onBtnSelect()
 
 void LLPanelExperiencePicker::onBtnClose()
 {
-	LLFloater* floater = static_cast<LLFloater*>(getParent());
+	LLFloater* floater = mSelectionCallback ? static_cast<LLFloater*>(getParent()) : LLFloaterExperiences::findInstance();
 	if (floater)
 	{
 		floater->close();
