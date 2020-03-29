@@ -32,6 +32,7 @@
 
 #include "lllineeditor.h"
 #include "llfloaterexperienceprofile.h"
+#include "llfloaterexperiences.h"
 //#include "llfloaterreg.h"
 #include "lluictrlfactory.h"
 #include "llscrolllistctrl.h"
@@ -287,7 +288,7 @@ void LLPanelExperiencePicker::onBtnSelect()
 
 void LLPanelExperiencePicker::onBtnClose()
 {
-	LLFloater* floater = static_cast<LLFloater*>(getParent());
+	LLFloater* floater = mSelectionCallback ? static_cast<LLFloater*>(getParent()) : LLFloaterExperiences::findInstance();
 	if (floater)
 	{
 		floater->close();
