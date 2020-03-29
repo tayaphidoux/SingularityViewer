@@ -1933,38 +1933,6 @@
         <key>version</key>
         <string>7.11.1.297294</string>
       </map>
-      <key>modernjson</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2013-2018 Niels Lohmann</string>
-        <key>description</key>
-        <string>JSON for Modern C++</string>
-        <key>license</key>
-        <string>MIT</string>
-        <key>license_file</key>
-        <string>LICENSES/modernjson.txt</string>
-        <key>name</key>
-        <string>modernjson</string>
-        <key>platforms</key>
-        <map>
-          <key>common</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>6f11eca7e2a6ca61f9217e949a64f026</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>https://depot.alchemyviewer.org/pub/common/lib/modernjson-3.2.0-common-201809210551.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>common</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>3.2.0</string>
-      </map>
       <key>nvapi</key>
       <map>
         <key>copyright</key>

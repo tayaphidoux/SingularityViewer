@@ -16,6 +16,11 @@ FetchContent_Declare(
   GIT_TAG        6.1.2
   )
 FetchContent_Declare(
+  nlohmann_json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG        v3.7.3
+  )
+FetchContent_Declare(
   absl
   GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
   GIT_TAG        29235139149790f5afc430c11cec8f1eb1677607
@@ -43,6 +48,15 @@ endif()
 if(WINDOWS)
 FetchContent_MakeAvailable(fmt)
 endif()
+
+# Typically you don't care so much for a third party library's tests to be
+# run from your own project's code.
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
+# If you only include this third party in PRIVATE source files, you do not
+# need to install it when your main project gets installed.
+set(JSON_Install OFF CACHE INTERNAL "")
+FetchContent_MakeAvailable(nlohmann_json)
 
 unset(CMAKE_FOLDER)
 unset(CMAKE_POSITION_INDEPENDENT_CODE)
