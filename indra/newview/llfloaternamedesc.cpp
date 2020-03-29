@@ -148,7 +148,7 @@ S32 LLFloaterNameDesc::getExpectedUploadCost() const
 	LLAssetType::EType asset_type = exten == "wav" ? LLAssetType::AT_SOUND
 		: (exten == "anim" || exten == "bvh") ? LLAssetType::AT_ANIMATION
 		: exten != "lsl" ? LLAssetType::AT_TEXTURE
-		: asset_type = LLAssetType::AT_NONE;
+		: LLAssetType::AT_NONE;
 	S32 upload_cost = -1;
 
 	if (asset_type != LLAssetType::AT_NONE)
