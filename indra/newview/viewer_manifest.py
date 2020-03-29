@@ -1147,7 +1147,8 @@ class LinuxManifest(ViewerManifest):
 
     def is_packaging_viewer(self):
         super(LinuxManifest, self).is_packaging_viewer()
-        return True # We always want a packaged viewer even without archive.
+        return 'package' in self.args['actions']
+
 
     def do(self, *actions):
         super(LinuxManifest, self).do(*actions)
