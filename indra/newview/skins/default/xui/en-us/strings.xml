@@ -3252,7 +3252,7 @@ Where tag = tag string to match.  Removes bot's matching the tag.
     <string name="has_left">has left</string>
     <string name="has_left_flood">is now off the radar for</string>
     <!-- [RANGE] -->
-    <string name="the_sim">the sim</string>
+    <string name="the_sim">the region</string>
     <string name="draw_distance">draw distance</string>
     <string name="shout_range">shout range</string>
     <string name="chat_range">chat range</string>
