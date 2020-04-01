@@ -1033,7 +1033,7 @@ BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* boun
 	LLVector4a fudge(vel*2.f);
 
 	const LLVector4a& c = bounds[0];
-	static LLVector4a r;
+	LLVector4a r;
 	r.setAdd(bounds[1], fudge);
 
 	/*if (r.magVecSquared() > 1024.0*1024.0)
@@ -1242,6 +1242,11 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 						//static LLVector4a fudge(SG_OCCLUSION_FUDGE);
 						static LLCachedControl<F32> vel("SHOcclusionFudge",SG_OCCLUSION_FUDGE);
 						LLVector4a fudge(SG_OCCLUSION_FUDGE);
+						if (LLDrawPool::POOL_WATER == mSpatialPartition->mDrawableType)
+						{
+							fudge.getF32ptr()[2] = 1.f;
+						}
+
 						static LLVector4a fudged_bounds;
 						fudged_bounds.setAdd(fudge, bounds[1]);
 						shader->uniform3fv(LLShaderMgr::BOX_SIZE, 1, fudged_bounds.getF32ptr());
