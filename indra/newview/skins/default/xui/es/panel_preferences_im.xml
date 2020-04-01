@@ -4,6 +4,7 @@
 	<check_box label="Sólo mis amigos y mis grupos pueden ver cuando estoy en línea" name="online_visibility"  left="138"/>
 	<text name="text_box2">Opciones de MI:</text>
 	<string name="log_in_to_change">Iniciar sesión para cambiar</string>
+    <string name="email_unverified_tooltip">Por favor verifica tu cuenta de email para habilitar el envío de IM a tu email. Puedes hacer esto en la página web del grid.</string>
 	<check_box label="Enviar MI al Email ([EMAIL])" name="send_im_to_email" left="138"/>
 	<check_box label="Incluir MI en la consola de Chat" name="include_im_in_chat_console" left="138"/>
 	<check_box label="Mostrar horario en los IMI" name="show_timestamps_check" left="138"/>

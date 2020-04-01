@@ -64,6 +64,7 @@
         height="530"
         left="0"
         name="xp_scroll"
+        opaque="true"
         bottom="0"
         width="348">
         <panel
@@ -75,6 +76,7 @@
           width="315"
           min_width="315">
           <layout_stack
+				name="Experience_profile"
             follows="all"
             height="550"
             left="0"
@@ -256,6 +258,7 @@
               </text_editor>
             </layout_panel>
             <layout_panel
+				  name ="owner panel"
               follows="left|top|right"
               height="18"
               left="0"

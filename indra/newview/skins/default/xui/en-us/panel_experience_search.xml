@@ -5,6 +5,7 @@
   left="0"
   width="350"
   height="330"
+  name="panel_experiences_search"
   label="Search"
   follows="all">
 
@@ -44,6 +45,7 @@
     height="330"
     name="search_panel">
     <text
+		name="search_text"
       left="0"
       follows="top|left|right"
       right="-1">
@@ -63,6 +65,7 @@
             height="18"
             name="find"/>
     <text
+		name="content_text"
       bottom_delta="-18"
       left="0"
       follows="top|left"

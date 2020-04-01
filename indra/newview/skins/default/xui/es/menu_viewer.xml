@@ -5,7 +5,7 @@
 		<menu_item_call label="Subir Sonido ([UPLOADFEE])..." name="Upload Sound"/>
 		<menu_item_call label="Subir Animación ([UPLOADFEE])..." name="Upload Animation"/>
 		<menu_item_call label="Subir Modelo..." name="Upload Mesh"/>
-		<menu_item_call label="Subir Masivo (por archivo)..." name="Bulk Upload"/>
+		<menu_item_call label="Subir Masivo (Pago por archivo)..." name="Bulk Upload"/>
 		<menu_item_call label="Importar Objeto XML" name="Import"/>
 		<menu_item_call label="Importar con Texturas" name="Import2"/>
 		<menu_item_call label="Cambiar Texturas Locales" name="Change Local Textures"/>
@@ -134,6 +134,7 @@
 		<menu_item_check label="Ítems Recibidos" name="Received Items"/>
         <menu_item_check label="Avatares Predefinidos" name="Avatar Picker"/>
         <menu_item_check label="Destinos" name="Destinations"/>
+		 <menu_item_check label="Experiencias..." name="Experiences..."/> 
 		<menu_item_call label="Mi Terreno..." name="My Land..."/>
 		<menu_item_call label="Acerca del Terreno..." name="About Land..."/>
 		<menu_item_call label="Comprar Terreno..." name="Buy Land..."/>
@@ -211,7 +212,7 @@
 		<menu_item_call label="Blog Oficial de Linden Lab..." name="Official Linden Blog..."/>
 		<menu_item_call label="Estado del Grid..." name="Grid Status..."/>
 		<menu_item_call label="Portal de Scripting..." name="Scripting Portal..."/>
-		<menu_item_call label="Denunciar Abuso..." name="Report Abuse..."/>
+		<menu_item_call label="Denunciar Infracción..." name="Report Abuse..."/>
 		<menu_item_call label="Choques, Empujones y Golpes..." name="Bumps, Pushes &amp;amp; Hits..."/>
 		<menu label="Informe de Fallos" name="Bug Reporting" >
 			<menu_item_call label="Seguimiento de Problemas Público..." name="Public Issue Tracker..."/>
@@ -224,28 +225,27 @@
 			<menu_item_call label="Informar Fallos de [SHORT_APP_NAME]..." name="Report [SHORT_APP_NAME] Bug..."/>
 			<menu_item_call label="Solicitar Nueva Característica..." name="Request New Feature..."/>
 		</menu>
-		<menu_item_call label="[SHORT_APP_NAME] Group" name="viewer group">
-			<on_click function="URLAction" userdata="secondlife:///app/group/ce736e80-376b-e057-1722-431d1daa363e/about"/>
+		<menu_item_call label="Grupo [SHORT_APP_NAME]" name="viewer group">
+			<on_click function="URLAction" userdata="secondlife:///app/group/d21f3901-f87d-e8df-4323-f25b23a367be/about"/>
 			<on_visible function="VisibleSecondLife"/>
 		</menu_item_call>
-		<menu_item_call label="Acerca de [APP_NAME]..." name="About Second Life..."/>
+		<menu_item_call label="Acerca de [SHORT_APP_NAME]..." name="About Second Life..."/>
 	</menu>
 	<!-- ============================= -->
 	<menu label="[SHORT_APP_NAME]" name="Singularity">
 		<menu_item_call label="Cerrar todos los diálogos" name="Close All Dialogs"/>
 		<menu_item_call label="Falso Estado Ausente" name="Fake Away Status"/>
 		<menu_item_call label="Forzar Sentarse en el Piso" name="Force Ground Sit"/>
-		<menu_item_call label="Animation Override..." name="Animation Override ..."/>
+		<menu_item_call label="Animaciones (AO)..." name="Animation Override ..."/>
 		<menu_item_check label="Pose Stand" name="Pose Stand"/>
 		<menu_item_check label="Agilidad" name="Nimble"/>
 		<menu_item_call label="Resincronizar Animaciones" name="Resync Animations"/>
 		<menu_item_check label="Monitor de Región" name="Region Tracker"/>
 		<menu_item_check label="Búsqueda en Área" name="Object Area Search"/>
 		<menu_item_check label="Explorador de Sonidos" name="Sound Explorer"/>
-		<menu_item_check label="Lista Negra de Assets" name="Asset Blacklist"/>
+		<menu_item_check label="Lista Negra" name="Asset Blacklist"/>
 		<menu_item_check label="Filtro de Media" name="Media Filter"/>
 		<menu_item_check label="Mostrar Información de Audio" name="Streaming Audio Display"/>
-
 		<menu_item_check label="Consola de Depuración de Región" name="Region Debug Console"/>
 		<menu_item_call label="Redibujar" name="Rebake"/>
 	</menu>
