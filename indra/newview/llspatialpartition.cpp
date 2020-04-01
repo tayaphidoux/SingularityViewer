@@ -70,6 +70,7 @@ static U32 sZombieGroups = 0;
 U32 LLSpatialGroup::sNodeCount = 0;
 
 U32 gOctreeMaxCapacity;
+float gOctreeMinSize;
 U32 gOctreeReserveCapacity;
 
 BOOL LLSpatialGroup::sNoDelete = FALSE;
@@ -1623,10 +1624,10 @@ void renderOctree(LLSpatialGroup* group)
 	gGL.diffuseColor4fv(col.mV);
 	LLVector4a fudge;
 	fudge.splat(0.001f);
-	const LLVector4a* bounds = group->getObjectBounds();
-	LLVector4a size = bounds[1];
-	size.mul(1.01f);
-	size.add(fudge);
+	//const LLVector4a* bounds = group->getObjectBounds();
+	//LLVector4a size = bounds[1];
+	//size.mul(1.01f);
+	//size.add(fudge);*/
 
 	//{
 	//	LLGLDepthTest depth(GL_TRUE, GL_FALSE);

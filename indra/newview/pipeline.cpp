@@ -958,6 +958,7 @@ void LLPipeline::refreshCachedSettings()
 	LLVOAvatar::sMaxVisible = (U32)gSavedSettings.getS32("RenderAvatarMaxVisible");
 	//LLPipeline::sDelayVBUpdate = gSavedSettings.getBOOL("RenderDelayVBUpdate");
 	gOctreeMaxCapacity = gSavedSettings.getU32("OctreeMaxNodeCapacity");
+	gOctreeMinSize = gSavedSettings.getF32("OctreeMinimumNodeSize");
 	gOctreeReserveCapacity = llmin(gSavedSettings.getU32("OctreeReserveNodeCapacity"), U32(512));
 	LLPipeline::sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
 	LLPipeline::sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");

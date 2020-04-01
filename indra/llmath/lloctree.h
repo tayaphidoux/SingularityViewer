@@ -45,6 +45,7 @@
 #endif
 
 extern U32 gOctreeMaxCapacity;
+extern float gOctreeMinSize;
 extern U32 gOctreeReserveCapacity;
 #if LL_DEBUG
 #define LL_OCTREE_PARANOIA_CHECK 0
@@ -404,7 +405,7 @@ public:
 		F32 size = mSize[0];
 		F32 p_size = size * 2.f;
 
-		return (radius <= 0.001f && size <= 0.001f) ||
+		return (radius <= gOctreeMinSize && size <= gOctreeMinSize) ||
 				(radius <= p_size && radius > size);
 	}
 
@@ -511,7 +512,7 @@ public:
 		//is it here?
 		if (isInside(data->getPositionGroup()))
 		{
-			if (((getElementCount() < gOctreeMaxCapacity && contains(data->getBinRadius())) ||
+			if ((((getElementCount() < gOctreeMaxCapacity || getSize()[0] <= gOctreeMinSize) && contains(data->getBinRadius())) ||
 				(data->getBinRadius() > getSize()[0] &&	parent && parent->getElementCount() >= gOctreeMaxCapacity))) 
 			{ //it belongs here
 				/*mElementCount++;
@@ -566,8 +567,9 @@ public:
 				LLVector4a val;
 				val.setSub(center, getCenter());
 				val.setAbs(val);
-								
-				S32 lt = val.lessThan(LLVector4a::getEpsilon()).getGatheredBits() & 0x7;
+				LLVector4a min_diff(gOctreeMinSize);
+
+				S32 lt = val.lessThan(min_diff).getGatheredBits() & 0x7;
 
 				if( lt == 0x7 )
 				{
@@ -616,6 +618,7 @@ public:
 				}
 #endif
 
+				llassert(size[0] >= gOctreeMinSize*0.5f);
 				//make the new kid
 				child = new LLOctreeNode<T>(center, size, this);
 				addChild(child);
@@ -623,10 +626,7 @@ public:
 				child->insert(data);
 			}
 		}
-// Singu note: now that we allow wider range in octree, discard them here
-// if they fall out of range
-#if 0
-		else 
+		else if (parent)
 		{
 			//it's not in here, give it to the root
 			OCT_ERRS << "Octree insertion failed, starting over from root!" << LL_ENDL;
@@ -639,12 +639,15 @@ public:
 				parent = node->getOctParent();
 			}
 
-			if(node != this)
-			{
-				node->insert(data);
-			}
+			node->insert(data);
 		}
-#endif
+		else
+		{
+			// It's not in here, and we are root.
+			// LLOctreeRoot::insert() should have expanded
+			// root by now, something is wrong
+			OCT_ERRS << "Octree insertion failed! Root expansion failed." << LL_ENDL;
+		}
 
 		return false;
 	}
@@ -1050,9 +1053,14 @@ public:
 			{
 				LLOctreeNode<T>::insert(data);
 			}
-			else
+			else if (node->isInside(data->getPositionGroup()))
 			{
 				node->insert(data);
+			}
+			else
+			{
+				// calling node->insert(data) will return us to root
+				OCT_ERRS << "Failed to insert data at child node" << LL_ENDL;
 			}
 		}
 		else if (this->getChildCount() == 0)
@@ -1087,6 +1095,8 @@ public:
 				size2.mul(2.f);
 				this->setSize(size2);
 				this->updateMinMax();
+
+				llassert(size[0] >= gOctreeMinSize);
 
 				//copy our children to a new branch
 				LLOctreeNode<T>* newnode = new LLOctreeNode<T>(center, size, this);
