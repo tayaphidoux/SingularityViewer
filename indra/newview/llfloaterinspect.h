@@ -60,6 +60,7 @@ public:
 	virtual void onFocusReceived();
 	void onClickCreatorProfile();
 	void onClickOwnerProfile();
+	void onClickLastOwnerProfile();
 	void onSelectObject();
 
 	LLScrollListCtrl* mObjectList;

@@ -1147,13 +1147,13 @@ class LinuxManifest(ViewerManifest):
 
     def is_packaging_viewer(self):
         super(LinuxManifest, self).is_packaging_viewer()
-        return True # We always want a packaged viewer even without archive.
+        return 'package' in self.args['actions']
+
 
     def do(self, *actions):
         super(LinuxManifest, self).do(*actions)
-        if not 'package' in self.actions:
-            self.package_finish() # Always finish the package.
-        else:
+        self.package_finish() # Always finish the package.
+        if 'package' in self.actions:
             # package_finish() was called by super.do() so just create the TAR.
             self.create_archive()
         return self.file_list
