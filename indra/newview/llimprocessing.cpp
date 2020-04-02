@@ -1842,7 +1842,7 @@ void LLIMProcessing::processNewMessage(const LLUUID& from_id,
 			strings.push_back(from_id.asString());
 			send_generic_message("requestonlinenotification", strings);
 			
-			args["NAME"] = name;
+			args["NAME"] = LLAvatarActions::getSLURL(from_id);
 			LLSD payload;
 			payload["from_id"] = from_id;
 			LLAvatarNameCache::get(from_id, boost::bind(&notification_display_name_callback, _1, _2, "FriendshipAccepted", args, payload));

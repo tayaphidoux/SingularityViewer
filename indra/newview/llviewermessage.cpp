@@ -7020,7 +7020,8 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 
 	LLSD args;
 	args["TITLE"] = object_name;
-	args["MESSAGE"] = message;
+	args["MESSAGE"] = LLStringUtil::null;
+	args["SCRIPT_MESSAGE"] = message;
 	args["CHANNEL"] = chat_channel;
 	LLNotificationPtr notification;
 	char const* name = (is_group && !is_text_box) ? "GROUPNAME" : "NAME";

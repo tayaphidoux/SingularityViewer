@@ -150,8 +150,9 @@ LLGroupNotifyBox::LLGroupNotifyBox(const std::string& subject,
 
 	auto links = new LLTextEditor(std::string("group"), LLRect(x, y + 5, RIGHT, bottom), S32_MAX, LLStringUtil::null, nullptr, false, true); // Top adjustment to line up with icon
 	links->setBorderVisible(FALSE);
-	links->setReadOnlyFgColor(text_color);
-	links->setReadOnlyBgColor(LLColor4::transparent);
+	static const auto header_bg_color = gColors.getColor("GroupNotifyHeaderBGColor");
+	if (header_bg_color[VALPHA]) links->setReadOnlyFgColor(text_color);
+	links->setReadOnlyBgColor(header_bg_color);
 	links->setEnabled(false);
 	links->setTakesNonScrollClicks(TRUE);
 	links->setHideScrollbarForShortDocs(TRUE);

@@ -18,7 +18,6 @@ include(FMODSTUDIO)
 include(GeneratePrecompiledHeader)
 include(GLOD)
 include(Hunspell)
-include(Json)
 include(LLAddBuildTest)
 include(LLAppearance)
 include(LLAudio)
@@ -63,7 +62,6 @@ include_directories(
     ${STATEMACHINE_INCLUDE_DIRS}
     ${DBUSGLIB_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
-    ${JSON_INCLUDE_DIR}
     ${GLOD_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
@@ -1710,6 +1708,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLAPPEARANCE_LIBRARIES}
     absl::flat_hash_map
     absl::node_hash_map
+    nlohmann_json::nlohmann_json
     ${FMT_LIBRARY}
     )
 
