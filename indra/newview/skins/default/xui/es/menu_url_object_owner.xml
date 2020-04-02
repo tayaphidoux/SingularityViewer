@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 	<context_menu label="Propietario" name="Object Owner Submenu">
 		<menu_item_call label="Enviar MI..." name="send_im"/>
-		<menu name="Acciones" label="Actions">
+		<menu name="Actions" label="Acciones">
 			<menu_item_call label="Perfil" name="Profile"/>
 			<menu_item_call label="Perfil Web" name="Web Profile"/>
 			<menu_item_call label="Pagar" name="Pay"/>
