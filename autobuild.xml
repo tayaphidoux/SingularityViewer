@@ -876,11 +876,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ccd495598894c8e2e541a348015ee3f0</string>
+              <string>54dbd41322a08a1fc333ca6d96af5502</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>/opt/devel/fmodstudio-2.00.07.200182252-linux64-200182252.tar.bz2</string>
+              <string>/opt/devel/secondlife/pkg/fmodstudio-2.00.02.191991250-linux64-191991250.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
