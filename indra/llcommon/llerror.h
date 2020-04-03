@@ -353,10 +353,10 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 
 // NEW Macros for debugging, allow the passing of a string tag
 
-#if SHOW_DEBUG 
-#define DO_DEBUG_LOG if(true)
+#ifdef SHOW_DEBUG 
+#define DO_DEBUG_LOG
 #else
-#define DO_DEBUG_LOG if(false)
+#define DO_DEBUG_LOG if (false)
 #endif 
 
 // Pass comma separated list of tags (currently only supports up to 0, 1, or 2)
