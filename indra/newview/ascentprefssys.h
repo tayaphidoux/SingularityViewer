@@ -118,6 +118,7 @@ private:
 	bool mDisplayScriptJumps;
 	bool mReplaceLinks;
 	F32 mNumScriptDiff;
+	U32 mEmergencySeconds;
 	std::string mLandmark;
 	std::string mLandmarkBackup;
 
