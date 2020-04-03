@@ -47,6 +47,14 @@ class AISCommand final : public LLHTTPClient::ResponderWithCompleted
 public:
 	typedef boost::function<void()> command_func_type;
 	// AISCommand - base class for retry-able HTTP requests using the AISv3 cap.
+
+	// Limit max in flight requests to 2. Server was aggressively throttling otherwise.
+	constexpr static U8 sMaxActiveAISCommands = 4;
+	static U8 sActiveAISCommands;
+	static std::queue< boost::intrusive_ptr< AISCommand > > sPendingAISCommands;
+
+	virtual AIHTTPTimeoutPolicy const& getHTTPTimeoutPolicy(void) const { return AISAPIResponder_timeout; }
+
 	AISCommand(AISAPI::COMMAND_TYPE type, const char* name, const LLUUID& targetId, AISAPI::completion_t callback) :
 		mCommandFunc(NULL),
 		mRetryPolicy(new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10)),
@@ -55,13 +63,30 @@ public:
 		mName(name),
 		mType(type)
 	{}
-	
-	virtual AIHTTPTimeoutPolicy const& getHTTPTimeoutPolicy(void) const { return AISAPIResponder_timeout; }
+	virtual ~AISCommand()
+	{
+		if (mActive)
+		{
+			--sActiveAISCommands;
+			while (sActiveAISCommands < sMaxActiveAISCommands && !sPendingAISCommands.empty())
+			{
+				sPendingAISCommands.front()->dispatch();
+				sPendingAISCommands.pop();
+			}
+		}
+	}
 
 	void run( command_func_type func )
 	{
-		LL_WARNS("Inventory") << "Sending request for " << getName() <<": " << mURL << LL_ENDL;
-		(mCommandFunc = func)();
+		mCommandFunc = func;
+		if (sActiveAISCommands >= sMaxActiveAISCommands)
+		{
+			sPendingAISCommands.push(this);
+		}
+		else
+		{
+			dispatch();
+		}
 	}
 
 	char const* getName(void) const override
@@ -70,6 +95,16 @@ public:
 	}
 
 private:
+	void dispatch()
+	{
+		if (LLApp::isQuitting())
+		{
+			return;
+		}
+		++sActiveAISCommands;
+		mActive = true;
+		(mCommandFunc)();
+	}
 	void markComplete()
 	{
 		// Command func holds a reference to self, need to release it
@@ -84,6 +119,11 @@ private:
 		F32 seconds_to_wait;
 		if (mRetryPolicy->shouldRetry(seconds_to_wait))
 		{
+			if (mStatus == 503)
+			{
+				// Pad delay a bit more since we're getting throttled.
+				seconds_to_wait += 10.f + ll_frand(4.f);
+			}
 			LL_WARNS("Inventory") << "Retrying in " << seconds_to_wait << "seconds due to inventory error for " << getName() <<": " << dumpResponse() << LL_ENDL;
 			doAfterInterval(mCommandFunc,seconds_to_wait);
 			return true;
@@ -116,8 +156,12 @@ private:
 	AISAPI::completion_t mCompletionFunc;
 	const LLUUID mTargetId;
 	const char* mName;
+	bool mActive = false;
 	AISAPI::COMMAND_TYPE mType;
 };
+
+U8 AISCommand::sActiveAISCommands = 0;
+std::queue< boost::intrusive_ptr< AISCommand > > AISCommand::sPendingAISCommands;
 
 //=========================================================================
 const std::string AISAPI::INVENTORY_CAP_NAME("InventoryAPIv3");
@@ -333,11 +377,8 @@ void AISAPI::InvokeAISCommandCoro(LLHTTPClient::ResponderWithCompleted* responde
 
     if (!responder->isGoodStatus(status) || !result.isMap())
     {
-        if (!result.isMap())
-        {
-            LL_WARNS("Inventory") << "Inventory error: " << HTTP_INTERNAL_ERROR_OTHER << ": " << "Malformed response contents" << LL_ENDL;
-        }
-        else if (status == 410) //GONE
+		LL_WARNS("Inventory") << "Inventory error: " << status << ": " << responder->getReason() << LL_ENDL;
+        if (status == 410) //GONE
         {
             // Item does not exist or was already deleted from server.
             // parent folder is out of sync
@@ -370,7 +411,10 @@ void AISAPI::InvokeAISCommandCoro(LLHTTPClient::ResponderWithCompleted* responde
                     gInventory.onObjectDeletedFromServer(targetId);
                 }
             }
-            LL_WARNS("Inventory") << "Inventory error: " << status << ": " << responder->getReason() << LL_ENDL;
+        }
+        if (!result.isMap())
+        {
+            LL_WARNS("Inventory") << "Inventory error: Malformed response contents" << LL_ENDL;
         }
         LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;
 	}
