@@ -207,6 +207,7 @@ void LLPrefsAscentSys::refreshValues()
     mDisplayScriptJumps			= gSavedSettings.getBOOL("AscentDisplayTotalScriptJumps");
     mNumScriptDiff              = gSavedSettings.getF32("Ascentnumscriptdiff");
 	mReplaceLinks				= gSavedSettings.getBOOL("SinguReplaceLinks");
+	mEmergencySeconds           = gSavedPerAccountSettings.getU32("EmergencyTeleportSeconds");
 	mLandmark			= gSavedPerAccountSettings.getString("EmergencyTeleportLandmark");
 	mLandmarkBackup			= gSavedPerAccountSettings.getString("EmergencyTeleportLandmarkBackup");
 
@@ -353,6 +354,7 @@ void LLPrefsAscentSys::cancel()
     gSavedSettings.setBOOL("AscentDisplayTotalScriptJumps", mDisplayScriptJumps);
     gSavedSettings.setF32("Ascentnumscriptdiff",            mNumScriptDiff);
 	gSavedSettings.setBOOL("SinguReplaceLinks",             mReplaceLinks);
+	gSavedPerAccountSettings.setU32("EmergencyTeleportSeconds", mEmergencySeconds);
 	gSavedPerAccountSettings.setString("EmergencyTeleportLandmark",      mLandmark);
 	gSavedPerAccountSettings.setString("EmergencyTeleportLandmarkBackup",      mLandmarkBackup);
 

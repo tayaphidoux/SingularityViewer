@@ -135,7 +135,8 @@
 			<spinner left_delta="270" name="ScriptJumpCount" tool_tip="Umbral para el mensaje de salto de scripts [Predeterminado: 100]"/>
 			<check_box label="Soporte API Restrained Love (RLVa)" name="RestrainedLove" tool_tip="Permite a los scripts tomar control del visor, si tienes vestido un objeto compatible con RLVa."/>
 			<check_box label="Reemplazar slurls y enlaces con etiquetas" name="SinguReplaceLinks"  tool_tip="Si bien puedes hacer clic con el botón derecho para ver a dónde conducen realmente al copiarlos, esto puede hacer que los enlaces sean confusos a primera vista."/>
-			<text name="EmergencyTeleportDesc" bottom_delta="-20" >Arrastra un hito para autoteleportarte en los últimos 20 segundos previos al reinicio de región</text>
+			<text name="EmergencyTeleportDesc" bottom_delta="-20" >Arrastra un hito debajo para autoteleportarte antes del reinicio de la región</text>
+			<spinner name="EmergencyTeleportSeconds" label="Comenzar intentos de teleporte antes del reinicio, en segundos"/>
 			<drop_target name="emergency_teleport_landmark_drop" bottom_delta="-15" width="450"/>
 			<text name="EmergencyTeleportBackupDesc" width="440" bottom_delta="-30" >
 				Suelta aquí un hito de resguardo para autoteleportarte, si ya tienes uno en el ítem anterior</text>
