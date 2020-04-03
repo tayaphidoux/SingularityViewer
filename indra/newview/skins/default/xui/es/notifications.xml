@@ -89,19 +89,19 @@
 Por favor, comprueba que tienes instalado el último Visor.
 
 Detalles del error: la notificación de nombre &apos;[_NAME]&apos; no se ha encontrado en notifications.xml.
-			<usetemplate name="okbutton" yestext="OK"/>
+			<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 
 	<notification name="FloaterNotFound">
 		Error: no se pudieron encontrar estos controles:
 
 [CONTROLS]
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 
 	<notification name="TutorialNotFound">
 		Actualmente, no hay un tutorial disponible.
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 
 	<notification name="GenericAlert">
@@ -120,7 +120,7 @@ Detalles del error: la notificación de nombre &apos;[_NAME]&apos; no se ha enco
 
 	<notification name="GenericAlertOK">
 		[MESSAGE]
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 	
 	<notification name="BadInstallation">
@@ -208,34 +208,34 @@ canceltext="Reiniciar" yestext="Si"/>
 		Ha ocurrido el siguiente error al copiar o mover a la carpeta de stock:
 
 &apos;[ERROR_CODE]&apos;
-        <usetemplate name="okbutton" yestext="OK"/>
+        <usetemplate name="okbutton" yestext="Aceptar"/>
     </notification>
 
     <notification name="MerchantPasteFailed">
 		Ha ocurrido el siguiente error al copiar o mover a la carpeta de stock:
 
 &apos;[ERROR_CODE]&apos;
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
     </notification>
 
     <notification name="MerchantTransactionFailed">
 		Ha ocurrido el siguiente error en la transacción al mercado:
 
         [ERROR_REASON][ERROR_DESCRIPTION]
-        <usetemplate name="okbutton" yestext="OK"/>
+        <usetemplate name="okbutton" yestext="Aceptar"/>
     </notification>
 
     <notification name="MerchantUnprocessableEntity">
 		No hemos podido incluir este producto en tus artículos o activar la carpeta de versión. Normalmente esto ocurre porque falta información en el formulario de descripción de los artículos, 
 aunque también puede deberse a errores en la estructura de carpetas. Puedes editar los artículos o comprobar si la carpeta de artículos tiene algún error.
-        <usetemplate name="okbutton" yestext="OK"/>
+        <usetemplate name="okbutton" yestext="Aceptar"/>
     </notification>
 
     <notification name="MerchantListingFailed">
 		Ha ocurrido el siguiente error en la lista de artículos del Mercado:
 
 &apos;[ERROR_CODE]&apos;
-        <usetemplate name="okbutton" yestext="OK"/>
+        <usetemplate name="okbutton" yestext="Aceptar"/>
     </notification>
 
     <notification name="MerchantFolderActivationFailed">
@@ -248,17 +248,17 @@ aunque también puede deberse a errores en la estructura de carpetas. Puedes edi
 
     <notification name="MerchantForceValidateListing">
 		Para crear tu lista de artículos, hemos corregido la jerarquía del contenido de la lista.
-		<usetemplate ignoretext="Recordarme que al crear una lista de artículos se modifica la jerarquía del contenido" name="okignore" yestext="OK"/>
+		<usetemplate ignoretext="Recordarme que al crear una lista de artículos se modifica la jerarquía del contenido" name="okignore" yestext="Aceptar"/>
     </notification>
 
     <notification name="ConfirmMerchantActiveChange">
 		Esta acción cambiará el contenido activo de esta lista de artículos. ¿Quieres continuar?
-        <usetemplate ignoretext="Confirmar antes de cambiar una lista de artículos activa en el Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+        <usetemplate ignoretext="Confirmar antes de cambiar una lista de artículos activa en el Mercado" name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
     </notification>
 
     <notification name="ConfirmMerchantMoveInventory">
 		Los artículos arrastrados a la ventana Artículos del mercado se mueven desde sus ubicaciones originales, no se copian. ¿Quieres continuar?
-        <usetemplate ignoretext="Confirmar antes de mover un artículo desde el inventario al Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+        <usetemplate ignoretext="Confirmar antes de mover un artículo desde el inventario al Mercado" name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
     </notification>
 
 	<notification name="ConfirmListingCutOrDelete">
@@ -266,7 +266,7 @@ aunque también puede deberse a errores en la estructura de carpetas. Puedes edi
 		Si deseas conservar los artículos del Mercado, mueve o elimina el contenido de la carpeta de versión que desees modificar. 
 		
 ¿Quieres continuar?
-        <usetemplate ignoretext="Confirmar antes de mover o eliminar una lista de artículos del Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+        <usetemplate ignoretext="Confirmar antes de mover o eliminar una lista de artículos del Mercado" name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
     </notification>
 
     <notification name="ConfirmCopyToMarketplace">
@@ -276,18 +276,18 @@ aunque también puede deberse a errores en la estructura de carpetas. Puedes edi
 
     <notification name="ConfirmMerchantUnlist">
 		Esta acción retirará esta lista de artículos. ¿Quieres continuar?
-        <usetemplate ignoretext="Confirmar antes retirar una lista de artículos activa en el Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+        <usetemplate ignoretext="Confirmar antes retirar una lista de artículos activa en el Mercado" name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
     </notification>
 
     <notification name="ConfirmMerchantClearVersion">
 		Esta acción desactivará la carpeta de versión de la lista de artículos actual. ¿Quieres continuar?
-        <usetemplate ignoretext="Confirmar antes de desactivar la carpeta de versión de una lista de artículos del Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+        <usetemplate ignoretext="Confirmar antes de desactivar la carpeta de versión de una lista de artículos del Mercado" name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
     </notification>
 
     <notification name="AlertMerchantListingNotUpdated">
 		                No se ha podido actualizar esta lista de artículos.
 [[URL] Haz clic aquí] para editarla en el Mercado.
-        <usetemplate name="okbutton" yestext="OK"/>
+        <usetemplate name="okbutton" yestext="Aceptar"/>
     </notification>
 
     <notification
@@ -303,22 +303,22 @@ aunque también puede deberse a errores en la estructura de carpetas. Puedes edi
 
     <notification name="AlertMerchantListingActivateRequired">
 		Esta lista de artículos contiene varias carpetas de versión o ninguna. Tendrás que seleccionar y activar una por tu cuenta más tarde. 
-		<usetemplate ignoretext="Mostrar una alerta de la activación de la carpeta de versión al crear una lista de artículos con varias carpetas de versión" name="okignore" yestext="OK"/>
+		<usetemplate ignoretext="Mostrar una alerta de la activación de la carpeta de versión al crear una lista de artículos con varias carpetas de versión" name="okignore" yestext="Aceptar"/>
     </notification>
 
     <notification name="AlertMerchantStockFolderSplit">
 		Hemos separado los artículos en stock de diferentes tipos en carpetas distintas, para que tu carpeta esté organizada de tal forma que podamos incluirla en el Mercado.
-		<usetemplate ignoretext="Mostrar alerta cuando la carpeta de stock se divida antes de incluirla en la lista" name="okignore" yestext="OK"/>
+		<usetemplate ignoretext="Mostrar alerta cuando la carpeta de stock se divida antes de incluirla en la lista" name="okignore" yestext="Aceptar"/>
     </notification>
 
     <notification name="AlertMerchantStockFolderEmpty">
 		Hemos retirado tu lista de artículos porque el stock está vacío. Para volver a publicar tus artículos, añade más unidades a la carpeta de stock.
-		<usetemplate ignoretext="Mostrar alerta cuando una lista de artículos se retire porque la carpeta de stock está vacía" name="okignore" yestext="OK"/>
+		<usetemplate ignoretext="Mostrar alerta cuando una lista de artículos se retire porque la carpeta de stock está vacía" name="okignore" yestext="Aceptar"/>
     </notification>
 
     <notification name="AlertMerchantVersionFolderEmpty">
 		Hemos retirado tu lista de artículos porque la carpeta de versión está vacía.  Para volver a publicar tus artículos, añade artículos a la carpeta de versión.
-		<usetemplate ignoretext="Mostrar una alerta cuando una lista de artículos se retire porque la carpeta de versión está vacía" name="okignore" yestext="OK"/>
+		<usetemplate ignoretext="Mostrar una alerta cuando una lista de artículos se retire porque la carpeta de versión está vacía" name="okignore" yestext="Aceptar"/>
     </notification>
 	
 	<notification name="CompileQueueSaveText">
@@ -352,7 +352,7 @@ Hubo un problema al subir la foto por la siguiente razón: [REASON]
 	
 	<notification name="FriendsAndGroupsOnly">
 		Los que no son amigos no sabrán que has elegido ignorar sus llamadas y mensajes instantáneos.
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 
 	<notification name="FavoritesOnLogin">
@@ -519,7 +519,56 @@ Los demás residentes podrán visitar la URL que hayas elegido cuando vean tu pe
 		Unirse a este grupo cuesta [CURRENCY][COST].
 No tienes suficientes [CURRENCY] para unirte a este grupo.
 	</notification>
-	
+
+	<notification name="CreateGroupCost">
+		Crear este grupo te costará L$[COST].
+		Los grupos necesitan mas de un miembro o serán eliminados.
+		Por favor, invita a nuevos miembros dentro de las 48 hs.
+		<usetemplate canceltext="Cancelar" name="okcancelbuttons" notext="Cancelar" yestext="Crear grupo por L$[COST]"/>
+	</notification>
+
+	<notification name="JoinGroupInaccessible">
+		Este grupo no es accesible para ti.
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+
+	<notification name="JoinGroupError">
+		Ha ocurrido un error procesando tu petición de ingresar al grupo.
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+
+	<notification name="JoinGroupErrorReason">
+		Imposible unirse al grupo: [reason]
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+
+	<notification name="JoinGroupTrialUser">
+		Lo sentimos, los usuarios de prueba no pueden unirse a los grupos.
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+
+	<notification name="JoinGroupMaxGroups">
+		No puedes unirte al grupo &apos;[group_name]&apos;:
+		Ya perteneces a [group_count] grupos, la cantidad máxima es de [max_groups]
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+
+	<notification name="JoinGroupClosedEnrollment">
+		No puedes unirte al grupo &apos;[group_name]&apos;:
+		El grupo ya no admite más miembros.
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+
+	<notification name="JoinGroupSuccess" >
+		Ahora formas parte del grupo
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+  
+	<notification name="JoinGroupInsufficientFunds">
+		No se pudo transferir los [CURRENCY][membership_fee]  necesarios para pagar la membresía.
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+
 	<notification name="LandBuyPass">
 		Por [CURRENCY][COST] puedes entrar a este terreno (&apos;[PARCEL_NAME]&apos;) durante [TIME] horas.  ¿Comprar un pase?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
@@ -829,7 +878,7 @@ El objeto debe de haber sido borrado o estar fuera de rango.
 
 	<notification name="MediaFileDownloadUnsupported" label="">
 		Has solicitado descargar un archivo, lo cual no está soportado dentro de [SECOND_LIFE].
-		<usetemplate ignoretext="Advertir sobre descarga de archivos no soportados" name="okignore" yestext="OK"/>
+		<usetemplate ignoretext="Advertir sobre descarga de archivos no soportados" name="okignore" yestext="Aceptar"/>
 	</notification>
 	
 	<notification name="CannotWriteFile">
@@ -1062,7 +1111,7 @@ Podría ser [VALIDS]
 	<notification name="CorruptedProtectedDataStore">
 		No podemos completar tu nombre de usuario y contraseña. Esto puede suceder cuando cambia la configuración de la red
 
-	<usetemplate name="okbutton" yestext="OK"/>
+	<usetemplate name="okbutton" yestext="Aceptar"/>
   </notification>
 	
 	<notification name="CorruptResourceFile">
@@ -2289,6 +2338,36 @@ Se cambiarán miles de regiones, y se provocará un colapso en el espacio del se
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todos los estados" yestext="Este estado"/>
 	</notification>
 	
+	<notification label="Seleccionar estado" name="EstateAllowedExperienceAdd">
+		¿Añadir a la lista de permitidos solamente en este estado o en [ALL_ESTATES]?
+		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todos los estados" yestext="Este estado"/>
+	</notification>
+
+	<notification label="Seleccionar estado" name="EstateAllowedExperienceRemove">
+		¿Quitar de la lista de permitidos solamente en este estado o en [ALL_ESTATES]?
+		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todos los estados" yestext="Este estado"/>
+	</notification>
+
+	<notification label="Seleccionar estado" name="EstateBlockedExperienceAdd">
+		¿Añadir a la lista de bloqueados solamente para este estado o en [ALL_ESTATES]?
+		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todos los estados" yestext="Este estado"/>
+	</notification>
+
+	<notification label="Seleccionar estadoe" name="EstateBlockedExperienceRemove">
+		¿Quitar de la lista de bloqueados solamente para este estado o en [ALL_ESTATES]?
+		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todos los estados" yestext="Este estado"/>
+	</notification>
+
+	<notification label="Seleccionar estado" name="EstateTrustedExperienceAdd">
+		¿Añadir a la lista de claves solamente para este estado o en [ALL_ESTATES]?
+		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todos los estados" yestext="Este estado"/>
+	</notification>
+
+	<notification label="Seleccionar estado" name="EstateTrustedExperienceRemove">
+		¿Quitar de la lista de claves solamente para este estado o en [ALL_ESTATES]?
+		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todos los estados" yestext="Este estado"/>
+	</notification>
+	
 	<notification label="Confirmar la expulsión" name="EstateKickUser">
 		¿Expulsar a [EVIL_USER] de este Estado?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
@@ -2303,6 +2382,11 @@ Se cambiarán miles de regiones, y se provocará un colapso en el espacio del se
 		¿Estás seguro de que quieres cambiar el contrato del Estado?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
 	</notification>
+
+	<notification name="EstateParcelAccessOverride">
+		Si esta opción no está seleccionada, se anularán las restricciones establecidas por los dueños de parcelas para evitar provocaciones, matener la privacidad o proteger a los residentes menores de material para adultos. Por favor, consulta con los dueños de parcelas según sea necesario.
+		<usetemplate name="okbutton" yestext="Aceptar"/>
+  </notification>
 	
 	<notification name="RegionEntryAccessBlocked">
 		Tus preferencias de contenido actuales te impiden visitar la región que has seleccionado.  Puedes cambiar las preferencias en Editar &gt; Preferencias &gt; General.
@@ -3936,7 +4020,6 @@ Por favor, reinténtalo en unos momentos.
 		<form name="form">
 			<button name="Teleport" text="Teleportar"/>
 			<button name="Cancel" text="Cancelar"/>
-			<button name="Profile" text="Perfil"/>
 		</form>
 	</notification>
 
@@ -3953,7 +4036,6 @@ Por favor, reinténtalo en unos momentos.
 		<form name="form">
 			<button name="Yes" text="Si"/>
 			<button name="No" text="No"/>
-			<button name="Profile" text="Perfil"/>
 		</form>
 	</notification>
 	
@@ -3967,7 +4049,7 @@ Por favor, reinténtalo en unos momentos.
 	</notification>
 	
 	<notification name="OfferFriendship">
-		[NAME] te está ofreciendo amistad.
+		[NAME_SLURL] te está ofreciendo amistad.
 
 [MESSAGE]
 
@@ -3976,7 +4058,6 @@ Por favor, reinténtalo en unos momentos.
 			<button name="Accept" text="Aceptar"/>
 			<button name="Decline" text="Rehusar"/>
 			<button name="Ignore" text="Ignorar"/>
-			<button name="Profile" text="Perfil"/>
 		</form>
 	</notification>
 
@@ -3985,14 +4066,13 @@ Por favor, reinténtalo en unos momentos.
 	</notification>
 
 	<notification name="OfferFriendshipNoMessage">
-		[NAME] te está ofreciendo amistad.
+		[NAME_SLURL] te está ofreciendo amistad.
 
 (Por defecto, podrás ver si están conectados los demás).
 		<form name="form">
 			<button name="Accept" text="Aceptar"/>
 			<button name="Decline" text="Rehusar"/>
 			<button name="Ignore" text="Ignorar"/>
-			<button name="Profile" text="Perfil"/>
 		</form>
 	</notification>
 	
@@ -4002,6 +4082,14 @@ Por favor, reinténtalo en unos momentos.
 	
 	<notification name="FriendshipDeclined">
 		[NAME] ha rehusado tu oferta de amistad.
+	</notification>
+
+	<notification name="FriendshipAcceptedByMe">
+		Aceptado el ofrecimiento de amistad de [NAME_SLURL]. [MESSAGE]
+	</notification>
+
+	<notification name="FriendshipDeclinedByMe">
+		Rehusado el ofrecimiento de amistad de [NAME_SLURL]. [MESSAGE]
 	</notification>
 
 	<notification name="FriendshipDissolved">
@@ -4064,13 +4152,94 @@ Del objeto: [OBJECTNAME]; propiedad de: [NAME]?
 		</form>
 	</notification>
 	
+	<notification name="ExperienceAcquireFailed">
+		No se puede adquirir una experiencia nueva:
+		[ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+
+	<notification name="NotInGroupExperienceProfileMessage">
+		Se ha motido un cambio en el grupo de la experiencia porque el propietario no es miembro del grupo seleccionado.
+	</notification>
+
+	<notification name="UneditableExperienceProfileMessage">
+		El campo no modificable '[field]' se ha omitido al actualizar el perfil de la experiencia.
+	</notification>
+
+	<notification name="RestrictedToOwnerExperienceProfileMessage">
+		Cambios omitidos en el campo '[field]' que solo puede configurar el propietario de la experiencia.
+	</notification>
+
+	<notification name="MaturityRatingExceedsOwnerExperienceProfileMessage">
+		No puedes definir una calificación de contenido de una experiencia con un nivel superior al del propietario.
+	</notification>
+
+	<notification name="RestrictedTermExperienceProfileMessage">
+		Las condiciones siguientes han impedido la actualización del nombre o la descripción del perfil de la experiencia: [extra_info]
+	</notification>
+  
+	<notification name="TeleportedHomeExperienceRemoved">
+		Has sido teleportado desde la región [region_name] porque al quitar la experiencia secondlife:///app/experience/[public_id]/profile ya no tienes permiso para entrar en la región.
+		<form name="form">
+			<ignore name="ignore" text="Expulsado de la región por quitar una experiencia"/>
+		</form>
+	</notification>
+
+	<notification name="TrustedExperienceEntry">
+		La participación en la experiencia clave secondlife:///app/experience/[public_id]/profile te otorga permiso para entrar en la región [region_name]. Si quitas esta experiencia, puede que seas expulsado de la región.
+		<form name="form">
+			<ignore name="ignore" text="Admitido en una región por una experiencia"/>
+		</form>
+	</notification>
+
+	<notification name="TrustedExperiencesAvailable">
+		No tienes permiso de acceso a este destino. Puedes obtener permiso para entrar en la región si aceptas una de las siguientes experiencias:
+
+		[EXPERIENCE_LIST]
+
+		Pueden estar disponibles otras experiencias clave.
+	</notification>
+    
+	<notification name="ExperienceEvent">
+		La experiencia secondlife:///app/experience/[public_id]/profile permitió un objeto[EventType].
+		Propietario:secondlife:///app/agent/[OwnerID]/inspect
+		Nombre del objeto: [ObjectName]
+		Nombre de la parcela: [ParcelName]
+	</notification>
+
+	<notification name="ExperienceEventAttachment">
+		La experiencia secondlife:///app/experience/[public_id]/profile permitió un anexo [EventType]-
+		Propietario: secondlife:///app/agent/[OwnerID]/inspect
+	</notification>
+  
+	<notification name="ScriptQuestionExperience">
+		&apos;[OBJECTNAME]&apos;, un objeto de propiedad de &apos;[NAME]&apos;, solicita tu participación en la
+		experiencia[GRID_WIDE]:
+
+[EXPERIENCE]
+
+Una vez concedido el permiso, este mensaje no volverá a aparecer para la experiencia salvo que se revoque en el perfil de la experiencia.
+
+Los scripts asociados a esta experiencia podrán hacer lo siguiente en las regiones donde la experiencia esté activa:
+
+[QUESTIONS] 
+¿lLo aceptas?
+		<form name="form">
+			<button name="BlockExperience" text="Bloquear experiencia"/>
+			<button name="Mute" text="Bloquear objeto"/>
+			<button name="Yes" text="Si"/>
+			<button name="No" text="No"/>
+		</form>
+	</notification>	
+	
 	<notification name="ScriptQuestionCaution">
-		&apos;[OBJECTNAME]&apos;, un objeto propiedad de &apos;[NAME]&apos;, querría:
+		Atención: El objeto &apos;[OBJECTNAME]&apos;, solicita un acceso pleno a tu cuenta de dólares Linden. Si le 
+		autorizas el acceso, podrá retirar fondos de tu cuenta en cualquier momento o vaciarla por completo, cuando lo desee y sin más advertencias. 
 
-[QUESTIONS]
-Si no confías en este objeto y su creador, debes denegar la solicitud. Para más información, pulsa el botón Detalles.
+[FOOTERTEXT]
 
-¿Autorizar esta petición?
+		No autorices el acceso a tu cuenta si no conoces cuál es la razón exacta.
+
 		<form name="form">
 			<button name="Grant" text="Autorizar"/>
 			<button name="Deny" text="Denegar"/>
@@ -4079,9 +4248,10 @@ Si no confías en este objeto y su creador, debes denegar la solicitud. Para má
 	</notification>
 	
 	<notification name="ScriptDialog">
-		&apos;[TITLE]&apos; de [NAME]
-[MESSAGE]
+		&apos;[TITLE]&apos; de [NAME] (ch[CHANNEL])
+[MESSAGE] 
 		<form name="form">
+			<button name="Mute" text="Bloquear"/>
 			<button name="Ignore" text="Ignorar"/>
 		</form>
 	</notification>
@@ -4090,6 +4260,7 @@ Si no confías en este objeto y su creador, debes denegar la solicitud. Para má
 		&apos;[TITLE]&apos; de [GROUPNAME]
 [MESSAGE]
 		<form name="form">
+			<button name="Mute" text="Bloquear"/>
 			<button name="Ignore" text="Ignorar"/>
 		</form>
 	</notification>
@@ -4481,7 +4652,7 @@ Avatar '[NAME]' ha abandonado la edición de su Apariencia.
 	<notification name="NoConnect">
 		Tenemos problemas de conexión con [PROTOCOL] [HOSTID].
 Comprueba la configuración de la red y del servidor de seguridad.
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
   
 	<notification name="NoVoiceConnect">
@@ -4531,62 +4702,62 @@ No se puede aplicar esta textura en forma inmediata ya que es no copiable y/o no
 	
 		<notification name="SOCKS_NOT_PERMITTED">
 		El Proxy Socks5 "[HOST]:[PORT]" rechazó la conexión, no permitido por el conjunto de reglas.
-			<usetemplate name="okbutton" yestext="OK"/>
+			<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 	
 	<notification name="SOCKS_CONNECT_ERROR">
 		El Proxy Socks5 "[HOST]:[PORT]" rechazó la conexión, no se puede abrir el canal TCP
-			<usetemplate name="okbutton" yestext="OK"/>
+			<usetemplate name="okbutton" yestext="Aceptar"/>
   	</notification>
 	
 	<notification name="SOCKS_NOT_ACCEPTABLE">
 		El Proxy Socks5 "[HOST]:[PORT]" rechazó el sistema de autenticación seleccionado.
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 	
 	<notification name="SOCKS_AUTH_FAIL">
 		El Proxy Socks5 [HOST]:[PORT]" ha reportado que tus credenciales son inválidas
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 	
 	<notification name="SOCKS_UDP_FWD_NOT_GRANTED">
 		El Proxy Socks5 "[HOST]:[PORT]" rechazó el requerimiento UDP
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 	
 	<notification name="SOCKS_HOST_CONNECT_FAILED">
 		No se puede conectar al Servidor proxy SOCKS5 "[HOST]:[PORT]"
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>	
 	
 	<notification name="SOCKS_UNKNOWN_STATUS">
 		Error de proxy desconocido con el servidor "[HOST]:[PORT]".
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 
 	<notification name="SOCKS_INVALID_HOST">
 		Dirección o puerto de proxy SOCKS no válidos "[HOST]:[PORT]".
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 
 	<notification name="SOCKS_BAD_CREDS">
 		Nombre de usuario o contraseña de SOCKS 5 no válidos.
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 
 	<notification name="PROXY_INVALID_HTTP_HOST">
 		Dirección o puerto de proxy HTTP no válidos "[HOST]:[PORT]".
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 
 	<notification name="PROXY_INVALID_SOCKS_HOST">
 		Dirección o puerto de proxy SOCKS no válidos "[HOST]:[PORT]".
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 
 	<notification name="ChangeProxySettings">
 		La configuración del puerto se activará cuando reinicies [APP_NAME]
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 
 	<notification name="AuthRequest">
@@ -4656,7 +4827,7 @@ No se puede aplicar esta textura en forma inmediata ya que es no copiable y/o no
 
 	<notification name="ConfirmHideUI" label="">
 		Esta acción ocultará todos los botones y elementos de menú. Para restaurarlos, pulsa otra vez en [SHORTCUT].
-		<usetemplate name="okcancelignore" yestext="OK" notext="Cancelar" ignoretext="Confirmar antes de ocultar la IU"/>
+		<usetemplate name="okcancelignore" yestext="Aceptar" notext="Cancelar" ignoretext="Confirmar antes de ocultar la IU"/>
 	</notification>
 
 	<notification name="PathfindingLinksets_WarnOnPhantom">
@@ -5833,17 +6004,17 @@ porque la parcela está llena.
 
 	<notification name="PreferenceChatClearLog">
 		Esto eliminará los registros de conversaciones anteriores y las copias de seguridad de ese archivo.
-		<usetemplate ignoretext="Confirmar antes de eliminar el registro de conversaciones anteriores." name="okcancelignore" notext="Cancelar" yestext="OK"/>
+		<usetemplate ignoretext="Confirmar antes de eliminar el registro de conversaciones anteriores." name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
 	</notification>
     
 	<notification name="PreferenceChatDeleteTranscripts">
 		Esta acción eliminará las transcripciones de todas las conversaciones anteriores. La lista de conversaciones pasadas no resultará afectada. Se eliminarán de la carpeta [FOLDER] todos los archivos que tengan el sufijo .txt y txt.backup
-		<usetemplate ignoretext="Confirmar antes de eliminar transcripciones." name="okcancelignore" notext="Cancelar" yestext="OK"/>
+		<usetemplate ignoretext="Confirmar antes de eliminar transcripciones." name="okcancelignore" notext="Cancelar" yestext="Aceptar"/>
   </notification>
 
 	<notification name="PreferenceChatPathChanged">
 		No se pueden mover los archivos. Ruta anterior restaurada.
-		<usetemplate ignoretext="No se pueden mover los archivos. Ruta anterior restaurada." name="okignore" yestext="OK"/>
+		<usetemplate ignoretext="No se pueden mover los archivos. Ruta anterior restaurada." name="okignore" yestext="Aceptar"/>
   </notification>
 
 	<notification name="DefaultObjectPermissions">
@@ -5903,7 +6074,7 @@ la región [REGION]?
 	</notification>
 
 	<notification name="AntiSpamNewlineFlood">
-		AntiSpam: Se ha bloqueado newline flood de [SOURCE] ( [AMOUNT] newlines).
+		AntiSpam: Se ha bloqueado newline flood de secondlife:///app/agent/[SOURCE]/about ( [AMOUNT] newlines).
 	</notification>
 
 	<notification name="BulkTemporaryUpload">
@@ -6097,36 +6268,33 @@ Tu cuerpo, piel, pelo u ojos podrían ser los predeterminados
 	</notification>
 
 	<notification label="Actualización Disponible" name="RecommendedUpdate">
-Una nueva versión, [RECOMMENDED_VER], para Singularity[TYPE], está disponible.
+Una nueva versión, [RECOMMENDED_VER], para [SHORT_APP_NAME].
 
 Pulsa [Visit Page] para abrir
 [URL]
 para mayor información y enlaces de descarga para esta nueva versión.
-		<tag>confirm</tag>
 		<usetemplate name="okcancelignorecanceldefault" notext="Luego" yestext="Visitar Página" ignoretext="Ignorar notificaciones de actualizaciones recomendadas"/>
 	</notification>
 	
 	<notification label="¡Actualización Crítical!" name="UrgentUpdate">
-¡Tu versión de Singularity[TYPE] se encuentra críticamente desactualizada!
+¡Tu versión de [SHORT_APP_NAME] se encuentra críticamente desactualizada!
 
 Se recomienda ENÉRGICAMENTE descargues e instales una nueva versión de este visor para evitar problemas de compatibilidad con el grid y/o de seguridad.
 
 Pulsa [Visit Page] para abrir
 [URL]
 para mayor información y enlaces de descarga de nuevas versiones.
-		<tag>confirm</tag>
 		<usetemplate name="okcancelignorecanceldefault" notext="Luego" yestext="Visitar Página" ignoretext="Ignorar notificaciones de Actualizaciones Críticas"/>
 	</notification>
 	
 	<notification label="¡Actualización Crítica"  name="UrgentUpdateModal">
-¡Tu versión de Singularity[TYPE] se encuentra críticamente desactualizada!
+¡Tu versión de [SHORT_APP_NAME] se encuentra críticamente desactualizada!
 
 Se recomienda ENÉRGICAMENTE descargues e instales una nueva versión de este visor para evitar problemas de compatibilidad con el grid y/o de seguridad.
 
 Pulsa [Visit Page] para abrir
 [URL]
 para mayor información y enlaces de descarga de nuevas versiones.
-		<tag>confirm</tag>
 		<usetemplate name="okcancelignorecanceldefault" notext="Luego" yestext="Visitar Página" ignoretext="Ignorar alertas de actualizaciones críticas"/>
 	</notification>
 	

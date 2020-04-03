@@ -9950,7 +9950,7 @@ You cannot copy your selection because the object '[OBJ_NAME]' is not transferra
    name="NoPermsNoRemoval"
    type="notify">
    <tag>fail</tag>
-Removal of the object '[OBJ_NAME]' from the simulator is disallowed by the permissions system.
+Removal of the object '[OBJ_NAME]' from the region is disallowed by the permissions system.
   </notification>
 
   <notification
@@ -10221,7 +10221,7 @@ Unable to add script!
    name="AssetServerTimeoutObjReturn"
    type="notify">
    <tag>fail</tag>
-Asset server didn't respond in a timely fashion.  Object returned to sim.
+Asset server didn't respond in a timely fashion.  Object returned to region.
   </notification>
 
   <notification
@@ -11694,7 +11694,7 @@ Media/audio URL blocked for [DOMAIN]
    name="RadarChatKeysRequest"
    type="alertmodal">
 An object owned by you has requested keys from your radar.
-Would you like to enable announcing keys to objects in the sim?
+Would you like to enable announcing keys to objects in the region?
     <usetemplate
      name="yesnocancelbuttons"
      yestext="Yes"

@@ -14,6 +14,7 @@
     name="loading"
     value="loading..."/>
   <layout_stack
+	 name="experience_panel"
     top="0"
     left="4" 
     right="-1"
@@ -21,6 +22,7 @@
     orientation="vertical"
     follows="all">
     <layout_panel
+		name="event_panel"
       bottom="0"
       left="1"
       right="-1"
