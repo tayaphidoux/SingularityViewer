@@ -961,3 +961,4 @@ P(wholeModelFeeResponder);
 P(wholeModelUploadResponder);
 P2(XMLRPCResponder,								connect_40s);
 P(getUpdateInfoResponder);
+P2(AISAPIResponder, connect_60s);

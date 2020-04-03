@@ -40,6 +40,8 @@
 /// Classes for AISv3 support.
 ///----------------------------------------------------------------------------
 
+extern AIHTTPTimeoutPolicy AISAPIResponder_timeout;
+
 class AISCommand final : public LLHTTPClient::ResponderWithCompleted
 {
 public:
@@ -54,8 +56,11 @@ public:
 		mType(type)
 	{}
 	
+	virtual AIHTTPTimeoutPolicy const& getHTTPTimeoutPolicy(void) const { return AISAPIResponder_timeout; }
+
 	void run( command_func_type func )
 	{
+		LL_WARNS("Inventory") << "Sending request for " << getName() <<": " << mURL << LL_ENDL;
 		(mCommandFunc = func)();
 	}
 
@@ -64,6 +69,7 @@ public:
 		return mName;
 	}
 
+private:
 	void markComplete()
 	{
 		// Command func holds a reference to self, need to release it
@@ -72,34 +78,39 @@ public:
 		mRetryPolicy->onSuccess();
 	}
 
-	void malformedResponse() { mStatus = HTTP_INTERNAL_ERROR_OTHER; mReason = llformat("Malformed response contents (original code: %d)", mStatus); }
-
 	bool onFailure()
 	{
-		bool retry = mStatus != HTTP_INTERNAL_ERROR_OTHER && mStatus != 410; // We handle these and stop
-		LL_WARNS("Inventory") << "Inventory error: " << dumpResponse() << LL_ENDL;
-		if (retry) mRetryPolicy->onFailure(mStatus, getResponseHeaders());
+		mRetryPolicy->onFailure(mStatus, getResponseHeaders());
 		F32 seconds_to_wait;
-		if (retry && mRetryPolicy->shouldRetry(seconds_to_wait))
+		if (mRetryPolicy->shouldRetry(seconds_to_wait))
 		{
+			LL_WARNS("Inventory") << "Retrying in " << seconds_to_wait << "seconds due to inventory error for " << getName() <<": " << dumpResponse() << LL_ENDL;
 			doAfterInterval(mCommandFunc,seconds_to_wait);
+			return true;
 		}
 		else
 		{
 			// Command func holds a reference to self, need to release it
 			// after a success or final failure.
 			// *TODO: Notify user?  This seems bad.
+			LL_WARNS("Inventory") << "Abort due to inventory error for " << getName() <<": " << dumpResponse() << LL_ENDL;
 			mCommandFunc = no_op;
+			return false;
 		}
-		return retry;
 	}
 
 protected:
 	void httpCompleted() override
 	{
-		AISAPI::InvokeAISCommandCoro(this, getURL(), mTargetId, getContent(), mCompletionFunc, (AISAPI::COMMAND_TYPE)mType);
+		// Continue through if successful or longer retrying,
+		if (isGoodStatus(mStatus) || !onFailure())
+		{
+			markComplete();
+			AISAPI::InvokeAISCommandCoro(this, getURL(), mTargetId, getContent(), mCompletionFunc, (AISAPI::COMMAND_TYPE)mType);
+		}
 	}
 
+private:
 	command_func_type mCommandFunc;
 	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
 	AISAPI::completion_t mCompletionFunc;
@@ -312,20 +323,20 @@ void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t 
     boost::intrusive_ptr< AISCommand > responder = new AISCommand(UPDATEITEM, "UpdateItem",itemId, callback);
 	responder->run(boost::bind(&LLHTTPClient::patch, url, updates, responder/*,*/ DEBUG_CURLIO_PARAM(debug_off), keep_alive, (AIStateMachine*)NULL, 0));
 }
-void AISAPI::InvokeAISCommandCoro(AISCommand* responder,
+void AISAPI::InvokeAISCommandCoro(LLHTTPClient::ResponderWithCompleted* responder,
         std::string url,
         LLUUID targetId, LLSD result, completion_t callback, COMMAND_TYPE type)
 {
     LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 
-	auto status = responder->getStatus();
+    auto status = responder->getStatus();
 
     if (!responder->isGoodStatus(status) || !result.isMap())
-	{
-		if (!result.isMap())
-		{
-			responder->malformedResponse();
-		}
+    {
+        if (!result.isMap())
+        {
+            LL_WARNS("Inventory") << "Inventory error: " << HTTP_INTERNAL_ERROR_OTHER << ": " << "Malformed response contents" << LL_ENDL;
+        }
         else if (status == 410) //GONE
         {
             // Item does not exist or was already deleted from server.
@@ -359,12 +370,10 @@ void AISAPI::InvokeAISCommandCoro(AISCommand* responder,
                     gInventory.onObjectDeletedFromServer(targetId);
                 }
             }
+            LL_WARNS("Inventory") << "Inventory error: " << status << ": " << responder->getReason() << LL_ENDL;
         }
-        // Keep these statuses accounted for in the responder too
-        if (responder->onFailure()) // If we're retrying, exit early.
-            return;
+        LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;
 	}
-	else responder->markComplete();
 		
 	gInventory.onAISUpdateReceived("AISCommand", result);
 
