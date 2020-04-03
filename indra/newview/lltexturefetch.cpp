@@ -872,7 +872,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mCacheReadCount(0U),
 	  mCacheWriteCount(0U)
 {
-	mCanUseNET = mUrl.empty() ;
+	mCanUseNET = mUrl.empty() && !gHippoGridManager->getConnectedGrid()->isSecondLife();
 
 	if (!mCanUseNET)
 	{
@@ -1236,9 +1236,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	if (mState == LOAD_FROM_NETWORK)
 	{
 		static LLCachedControl<bool> use_http(gSavedSettings,"ImagePipelineUseHTTP");
+		bool is_sl = gHippoGridManager->getConnectedGrid()->isSecondLife();
 
 // 		if (mHost != LLHost::invalid) use_http = false;
-		if (use_http && mCanUseHTTP && mUrl.empty())	// get http url.
+		if ((is_sl || use_http) && mCanUseHTTP && mUrl.empty())	// get http url.
 		{
 			LLViewerRegion* region = NULL;
 			if (mHost == LLHost::invalid)
@@ -1280,6 +1281,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mWriteToCacheState = CAN_WRITE;
 		}
 		if (!mUrl.empty() && SGHostBlackList::isBlacklisted(mUrl)){
+			LL_DEBUGS("Texture") << mID << "Blacklisted" << LL_ENDL;
 			mCanUseHTTP = false;
 		}
 		if (mCanUseHTTP && !mUrl.empty())
@@ -1292,7 +1294,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			// don't return, fall through to next state
 		}
-		else if (mSentRequest == UNSENT && mCanUseNET)
+		else if (!mCanUseNET)
+		{
+			LL_WARNS(LOG_TXT) << mID << "Unable to retrieve texture via HTTP and UDP unavailable (probable 404): " << mUrl << LL_ENDL;
+			return true;
+		}
+		else if (mSentRequest == UNSENT)
 		{
 			LL_DEBUGS("Texture") << mID << " moving to UDP fetch. mSentRequest=" << mSentRequest << " mCanUseNET = " << mCanUseNET << LL_ENDL;
 			setState(SEND_UDP_REQ);
@@ -1821,6 +1828,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		S32 discard = mHaveAllData ? 0 : mLoadedDiscard;
 		U32 image_priority = LLWorkerThread::PRIORITY_NORMAL | mWorkPriority;
 		mDecoded  = FALSE;
+		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 		setState(DECODE_IMAGE_UPDATE);
 		LL_DEBUGS(LOG_TXT) << mID << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << discard
 				<< " All Data: " << mHaveAllData << LL_ENDL;
