@@ -39,7 +39,6 @@
 
 class LLAvatarName;
 class LLIMSpeakerMgr;
-class LLIMInfo;
 class LLInventoryCategory;
 class LLInventoryItem;
 class LLLineEditor;
