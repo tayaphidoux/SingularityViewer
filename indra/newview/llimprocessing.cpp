@@ -641,8 +641,7 @@ void LLIMProcessing::processNewMessage(const LLUUID& from_id,
 		{
 			RlvUtil::sendBusyMessage(from_id, RlvStrings::getVersion(), session_id);
 			// We won't receive a typing stop message, so do that manually (see comment at the end of LLFloaterIMPanel::sendMsg)
-			LLPointer<LLIMInfo> im_info = new LLIMInfo(gMessageSystem);
-			gIMMgr->processIMTypingStop(im_info);
+			gIMMgr->processIMTypingStop(from_id, dialog);
 		}
 // [/RLVa:KB]
 		else if (offline == IM_ONLINE
@@ -918,16 +917,15 @@ void LLIMProcessing::processNewMessage(const LLUUID& from_id,
 					autoresponder_finish(show_autoresponded, session_id, from_id, name, itemid, is_muted);
 				}
 			}
-			LLPointer<LLIMInfo> im_info = new LLIMInfo(gMessageSystem);
-			gIMMgr->processIMTypingStart(im_info);
+
+            gIMMgr->processIMTypingStart(from_id, dialog);
 			script_msg_api(from_id.asString() + ", 4");
 		}
 		break;
 
 	case IM_TYPING_STOP:
 		{
-			LLPointer<LLIMInfo> im_info = new LLIMInfo(gMessageSystem);
-			gIMMgr->processIMTypingStop(im_info);
+            gIMMgr->processIMTypingStop(from_id, dialog);
 			script_msg_api(from_id.asString() + ", 5");
 		}
 		break;

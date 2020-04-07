@@ -126,7 +126,7 @@ public:
 	void sessionInitReplyReceived(const LLUUID& im_session_id);
 
 	// Handle other participant in the session typing.
-	void processIMTyping(const LLIMInfo* im_info, bool typing);
+	void processIMTyping(const LLUUID& from_id, BOOL typing);
 	static void chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata);
 
 	//show error statuses to the user
@@ -177,10 +177,10 @@ private:
 	void setTyping(bool typing);
 
 	// Add the "User is typing..." indicator.
-	void addTypingIndicator(const std::string &name);
+	void addTypingIndicator(const LLUUID& from_id);
 
 	// Remove the "User is typing..." indicator.
-	void removeTypingIndicator(const LLIMInfo* im_info);
+	void removeTypingIndicator(const LLUUID& from_id = LLUUID::null);
 
 	void sendTypingState(bool typing);
 

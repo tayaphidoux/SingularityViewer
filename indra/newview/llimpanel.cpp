@@ -801,7 +801,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, LLColor4 incol
 	// Now we're adding the actual line of text, so erase the 
 	// "Foo is typing..." text segment, and the optional timestamp
 	// if it was present. JC
-	removeTypingIndicator(NULL);
+	removeTypingIndicator(source);
 
 	// Actually add the line
 	bool prepend_newline = true;
@@ -1458,7 +1458,7 @@ void LLFloaterIMPanel::onSendMsg()
 
 					bool other_was_typing = mOtherTyping;
 					addHistoryLine(utf8_text, gSavedSettings.getColor("UserChatColor"), true, gAgentID, name);
-					if (other_was_typing) addTypingIndicator(mOtherTypingName);
+					if (other_was_typing) addTypingIndicator(mOtherParticipantUUID);
 				}
 			}
 			else
@@ -1588,53 +1588,84 @@ void LLFloaterIMPanel::sendTypingState(bool typing)
 }
 
 
-void LLFloaterIMPanel::processIMTyping(const LLIMInfo* im_info, bool typing)
+void LLFloaterIMPanel::processIMTyping(const LLUUID& from_id, BOOL typing)
 {
 	if (typing)
 	{
 		// other user started typing
-		std::string name;
-		if (!LLAvatarNameCache::getNSName(im_info->mFromID, name)) name = im_info->mName;
-		addTypingIndicator(name);
+		addTypingIndicator(from_id);
 	}
 	else
 	{
 		// other user stopped typing
-		removeTypingIndicator(im_info);
+		removeTypingIndicator(from_id);
 	}
 }
 
 
-void LLFloaterIMPanel::addTypingIndicator(const std::string &name)
+void LLFloaterIMPanel::addTypingIndicator(const LLUUID& from_id)
 {
-	// we may have lost a "stop-typing" packet, don't add it twice
-	if (!mOtherTyping)
+	// Singu TODO: Actually implement this?
+/* Operation of "<name> is typing" state machine:
+Not Typing state:
+
+    User types in P2P IM chat ... Send Start Typing, save Started time,
+    start Idle Timer (N seconds) go to Typing state
+
+Typing State:
+
+    User enters a non-return character: if Now - Started > ME_TYPING_TIMEOUT, send
+    Start Typing, restart Idle Timer
+    User enters a return character: stop Idle Timer, send IM and Stop
+    Typing, go to Not Typing state
+    Idle Timer expires: send Stop Typing, go to Not Typing state
+
+The recipient has a complementary state machine in which a Start Typing
+that is not followed by either an IM or another Start Typing within OTHER_TYPING_TIMEOUT
+seconds switches the sender out of typing state.
+
+This has the nice quality of being self-healing for lost start/stop
+messages while adding messages only for the (relatively rare) case of a
+user who types a very long message (one that takes more than ME_TYPING_TIMEOUT seconds
+to type).
+
+Note: OTHER_TYPING_TIMEOUT must be > ME_TYPING_TIMEOUT for proper operation of the state machine
+
+*/
+
+	// We may have lost a "stop-typing" packet, don't add it twice
+	if (from_id.notNull() && !mOtherTyping)
 	{
+		mOtherTyping = true;
+		// Save im_info so that removeTypingIndicator can be properly called because a timeout has occurred
+		LLAvatarNameCache::getNSName(from_id, mOtherTypingName);
+
 		mTypingLineStartIndex = mHistoryEditor->getWText().length();
 		LLUIString typing_start = sTypingStartString;
-		typing_start.setArg("[NAME]", name);
+		typing_start.setArg("[NAME]", mOtherTypingName);
 		addHistoryLine(typing_start, gSavedSettings.getColor4("SystemChatColor"), false);
-		mOtherTypingName = name;
-		mOtherTyping = true;
+
+		// Update speaker
+		LLIMSpeakerMgr* speaker_mgr = mSpeakers;
+		if ( speaker_mgr )
+		{
+			speaker_mgr->setSpeakerTyping(from_id, TRUE);
+		}
 	}
-	// MBW -- XXX -- merge from release broke this (argument to this function changed from an LLIMInfo to a name)
-	// Richard will fix.
-//	mSpeakers->setSpeakerTyping(im_info->mFromID, TRUE);
 }
 
-
-void LLFloaterIMPanel::removeTypingIndicator(const LLIMInfo* im_info)
+void LLFloaterIMPanel::removeTypingIndicator(const LLUUID& from_id)
 {
 	if (mOtherTyping)
 	{
-		// Must do this first, otherwise addHistoryLine calls us again.
 		mOtherTyping = false;
 
 		S32 chars_to_remove = mHistoryEditor->getWText().length() - mTypingLineStartIndex;
 		mHistoryEditor->removeTextFromEnd(chars_to_remove);
-		if (im_info)
+
+		if (from_id.notNull())
 		{
-			mSpeakers->setSpeakerTyping(im_info->mFromID, FALSE);
+			mSpeakers->setSpeakerTyping(from_id, FALSE);
 		}
 	}
 }
