@@ -271,7 +271,7 @@ void LLFloaterPermsDefault::sendInitialPerms()
 
 void LLFloaterPermsDefault::updateCap()
 {
-	std::string object_url = gAgent.getRegion()->getCapability("AgentPreferences");
+	std::string object_url = gAgent.getRegionCapability("AgentPreferences");
 
 	if (!object_url.empty())
 	{
