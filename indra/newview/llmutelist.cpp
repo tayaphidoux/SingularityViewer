@@ -288,7 +288,8 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 	
 	// If an entry for the same entity is already in the list, remove it, saving flags as necessary.
 	mute_set_t::iterator it = mMutes.find(localmute);
-	if (it != mMutes.end())
+	bool duplicate = it != mMutes.end();
+	if (duplicate)
 	{
 		// This mute is already in the list.  Save the existing entry's flags if that's warranted.
 		localmute.mFlags = it->mFlags;
@@ -336,7 +337,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 			{
 				LLPipeline::removeMutedAVsLights(avatarp);
 			}
-			return TRUE;
+			return !duplicate;
 		}
 	}
 	
