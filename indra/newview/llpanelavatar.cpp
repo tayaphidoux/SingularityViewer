@@ -985,7 +985,8 @@ void LLPanelAvatarPicks::processProperties(void* data, EAvatarProcessorType type
 			// are no tabs in the container.
 			tabs->selectFirstTab();
 			bool edit(getPanelAvatar()->isEditable());
-			bool can_add = self && tabs->getTabCount() < LLAgentBenefitsMgr::current().getPicksLimit();
+			auto count = tabs->getTabCount();
+			bool can_add = self && count < LLAgentBenefitsMgr::current().getPicksLimit();
 			LLView* view = getChildView("New...");
 			view->setEnabled(can_add
 // [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.0.0a)
@@ -993,7 +994,7 @@ void LLPanelAvatarPicks::processProperties(void* data, EAvatarProcessorType type
 // [/RLVa:KB]
 			view->setVisible(self && edit);
 			view = getChildView("Delete...");
-			view->setEnabled(can_add);
+			view->setEnabled(count);
 			view->setVisible(self && edit);
 
 			//For pick import/export - RK
@@ -1001,7 +1002,7 @@ void LLPanelAvatarPicks::processProperties(void* data, EAvatarProcessorType type
 			view->setVisible(self && edit);
 			view->setEnabled(can_add);
 			view = getChildView("Export...");
-			view->setEnabled(can_add);
+			view->setEnabled(count);
 			view->setVisible(self);
 
 			childSetVisible("loading_text", false);
