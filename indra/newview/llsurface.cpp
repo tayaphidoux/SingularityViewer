@@ -493,21 +493,10 @@ void LLSurface::disconnectNeighbor(LLSurface* surfacep, U32 direction)
 {
 	if (surfacep && surfacep == mNeighbors[direction])
 	{
-		// Iterate through surface patches, removing any connectivity to removed surface.
-		// Extra branches for debugging.
-		if (!gHippoGridManager->getCurrentGrid()->isSecondLife())
+		mNeighbors[direction] = NULL;
+		for (auto& patchp : mPatchList)
 		{
-			for (auto& patchp : mPatchList)
-			{
-				patchp->disconnectNeighbor(surfacep);
-			}
-		}
-		if (gHippoGridManager->getCurrentGrid()->isSecondLife())
-		{
-			for (auto& patchp : mPatchList)
-			{
-				patchp->disconnectNeighbor(surfacep);
-			}
+			patchp->disconnectNeighbor(surfacep);
 		}
 	}
 }
@@ -515,46 +504,13 @@ void LLSurface::disconnectNeighbor(LLSurface* surfacep, U32 direction)
 
 void LLSurface::disconnectAllNeighbors()
 {
-	// Pulled out of loop to debug.
-	if (mNeighbors[EAST])
+	for (size_t i = 0; i < mNeighbors.size(); ++i)
 	{
-		mNeighbors[EAST]->disconnectNeighbor(this, gDirOpposite[EAST]);
-	}
-	if (mNeighbors[NORTH])
-	{
-		mNeighbors[NORTH]->disconnectNeighbor(this, gDirOpposite[NORTH]);
-	}
-	if (mNeighbors[WEST])
-	{
-		mNeighbors[WEST]->disconnectNeighbor(this, gDirOpposite[WEST]);
-	}
-	if (mNeighbors[SOUTH])
-	{
-		mNeighbors[SOUTH]->disconnectNeighbor(this, gDirOpposite[SOUTH]);
-	}
-	if (mNeighbors[NORTHEAST])
-	{
-		mNeighbors[NORTHEAST]->disconnectNeighbor(this, gDirOpposite[NORTHEAST]);
-	}
-	if (mNeighbors[NORTHWEST])
-	{
-		mNeighbors[NORTHWEST]->disconnectNeighbor(this, gDirOpposite[NORTHWEST]);
-	}
-	if (mNeighbors[SOUTHWEST])
-	{
-		mNeighbors[SOUTHWEST]->disconnectNeighbor(this, gDirOpposite[SOUTHWEST]);
-	}
-	if (mNeighbors[SOUTHEAST])
-	{
-		mNeighbors[SOUTHEAST]->disconnectNeighbor(this, gDirOpposite[SOUTHEAST]);
-	}
-	S32 i;
-	for (i = 0; i < 8; i++)
-	{
-		if (mNeighbors[i])
+		auto& neighbor = mNeighbors[i];
+		if (neighbor)
 		{
-			//mNeighbors[i]->disconnectNeighbor(this);
-			mNeighbors[i] = NULL;
+			neighbor->disconnectNeighbor(this, gDirOpposite[i]);
+			neighbor = NULL;
 		}
 	}
 }

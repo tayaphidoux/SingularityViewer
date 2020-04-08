@@ -167,7 +167,7 @@ public:
 	// +---+---+---+
 	// |SW | S | SE|
 	// +---+---+---+
-	LLSurface *mNeighbors[8]; // Adjacent patches
+	std::array<LLSurface*, 8> mNeighbors; // Adjacent patches
 
 	U32 mType;				// Useful for identifying derived classes
 	
