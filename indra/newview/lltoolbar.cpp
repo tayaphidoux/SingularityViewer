@@ -244,18 +244,19 @@ void LLToolBar::updateCommunicateList()
 	bold_if_equal(LLFloaterMyFriends::getInstance(), frontmost_floater, mCommunicateBtn->add(LLFloaterMyFriends::getInstance()->getShortTitle(), LLSD("contacts"), ADD_TOP));
 	bold_if_equal(LLFloaterChat::getInstance(), frontmost_floater, mCommunicateBtn->add(LLFloaterChat::getInstance()->getShortTitle(), LLSD("local chat"), ADD_TOP));
 	mCommunicateBtn->addSeparator(ADD_TOP);
-	mCommunicateBtn->add(getString("Redock Windows"), LLSD("redock"), ADD_TOP);
+	static const auto redock = getString("Redock Windows");
+	mCommunicateBtn->add(redock, LLSD("redock"), ADD_TOP);
 	mCommunicateBtn->addSeparator(ADD_TOP);
 	bold_if_equal(LLFloaterMute::getInstance(), frontmost_floater, mCommunicateBtn->add(LLFloaterMute::getInstance()->getShortTitle(), LLSD("mute list"), ADD_TOP));
 
 	if (gIMMgr->getIMFloaterHandles().size() > 0) mCommunicateBtn->addSeparator(ADD_TOP);
-	for(std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it = gIMMgr->getIMFloaterHandles().begin(); floater_handle_it != gIMMgr->getIMFloaterHandles().end(); ++floater_handle_it)
+	for(const auto& handle : gIMMgr->getIMFloaterHandles())
 	{
-		if (LLFloaterIMPanel* im_floaterp = (LLFloaterIMPanel*)floater_handle_it->get())
+		if (LLFloaterIMPanel* im_floaterp = (LLFloaterIMPanel*)handle.get())
 		{
 			const S32 count = im_floaterp->getNumUnreadMessages();
 			std::string floater_title;
-			if (count > 0) floater_title = "*";
+			if (count > 0) floater_title = '*';
 			floater_title.append(im_floaterp->getShortTitle());
 			static const LLCachedControl<bool> show_counts("ShowUnreadIMsCounts", true);
 			if (show_counts && count > 0)
@@ -265,11 +266,14 @@ void LLToolBar::updateCommunicateList()
 				{
 					LLStringUtil::format_map_t args;
 					args["COUNT"] = llformat("%d", count);
-					floater_title += getString("IMs", args);
+					static LLUIString ims = getString("IMs");
+					ims.setArgList(args);
+					floater_title += ims.getString();
 				}
 				else
 				{
-					floater_title += getString("IM");
+					static const auto im = getString("IM");
+					floater_title += im;
 				}
 			}
 			bold_if_equal(im_floaterp, frontmost_floater, mCommunicateBtn->add(floater_title, im_floaterp->getSessionID(), ADD_TOP));
