@@ -114,7 +114,7 @@ void LLFloaterObjectIMInfo::onClickMute()
 // [/RLVa:KB]
 
 	LLMuteList::instance().add(LLMute(mOwnerID, mName, mGroupOwned ? LLMute::GROUP : LLMute::AGENT));
-	LLFloaterMute::showInstance();
+	LLFloaterMute::showInstance()->selectMute(mOwnerID);
 	close();
 }
 

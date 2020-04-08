@@ -270,6 +270,8 @@ if (NOT VIEWER_CHANNEL_GRK)
     set(VIEWER_CHANNEL_GRK "\\u03B1") # "α"
   elseif (VIEWER_CHANNEL_TYPE MATCHES "Beta")
     set(VIEWER_CHANNEL_GRK "\\u03B2") # "β"
+  else()
+    set(VIEWER_CHANNEL_GRK "")
   endif ()
 endif (NOT VIEWER_CHANNEL_GRK)
 
