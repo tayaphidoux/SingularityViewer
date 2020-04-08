@@ -4832,11 +4832,14 @@ void LLAppViewer::disconnectViewer()
 				// floater_sound_preview.xml
 				// floater_animation_preview.xml
 				// files.
+
+				// A more generic mechanism would be nice..
 				LLFloater* fl = static_cast<LLFloater*>(*it);
 				if (fl
 					&& (fl->getName() == "Image Preview"
 						|| fl->getName() == "Sound Preview"
 						|| fl->getName() == "Animation Preview"
+						|| fl->getName() == "perm prefs"
 						))
 				{
 					floaters_to_close.push_back(fl);
