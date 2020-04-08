@@ -235,7 +235,7 @@ struct crashpad_annotation : public crashpad::Annotation {
 	crashpad_annotation(const char* name) : crashpad::Annotation(T, name, buffer.data())
 	{}
 	void set(const std::string& src) {
-		LL_INFOS() << name() << ": " << src.c_str() << LL_ENDL;
+		//LL_INFOS() << name() << ": " << src.c_str() << LL_ENDL;
 		const size_t min_size = llmin(SIZE, src.size());
 		memcpy(buffer.data(), src.data(), min_size);
 		buffer.data()[SIZE - 1] = '\0';
@@ -243,18 +243,27 @@ struct crashpad_annotation : public crashpad::Annotation {
 	}
 };
 #define DEFINE_CRASHPAD_ANNOTATION(name, len) \
-static crashpad_annotation<len> g_crashpad_annotation_##name##_buffer(#name);
+static crashpad_annotation<len> g_crashpad_annotation_##name##_buffer("sentry[tags]["#name"]");
+#define DEFINE_CRASHPAD_ANNOTATION_EXTRA(name, len) \
+static crashpad_annotation<len> g_crashpad_annotation_##name##_buffer("sentry[extra]["#name"]");
 #define SET_CRASHPAD_ANNOTATION_VALUE(name, value) \
 g_crashpad_annotation_##name##_buffer.set(value);
 #else
 #define SET_CRASHPAD_ANNOTATION_VALUE(name, value)
+#define DEFINE_CRASHPAD_ANNOTATION_EXTRA(name, len)
 #define DEFINE_CRASHPAD_ANNOTATION(name, len)
 #endif
 
-DEFINE_CRASHPAD_ANNOTATION(fatal_message, 512);
+DEFINE_CRASHPAD_ANNOTATION_EXTRA(fatal_message, 512);
 DEFINE_CRASHPAD_ANNOTATION(grid_name, 64);
-DEFINE_CRASHPAD_ANNOTATION(cpu_string, 128);
-DEFINE_CRASHPAD_ANNOTATION(startup_state, 32);
+DEFINE_CRASHPAD_ANNOTATION(region_name, 64);
+DEFINE_CRASHPAD_ANNOTATION_EXTRA(cpu_string, 128);
+DEFINE_CRASHPAD_ANNOTATION_EXTRA(gpu_string, 128);
+DEFINE_CRASHPAD_ANNOTATION_EXTRA(gl_version, 128);
+DEFINE_CRASHPAD_ANNOTATION_EXTRA(session_duration, 32);
+DEFINE_CRASHPAD_ANNOTATION_EXTRA(startup_state, 32);
+DEFINE_CRASHPAD_ANNOTATION_EXTRA(memory_sys, 32);
+DEFINE_CRASHPAD_ANNOTATION_EXTRA(memory_alloc, 32);
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
 //
@@ -1076,6 +1085,8 @@ bool LLAppViewer::init()
 	gGLManager.getGLInfo(gDebugInfo);
 	gGLManager.printGLInfoString();
 
+	writeDebugInfo();
+
 	// Load Default bindings
 	load_default_bindings(gSavedSettings.getBOOL("LiruUseZQSDKeys"));
 
@@ -1163,6 +1174,8 @@ bool LLAppViewer::init()
 	// save the graphics card
 	gDebugInfo["GraphicsCard"] = LLFeatureManager::getInstance()->getGPUString();
 
+	writeDebugInfo();
+
 	// Save the current version to the prefs file
 	gSavedSettings.setString("LastRunVersion",
 							 LLVersionInfo::getChannelAndVersion());
@@ -1180,6 +1193,8 @@ bool LLAppViewer::init()
 	gGLActive = FALSE;
 	LLViewerMedia::initClass();
 	LL_INFOS("InitInfo") << "Viewer media initialized." << LL_ENDL ;
+
+	writeDebugInfo();
 	return true;
 }
 
@@ -1330,6 +1345,12 @@ bool LLAppViewer::mainLoop()
 
 			//clear call stack records
 			LL_CLEAR_CALLSTACKS();
+
+#ifdef USE_CRASHPAD
+			// Not event based. Update per frame
+			SET_CRASHPAD_ANNOTATION_VALUE(session_duration, std::to_string(LLFrameTimer::getElapsedSeconds()));
+			SET_CRASHPAD_ANNOTATION_VALUE(memory_alloc, std::to_string((LLMemory::getCurrentRSS() >> 10)/1000.f));
+#endif
 
 			//check memory availability information
 			checkMemory() ;
@@ -2784,7 +2805,13 @@ void LLAppViewer::writeDebugInfo(bool isStatic)
 #else
 	SET_CRASHPAD_ANNOTATION_VALUE(fatal_message, gDebugInfo["FatalMessage"].asString());
 	SET_CRASHPAD_ANNOTATION_VALUE(grid_name, gDebugInfo["GridName"].asString());
+	SET_CRASHPAD_ANNOTATION_VALUE(region_name, gDebugInfo["CurrentRegion"].asString());
 	SET_CRASHPAD_ANNOTATION_VALUE(cpu_string, gDebugInfo["CPUInfo"]["CPUString"].asString());
+	SET_CRASHPAD_ANNOTATION_VALUE(gpu_string, gDebugInfo["GraphicsCard"].asString());
+	SET_CRASHPAD_ANNOTATION_VALUE(gl_version, gDebugInfo["GLInfo"]["GLVersion"].asString());
+	SET_CRASHPAD_ANNOTATION_VALUE(session_duration, std::to_string(LLFrameTimer::getElapsedSeconds()));
+	SET_CRASHPAD_ANNOTATION_VALUE(memory_alloc, std::to_string((LLMemory::getCurrentRSS() >> 10) / 1000.f));
+	SET_CRASHPAD_ANNOTATION_VALUE(memory_sys, std::to_string(gDebugInfo["RAMInfo"]["Physical"].asInteger() * 0.001f));
 #endif
 }
 
@@ -2969,8 +2996,8 @@ void LLAppViewer::handleViewerCrash()
 	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName();
 	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath();
 	gDebugInfo["Dynamic"]["SessionLength"] = F32(LLFrameTimer::getElapsedSeconds());
-	gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
 	gDebugInfo["Dynamic"]["RAMInfo"]["Allocated"] = (LLSD::Integer) LLMemory::getCurrentRSS() >> 10;
+	gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
 	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
 
