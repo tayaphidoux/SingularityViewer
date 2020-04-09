@@ -389,7 +389,7 @@ void LLViewerOctreeEntryData::shift(const LLVector4a &shift_vector)
 
 LLViewerOctreeGroup* LLViewerOctreeEntryData::getGroup()const        
 {
-	return mEntry.notNull() ? mEntry->mGroup : NULL;
+	return mEntry.notNull() ? mEntry->mGroup : LLPointer<LLViewerOctreeGroup>();
 }
 
 const LLVector4a& LLViewerOctreeEntryData::getPositionGroup() const  
