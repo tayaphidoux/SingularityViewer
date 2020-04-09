@@ -272,11 +272,10 @@ void LLViewerOctreeEntry::removeData(LLViewerOctreeEntryData* data)
 
 	mData[data->getDataType()] = NULL;
 	
-	if(mGroup != NULL && !mData[LLDRAWABLE])
+	if(!mGroup.isNull() && !mData[LLDRAWABLE])
 	{
-		LLViewerOctreeGroup* group = mGroup;
+		mGroup->removeFromGroup(data);
 		mGroup = NULL;
-		group->removeFromGroup(data);
 
 		llassert(mBinIndex == -1);				
 	}

@@ -109,7 +109,7 @@ private:
 
 private:
 	LLViewerOctreeEntryData*    mData[NUM_DATA_TYPE]; //do not use LLPointer here.
-	LLViewerOctreeGroup*        mGroup;
+	LLPointer<LLViewerOctreeGroup>        mGroup;
 
 	//aligned members
 	LL_ALIGN_16(LLVector4a		mExtents[2]);
@@ -229,6 +229,7 @@ public:
 	void handleChildRemoval(const OctreeNode* parent, const OctreeNode* child) final override;
 
 	OctreeNode*          getOctreeNode() {return mOctreeNode;}
+	const OctreeNode* getOctreeNode() const { return mOctreeNode; }
 	LLViewerOctreeGroup* getParent();
 
 	const LLVector4a* getBounds() const        {return mBounds;}

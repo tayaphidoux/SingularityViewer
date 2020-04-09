@@ -116,7 +116,7 @@ public:
 	BOOL mParticle;
 	F32 mPartSize;
 	F32 mVSize;
-	LLSpatialGroup* mGroup;
+	LLPointer<LLSpatialGroup> mGroup;
 	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
 	U32 mDrawMode;
@@ -478,7 +478,7 @@ class LLCullResult
 public:
 	LLCullResult() {}
 
-	typedef std::vector<LLSpatialGroup*> sg_list_t;
+	typedef std::vector<LLPointer<LLSpatialGroup> > sg_list_t;
 	typedef std::vector<LLDrawable*> drawable_list_t;
 	typedef std::vector<LLSpatialBridge*> bridge_list_t;
 	typedef std::vector<LLDrawInfo*> drawinfo_list_t;

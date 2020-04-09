@@ -3459,8 +3459,9 @@ void forAllDrawables(LLCullResult::sg_iterator begin,
 {
 	for (LLCullResult::sg_iterator i = begin; i != end; ++i)
 	{
-		OctreeGuard guard((*i)->getOctreeNode());
-		for (LLSpatialGroup::element_iter j = (*i)->getDataBegin(); j != (*i)->getDataEnd(); ++j)
+		LLSpatialGroup* group = (*i).get();
+		OctreeGuard guard(group->getOctreeNode());
+		for (LLSpatialGroup::element_iter j = group->getDataBegin(); j != group->getDataEnd(); ++j)
 		{
 			func((LLDrawable*)(*j)->getDrawable());	
 		}

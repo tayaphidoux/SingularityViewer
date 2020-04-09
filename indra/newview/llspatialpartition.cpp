@@ -752,7 +752,7 @@ void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 {
 	if (child->getListenerCount() == 0)
 	{
-		new LLSpatialGroup(child, getSpatialPartition());
+		LLPointer<LLSpatialGroup> tmp = new LLSpatialGroup(child, getSpatialPartition());
 	}
 	else
 	{
@@ -817,7 +817,7 @@ LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 
 	mSlopRatio = 0.25f;
 	mInfiniteFarClip = FALSE;
 
-	new LLSpatialGroup(mOctree, this);
+	LLPointer<LLSpatialGroup> tmp = new LLSpatialGroup(mOctree, this);
 }
 
 
