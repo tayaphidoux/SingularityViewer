@@ -107,6 +107,19 @@ typedef std::map<std::string, std::string> CapabilityMap;
 
 static void log_capabilities(const CapabilityMap &capmap);
 
+
+namespace
+{
+
+void newRegionEntry(LLViewerRegion& region)
+{
+    LL_INFOS("LLViewerRegion") << "Entering region [" << region.getName() << "]" << LL_ENDL;
+    gDebugInfo["CurrentRegion"] = region.getName();
+    LLAppViewer::instance()->writeDebugInfo();
+}
+
+} // anonymous namespace
+
 class LLViewerRegionImpl {
 public:
 	LLViewerRegionImpl(LLViewerRegion * region, LLHost const & host)
@@ -2091,6 +2104,9 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 		LL_DEBUGS("CrossingCaps") <<  "Received duplicate seed capability, posting to seed " <<
 				url	<< LL_ENDL;
 
+		// record that we just entered a new region
+		newRegionEntry(*this);
+
 		//Instead of just returning we build up a second set of seed caps and compare them 
 		//to the "original" seed cap received and determine why there is problem!
 		LLSD capabilityNames = LLSD::emptyArray();
@@ -2105,6 +2121,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	mImpl->mCapabilities.clear();
 	setCapability("Seed", url);
 
+	// record that we just entered a new region
+	newRegionEntry(*this);
 	LLSD capabilityNames = LLSD::emptyArray();
 	mImpl->buildCapabilityNames(capabilityNames);
 

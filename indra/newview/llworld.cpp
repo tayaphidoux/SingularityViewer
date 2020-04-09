@@ -172,6 +172,7 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 {
 	LL_INFOS() << "Add region with handle: " << region_handle << " on host " << host << LL_ENDL;
 	LLViewerRegion *regionp = getRegionFromHandle(region_handle);
+	std::string seedUrl;
 	if (regionp)
 	{
 		LLHost old_host = regionp->getHost();
@@ -191,8 +192,11 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 		}
 		if (!regionp->isAlive())
 		{
-			LL_WARNS() << "LLWorld::addRegion exists, but isn't alive" << LL_ENDL;
+			LL_WARNS() << "LLWorld::addRegion exists, but isn't alive. Removing old region and creating new" << LL_ENDL;
 		}
+
+		// Save capabilities seed URL
+		seedUrl = regionp->getCapability("Seed");
 
 		// Kill the old host, and then we can continue on and add the new host.  We have to kill even if the host
 		// matches, because all the agent state for the new camera is completely different.
@@ -227,6 +231,11 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 	if (!regionp)
 	{
 		LL_ERRS() << "Unable to create new region!" << LL_ENDL;
+	}
+
+	if ( !seedUrl.empty() )
+	{
+		regionp->setCapability("Seed", seedUrl);
 	}
 
 	//Classic clouds
@@ -1447,6 +1456,8 @@ public:
 					<< sim << LL_ENDL;
 			return;
 		}
+		LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from LLEstablishAgentCommunication::post. Seed cap == "
+				<< input["body"]["seed-capability"] << LL_ENDL;
 		regionp->setSeedCapability(input["body"]["seed-capability"]);
 	}
 };
