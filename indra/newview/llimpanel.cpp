@@ -1651,6 +1651,7 @@ Note: OTHER_TYPING_TIMEOUT must be > ME_TYPING_TIMEOUT for proper operation of t
 		{
 			speaker_mgr->setSpeakerTyping(from_id, TRUE);
 		}
+		mOtherTyping = true; // addHistoryLine clears this flag. Set it again.
 	}
 }
 
