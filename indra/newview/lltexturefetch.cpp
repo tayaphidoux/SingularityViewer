@@ -872,7 +872,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mCacheReadCount(0U),
 	  mCacheWriteCount(0U)
 {
-	mCanUseNET = mUrl.empty() && !gHippoGridManager->getConnectedGrid()->isSecondLife();
+	mCanUseNET = mUrl.empty(); // Necessary for precached UUID textures, regardless of grid.
 
 	if (!mCanUseNET)
 	{
