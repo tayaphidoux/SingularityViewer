@@ -44,6 +44,7 @@ class LLViewerOctreeEntryData;
 class LLViewerOctreeGroup;
 class LLViewerOctreeEntry;
 class LLViewerOctreePartition;
+class LLSpatialPartition;
 
 typedef LLOctreeListener<LLViewerOctreeEntry>	OctreeListener;
 	typedef LLTreeNode<LLViewerOctreeEntry>			TreeNode;
@@ -288,7 +289,7 @@ protected:
 	virtual ~LLOcclusionCullingGroup();
 
 public:
-	LLOcclusionCullingGroup(OctreeNode* node, LLViewerOctreePartition* part);
+	LLOcclusionCullingGroup(OctreeNode* node, LLSpatialPartition* part);
 	LLOcclusionCullingGroup(const LLOcclusionCullingGroup& rhs) : LLViewerOctreeGroup(rhs)
 	{
 		*this = rhs;
@@ -330,7 +331,8 @@ protected:
 
 	S32 mLODHash;
 
-	LLViewerOctreePartition* mSpatialPartition;
+	friend class LLViewerOctreePartition;
+	LLSpatialPartition* mSpatialPartition;
 	U32	mOcclusionQuery[LLViewerCamera::NUM_CAMERAS];
 
 public:
@@ -355,6 +357,7 @@ public:
 	BOOL             mOcclusionEnabled; // if TRUE, occlusion culling is performed
 	U32              mLODSeed;
 	U32              mLODPeriod;	//number of frames between LOD updates for a given spatial group (staggered by mLODSeed)
+	std::vector<LLOcclusionCullingGroup*> mGroups;
 };
 
 class LLViewerOctreeCull : public OctreeTraveler

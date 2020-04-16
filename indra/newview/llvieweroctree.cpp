@@ -846,10 +846,12 @@ public:
 };
 
 
-LLOcclusionCullingGroup::LLOcclusionCullingGroup(OctreeNode* node, LLViewerOctreePartition* part) : 
+LLOcclusionCullingGroup::LLOcclusionCullingGroup(OctreeNode* node, LLSpatialPartition* part) :
 	LLViewerOctreeGroup(node),
 	mSpatialPartition(part)
 {
+	llassert(part);
+	mSpatialPartition->mGroups.push_back(this);
 	part->mLODSeed = (part->mLODSeed+1)%part->mLODPeriod;
 	mLODHash = part->mLODSeed;
 
@@ -867,12 +869,21 @@ LLOcclusionCullingGroup::LLOcclusionCullingGroup(OctreeNode* node, LLViewerOctre
 
 LLOcclusionCullingGroup::~LLOcclusionCullingGroup()
 {
+	if (mSpatialPartition)
+	{
+		auto it = std::find_if(mSpatialPartition->mGroups.begin(), mSpatialPartition->mGroups.end(), [this](LLOcclusionCullingGroup* rhs) {return rhs == this; });
+		llassert_always(it != mSpatialPartition->mGroups.end());
+		if (it != mSpatialPartition->mGroups.end())
+		{
+			mSpatialPartition->mGroups.erase(it);
+		}
+	}
 	releaseOcclusionQueryObjectNames();
 }
 
 BOOL LLOcclusionCullingGroup::needsUpdate()
 {
-	return (LLDrawable::getCurrentFrame() % mSpatialPartition->mLODPeriod == mLODHash) ? TRUE : FALSE;
+	return mSpatialPartition && (LLDrawable::getCurrentFrame() % mSpatialPartition->mLODPeriod == mLODHash) ? TRUE : FALSE;
 }
 
 BOOL LLOcclusionCullingGroup::isRecentlyVisible() const
@@ -1070,6 +1081,10 @@ U32 LLOcclusionCullingGroup::getLastOcclusionIssuedTime()
 
 void LLOcclusionCullingGroup::checkOcclusion()
 {
+	if (mSpatialPartition == nullptr)
+	{
+		return;
+	}
 	if (LLPipeline::sUseOcclusion > 1)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_OCCLUSION_READBACK);
@@ -1170,6 +1185,10 @@ static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_DRAW("Draw");
 
 void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* shift)
 {
+	if (mSpatialPartition == nullptr)
+	{
+		return;
+	}
 	LLGLDisable<GL_STENCIL_TEST> stencil;
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
@@ -1319,6 +1338,11 @@ LLViewerOctreePartition::LLViewerOctreePartition() :
 	
 LLViewerOctreePartition::~LLViewerOctreePartition()
 {
+	llassert(mGroups.empty());
+	for (auto& entry : mGroups)
+	{
+		entry->mSpatialPartition = nullptr;
+	}
 	delete mOctree;
 	mOctree = NULL;
 }

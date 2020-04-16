@@ -316,7 +316,7 @@ public:
 
 	void drawObjectBox(LLColor4 col);
 
-	LLSpatialPartition* getSpatialPartition() const {return (LLSpatialPartition*)mSpatialPartition;}
+	LLSpatialPartition* getSpatialPartition() const {return mSpatialPartition;}
 
 	 //LISTENER FUNCTIONS
 	void handleInsertion(const TreeNode* node, LLViewerOctreeEntry* face) final override;
