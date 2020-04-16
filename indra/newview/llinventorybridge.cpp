@@ -3889,6 +3889,9 @@ void build_context_menu_folder_options(LLInventoryModel* model, const LLUUID& mU
 	const LLInventoryCategory* category = model->getCategory(mUUID);
 	if(!category) return;
 
+	items.push_back(std::string("Open Folder In New Window"));
+	items.push_back(std::string("Copy Folder UUID"));
+
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	if (trash_id == mUUID) return;
 	if (model->isObjectDescendentOf(mUUID, trash_id)) return;
@@ -3901,9 +3904,6 @@ void build_context_menu_folder_options(LLInventoryModel* model, const LLUUID& mU
 	// copied from ::isMarketplaceListingsFolder
 	const LLUUID listings_folder = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 	if (listings_folder.notNull() && gInventory.isObjectDescendentOf(mUUID, listings_folder)) return;
-
-	items.push_back(std::string("Open Folder In New Window"));
-	items.push_back(std::string("Copy Folder UUID"));
 
 	LLFolderType::EType type = category->getPreferredType();
 	const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
