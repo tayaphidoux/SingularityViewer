@@ -718,6 +718,8 @@ inline std::ostream& operator<<(std::ostream& s, const LLMatrix4a& m)
 
 void matMulBoundBox(const LLMatrix4a &a, const LLVector4a *in_extents, LLVector4a *out_extents);
 
+#if !defined(LL_DEBUG)
 static_assert(std::is_trivial<LLMatrix4a>::value, "LLMatrix4a must be a trivial type");
 static_assert(std::is_standard_layout<LLMatrix4a>::value, "LLMatrix4a must be a standard layout type");
+#endif
 #endif

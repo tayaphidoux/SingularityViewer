@@ -1153,7 +1153,7 @@ void LLPipeline::createGLBuffers()
 	{
 		if (!mNoiseMap)
 		{
-			LLVector3 noise[NOISE_MAP_RES*NOISE_MAP_RES];
+			std::array<LLVector3, NOISE_MAP_RES * NOISE_MAP_RES> noise;
 
 			F32 scaler = gSavedSettings.getF32("RenderDeferredNoise")/100.f;
 			for (auto& val : noise)
@@ -1166,7 +1166,7 @@ void LLPipeline::createGLBuffers()
 			mNoiseMap = LLImageGL::createTextureName();
 			
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mNoiseMap->getTexName());
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, NOISE_MAP_RES, NOISE_MAP_RES, GL_RGB, GL_FLOAT, noise);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, NOISE_MAP_RES, NOISE_MAP_RES, GL_RGB, GL_FLOAT, noise.data());
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 

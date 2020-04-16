@@ -126,9 +126,12 @@ public:
 	// Returns true if this rotation is orthonormal with det ~= 1
 	inline bool isOkRotation() const;		
 } LL_ALIGN_POSTFIX(16);
+
+#if !defined(LL_DEBUG)
 static_assert(std::is_trivial<LLMatrix3a>::value, "LLMatrix3a must be a trivial type");
 static_assert(std::is_standard_layout<LLMatrix3a>::value, "LLMatrix3a must be a standard layout type");
 
 static_assert(std::is_trivial<LLRotation>::value, "LLRotation must be a trivial type");
 static_assert(std::is_standard_layout<LLRotation>::value, "LLRotation must be a standard layout type");
+#endif
 #endif

@@ -349,7 +349,10 @@ bool LLAttachmentsMgr::getPendingAttachments(uuid_set_t& ids) const
 	ids.clear();
 
 	// Returns the union of the LL maintained list of attachments that are waiting for link creation and our maintained list of attachments that are pending link creation
-	set_union(mRecentlyArrivedAttachments.begin(), mRecentlyArrivedAttachments.end(), mPendingAttachLinks.begin(), mPendingAttachLinks.end(), std::inserter(ids, ids.begin()));
+	ids.insert(mRecentlyArrivedAttachments.begin(), mRecentlyArrivedAttachments.end());
+	ids.insert(mPendingAttachLinks.begin(), mPendingAttachLinks.end());
+	// Singu Note: "Expression: Sequence not ordered" using std::set_union
+	//set_union(mRecentlyArrivedAttachments.begin(), mRecentlyArrivedAttachments.end(), mPendingAttachLinks.begin(), mPendingAttachLinks.end(), std::inserter(ids, ids.begin()));
 
 	return !ids.empty();
 }

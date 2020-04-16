@@ -105,7 +105,9 @@ protected:
 
 } LL_ALIGN_POSTFIX(16);
 
+#if !defined(LL_DEBUG)
 static_assert(std::is_trivial<LLQuaternion2>::value, "LLQuaternion2 must be a trivial type");
 static_assert(std::is_standard_layout<LLQuaternion2>::value, "LLQuaternion2 must be a standard layout type");
+#endif
 
 #endif
