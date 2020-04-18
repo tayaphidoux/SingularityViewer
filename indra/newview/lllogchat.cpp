@@ -263,15 +263,10 @@ void LLLogChat::loadHistory(const std::string& name, const LLUUID& id, std::func
 		// Read lines from the file one by one until we reach the end of the file.
 		while (fgets(buffer, LOG_RECALL_BUFSIZ, fptr))
 		{
-		  size_t len = strlen(buffer);
-		  int i = len - 1;
-		  auto& ch = buffer[i];
-		  while (i >= 0 && (ch == '\r' || ch == '\n')) // strip newline chars from the end of the string
-		  {
-			  ch = '\0';
-			  --i;
-		  }
-		  callback(LOG_LINE, buffer);
+			// strip newline chars from the end of the string
+			for (S32 i = strlen(buffer) - 1; i >= 0 && (buffer[i] == '\r' || buffer[i] == '\n'); --i)
+				buffer[i] = '\0';
+			callback(LOG_LINE, buffer);
 		}
 
 		fclose(fptr);
