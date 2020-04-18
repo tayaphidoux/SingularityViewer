@@ -79,7 +79,7 @@
 //
 LLColor4 agent_chat_color(const LLUUID& id, const std::string&, bool local_chat = true);
 LLColor4 get_text_color(const LLChat& chat, bool from_im = false);
-void show_log_browser(const std::string&, const std::string&);
+void show_log_browser(const std::string&, const LLUUID&);
 
 //
 // Member Functions
@@ -96,7 +96,7 @@ LLFloaterChat::LLFloaterChat(const LLSD& seed)
 
 	LLTextEditor* history_editor_with_mute = getChild<LLTextEditor>("Chat History Editor with mute");
 	getChild<LLUICtrl>("show mutes")->setCommitCallback(boost::bind(&LLFloaterChat::onClickToggleShowMute, this, _2, getChild<LLTextEditor>("Chat History Editor"), history_editor_with_mute));
-	getChild<LLUICtrl>("chat_history_open")->setCommitCallback(boost::bind(show_log_browser, "chat", "chat"));
+	getChild<LLUICtrl>("chat_history_open")->setCommitCallback(boost::bind(show_log_browser, "chat", LLUUID::null));
 }
 
 LLFloaterChat::~LLFloaterChat()
@@ -243,7 +243,7 @@ void log_chat_text(const LLChat& chat)
 	else
 		histstr = chat.mText;
 
-	LLLogChat::saveHistory(std::string("chat"), histstr);
+	LLLogChat::saveHistory("chat", LLUUID::null, histstr);
 }
 // static
 void LLFloaterChat::addChatHistory(LLChat& chat, bool log_to_file)
@@ -535,28 +535,19 @@ LLColor4 get_text_color(const LLChat& chat, bool from_im)
 //static
 void LLFloaterChat::loadHistory()
 {
-	LLLogChat::loadHistory("chat", &chatFromLogFile, (void*)LLFloaterChat::getInstance()); 
+	LLLogChat::loadHistory("chat", LLUUID::null, boost::bind(&LLFloaterChat::chatFromLogFile, getInstance(), _1, _2));
 }
 
-//static
-void LLFloaterChat::chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata)
+
+void LLFloaterChat::chatFromLogFile(LLLogChat::ELogLineType type, const std::string& line)
 {
-	switch (type)
+	bool log_line = type == LLLogChat::LOG_LINE;
+	if (log_line || gSavedPerAccountSettings.getBOOL("LogChat"))
 	{
-	case LLLogChat::LOG_EMPTY:
-		if (gSavedPerAccountSettings.getBOOL("LogChat"))
-			addChatHistory(static_cast<LLFloaterChat*>(userdata)->getString("IM_logging_string"), false);
-		break;
-	case LLLogChat::LOG_END:
-		if (gSavedPerAccountSettings.getBOOL("LogChat"))
-			addChatHistory(static_cast<LLFloaterChat*>(userdata)->getString("IM_end_log_string"), false);
-		break;
-	case LLLogChat::LOG_LINE:
-		addChatHistory(line, FALSE);
-		break;
-	default:
-		// nothing
-		break;
+		LLStyleSP style(new LLStyle(true, gSavedSettings.getColor4("LogChatColor"), LLStringUtil::null));
+		const auto text = log_line ? line : getString(type == LLLogChat::LOG_END ? "IM_end_log_string" : "IM_logging_string");
+		for (const auto& ed_name : { "Chat History Editor", "Chat History Editor with mute" })
+			getChild<LLTextEditor>(ed_name)->appendText(text, false, true, style, false);
 	}
 }
 

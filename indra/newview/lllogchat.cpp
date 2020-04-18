@@ -36,35 +36,100 @@
 #include "lllogchat.h"
 #include "llappviewer.h"
 #include "llfloaterchat.h"
+#include "llsdserialize.h"
 
+static std::string get_log_dir_file(const std::string& filename)
+{
+	return gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS, filename);
+}
 
 //static
-std::string LLLogChat::makeLogFileName(std::string filename)
+std::string LLLogChat::makeLogFileNameInternal(std::string filename)
 {
-	if (gSavedPerAccountSettings.getBOOL("LogFileNamewithDate"))
+	static const LLCachedControl<bool> with_date(gSavedPerAccountSettings, "LogFileNamewithDate");
+	if (with_date)
 	{
 		time_t now; 
 		time(&now); 
-		char dbuffer[100];               /* Flawfinder: ignore */
-		if (filename == "chat") 
-		{ 
-			static const LLCachedControl<std::string> local_chat_date_format(gSavedPerAccountSettings, "LogFileLocalChatDateFormat", "-%Y-%m-%d");
-			strftime(dbuffer, 100, local_chat_date_format().c_str(), localtime(&now));
-		} 
-		else 
-		{ 
-			static const LLCachedControl<std::string> ims_date_format(gSavedPerAccountSettings, "LogFileIMsDateFormat", "-%Y-%m");
-			strftime(dbuffer, 100, ims_date_format().c_str(), localtime(&now));
-		} 
-		filename += dbuffer; 
+		std::array<char, 100> dbuffer;
+		static const LLCachedControl<std::string> local_chat_date_format(gSavedPerAccountSettings, "LogFileLocalChatDateFormat", "-%Y-%m-%d");
+		static const LLCachedControl<std::string> ims_date_format(gSavedPerAccountSettings, "LogFileIMsDateFormat", "-%Y-%m");
+		strftime(dbuffer.data(), dbuffer.size(), (filename == "chat" ? local_chat_date_format : ims_date_format)().c_str(), localtime(&now));
+		filename += dbuffer.data();
 	}
-	filename = cleanFileName(filename);
-	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename);
-	filename += ".txt";
+	cleanFileName(filename);
+	return get_log_dir_file(filename + ".txt");
+}
+
+static LLSD sIDMap;
+
+static std::string get_ids_map_file() { return get_log_dir_file("ids_to_names.json"); }
+void LLLogChat::initializeIDMap()
+{
+	const auto map_file = get_ids_map_file();
+	if (LLFile::isfile(map_file)) // If we've already made this file, load our map from it
+	{
+		if (auto&& fstr = llifstream(map_file))
+		{
+			LLSDSerialize::fromNotation(sIDMap, fstr, LLSDSerialize::SIZE_UNLIMITED);
+			fstr.close();
+		}
+	}
+	else if (gCacheName) // Load what we can from name cache to initialize the map file
+	{
+		for (const auto& r : gCacheName->getReverseMap()) // For every name id pair
+			if (LLFile::isfile(makeLogFileNameInternal(r.first))) // If there's a log file for them
+				sIDMap[r.second.asString()] = r.first; // Add them to the map
+
+		if (auto&& fstr = llofstream(map_file))
+		{
+			LLSDSerialize::toPrettyNotation(sIDMap, fstr);
+			fstr.close();
+		}
+	}
+
+}
+
+//static
+std::string LLLogChat::makeLogFileName(const std::string& username, const LLUUID& id)
+{
+	const auto name = username.empty() ? id.asString() : username; // Fall back on ID if the grid sucks and we have no name
+	std::string filename = makeLogFileNameInternal(name);
+	if (id.notNull() && !LLFile::isfile(filename)) // No existing file by this user's current name, check for possible file rename
+	{
+		auto& entry = sIDMap[id.asString()];
+		const bool empty = !entry.size();
+		if (empty || entry != name) // If we haven't seen this entry yet, or the name is different than we remember
+		{
+			const auto migrateFile = [&filename](const std::string& name) {
+				std::string oldname = makeLogFileNameInternal(name);
+				if (!LLFile::isfile(oldname)) return false; // An old file by this name doesn't exist
+				LLFile::rename(oldname, filename); // Move the existing file to the new name
+				return true; // Report success
+			};
+			if (empty) // We didn't see this entry on load
+			{
+				// Ideally, we would look up the old names here via server request
+				// In lieu of that, our reverse cache has old names and new names that we've gained since our initialization of the ID map
+				for (const auto& r : gCacheName->getReverseMap())
+					if (r.second == id && migrateFile(r.first))
+						break;
+			}
+			else migrateFile(entry.asStringRef()); // We've seen this entry before, migrate old file if it exists
+
+			entry = name; // Update the entry to point to the new name
+
+			if (auto&& fstr = llofstream(get_ids_map_file())) // Write back to our map file
+			{
+				LLSDSerialize::toPrettyNotation(sIDMap, fstr);
+				fstr.close();
+			}
+		}
+	}
 	return filename;
 }
 
-std::string LLLogChat::cleanFileName(std::string filename)
+void LLLogChat::cleanFileName(std::string& filename)
 {
 	std::string invalidChars = "\"\'\\/?*:<>|[]{}~"; // Cannot match glob or illegal filename chars
 	S32 position = filename.find_first_of(invalidChars);
@@ -73,7 +138,6 @@ std::string LLLogChat::cleanFileName(std::string filename)
 		filename[position] = '_';
 		position = filename.find_first_of(invalidChars, position);
 	}
-	return filename;
 }
 
 static void time_format(std::string& out, const char* fmt, const std::tm* time)
@@ -92,6 +156,7 @@ static void time_format(std::string& out, const char* fmt, const std::tm* time)
 		charvector.resize(1+size); // Use the String Stone
 		format_the_time();
 	}
+	#undef format_the_time
 	out.assign(charvector.data());
 }
 
@@ -117,15 +182,15 @@ std::string LLLogChat::timestamp(bool withdate)
 
 
 //static
-void LLLogChat::saveHistory(std::string const& filename, std::string line)
+void LLLogChat::saveHistory(const std::string& name, const LLUUID& id, const std::string& line)
 {
-	if(!filename.size())
+	if(name.empty() && id.isNull())
 	{
 		LL_INFOS() << "Filename is Empty!" << LL_ENDL;
 		return;
 	}
 
-	LLFILE* fp = LLFile::fopen(LLLogChat::makeLogFileName(filename), "a"); 		/*Flawfinder: ignore*/
+	LLFILE* fp = LLFile::fopen(LLLogChat::makeLogFileName(name, id), "a"); 		/*Flawfinder: ignore*/
 	if (!fp)
 	{
 		LL_INFOS() << "Couldn't open chat history log!" << LL_ENDL;
@@ -140,10 +205,9 @@ void LLLogChat::saveHistory(std::string const& filename, std::string line)
 
 static long const LOG_RECALL_BUFSIZ = 2048;
 
-void LLLogChat::loadHistory(std::string const& filename , void (*callback)(ELogLineType, std::string, void*), void* userdata)
+void LLLogChat::loadHistory(const std::string& name, const LLUUID& id, std::function<void (ELogLineType, const std::string&)> callback)
 {
-	bool filename_empty = filename.empty();
-	if (filename_empty)
+	if (name.empty() && id.isNull())
 	{
 		LL_WARNS() << "filename is empty!" << LL_ENDL;
 	}
@@ -154,7 +218,7 @@ void LLLogChat::loadHistory(std::string const& filename , void (*callback)(ELogL
 		if (lines == 0) break;
 
 		// Open the log file.
-		LLFILE* fptr = LLFile::fopen(makeLogFileName(filename), "rb");
+		LLFILE* fptr = LLFile::fopen(makeLogFileName(name, id), "rb");
 		if (!fptr) break;
 
 		// Set pos to point to the last character of the file, if any.
@@ -201,18 +265,18 @@ void LLLogChat::loadHistory(std::string const& filename , void (*callback)(ELogL
 		{
 		  size_t len = strlen(buffer);
 		  int i = len - 1;
-		  while (i >= 0 && (buffer[i] == '\r' || buffer[i] == '\n')) // strip newline chars from the end of the string
+		  auto& ch = buffer[i];
+		  while (i >= 0 && (ch == '\r' || ch == '\n')) // strip newline chars from the end of the string
 		  {
-			  buffer[i] = '\0';
-			  i--;
+			  ch = '\0';
+			  --i;
 		  }
-		  callback(LOG_LINE, buffer, userdata);
+		  callback(LOG_LINE, buffer);
 		}
 
 		fclose(fptr);
-		callback(LOG_END, LLStringUtil::null, userdata);
+		callback(LOG_END, LLStringUtil::null);
 		return;
 	}
-	callback(LOG_EMPTY, LLStringUtil::null, userdata);
+	callback(LOG_EMPTY, LLStringUtil::null);
 }
-

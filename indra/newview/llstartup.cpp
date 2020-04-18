@@ -1837,6 +1837,7 @@ bool idle_startup()
 		display_startup();
 
 		LLStartUp::initNameCache();
+		LLLogChat::initializeIDMap(); // Name cache loaded, create a happy mappy
 		display_startup();
 
 		// update the voice settings *after* gCacheName initialization

@@ -126,7 +126,7 @@ public:
 
 	// Handle other participant in the session typing.
 	void processIMTyping(const LLUUID& from_id, BOOL typing);
-	static void chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata);
+	void chatFromLogFile(LLLogChat::ELogLineType type, const std::string& line);
 
 	//show error statuses to the user
 	void showSessionStartError(const std::string& error_string);

@@ -375,9 +375,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 
 	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
 	{
-		LLLogChat::loadHistory(mLogLabel,
-				       &chatFromLogFile,
-				       (void *)this);
+		LLLogChat::loadHistory(mLogLabel, mSessionType == P2P_SESSION ? mOtherParticipantUUID : mSessionUUID, boost::bind(&LLFloaterIMPanel::chatFromLogFile, this, _1, _2));
 	}
 
 	if ( !mSessionInitialized )
@@ -861,7 +859,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, LLColor4 incol
 		// Floater title contains display name -> bad idea to use that as filename
 		// mLogLabel, however, is the old legacy name
 		//LLLogChat::saveHistory(getTitle(),histstr);
-		LLLogChat::saveHistory(mLogLabel, histstr);
+		LLLogChat::saveHistory(mLogLabel, mSessionType == P2P_SESSION ? mOtherParticipantUUID : mSessionUUID, histstr);
 		// [/Ansariel: Display name support]
 	}
 
@@ -1179,9 +1177,9 @@ void LLFloaterIMPanel::onFlyoutCommit(LLComboBox* flyout, const LLSD& value)
 	}
 }
 
-void show_log_browser(const std::string& name, const std::string& id)
+void show_log_browser(const std::string& name, const LLUUID& id)
 {
-	const std::string file(LLLogChat::makeLogFileName(name));
+	const std::string file(LLLogChat::makeLogFileName(name, id));
 	if (!LLFile::isfile(file))
 	{
 		make_ui_sound("UISndBadKeystroke");
@@ -1195,7 +1193,7 @@ void show_log_browser(const std::string& name, const std::string& id)
 	}
 	LLFloaterWebContent::Params p;
 	p.url("file:///" + file);
-	p.id(id);
+	p.id(id.asString());
 	p.show_chrome(false);
 	p.trusted_content(true);
 	LLFloaterWebContent::showInstance("log", p); // If we passed id instead of "log", there would be no control over how many log browsers opened at once.
@@ -1206,8 +1204,8 @@ void LLFloaterIMPanel::onClickHistory()
 	if (mOtherParticipantUUID.notNull())
 	{
 		// [Ansariel: Display name support]
-		//show_log_browser(getTitle(), mOtherParticipantUUID.asString());
-		show_log_browser(mLogLabel, mOtherParticipantUUID.asString());
+		//show_log_browser(getTitle(), mSessionType == P2P_SESSION ? mOtherParticipantUUID : mSessionUUID);
+		show_log_browser(mLogLabel, mSessionType == P2P_SESSION ? mOtherParticipantUUID : mSessionUUID);
 		// [/Ansariel: Display name support]
 	}
 }
@@ -1671,39 +1669,16 @@ void LLFloaterIMPanel::removeTypingIndicator(const LLUUID& from_id)
 	}
 }
 
-//static
-void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata)
+void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, const std::string& line)
 {
-	LLFloaterIMPanel* self = (LLFloaterIMPanel*)userdata;
-	std::string message = line;
-
-	switch (type)
+	bool log_line = type == LLLogChat::LOG_LINE;
+	if (log_line || gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
 	{
-	case LLLogChat::LOG_EMPTY:
-		// add warning log enabled message
-		if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
-		{
-			message = LLFloaterChat::getInstance()->getString("IM_logging_string");
-		}
-		break;
-	case LLLogChat::LOG_END:
-		// add log end message
-		if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
-		{
-			message = LLFloaterChat::getInstance()->getString("IM_end_log_string");
-		}
-		break;
-	case LLLogChat::LOG_LINE:
-		// just add normal lines from file
-		break;
-	default:
-		// nothing
-		break;
+		LLStyleSP style(new LLStyle(true, gSavedSettings.getColor4("LogChatColor"), LLStringUtil::null));
+		mHistoryEditor->appendText(log_line ? line :
+			getString(type == LLLogChat::LOG_END ? "IM_end_log_string" : "IM_logging_string"),
+			false, true, style, false);
 	}
-
-	//self->addHistoryLine(line, LLColor4::grey, FALSE);
-	LLStyleSP style(new LLStyle(true, gSavedSettings.getColor4("LogChatColor"), LLStringUtil::null));
-	self->mHistoryEditor->appendText(message, false, true, style, false);
 }
 
 void LLFloaterIMPanel::showSessionStartError(

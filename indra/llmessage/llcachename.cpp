@@ -262,6 +262,8 @@ LLCacheName::~LLCacheName()
 	delete &impl;
 }
 
+const ReverseCache& LLCacheName::getReverseMap() const { return impl.mReverseCache; }
+
 LLCacheName::Impl::Impl(LLMessageSystem* msg)
 	: mMsg(msg), mUpstreamHost(LLHost::invalid)
 {

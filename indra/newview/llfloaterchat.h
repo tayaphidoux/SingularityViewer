@@ -73,7 +73,7 @@ public:
 	static void triggerAlerts(const std::string& text);
 
 	void onClickToggleShowMute(bool show_mute, class LLTextEditor* history_editor, LLTextEditor* history_editor_with_mute);
-	static void chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata);
+	void chatFromLogFile(LLLogChat::ELogLineType type, const std::string& line);
 	static void loadHistory();
 	static void* createSpeakersPanel(void* data);
 	static void* createChatPanel(void* data);

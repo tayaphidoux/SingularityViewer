@@ -340,7 +340,7 @@ static std::string profile_picture_title(const std::string& str) { return "Profi
 static void show_partner_help() { LLNotificationsUtil::add("ClickPartnerHelpAvatar", LLSD(), LLSD(), boost::bind(LLPanelAvatarSecondLife::onClickPartnerHelpLoadURL, _1, _2)); }
 void show_log_browser(const LLUUID& id, const LFIDBearer::Type& type)
 {
-	void show_log_browser(const std::string& name, const std::string& id);
+	void show_log_browser(const std::string& name, const LLUUID& id);
 	std::string name;
 	if (type == LFIDBearer::AVATAR)
 	{
@@ -352,7 +352,7 @@ void show_log_browser(const LLUUID& id, const LFIDBearer::Type& type)
 	{
 		gCacheName->getGroupName(id, name);
 	}
-	show_log_browser(name, id.asString());
+	show_log_browser(name, id);
 }
 BOOL LLPanelAvatarSecondLife::postBuild()
 {
