@@ -75,6 +75,7 @@ static std::string get_ids_map_file() { return get_log_dir_file("ids_to_names.js
 void LLLogChat::initializeIDMap()
 {
 	const auto map_file = get_ids_map_file();
+	bool write = true; // Do we want to write back to map_file?
 	if (LLFile::isfile(map_file)) // If we've already made this file, load our map from it
 	{
 		if (auto&& fstr = llifstream(map_file))
@@ -82,13 +83,28 @@ void LLLogChat::initializeIDMap()
 			LLSDSerialize::fromNotation(sIDMap, fstr, LLSDSerialize::SIZE_UNLIMITED);
 			fstr.close();
 		}
+		write = false; // Don't write what we just read
 	}
-	else if (gCacheName) // Load what we can from name cache to initialize the map file
-	{
-		for (const auto& r : gCacheName->getReverseMap()) // For every name id pair
-			if (LLFile::isfile(makeLogFileNameInternal(r.first))) // If there's a log file for them
-				sIDMap[r.second.asString()] = r.first; // Add them to the map
 
+	if (gCacheName) // Load what we can from name cache to initialize or update the map and its file
+	{
+		bool empty = sIDMap.size() == 0; // Opt out of searching the map for IDs we added if we started with none
+		for (const auto& r : gCacheName->getReverseMap()) // For every name id pair
+		{
+			const auto id = r.second.asString();
+			const auto& name = r.first;
+			const auto filename = makeLogFileNameInternal(name);
+			bool id_known = !empty && sIDMap.has(id); // Is this ID known?
+			if (id_known ? name != sIDMap[id].asStringRef() // If names don't match
+					&& migrateFile(sIDMap[id].asStringRef(), filename) // Do we need to migrate an existing log?
+				: LLFile::isfile(filename)) // Otherwise if there's a log file for them but they're not in the map yet
+			{
+				if (id_known) write = true; // We updated, write
+				sIDMap[id] = name; // Add them to the map
+			}
+		}
+
+		if (write)
 		if (auto&& fstr = llofstream(map_file))
 		{
 			LLSDSerialize::toPrettyNotation(sIDMap, fstr);
