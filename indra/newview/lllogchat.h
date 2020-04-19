@@ -53,6 +53,7 @@ public:
 		                    std::function<void (ELogLineType, const std::string&)> callback);
 private:
 	static std::string makeLogFileNameInternal(std::string filename);
+	static bool migrateFile(const std::string& old_name, const std::string& filename);
 	static void cleanFileName(std::string& filename);
 };
 

@@ -61,6 +61,14 @@ std::string LLLogChat::makeLogFileNameInternal(std::string filename)
 	return get_log_dir_file(filename + ".txt");
 }
 
+bool LLLogChat::migrateFile(const std::string& old_name, const std::string& filename)
+{
+	std::string oldfile = makeLogFileNameInternal(old_name);
+	if (!LLFile::isfile(oldfile)) return false; // An old file by this name doesn't exist
+	LLFile::rename(oldfile, filename); // Move the existing file to the new name
+	return true; // Report success
+}
+
 static LLSD sIDMap;
 
 static std::string get_ids_map_file() { return get_log_dir_file("ids_to_names.json"); }
@@ -101,21 +109,15 @@ std::string LLLogChat::makeLogFileName(const std::string& username, const LLUUID
 		const bool empty = !entry.size();
 		if (empty || entry != name) // If we haven't seen this entry yet, or the name is different than we remember
 		{
-			const auto migrateFile = [&filename](const std::string& name) {
-				std::string oldname = makeLogFileNameInternal(name);
-				if (!LLFile::isfile(oldname)) return false; // An old file by this name doesn't exist
-				LLFile::rename(oldname, filename); // Move the existing file to the new name
-				return true; // Report success
-			};
 			if (empty) // We didn't see this entry on load
 			{
 				// Ideally, we would look up the old names here via server request
 				// In lieu of that, our reverse cache has old names and new names that we've gained since our initialization of the ID map
 				for (const auto& r : gCacheName->getReverseMap())
-					if (r.second == id && migrateFile(r.first))
+					if (r.second == id && migrateFile(r.first, filename))
 						break;
 			}
-			else migrateFile(entry.asStringRef()); // We've seen this entry before, migrate old file if it exists
+			else migrateFile(entry.asStringRef(), filename); // We've seen this entry before, migrate old file if it exists
 
 			entry = name; // Update the entry to point to the new name
 
