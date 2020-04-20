@@ -65,6 +65,20 @@ bool LLLogChat::migrateFile(const std::string& old_name, const std::string& file
 {
 	std::string oldfile = makeLogFileNameInternal(old_name);
 	if (!LLFile::isfile(oldfile)) return false; // An old file by this name doesn't exist
+
+	if (LLFile::isfile(filename)) // A file by the new name also exists, but wasn't being tracked yet
+	{
+		auto&& new_untracked_log = llifstream(filename);
+		auto&& tracked_log = llofstream(oldfile, llofstream::out|llofstream::app);
+		// Append new to old and find out if it failed
+		bool failed = !(tracked_log << new_untracked_log.rdbuf());
+		// Close streams
+		new_untracked_log.close();
+		tracked_log.close();
+		if (failed || LLFile::remove(filename)) // Delete the untracked new file so that reclaiming its name won't fail
+			return true; // We failed to remove it or update the old file, let's just use the new file and leave the old one alone
+	}
+
 	LLFile::rename(oldfile, filename); // Move the existing file to the new name
 	return true; // Report success
 }
