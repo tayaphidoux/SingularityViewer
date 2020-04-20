@@ -2788,7 +2788,7 @@ Riprova tra qualche istante.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME] ti ha offerto la sua amicizia.
+		[NAME_SLURL] ti ha offerto la sua amicizia.
 
 [MESSAGE]
 
@@ -2799,7 +2799,7 @@ Riprova tra qualche istante.
 		</form>
 	</notification>
 	<notification name="OfferFriendshipNoMessage">
-		[NAME] ti ha offerto la sua amicizia.
+		[NAME_SLURL] ti ha offerto la sua amicizia.
 
 (Di default, potrete vedervi reciprocamente online.)
 		<form name="form">
@@ -2808,10 +2808,10 @@ Riprova tra qualche istante.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] ha accettato la tua offerta di amicizia.
+		[NAME_SLURL] ha accettato la tua offerta di amicizia.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] ha rifiutato la tua offerta di amicizia.
+		[NAME_SLURL] ha rifiutato la tua offerta di amicizia.
 	</notification>
 	<notification name="OfferCallingCard">
 		[NAME] ti ha offerto il suo biglietto da visita.
