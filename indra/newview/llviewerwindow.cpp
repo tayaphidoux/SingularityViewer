@@ -2946,7 +2946,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	{
 		{
 			// passing NULL here, character will be added later when it is handled by character handler.
-			gChatBar->startChat(NULL);
+			LLChatBar::startChat(NULL);
 			return TRUE;
 		}
 	}
@@ -3548,7 +3548,7 @@ void LLViewerWindow::updateLayout()
 		&& gFocusMgr.getKeyboardFocus() == NULL 
 		&& gChatBar->isInVisibleChain())
 	{
-		gChatBar->startChat(NULL);
+		LLChatBar::startChat(NULL);
 	}
 }
 

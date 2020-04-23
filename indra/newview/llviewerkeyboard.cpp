@@ -548,24 +548,29 @@ void start_chat( EKeystate s )
 	}
 
 	// start chat
-	gChatBar->startChat(NULL);
+	LLChatBar::startChat(NULL);
 }
 
 void start_gesture( EKeystate s )
 {
+	if (LLAppViewer::instance()->quitRequested())
+	{
+		return; // can't talk, gotta go, kthxbye!
+	}
+
 	LLUICtrl* focus_ctrlp = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
 	if (KEYSTATE_UP == s &&
 		! (focus_ctrlp && focus_ctrlp->acceptsTextInput()))
 	{
-		if (gChatBar->getCurrentChat().empty())
+		if (gChatBar && gChatBar->getCurrentChat().empty())
 		{
 			// No existing chat in chat editor, insert '/'
-			gChatBar->startChat("/");
+			LLChatBar::startChat("/");
 		}
 		else
 		{
 			// Don't overwrite existing text in chat editor
-			gChatBar->startChat(NULL);
+			LLChatBar::startChat(NULL);
 		}
 	}
 }

@@ -94,7 +94,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 	if (mHidden)
 		return;
 
-	if (mSourceObject.isNull() || mImagep.isNull())
+	if (mSourceObject.isNull() || mImagep.isNull() || mSourceObject->mDrawable.isNull())
 	{
 		markDead();
 		return;

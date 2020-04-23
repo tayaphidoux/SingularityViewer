@@ -531,17 +531,24 @@ void LLChatBar::sendChat( EChatType type )
 // static 
 void LLChatBar::startChat(const char* line)
 {
+	if (!gChatBar || !gChatBar->getParent())
+	{
+		return;
+	}
 	gChatBar->getParent()->setVisible(TRUE);
 	gChatBar->setKeyboardFocus(TRUE);
 	gSavedSettings.setBOOL("ChatVisible", TRUE);
 
-	if (line && gChatBar->mInputEditor)
+	if (gChatBar->mInputEditor)
 	{
-		std::string line_string(line);
-		gChatBar->mInputEditor->setText(line_string);
+		if (line)
+		{
+			std::string line_string(line);
+			gChatBar->mInputEditor->setText(line_string);
+		}
+		// always move cursor to end so users don't obliterate chat when accidentally hitting WASD
+		gChatBar->mInputEditor->setCursorToEnd();
 	}
-	// always move cursor to end so users don't obliterate chat when accidentally hitting WASD
-	gChatBar->mInputEditor->setCursorToEnd();
 }
 
 
@@ -550,7 +557,8 @@ void LLChatBar::startChat(const char* line)
 void LLChatBar::stopChat()
 {
 	// In simple UI mode, we never release focus from the chat bar
-	gChatBar->setKeyboardFocus(FALSE);
+	if (gChatBar)
+		gChatBar->setKeyboardFocus(FALSE);
 
 	// If we typed a movement key and pressed return during the
 	// same frame, the keyboard handlers will see the key as having
@@ -562,7 +570,8 @@ void LLChatBar::stopChat()
 	gAgent.stopTyping();
 
 	// hide chat bar so it doesn't grab focus back
-	gChatBar->getParent()->setVisible(FALSE);
+	if (gChatBar && gChatBar->getParent())
+		gChatBar->getParent()->setVisible(FALSE);
 	gSavedSettings.setBOOL("ChatVisible", FALSE);
 }
 
