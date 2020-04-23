@@ -1072,8 +1072,8 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		// the size, and read it.
 		U32 size_nbo = 0;
 		read(istr, (char*)&size_nbo, sizeof(U32));	/*Flawfinder: ignore*/
-		S32 size = (S32)ntohl(size_nbo);
-		if(mCheckLimits && (size > mMaxBytesLeft))
+		S32 size = (S32)ntohl(size_nbo); // Can return negative size if > 2^31.
+		if(size < 0 || mCheckLimits && (size > mMaxBytesLeft))
 		{
 			parse_count = PARSE_FAILURE;
 		}
@@ -1113,7 +1113,11 @@ S32 LLSDBinaryParser::parseMap(std::istream& istr, LLSD& map) const
 	map = LLSD::emptyMap();
 	U32 value_nbo = 0;
 	read(istr, (char*)&value_nbo, sizeof(U32));		 /*Flawfinder: ignore*/
-	S32 size = (S32)ntohl(value_nbo);
+	S32 size = (S32)ntohl(value_nbo);  // Can return negative size if > 2^31.
+	if (size < 0)
+	{
+		return PARSE_FAILURE;
+	}
 	S32 parse_count = 0;
 	S32 count = 0;
 	char c = get(istr);
@@ -1167,7 +1171,11 @@ S32 LLSDBinaryParser::parseArray(std::istream& istr, LLSD& array) const
 	array = LLSD::emptyArray();
 	U32 value_nbo = 0;
 	read(istr, (char*)&value_nbo, sizeof(U32));		 /*Flawfinder: ignore*/
-	S32 size = (S32)ntohl(value_nbo);
+	S32 size = (S32)ntohl(value_nbo); // Can return negative size if > 2^31.
+	if (size < 0)
+	{
+		return PARSE_FAILURE;
+	}
 
 	// *FIX: This would be a good place to reserve some space in the
 	// array...
@@ -1208,8 +1216,8 @@ bool LLSDBinaryParser::parseString(
 	// *FIX: This is memory inefficient.
 	U32 value_nbo = 0;
 	read(istr, (char*)&value_nbo, sizeof(U32));		 /*Flawfinder: ignore*/
-	S32 size = (S32)ntohl(value_nbo);
-	if(mCheckLimits && (size > mMaxBytesLeft)) return false;
+	S32 size = (S32)ntohl(value_nbo); // Can return negative size if > 2^31.
+	if(size < 0 || mCheckLimits && (size > mMaxBytesLeft)) return false;
 	std::vector<char> buf;
 	if(size)
 	{
