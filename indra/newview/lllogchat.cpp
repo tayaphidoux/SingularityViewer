@@ -61,12 +61,35 @@ std::string LLLogChat::makeLogFileNameInternal(std::string filename)
 	return get_log_dir_file(filename + ".txt");
 }
 
+bool LLLogChat::migrateFile(const std::string& old_name, const std::string& filename)
+{
+	std::string oldfile = makeLogFileNameInternal(old_name);
+	if (!LLFile::isfile(oldfile)) return false; // An old file by this name doesn't exist
+
+	if (LLFile::isfile(filename)) // A file by the new name also exists, but wasn't being tracked yet
+	{
+		auto&& new_untracked_log = llifstream(filename);
+		auto&& tracked_log = llofstream(oldfile, llofstream::out|llofstream::app);
+		// Append new to old and find out if it failed
+		bool failed = !(tracked_log << new_untracked_log.rdbuf());
+		// Close streams
+		new_untracked_log.close();
+		tracked_log.close();
+		if (failed || LLFile::remove(filename)) // Delete the untracked new file so that reclaiming its name won't fail
+			return true; // We failed to remove it or update the old file, let's just use the new file and leave the old one alone
+	}
+
+	LLFile::rename(oldfile, filename); // Move the existing file to the new name
+	return true; // Report success
+}
+
 static LLSD sIDMap;
 
 static std::string get_ids_map_file() { return get_log_dir_file("ids_to_names.json"); }
 void LLLogChat::initializeIDMap()
 {
 	const auto map_file = get_ids_map_file();
+	bool write = true; // Do we want to write back to map_file?
 	if (LLFile::isfile(map_file)) // If we've already made this file, load our map from it
 	{
 		if (auto&& fstr = llifstream(map_file))
@@ -74,13 +97,28 @@ void LLLogChat::initializeIDMap()
 			LLSDSerialize::fromNotation(sIDMap, fstr, LLSDSerialize::SIZE_UNLIMITED);
 			fstr.close();
 		}
+		write = false; // Don't write what we just read
 	}
-	else if (gCacheName) // Load what we can from name cache to initialize the map file
-	{
-		for (const auto& r : gCacheName->getReverseMap()) // For every name id pair
-			if (LLFile::isfile(makeLogFileNameInternal(r.first))) // If there's a log file for them
-				sIDMap[r.second.asString()] = r.first; // Add them to the map
 
+	if (gCacheName) // Load what we can from name cache to initialize or update the map and its file
+	{
+		bool empty = sIDMap.size() == 0; // Opt out of searching the map for IDs we added if we started with none
+		for (const auto& r : gCacheName->getReverseMap()) // For every name id pair
+		{
+			const auto id = r.second.asString();
+			const auto& name = r.first;
+			const auto filename = makeLogFileNameInternal(name);
+			bool id_known = !empty && sIDMap.has(id); // Is this ID known?
+			if (id_known ? name != sIDMap[id].asStringRef() // If names don't match
+					&& migrateFile(sIDMap[id].asStringRef(), filename) // Do we need to migrate an existing log?
+				: LLFile::isfile(filename)) // Otherwise if there's a log file for them but they're not in the map yet
+			{
+				if (id_known) write = true; // We updated, write
+				sIDMap[id] = name; // Add them to the map
+			}
+		}
+
+		if (write)
 		if (auto&& fstr = llofstream(map_file))
 		{
 			LLSDSerialize::toPrettyNotation(sIDMap, fstr);
@@ -101,21 +139,15 @@ std::string LLLogChat::makeLogFileName(const std::string& username, const LLUUID
 		const bool empty = !entry.size();
 		if (empty || entry != name) // If we haven't seen this entry yet, or the name is different than we remember
 		{
-			const auto migrateFile = [&filename](const std::string& name) {
-				std::string oldname = makeLogFileNameInternal(name);
-				if (!LLFile::isfile(oldname)) return false; // An old file by this name doesn't exist
-				LLFile::rename(oldname, filename); // Move the existing file to the new name
-				return true; // Report success
-			};
 			if (empty) // We didn't see this entry on load
 			{
 				// Ideally, we would look up the old names here via server request
 				// In lieu of that, our reverse cache has old names and new names that we've gained since our initialization of the ID map
 				for (const auto& r : gCacheName->getReverseMap())
-					if (r.second == id && migrateFile(r.first))
+					if (r.second == id && migrateFile(r.first, filename))
 						break;
 			}
-			else migrateFile(entry.asStringRef()); // We've seen this entry before, migrate old file if it exists
+			else migrateFile(entry.asStringRef(), filename); // We've seen this entry before, migrate old file if it exists
 
 			entry = name; // Update the entry to point to the new name
 

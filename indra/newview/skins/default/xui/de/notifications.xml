@@ -2156,7 +2156,7 @@ Offer a teleport?<tag>Best&#xE4;tigen</tag><form name="form">
       <button name="GoNow..." text="Jetzt gehen..."/>
     </form></notification>
 
-  <notification name="OfferFriendship">[NAME] bietet Ihnen die Freundschaft an.
+  <notification name="OfferFriendship">[NAME_SLURL] bietet Ihnen die Freundschaft an.
 
 [MESSAGE]
 
@@ -2169,7 +2169,7 @@ Offer a teleport?<tag>Best&#xE4;tigen</tag><form name="form">
 
   <notification name="FriendshipOffered">Sie haben [TO_NAME] die Freundschaft angeboten.</notification>
 
-  <notification name="OfferFriendshipNoMessage">[NAME] bietet Ihnen die Freundschaft an.
+  <notification name="OfferFriendshipNoMessage">[NAME_SLURL] bietet Ihnen die Freundschaft an.
 
 (Sie werden dadurch den gegenseitigen Online-Status sehen k&#xF6;nnen.)<form name="form">
       <button name="Accept" text="Akzeptieren"/>
@@ -2178,9 +2178,9 @@ Offer a teleport?<tag>Best&#xE4;tigen</tag><form name="form">
       <button name="Profile" text="Profil"/>
     </form></notification>
 
-  <notification name="FriendshipAccepted">[NAME] hat Ihr Freundschaftsangebot akzeptiert.</notification>
+  <notification name="FriendshipAccepted">[NAME_SLURL] hat Ihr Freundschaftsangebot akzeptiert.</notification>
 
-  <notification name="FriendshipDeclined">[NAME] hat Ihr Freundschaftsangebot abgelehnt.</notification>
+  <notification name="FriendshipDeclined">[NAME_SLURL] hat Ihr Freundschaftsangebot abgelehnt.</notification>
 
   <notification name="FriendshipDissolved">[NAME] hat Ihr Freundschaftsangebot abgelehnt.</notification>
 
