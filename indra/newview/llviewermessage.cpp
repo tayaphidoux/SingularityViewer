@@ -152,10 +152,6 @@ bool can_block(const LLUUID& id);
 static const boost::regex NEWLINES("\\n{1}");
 // NaCl End
 
-
-
-extern AIHTTPTimeoutPolicy authHandler_timeout;
-
 //
 // Constants
 //
@@ -3877,17 +3873,18 @@ void process_sound_trigger(LLMessageSystem* msg, void**)
 	msg->getUUIDFast(_PREHASH_SoundData, _PREHASH_ObjectID, object_id);
 
 	// NaCl - Antispam Registry
-	if (auto antispam = NACLAntiSpamRegistry::getIfExists())
+	if (NACLAntiSpamRegistry::instanceExists())
 	{
+		auto& antispam = NACLAntiSpamRegistry::instance();
 		static const LLCachedControl<U32> _NACL_AntiSpamSoundMulti("_NACL_AntiSpamSoundMulti");
 		if (owner_id.isNull())
 		{
 			bool is_collision_sound(const std::string & sound);
 			if (!is_collision_sound(sound_id.asString())
-				&& antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND, object_id, LFIDBearer::OBJECT, _NACL_AntiSpamSoundMulti))
+				&& antispam.checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND, object_id, LFIDBearer::OBJECT, _NACL_AntiSpamSoundMulti))
 				return;
 		}
-		else if (antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND, owner_id, LFIDBearer::AVATAR, _NACL_AntiSpamSoundMulti)) return;
+		else if (antispam.checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND, owner_id, LFIDBearer::AVATAR, _NACL_AntiSpamSoundMulti)) return;
 	}
 	// NaCl End
 
@@ -3967,12 +3964,13 @@ void process_preload_sound(LLMessageSystem* msg, void** user_data)
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_OwnerID, owner_id);
 
 	// NaCl - Antispam Registry
-	if (auto antispam = NACLAntiSpamRegistry::getIfExists())
+	if (NACLAntiSpamRegistry::instanceExists())
 	{
+		auto& antispam = NACLAntiSpamRegistry::instance();
 		static const LLCachedControl<U32> _NACL_AntiSpamSoundPreloadMulti("_NACL_AntiSpamSoundPreloadMulti");
 		if ((owner_id.isNull()
-			&& antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND_PRELOAD, object_id, LFIDBearer::OBJECT, _NACL_AntiSpamSoundPreloadMulti))
-			|| antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND_PRELOAD, owner_id, LFIDBearer::AVATAR, _NACL_AntiSpamSoundPreloadMulti))
+			&& antispam.checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND_PRELOAD, object_id, LFIDBearer::OBJECT, _NACL_AntiSpamSoundPreloadMulti))
+			|| antispam.checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND_PRELOAD, owner_id, LFIDBearer::AVATAR, _NACL_AntiSpamSoundPreloadMulti))
 			return;
 	}
 	// NaCl End
@@ -4012,11 +4010,12 @@ void process_attached_sound(LLMessageSystem* msg, void** user_data)
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_OwnerID, owner_id);
 
 	// NaCl - Antispam Registry
-	if (auto antispam = NACLAntiSpamRegistry::getIfExists())
+	if (NACLAntiSpamRegistry::instanceExists())
 	{
+		auto& antispam = NACLAntiSpamRegistry::instance();
 		if ((owner_id.isNull()
-			&& antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND, object_id, LFIDBearer::OBJECT))
-			|| antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND, owner_id))
+			&& antispam.checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND, object_id, LFIDBearer::OBJECT))
+			|| antispam.checkQueue(NACLAntiSpamRegistry::QUEUE_SOUND, owner_id))
 			return;
 	}
 	// NaCl End
@@ -5775,9 +5774,11 @@ void process_economy_data(LLMessageSystem* msg, void** /*user_data*/)
 void notify_cautioned_script_question(const LLSD& notification, const LLSD& response, S32 orig_questions, BOOL granted)
 {
 	// NaCl - Antispam Registry
-	if (auto antispam = NACLAntiSpamRegistry::getIfExists())
-		if (antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SCRIPT_DIALOG, notification["payload"]["task_id"].asUUID(), LFIDBearer::OBJECT))
+	if (NACLAntiSpamRegistry::instanceExists())
+	{
+		if (NACLAntiSpamRegistry::instance().checkQueue(NACLAntiSpamRegistry::QUEUE_SCRIPT_DIALOG, notification["payload"]["task_id"].asUUID(), LFIDBearer::OBJECT))
 			return;
+	}
 	// NaCl End
 	// only continue if at least some permissions were requested
 	if (orig_questions)
@@ -6052,11 +6053,12 @@ void process_script_question(LLMessageSystem* msg, void** user_data)
 	msg->getUUIDFast(_PREHASH_Data, _PREHASH_ItemID, itemid);
 
 	// NaCl - Antispam Registry
-	if (auto antispam = NACLAntiSpamRegistry::getIfExists())
+	if (NACLAntiSpamRegistry::instanceExists())
 	{
+		auto& antispam = NACLAntiSpamRegistry::instance();
 		if ((taskid.isNull()
-			&& antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SCRIPT_DIALOG, itemid, LFIDBearer::NONE))
-			|| antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SCRIPT_DIALOG, taskid, LFIDBearer::OBJECT))
+			&& antispam.checkQueue(NACLAntiSpamRegistry::QUEUE_SCRIPT_DIALOG, itemid, LFIDBearer::NONE))
+			|| antispam.checkQueue(NACLAntiSpamRegistry::QUEUE_SCRIPT_DIALOG, taskid, LFIDBearer::OBJECT))
 			return;
 	}
 	// NaCl End
@@ -7104,6 +7106,12 @@ void callback_load_url_name(const LLUUID& id, const std::string& full_name, bool
 	}
 }
 
+// We've got the name of the person who owns the object hurling the url.
+void callback_load_url_avatar_name(const LLUUID& id, const LLAvatarName& av_name)
+{
+	callback_load_url_name(id, av_name.getUserName(), false);
+}
+
 void process_load_url(LLMessageSystem* msg, void**)
 {
 	LLUUID object_id;
@@ -7124,11 +7132,12 @@ void process_load_url(LLMessageSystem* msg, void**)
 
 	msg->getBOOL("Data", "OwnerIsGroup", owner_is_group);
 	// NaCl - Antispam Registry
-	if (auto antispam = NACLAntiSpamRegistry::getIfExists())
+	if (NACLAntiSpamRegistry::instanceExists())
 	{
+		auto& antispam = NACLAntiSpamRegistry::instance();
 		if ((owner_id.isNull()
-			&& antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SCRIPT_DIALOG, object_id, LFIDBearer::OBJECT))
-			|| antispam->checkQueue(NACLAntiSpamRegistry::QUEUE_SCRIPT_DIALOG, owner_id, owner_is_group ? LFIDBearer::GROUP : LFIDBearer::AVATAR))
+			&& antispam.checkQueue(NACLAntiSpamRegistry::QUEUE_SCRIPT_DIALOG, object_id, LFIDBearer::OBJECT))
+			|| antispam.checkQueue(NACLAntiSpamRegistry::QUEUE_SCRIPT_DIALOG, owner_id, owner_is_group ? LFIDBearer::GROUP : LFIDBearer::AVATAR))
 			return;
 	}
 	// NaCl End
@@ -7157,8 +7166,14 @@ void process_load_url(LLMessageSystem* msg, void**)
 	// Add to list of pending name lookups
 	gLoadUrlList.push_back(payload);
 
-	gCacheName->get(owner_id, owner_is_group,
-		boost::bind(&callback_load_url_name, _1, _2, _3));
+	if (owner_is_group)
+	{
+		gCacheName->getGroup(owner_id, boost::bind(&callback_load_url_name, _1, _2, _3));
+	}
+	else
+	{
+		LLAvatarNameCache::get(owner_id, boost::bind(&callback_load_url_avatar_name, _1, _2));
+	}
 }
 
 
@@ -7308,21 +7323,15 @@ void onCovenantLoadComplete(LLVFS* vfs,
 		
 		S32 file_length = file.getSize();
 		
-		char* buffer = new char[file_length+1];
-		if (buffer == NULL)
-		{
-			LL_ERRS("Messaging") << "Memory Allocation failed" << LL_ENDL;
-			return;
-		}
-
-		file.read((U8*)buffer, file_length);		/* Flawfinder: ignore */
+		std::vector<char> buffer(file_length + 1);
+		file.read((U8*)&buffer[0], file_length);
 		// put a EOS at the end
-		buffer[file_length] = 0;
-		
-		if( (file_length > 19) && !strncmp( buffer, "Linden text version", 19 ) )
+		buffer[file_length] = '\0';
+
+		if ((file_length > 19) && !strncmp(&buffer[0], "Linden text version", 19))
 		{
 			LLViewerTextEditor * editor = new LLViewerTextEditor(std::string("temp"), LLRect(0,0,0,0), file_length+1);
-			if( !editor->importBuffer( buffer, file_length+1 ) )
+			if( !editor->importBuffer( &buffer[0], file_length+1 ) )
 			{
 				LL_WARNS("Messaging") << "Problem importing estate covenant." << LL_ENDL;
 				covenant_text = "Problem importing estate covenant.";
@@ -7339,7 +7348,6 @@ void onCovenantLoadComplete(LLVFS* vfs,
 			LL_WARNS("Messaging") << "Problem importing estate covenant: Covenant file format error." << LL_ENDL;
 			covenant_text = "Problem importing estate covenant: Covenant file format error.";
 		}
-		delete[] buffer;
 	}
 	else
 	{

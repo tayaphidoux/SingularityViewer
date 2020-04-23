@@ -560,7 +560,7 @@ void LLIMProcessing::processNewMessage(const LLUUID& from_id,
 	chat.mFromID = from_id;
 	chat.mFromName = name;
 	chat.mSourceType = (from_id.isNull() || (name == SYSTEM_FROM)) ? CHAT_SOURCE_SYSTEM :
-		(dialog == IM_FROM_TASK && dialog == IM_FROM_TASK_AS_ALERT) ? CHAT_SOURCE_OBJECT : CHAT_SOURCE_AGENT;
+		(dialog == IM_FROM_TASK || dialog == IM_FROM_TASK_AS_ALERT) ? CHAT_SOURCE_OBJECT : CHAT_SOURCE_AGENT;
 
 	bool is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat)
 		// object IMs contain sender object id in session_id (STORM-1209)
