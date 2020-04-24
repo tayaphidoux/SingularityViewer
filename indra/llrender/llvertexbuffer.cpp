@@ -1197,6 +1197,10 @@ void LLVertexBuffer::genBuffer(U32 size)
 	{
 		mMappedData = sDynamicVBOPool.allocate(mGLBuffer, mSize);
 	}
+	if ((sDisableVBOMapping || mUsage != GL_DYNAMIC_DRAW_ARB) && !mMappedData)
+	{
+		LL_ERRS() << "mMappedData allocation failedd" << LL_ENDL;
+	}
 	
 	sGLCount++;
 }
@@ -1212,6 +1216,10 @@ void LLVertexBuffer::genIndices(U32 size)
 	else
 	{
 		mMappedIndexData = sDynamicIBOPool.allocate(mGLIndices, mIndicesSize);
+	}
+	if ((sDisableVBOMapping || mUsage != GL_DYNAMIC_DRAW_ARB) && !mMappedIndexData)
+	{
+		LL_ERRS() << "mMappedIndexData allocation failedd" << LL_ENDL;
 	}
 	
 	sGLCount++;
@@ -1848,6 +1856,7 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 			LL_ERRS() << "Attempted to map a specific range of a buffer that was already mapped." << LL_ENDL;
 		}
 
+		bool was_locked = mIndexLocked;
 		if (!mIndexLocked)
 		{
 			mIndexLocked = true;
@@ -1941,6 +1950,10 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 				}
 
 				LL_ERRS() << "glMapBuffer returned NULL (no index data)" << LL_ENDL;
+			}
+			else if (was_locked)
+			{
+				LL_ERRS() << "mIndexLocked was true but no Index data allocated" << LL_ENDL;
 			}
 			else
 			{

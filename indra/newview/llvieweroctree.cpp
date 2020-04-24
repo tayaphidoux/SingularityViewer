@@ -872,7 +872,7 @@ LLOcclusionCullingGroup::~LLOcclusionCullingGroup()
 	if (mSpatialPartition)
 	{
 		auto it = std::find_if(mSpatialPartition->mGroups.begin(), mSpatialPartition->mGroups.end(), [this](LLOcclusionCullingGroup* rhs) {return rhs == this; });
-		llassert_always(it != mSpatialPartition->mGroups.end());
+		llassert(it != mSpatialPartition->mGroups.end());
 		if (it != mSpatialPartition->mGroups.end())
 		{
 			mSpatialPartition->mGroups.erase(it);

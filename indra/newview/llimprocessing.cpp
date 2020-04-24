@@ -1895,6 +1895,11 @@ void LLIMProcessing::requestOfflineMessages()
 
 void LLIMProcessing::requestOfflineMessagesCoro(const LLCoroResponder& responder)
 {
+	if (LLApp::isQuitting() || !gAgent.getRegion())
+	{
+		return;
+	}
+
     auto status = responder.getStatus();
 
     if (!responder.isGoodStatus(status)) // success = httpResults["success"].asBoolean();
