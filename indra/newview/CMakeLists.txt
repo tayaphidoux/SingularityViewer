@@ -1709,7 +1709,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     absl::flat_hash_map
     absl::node_hash_map
     nlohmann_json::nlohmann_json
-    ${FMT_LIBRARY}
+    fmt::fmt
     )
 
 if (LINUX)
