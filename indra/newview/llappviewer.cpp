@@ -5084,6 +5084,10 @@ void LLAppViewer::handleLoginComplete()
 	}
 
 	mOnLoginCompleted();
+	
+	// Singu Note: This would usually be registered via mOnLoginCompleted, but that would require code in newview regardless so.. just call directly here.
+	LLNotifications::instance().onLoginCompleted();
+
 	// Singu Note: Due to MAINT-4001, we must do this here, it lives in LLSidepanelInventory::updateInbox upstream.
 	// Consolidate Received items
 	// We shouldn't have to do that but with a client/server system relying on a "well known folder" convention,

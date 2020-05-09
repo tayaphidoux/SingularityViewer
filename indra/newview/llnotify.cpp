@@ -553,6 +553,7 @@ BOOL LLNotifyBox::tick()
 {
 	if (mIsTip)
 	{
+		LLNotifications::instance().cancel(mNotification);
 		close();
 	}
 	return FALSE;

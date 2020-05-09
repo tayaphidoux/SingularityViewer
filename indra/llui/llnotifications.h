@@ -796,6 +796,7 @@ public:
 	// OK to call more than once because it will reload
 	bool loadNotifications();
 	void createDefaultChannels();
+	void onLoginCompleted();
 
 	// we provide a collection of simple add notification functions so that it's reasonable to create notifications in one line
 	LLNotificationPtr add(const std::string& name,
