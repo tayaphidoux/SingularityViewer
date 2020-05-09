@@ -9,16 +9,18 @@ FetchContent_Declare(
   Catch2
   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
   GIT_TAG        v2.11.0
+  GIT_SHALLOW    TRUE
   )
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG        6.1.2
+  GIT_TAG        0463665ef136d685fe07a564d93c782456456d3d
   )
 FetchContent_Declare(
   nlohmann_json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
   GIT_TAG        v3.7.3
+  GIT_SHALLOW    TRUE
   )
 FetchContent_Declare(
   absl
@@ -45,9 +47,7 @@ if (BUILD_TESTING)
 endif()
 
 #Download the rest of the libraries
-if(WINDOWS)
 FetchContent_MakeAvailable(fmt)
-endif()
 
 # Typically you don't care so much for a third party library's tests to be
 # run from your own project's code.

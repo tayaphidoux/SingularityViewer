@@ -300,6 +300,7 @@ target_link_libraries(
     ${CORESERVICES_LIBRARY}
     ${URIPARSER_LIBRARY}
     nlohmann_json::nlohmann_json
+    absl::strings
     ${RT_LIBRARY}
     )
 

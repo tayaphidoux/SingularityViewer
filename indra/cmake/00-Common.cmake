@@ -85,6 +85,7 @@ if (WINDOWS)
       /TP
       /W3
       /c
+      /Zc:__cplusplus
       /Zc:forScope
       /Zc:rvalueCast
       /Zc:wchar_t
