@@ -926,10 +926,13 @@ void LLPanelLogin::loadLoginPage()
 	// add OS info
 	params["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 
+	auto&& uri_with_params = [](const LLURI& uri, const LLSD& params) {
+		return LLURI(uri.scheme(), uri.userName(), uri.password(), uri.hostName(), uri.hostPort(), uri.path(),
+			LLURI::mapToQueryString(params));
+	};
+
 	// Make an LLURI with this augmented info
-	LLURI login_uri(LLURI::buildHTTP(login_page.authority(),
-									 login_page.path(),
-									 params));
+	LLURI login_uri(uri_with_params(login_page, params));
 	
 	gViewerWindow->setMenuBackgroundColor(false, !LLViewerLogin::getInstance()->isInProductionGrid());
 	gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());
@@ -938,7 +941,14 @@ void LLPanelLogin::loadLoginPage()
 	if (!singularity_splash_uri.empty())
 	{
 		params["original_page"] = login_uri.asString();
-		login_uri = LLURI::buildHTTP(singularity_splash_uri, gSavedSettings.getString("SingularitySplashPagePath"), params);
+		login_uri = LLURI(singularity_splash_uri + gSavedSettings.getString("SingularitySplashPagePath"));
+
+		// Copy any existent splash path params
+		auto& params_map = params.map();
+		for (auto&& pair : login_uri.queryMap().map())
+			params_map.emplace(pair);
+
+		login_uri = uri_with_params(login_uri, params);
 	}
 
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
