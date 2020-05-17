@@ -1763,6 +1763,9 @@ void cleanup_menus()
 	delete gMenuBarView;
 	gMenuBarView = nullptr;
 
+	delete gLoginMenuBarView;
+	gLoginMenuBarView = nullptr;
+
 	delete gMenuHolder;
 	gMenuHolder = nullptr;
 
