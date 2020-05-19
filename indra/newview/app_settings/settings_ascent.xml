@@ -3,6 +3,17 @@
 	<map>
 		<!-- Ascent-Specific Settings -->
 
+    <key>RGUseLegacyOfflines</key>
+    <map>
+      <key>Comment</key>
+      <string>Use legacy UDP offline messages retrieval, to avoid missing attachments server bug.  Will be removed when LL fixes the cap.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>SingularityBoldGroupModerator</key>
     <map>
       <key>Comment</key>

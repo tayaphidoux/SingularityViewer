@@ -29,6 +29,7 @@
 #include "llimprocessing.h"
 
 #include "hippofloaterxml.h"
+#include "hippogridmanager.h"
 #include "llagent.h"
 #include "llagentui.h"
 #include "llavataractions.h"
@@ -1877,6 +1878,7 @@ void LLIMProcessing::requestOfflineMessages()
         // to build a correct name.  Likewise, inventory offers from
         // muted avatars require the mute list to properly mute.
         if (cap_url.empty()
+            || (gHippoGridManager->getConnectedGrid()->isSecondLife() && gSavedSettings.getBOOL("RGUseLegacyOfflines"))
             || gAgent.getRegionCapability("AcceptFriendship").empty()
             || gAgent.getRegionCapability("AcceptGroupInvite").empty())
         {
