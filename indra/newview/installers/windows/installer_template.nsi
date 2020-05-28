@@ -95,6 +95,9 @@
   ;File Handling
   SetOverwrite on
 
+  ;Verify CRC
+  CRCCheck on
+
 ;--------------------------------
 ;Interface Settings
 
@@ -209,6 +212,7 @@
   !insertmacro MUI_RESERVEFILE_LANGDLL
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\INetC.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\nsDialogs.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\nsis7z.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\StartMenu.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\StdUtils.dll"
   ReserveFile "${NSISDIR}\Plugins\x86-unicode\System.dll"
@@ -406,7 +410,14 @@ Section "Viewer"
   SetOutPath "$INSTDIR"  
   ;Remove old shader files first so fallbacks will work.
   RMDir /r "$INSTDIR\app_settings\shaders\*"
-  
+  ;Remove old Microsoft DLLs, reboot if needed
+  Delete /REBOOTOK "$INSTDIR\api-ms-win-*.dll"
+  Delete /REBOOTOK "$INSTDIR\concrt*.dll"
+  Delete /REBOOTOK "$INSTDIR\msvcp*.dll"
+  Delete /REBOOTOK "$INSTDIR\ucrtbase.dll"
+  Delete /REBOOTOK "$INSTDIR\vccorlib*.dll"
+  Delete /REBOOTOK "$INSTDIR\vcruntime*.dll"
+
   ;This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
   %%INSTALL_FILES%%
 
@@ -457,9 +468,9 @@ Section "Viewer"
     CreateShortCut	"$SMPROGRAMS\$STARTMENUFOLDER\$INSTSHORTCUT.lnk" "$\"$INSTDIR\$INSTEXE$\"" "$SHORTCUT_LANG_PARAM"
     CreateShortCut	"$SMPROGRAMS\$STARTMENUFOLDER\Uninstall $INSTSHORTCUT.lnk" "$\"$INSTDIR\uninst.exe$\"" ""
 !endif
-    WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Create Account.url" "InternetShortcut" "URL" "http://join.secondlife.com/"
-    WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Your Account.url"	"InternetShortcut" "URL" "http://www.secondlife.com/account/"
-    WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Scripting Language Help.url" "InternetShortcut" "URL" "http://wiki.secondlife.com/wiki/LSL_Portal"
+    WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Create Account.url" "InternetShortcut" "URL" "https://join.secondlife.com/"
+    WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Your Account.url"	"InternetShortcut" "URL" "https://www.secondlife.com/account/"
+    WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Scripting Language Help.url" "InternetShortcut" "URL" "https://wiki.secondlife.com/wiki/LSL_Portal"
 
   !insertmacro MUI_STARTMENU_WRITE_END
 
