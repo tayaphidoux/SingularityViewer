@@ -1266,6 +1266,8 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 			skin_info.mBindShapeMatrix = trans;							
 		}
 
+		// Build the joint to node mapping array and update joint aliases (mJointMap)
+		buildJointToNodeMappingFromScene(root);
 
 		//Some collada setup for accessing the skeleton
 		U32 skeleton_count = dae->getDatabase()->getElementCount( NULL, "skeleton" );
@@ -1491,8 +1493,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 		//Now that we've parsed the joint array, let's determine if we have a full rig
 		//(which means we have all the joint sthat are required for an avatar versus
 		//a skinned asset attached to a node in a file that contains an entire skeleton,
-		//but does not use the skeleton).						
-		buildJointToNodeMappingFromScene( root );
+		//but does not use the skeleton).
 		critiqueRigForUploadApplicability( model->mSkinInfo.mJointNames );
 
 		if ( !missingSkeletonOrScene )
@@ -1729,6 +1730,8 @@ void LLDAELoader::processJointToNodeMapping( domNode* pNode )
 		if (!nodeName.empty())
 		{
 			mJointsFromNode.push_front(pNode->getName());
+			// Alias joint node SIDs to joint names for compatibility
+			mJointMap[pNode->getSid()] = mJointMap[pNode->getName()];
 		}
 		//2. Handle the kiddo's
 		processChildJoints(pNode);
