@@ -224,10 +224,13 @@ build:release:windows64:
            Authorization = "Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$env:AUTOBUILD_HTTP_USER`:$env:AUTOBUILD_HTTP_PASS")))"; };
          Verbose = $true; };
 
-        Push-Location .\build-linux-64\newview\
-          $FileNameLnx64 = Get-ChildItem -Path . -Name -Include Singularity_*.tar.xz
-          Invoke-WebRequest @UploadParams -InFile .\$FileNameLnx64 -Uri "${UploadDestURL}/${FileNameLnx64}"
-        Pop-Location
+        If (Test-Path -LiteralPath ".\build-linux-64\newview\")
+        {
+          Push-Location .\build-linux-64\newview\
+            $FileNameLnx64 = Get-ChildItem -Path . -Name -Include Singularity_*.tar.xz
+            Invoke-WebRequest @UploadParams -InFile .\$FileNameLnx64 -Uri "${UploadDestURL}/${FileNameLnx64}"
+          Pop-Location
+        }
 
         Push-Location .\build-vc-64\newview\Release\
           $FileNameWin64 = Get-ChildItem -Path . -Name -Include Singularity_*_Setup.exe
