@@ -140,7 +140,7 @@ struct CommWrapper
 	static bool only_comm()
 	{
 		static const LLCachedControl<bool> only("CommunicateSpecificShortcut");
-		return only || LLFloaterChatterBox::getInstance()->getFloaterCount();
+		return only || LLFloaterChatterBox::instance().getFloaterCount();
 	}
 	static bool instanceVisible(const LLSD& key) { return only_comm() ? LLFloaterChatterBox::instanceVisible(key) : LLFloaterMyFriends::instanceVisible(key); }
 	static void toggleInstance(const LLSD& key) { only_comm() ? LLFloaterChatterBox::toggleInstance(key) : LLFloaterMyFriends::toggleInstance(key); }
@@ -148,7 +148,7 @@ struct CommWrapper
 
 struct MenuFloaterDict final : public LLSingleton<MenuFloaterDict>
 {
-	typedef std::map<const std::string, std::pair<std::function<void ()>, std::function<bool ()> > > menu_floater_map_t;
+	typedef std::map<const std::string, std::pair<std::function<void ()>, std::function<bool ()>>> menu_floater_map_t;
 	menu_floater_map_t mEntries;
 
 	MenuFloaterDict()
