@@ -224,23 +224,26 @@ build:release:windows64:
            Authorization = "Basic $([System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$env:AUTOBUILD_HTTP_USER`:$env:AUTOBUILD_HTTP_PASS")))"; };
          Verbose = $true; };
 
-        If (Test-Path -LiteralPath ".\build-linux-64\newview\")
+        Function try_upload($build_type, $file_pattern)
         {
-          Push-Location .\build-linux-64\newview\
-            $FileNameLnx64 = Get-ChildItem -Path . -Name -Include Singularity_*.tar.xz
-            Invoke-WebRequest @UploadParams -InFile .\$FileNameLnx64 -Uri "${UploadDestURL}/${FileNameLnx64}"
-          Pop-Location
+          $build_newview = ".\build-${build_type}\newview\"
+          If (Test-Path -LiteralPath $build_newview)
+          {
+            Push-Location $build_newview
+              $FileName = Get-ChildItem -Path . -Name -Include $file_pattern
+              Invoke-WebRequest @UploadParams -InFile .\$FileName -Uri "${UploadDestURL}/${FileName}"
+
+              If (($env:VIEWER_USE_CRASHPAD -eq 'TRUE') -and ($build_type -eq "vc-64"))
+              {
+                sentry-cli upload-dif --include-sources singularity-bin.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1.dll libcrypto-1_1.pdb libssl-1_1.dll libssl-1_1.pdb libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb vcruntime140.dll msvcp140.dll libhunspell.dll libhunspell.pdb glod.dll
+              }
+            Pop-Location
+          }
         }
 
-        Push-Location .\build-vc-64\newview\Release\
-          $FileNameWin64 = Get-ChildItem -Path . -Name -Include Singularity_*_Setup.exe
-          Invoke-WebRequest @UploadParams -InFile .\$FileNameWin64 -Uri "${UploadDestURL}/${FileNameWin64}"
+        try_upload("linux-64", "Singularity_*.tar.xz")
+        try_upload("vc-64", "Singularity_*_Setup.exe")
 
-          If ($env:VIEWER_USE_CRASHPAD -eq 'TRUE')
-          {
-            sentry-cli upload-dif --include-sources singularity-bin.exe singularity-bin.pdb crashpad_handler.exe crashpad_handler.pdb fmod.dll libcrypto-1_1.dll libcrypto-1_1.pdb libssl-1_1.dll libssl-1_1.pdb libcrypto-1_1-x64.dll libcrypto-1_1-x64.pdb libssl-1_1-x64.dll libssl-1_1-x64.pdb vcruntime140.dll msvcp140.dll libhunspell.dll libhunspell.pdb glod.dll
-          }
-        Pop-Location
         If ($env:VIEWER_USE_CRASHPAD -eq 'TRUE')
         {
           sentry-cli releases new $BuildChannelVersion
