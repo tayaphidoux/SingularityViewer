@@ -243,6 +243,7 @@ build:release:windows64:
 
         try_upload("linux-64", "Singularity_*.tar.xz")
         try_upload("vc-64", "Singularity_*_Setup.exe")
+        try_upload("vc-32", "Singularity_*_Setup.exe")
 
         If ($env:VIEWER_USE_CRASHPAD -eq 'TRUE')
         {
