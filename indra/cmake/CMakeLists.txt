@@ -44,7 +44,7 @@ set(cmake_SOURCE_FILES
     FreeType.cmake
     GeneratePrecompiledHeader.cmake
     GLOD.cmake
-    GStreamer10Plugin.cmake
+    GStreamer010Plugin.cmake
     Glui.cmake
     Glut.cmake
     GooglePerfTools.cmake
