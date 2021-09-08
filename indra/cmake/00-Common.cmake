@@ -322,7 +322,7 @@ else (STANDALONE)
       cairo
       glib-2.0
       gdk-pixbuf-2.0
-      gstreamer-0.10
+      gstreamer-1.0
       gtk-2.0
       pango-1.0
       pixman-1
