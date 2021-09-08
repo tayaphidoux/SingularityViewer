@@ -804,17 +804,17 @@ MediaPluginGStreamer010::startup()
 /*
 		// Get symbols!
 #if LL_DARWIN
-		if (! grab_gst_syms("libgstreamer-0.10.dylib",
-				    "libgstvideo-0.10.dylib") )
+		if (! grab_gst_syms("libgstreamer-1.0.dylib",
+				    "libgstvideo-1.0.dylib") )
 #elseif LL_WINDOWS
-		if (! grab_gst_syms("libgstreamer-0.10.dll",
-				    "libgstvideo-0.10.dll") )
+		if (! grab_gst_syms("libgstreamer-1.0.dll",
+				    "libgstvideo-1.0.dll") )
 #else // linux or other ELFy unixoid
-		if (! grab_gst_syms("libgstreamer-0.10.so.0",
-				    "libgstvideo-0.10.so.0") )
+		if (! grab_gst_syms("libgstreamer-1.0.so.0",
+				    "libgstvideo-1.0.so.0") )
 #endif
 		{
-			WARNMSG("Couldn't find suitable GStreamer 0.10 support on this system - video playback disabled.");
+			WARNMSG("Couldn't find suitable GStreamer 1.0 support on this system - video playback disabled.");
 			return false;
 		}
 */
